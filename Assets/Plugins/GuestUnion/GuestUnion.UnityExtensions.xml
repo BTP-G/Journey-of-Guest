@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>GuestUnion.UnityExtensions</name>
+    </assembly>
+    <members>
+        <member name="M:GuestUnion.QuaternionExtensions.ApplySpread(UnityEngine.Quaternion@,System.Single,System.Single)">
+            <summary>对当前旋转进行扩散操作。/Apply spread to a quaternion rotation.</summary>
+            <param name="rotation">输入旋转</param>
+            <param name="pitchAngle">俯仰角上的角度</param>
+            <param name="yawAngle">偏航角上的角度</param>
+            <returns>扩散后的旋转</returns>
+        </member>
+        <member name="M:GuestUnion.QuaternionExtensions.ApplySpread2(UnityEngine.Quaternion,System.Single,System.Single)">
+            <summary>对当前旋转进行扩散操作。/Apply spread to a quaternion rotation.</summary>
+            <param name="rotation">输入旋转</param>
+            <param name="pitchAngle">俯仰角上的角度</param>
+            <param name="rollAngle">翻滚角上的角度</param>
+            <returns>扩散后的旋转</returns>
+        </member>
+        <member name="M:GuestUnion.Vector3Extensions.Sum(UnityEngine.Vector3@)">
+            <summary>x+y+z</summary>
+            <returns>x+y+z</returns>
+        </member>
+    </members>
+</doc>

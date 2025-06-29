@@ -1,0 +1,16 @@
+{
+    "name": "QuickOutline",
+    "rootNamespace": "",
+    "references": [
+        "GUID:c747ecb1d16a5bd49ade1710b08ac5db"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

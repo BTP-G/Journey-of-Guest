@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>GuestUnion.GenericExtensions</name>
+    </assembly>
+    <members>
+        <member name="M:GuestUnion.DoubleExtensions.NormalizeAngleOne360(System.Double)">
+            <summary>若传入角度不在区间[0, 360)，则返回角度向该区间旋转360°后的结果，而不是返回直接旋转到该区间的结果。</summary>
+        </member>
+        <member name="M:GuestUnion.SingleExtensions.NormalizeAngleOne360(System.Single)">
+            <summary>若传入角度不在区间[0, 360)，则返回角度向该区间旋转360°后的结果，而不是返回直接旋转到该区间的结果。</summary>
+        </member>
+    </members>
+</doc>
