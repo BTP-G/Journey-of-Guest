@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 21b1c11b80081e24c8c7263d381eb460
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - XYAxis: {fileID: 6470902666819853298, guid: dc5cf461054edc246a906ccc1459c927,
+      type: 3}
+  - ZAxis: {instanceID: 0}
+  - <VirtualCamera>k__BackingField: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
