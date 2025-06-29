@@ -1,0 +1,15 @@
+{
+  "foldouts": {
+    "Panel (JoG.InventorySystem.InventoryPanel)_AddItem_Int32": true,
+    "Panel (JoG.InventorySystem.InventoryPanel)_ExchangeItem_Int32_Int32": true
+  },
+  "parameterValues": {
+    "Panel (JoG.InventorySystem.InventoryPanel)_AddItem_Int32": [
+      1
+    ],
+    "Panel (JoG.InventorySystem.InventoryPanel)_ExchangeItem_Int32_Int32": [
+      null,
+      null
+    ]
+  }
+}

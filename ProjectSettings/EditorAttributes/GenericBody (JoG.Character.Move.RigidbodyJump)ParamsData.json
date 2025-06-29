@@ -1,0 +1,10 @@
+{
+  "foldouts": {
+    "GenericBody (JoG.Character.Move.RigidbodyJump)_set_JumpHeight_Single": true
+  },
+  "parameterValues": {
+    "GenericBody (JoG.Character.Move.RigidbodyJump)_set_JumpHeight_Single": [
+      10.0
+    ]
+  }
+}

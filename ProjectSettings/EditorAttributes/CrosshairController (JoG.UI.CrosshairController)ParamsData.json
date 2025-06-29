@@ -1,0 +1,13 @@
+{
+  "foldouts": {
+    "CrosshairController (JoG.UI.CrosshairController)_SetSpread_Vector2": true
+  },
+  "parameterValues": {
+    "CrosshairController (JoG.UI.CrosshairController)_SetSpread_Vector2": [
+      {
+        "x": 2.0,
+        "y": 2.0
+      }
+    ]
+  }
+}
