@@ -15,18 +15,15 @@ public class SimpleTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     private bool isUIObject = false;
     private bool showing = false;
 
-    private void Awake()
-    {
-        eventSystem = FindObjectOfType<EventSystem>();
-        tooltipController = FindObjectOfType<STController>();
+    private void Awake() {
+        eventSystem = FindFirstObjectByType<EventSystem>();
+        tooltipController = FindFirstObjectByType<STController>();
 
         // Add a new tooltip prefab if one does not exist yet
-        if (!tooltipController)
-        {
+        if (!tooltipController) {
             tooltipController = AddTooltipPrefabToScene();
         }
-        if (!tooltipController)
-        {
+        if (!tooltipController) {
             Debug.LogWarning("Could not find the Tooltip prefab");
             Debug.LogWarning("Make sure you don't have any other prefabs named `SimpleTooltip`");
         }
