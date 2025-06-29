@@ -1,0 +1,21 @@
+{
+    buff: {
+        bleeding: {
+            name: "流血",
+            desc: "每隔{tickInterval}秒损失{damage}生命值",
+            desc2: 1
+        },
+        potion: {
+            name: "中毒",
+            desc: "每隔{tickInterval}秒损失{damage}生命值",
+            desc2: 1
+        }
+    },
+    item: {
+        potion: {
+            name: "药水",
+            desc: "恢复{heal}生命值",
+            desc2: 1
+        }
+    }
+}

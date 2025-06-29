@@ -77,3 +77,4 @@ crashlytics-build.properties
 /bin/
 /[Bb]undles/
 
+/steam_appid.txt
