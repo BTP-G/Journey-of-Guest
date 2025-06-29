@@ -1,7 +1,3 @@
-%YAML 1.1
-%TAG !u! tag:unity3d.com,2011:
---- !u!890905787 &1
-VersionControlSettings:
-  m_ObjectHideFlags: 0
-  m_Mode: Hidden Meta Files
-  m_TrackPackagesOutsideProject: 0
+version https://git-lfs.github.com/spec/v1
+oid sha256:5aad5ffaf11d1a70fe26a21a3a67231a5896a11e7245539078e01f38f7423856
+size 178
