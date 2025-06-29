@@ -1,0 +1,17 @@
+{
+    buff: {
+        bleeding: {
+            tickInterval: 0.5,
+            damage: 5
+        },
+        potion: {
+            tickInterval: 0.25,
+            damage: 10
+        }
+    },
+    item: {
+        potion: {
+            heal: 20
+        }
+    }
+}
