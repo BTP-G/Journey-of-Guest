@@ -8,15 +8,19 @@ using UnityEngine;
 
 namespace JoG.States {
 
-    public class MaficianState : State, IInteractionMessageHandler {
+    public class MaficianState : State, IItemHandler {
         public Wand wand;
         [SerializeField] private Transform _wandFollow;
         private CharacterBody _body;
         private Vector3InputBank _aimInputBank;
         private TriggerInputBank _primaryActionInputBank;
 
-        void IInteractionMessageHandler.Handle(IInteractable interactableObject) {
-            wand = interactableObject as Wand;
+        void IItemHandler.Handle(GameObject item) {
+            if (item is null) {
+                wand = null;
+                return;
+            }
+            item.TryGetComponent(out wand);
             this.Log($"Wand: {wand}");
         }
 
@@ -33,9 +37,7 @@ namespace JoG.States {
             if (wand.IsSpawned) {
                 wand.NetworkObject.ChangeOwnership(_body.OwnerClientId);
             } else {
-                wand = wand.GetComponent<NetworkObject>()
-                    .InstantiateAndSpawn(NetworkManager.Singleton, destroyWithScene: true)
-                    .GetComponent<Wand>();
+                 
             }
             wand.Owner = _body.NetworkObject;
         }

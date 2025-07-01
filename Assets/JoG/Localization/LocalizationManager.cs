@@ -22,7 +22,10 @@ namespace JoG.Localization {
             return _table.TryGetValue(key, out var value) ? value : string.Empty;
         }
 
+#if UNITY_EDITOR
+
         [MenuItem("Tools/Localization/Init")]
+#endif
         [RuntimeInitializeOnLoadMethod]
         private static void Load() {
             var table = HjsonLoader.LoadLocalization(_currentLanguage);

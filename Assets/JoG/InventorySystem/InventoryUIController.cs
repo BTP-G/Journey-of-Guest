@@ -1,4 +1,5 @@
-﻿using GuestUnion;
+﻿using EditorAttributes;
+using GuestUnion;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -9,7 +10,7 @@ namespace JoG.InventorySystem {
     public class InventoryUIController : MonoBehaviour {
 
         [Header("依赖组件")]
-        public InventoryController inventoryController;
+        [Required] public InventoryController inventoryController;
 
         public GameObject tablePanel;
         public GameObject hotBarPanel;

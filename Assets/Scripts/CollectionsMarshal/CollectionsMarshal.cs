@@ -419,7 +419,7 @@ namespace System.Runtime.InteropServices {
 
             IEqualityComparer<TKey>? comparer = dictionary._comparer;
             // Debug.Assert(comparer is not null || typeof(TKey).IsValueType);
-            uint hashCode = (uint)((typeof(TKey).IsValueType && comparer == null) ? key.GetHashCode() : comparer!.GetHashCode(key));
+            uint hashCode = (uint)(comparer != null ? comparer.GetHashCode(key) : key.GetHashCode());
 
             uint collisionCount = 0;
             ref int bucket = ref DictionaryExtensions.GetBucket(ref dictionary, hashCode);

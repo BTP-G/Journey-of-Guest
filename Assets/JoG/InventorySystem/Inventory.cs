@@ -39,8 +39,10 @@ namespace JoG.InventorySystem {
             var inventory = new Inventory(inventoryItemDatas.Length);
             for (var i = 0; i < inventoryItemDatas.Length; ++i) {
                 var inventoryItemData = inventoryItemDatas[i];
-                ItemCollector.Instance.TryGetItemDef(inventoryItemData.itemNameToken, out var itemData);
-                inventory._items[i].SetDataAndCount(itemData, inventoryItemData.itemCount);
+                if (inventoryItemData.itemCount > 0) {
+                    ItemCollector.TryGetItemDef(inventoryItemData.itemNameToken, out var itemData);
+                    inventory._items[i].SetDataAndCount(itemData, inventoryItemData.itemCount);
+                }
             }
             return inventory;
         }
@@ -82,7 +84,7 @@ namespace JoG.InventorySystem {
             }
         }
 
-        public void RemoveItem(int index) => _items[index].ResetDataAndCount();
+        public void RemoveItem(int index, byte count) => _items[index].Count -= count;
 
         /// <summary>添加物品到背包中，如果背包中已存在该物品，则增加数量；如果背包中没有空位，则不添加。</summary>
         /// <param name="itemData">要添加的物品</param>

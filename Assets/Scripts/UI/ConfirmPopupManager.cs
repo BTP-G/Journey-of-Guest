@@ -1,4 +1,5 @@
-﻿using DG.Tweening;
+﻿using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using EditorAttributes;
 using JoG.DebugExtensions;
 using System;
@@ -28,6 +29,16 @@ namespace JoG.UI {
                 return;
             }
             _instance.Show(message, confirmAction, cancelAction);
+        }
+
+        public static UniTask<bool> PopupAsync(string message = "是否确认？") {
+            if (_instance == null) {
+                Debug.LogError("未找到弹窗实例，弹出失败！");
+                return UniTask.FromResult(false);
+            }
+            var tcs = new UniTaskCompletionSource<bool>();
+            Popup(message, () => tcs.TrySetResult(true), () => tcs.TrySetResult(false));
+            return tcs.Task;
         }
 
         public void Show(string message = "是否确认？", Action confirmAction = null, Action cancelAction = null) {

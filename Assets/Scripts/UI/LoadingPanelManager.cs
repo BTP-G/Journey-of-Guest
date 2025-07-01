@@ -38,7 +38,7 @@ namespace JoG.UI {
             }
         }
 
-        public static async UniTask Loading(Task task, string message = "加载中······") {
+        public static async Task Loading(Task task, string message = "加载中······") {
             if (_instance) {
                 _instance.Show(message);
             }

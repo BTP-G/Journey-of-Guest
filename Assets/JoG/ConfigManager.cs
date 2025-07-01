@@ -7,8 +7,10 @@ using JoG.Attributes;
 namespace JoG {
 
     public static class ConfigManager {
+#if UNITY_EDITOR
 
         [MenuItem("Tools/Config/Inject")]
+#endif
         [RuntimeInitializeOnLoadMethod]
         public static void Inject() {
             var config = HjsonLoader.LoadConfig();

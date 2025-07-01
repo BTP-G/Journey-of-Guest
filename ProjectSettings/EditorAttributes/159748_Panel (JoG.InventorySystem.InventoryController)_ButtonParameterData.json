@@ -1,0 +1,16 @@
+{
+  "foldouts": {
+    "159748_Panel (JoG.InventorySystem.InventoryController)_AddItem_String_Int32": true,
+    "159748_Panel (JoG.InventorySystem.InventoryController)_ExchangeItem_Int32_Int32": true
+  },
+  "parameterValues": {
+    "159748_Panel (JoG.InventorySystem.InventoryController)_AddItem_String_Int32": [
+      "wand_1",
+      1
+    ],
+    "159748_Panel (JoG.InventorySystem.InventoryController)_ExchangeItem_Int32_Int32": [
+      null,
+      null
+    ]
+  }
+}

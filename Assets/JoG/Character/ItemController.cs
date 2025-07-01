@@ -5,10 +5,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 using System.Runtime.InteropServices;
+using JoG.InteractionSystem;
 
 namespace JoG.Character {
 
-    public class ItemController : MonoBehaviour {
+    public class ItemController : MonoBehaviour, IItemPickUpController {
         private InventoryItem currentItem;
         private GameObject currentHandItem;
         public List<IItemHandler> Handlers { get; private set; }
@@ -44,16 +45,27 @@ namespace JoG.Character {
                 spawned = spawnedNetObj.gameObject;
             }
 
-            currentHandItem = null;
+            currentHandItem = spawned;
             // 通知所有Handler
             foreach (var handler in Handlers.AsSpan()) {
                 handler.Handle(spawned);
             }
         }
 
+        void IInteractionMessageHandler.Handle(IInteractable interactableObject) {
+            if(interactableObject is PickupItem pickupItem) {
+                InventoryController.AddItem(pickupItem.itemData, pickupItem.count);
+            }
+        }
+
         protected virtual void Awake() {
             Handlers = new List<IItemHandler>();
             GetComponentsInChildren(true, Handlers);
+        }
+
+        protected virtual void OnDisable() {
+            // 销毁手上物品
+            Use(null);
         }
     }
 }

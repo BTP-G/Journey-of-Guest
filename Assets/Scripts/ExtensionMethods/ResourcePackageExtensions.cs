@@ -1,4 +1,5 @@
-﻿using JoG.Attributes;
+﻿using Cysharp.Threading.Tasks;
+using JoG.Attributes;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
@@ -45,7 +46,7 @@ namespace JoG.ResourcePackageExtensions {
         /// <summary>在单机模式下初始化资源包。</summary>
         /// <param name="package">要初始化的资源包</param>
         /// <param name="packageRoot">资源包根目录</param>
-        public static async void Initialize(this ResourcePackage package, string packageRoot = null) {
+        public static async UniTask InitializeAsync(this ResourcePackage package, string packageRoot = null) {
             InitializeParameters initParameters;
 #if UNITY_EDITOR
             var simulateBuildResult = EditorSimulateModeHelper.SimulateBuild(package.PackageName);
@@ -59,6 +60,7 @@ namespace JoG.ResourcePackageExtensions {
                 BuildinFileSystemParameters = buildinFileSystem,
             };
 #endif
+            
             var operation = package.InitializeAsync(initParameters);
             await operation.Task;
             if (operation.Status is not EOperationStatus.Succeed) {

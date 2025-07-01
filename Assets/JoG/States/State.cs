@@ -1,6 +1,5 @@
 ﻿using JoG.StateMachines;
 using System;
-using UnityEditor;
 using UnityEngine;
 
 namespace JoG.States {
@@ -40,9 +39,13 @@ namespace JoG.States {
             }
         }
 
+#if UNITY_EDITOR
+
         protected virtual void OnValidate() {
-            if (EditorApplication.isPlaying) return;
+            if (UnityEditor.EditorApplication.isPlaying) return;
             enabled = false;
         }
+
+#endif
     }
 }

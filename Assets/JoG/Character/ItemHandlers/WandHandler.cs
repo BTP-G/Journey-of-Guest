@@ -21,6 +21,9 @@ namespace JoG.Character.ItemHandlers {
                 newWand.NetworkObject.ChangeOwnership(_body.OwnerClientId);
                 wand = newWand;
                 wand.Owner = _body.NetworkObject;
+                enabled = true;
+            } else {
+                enabled = false;
             }
         }
 

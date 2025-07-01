@@ -1,6 +1,5 @@
 ﻿using EditorAttributes;
 using JoG.Character;
-using JoG.DebugExtensions;
 using JoG.Messages;
 using MessagePipe;
 using System;
@@ -12,28 +11,33 @@ using VContainer;
 namespace JoG.InventorySystem {
 
     public class InventoryController : MonoBehaviour, IInventoryController, IMessageHandler<CharacterBodyChangedMessage> {
-        public Inventory inventory = new(60);
+        public Inventory inventory;
         public InputActionReference numberInput;
-        public ItemData itemToUse;
         public int selectedIndex = 0;
+
+        // UI控制器引用
+        [Required] public InventoryUIController uiController;
+
         private CharacterBody _body;
         private IDisposable _disposable;
         private ItemController _itemController;
 
-        // UI控制器引用
-        public InventoryUIController uiController;
-
         [Button]
-        public void AddItem(int count) {
-            var index = inventory.AddItem(itemToUse, (byte)count);
-            uiController?.RefreshSlot(index);
+        public int AddItem(string itemName, int count) {
+            if (ItemCollector.TryGetItemDef(itemName, out var itemData)) {
+                var index = inventory.AddItem(itemData, (byte)count);
+                uiController.RefreshSlot(index);
+                return index;
+            } else {
+                return -1;
+            }
         }
 
         [Button]
         public void ExchangeItem(int fromIndex, int toIndex) {
             inventory.ExchangeItemSafe(fromIndex, toIndex);
-            uiController?.RefreshSlot(fromIndex);
-            uiController?.RefreshSlot(toIndex);
+            uiController.RefreshSlot(fromIndex);
+            uiController.RefreshSlot(toIndex);
         }
 
         [Inject]
@@ -54,24 +58,32 @@ namespace JoG.InventorySystem {
             }
         }
 
-        public void AddItem(ItemData item, byte count) => inventory.AddItem(item, count);
+        public int AddItem(ItemData item, byte count) {
+            var index = inventory.AddItem(item, count);
+            uiController.RefreshSlot(index);
+            return index;
+        }
 
-        public void RemoveItem(int index, byte count) => inventory.RemoveItem(index);
+        public void RemoveItem(int index, byte count) {
+            inventory.RemoveItem(index, count);
+            uiController.RefreshSlot(index);
+        }
 
-        public void RemoveItem(ItemData item, byte count) => inventory.RemoveItem(item, count);
+        public int RemoveItem(ItemData item, byte count) {
+            var itemIndex = inventory.RemoveItem(item, count);
+            uiController.RefreshSlot(itemIndex);
+            return itemIndex;
+        }
 
         public void SelectItem(int index) {
             selectedIndex = index;
             var item = inventory.GetItemSafe(selectedIndex);
-            if (item.Count > 0) {
-                _itemController.Use(item);
-            }
-            uiController?.HighlightAt(selectedIndex);
+            _itemController.Use(item);
+            uiController.HighlightAt(selectedIndex);
         }
 
         private void Awake() {
             // 数据初始化
-            PlayerPrefs.DeleteKey("player_inventory");
             var inventoryStr = PlayerPrefs.GetString("player_inventory", string.Empty);
             inventory = Inventory.FromJson(inventoryStr) ?? new Inventory(60);
         }
@@ -79,6 +91,13 @@ namespace JoG.InventorySystem {
         private void Start() {
             numberInput.action.performed += OnNumInput;
             numberInput.action.Enable();
+        }
+
+        private void OnDestroy() {
+            PlayerPrefs.SetString("player_inventory", inventory.ToJson());
+            PlayerPrefs.Save();
+            numberInput.action.Disable();
+            _disposable?.Dispose();
         }
 
         private void OnNumInput(InputAction.CallbackContext context) {
@@ -108,14 +127,6 @@ namespace JoG.InventorySystem {
             if (idx >= 0) {
                 SelectItem(idx);
             }
-            this.Log((context.control as KeyControl).keyCode);
-        }
-
-        private void OnDestroy() {
-            PlayerPrefs.SetString("player_inventory", inventory.ToJson());
-            PlayerPrefs.Save();
-            numberInput.action.Disable();
-            _disposable?.Dispose();
         }
     }
 }
