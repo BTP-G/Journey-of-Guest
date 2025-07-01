@@ -1,9 +1,11 @@
 using Cysharp.Threading.Tasks;
 using JoG.BuffSystem;
 using JoG.DebugExtensions;
+using JoG.InventorySystem;
 using JoG.ResourcePackageExtensions;
 using JoG.UI;
 using JoG.Utility;
+using System;
 using System.Reflection;
 using Unity.Services.Core;
 using UnityEngine;
@@ -25,9 +27,9 @@ namespace JoG {
                 }
                 if (UnityServices.State is not ServicesInitializationState.Initialized) {
                     Debug.LogError("[BootstrapManager] Failed to initialize Unity Services. Game startup aborted.");
-                    ConfirmPopupManager.Popup("初始化Unity服务失败，是否重试？取消将退出游戏。", cancelAction: () => {
+                    if (await ConfirmPopupManager.PopupAsync("初始化Unity服务失败，是否重试？取消将退出游戏。")) {
                         Application.Quit();
-                    });
+                    }
                 }
             }
 
@@ -35,18 +37,23 @@ namespace JoG {
             var package = YooAssetHelper.GetOrCreatePackage("DefaultPackage");
             while (package.InitializeStatus is not EOperationStatus.Succeed) {
                 try {
-                    package.Initialize();
+                    await LoadingPanelManager.Loading(package.InitializeAsync(), $"Initializing ResourcePackage {package.PackageName}");
                 } catch (System.Exception e) {
                     Debug.LogException(e);
                 }
                 if (package.InitializeStatus is not EOperationStatus.Succeed) {
                     Debug.LogError("[BootstrapManager] Failed to initialize YooAssets. Game startup aborted.");
-                    ConfirmPopupManager.Popup("加载默认资源包失败，是否重试？取消将退出游戏。", cancelAction: () => {
+                    if (await ConfirmPopupManager.PopupAsync("加载默认资源包失败，是否重试？取消将退出游戏。")) {
                         Application.Quit();
-                    });
+                    }
                 }
             }
             YooAssets.SetDefaultPackage(package);
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies()) {
+                package.InjectAssetHandles(assembly);
+            }
+
+            ItemCollector.RegisterFromPackage(package);
 
             // 3. 初始化 DI 容器
             var root = VContainerSettings.Instance.GetOrCreateRootLifetimeScopeInstance();
@@ -56,7 +63,7 @@ namespace JoG {
             BuffRegistrar.Register(Assembly.GetExecutingAssembly());
 
             // 5. 异步加载主场景
-            await SceneManager.LoadSceneAsync(1);
+            await SceneManager.LoadSceneAsync("MainScene");
         }
     }
 }
