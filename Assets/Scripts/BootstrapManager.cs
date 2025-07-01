@@ -26,8 +26,8 @@ namespace JoG {
                     Debug.LogException(e);
                 }
                 if (UnityServices.State is not ServicesInitializationState.Initialized) {
-                    Debug.LogError("[BootstrapManager] Failed to initialize Unity Services. Game startup aborted.");
-                    if (await ConfirmPopupManager.PopupAsync("初始化Unity服务失败，是否重试？取消将退出游戏。")) {
+                    this.LogError("[BootstrapManager] Failed to initialize Unity Services. Game startup aborted.");
+                    if (!await PopupManager.PopupConfirmAsync("初始化Unity服务失败，是否重试？取消将退出游戏。")) {
                         Application.Quit();
                     }
                 }
@@ -42,8 +42,8 @@ namespace JoG {
                     Debug.LogException(e);
                 }
                 if (package.InitializeStatus is not EOperationStatus.Succeed) {
-                    Debug.LogError("[BootstrapManager] Failed to initialize YooAssets. Game startup aborted.");
-                    if (await ConfirmPopupManager.PopupAsync("加载默认资源包失败，是否重试？取消将退出游戏。")) {
+                    this.LogError("[BootstrapManager] Failed to initialize YooAssets. Game startup aborted.");
+                    if (!await PopupManager.PopupConfirmAsync("加载默认资源包失败，是否重试？取消将退出游戏。")) {
                         Application.Quit();
                     }
                 }
