@@ -1,9 +1,12 @@
 ﻿using EditorAttributes;
 using GuestUnion;
+using JoG.Messages;
+using MessagePipe;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using UnityEngine;
+using VContainer;
 
 namespace JoG.InventorySystem {
 
@@ -17,7 +20,7 @@ namespace JoG.InventorySystem {
         public DragItem dragItem;
         public Color selectedColor = Color.yellow;
         public Color normalColor = Color.white;
-
+        [Inject] private IPublisher<CharacterInputLockMessage> _publisher;
         private List<Slot> slots = new();
         private Slot selectedSlot;
 
@@ -62,6 +65,11 @@ namespace JoG.InventorySystem {
 
         private void Awake() {
             GetComponentsInChildren(true, slots);
+            for (var i = 0; i < slots.Count; i++) {
+                var slot = slots[i];
+                slot.controller = this;
+                slot.index = i;
+            }
         }
 
         private void Start() {
@@ -73,6 +81,7 @@ namespace JoG.InventorySystem {
             // Tab键切换背包面板
             if (UnityEngine.InputSystem.Keyboard.current.tabKey.wasPressedThisFrame) {
                 tablePanel.SetActive(!tablePanel.activeSelf);
+                _publisher.Publish(new CharacterInputLockMessage(tablePanel.activeSelf));
             }
         }
     }

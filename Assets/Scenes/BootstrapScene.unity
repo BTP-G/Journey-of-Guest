@@ -524,24 +524,6 @@ RectTransform:
   m_AnchoredPosition: {x: 200, y: 60}
   m_SizeDelta: {x: 240, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &572251368466900296
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6450500835002980563}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1ca9ca1eafcd9c54f96290f8a1a5d2ba, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _popup: {fileID: 6911984805672277553}
-  _backgroundGraphic: {fileID: 4610567848994518156}
-  _messagePanel: {fileID: 4721242751135140246}
-  <MessageText>k__BackingField: {fileID: 6804949370868109799}
-  <ConfirmButton>k__BackingField: {fileID: 1165646196825315932}
-  <CancelButton>k__BackingField: {fileID: 4106943655868341082}
 --- !u!222 &1015237858956496802
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1078,7 +1060,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7563731259744653648}
-  - component: {fileID: 572251368466900296}
+  - component: {fileID: 7563731259744653649}
   m_Layer: 5
   m_Name: ConfirmPopupManager
   m_TagString: Untagged
@@ -1342,6 +1324,24 @@ Transform:
   - {fileID: 8697048956059715328}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7563731259744653649
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6450500835002980563}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 620734b8991fc0e428009be116e372da, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _popup: {fileID: 6911984805672277553}
+  _backgroundGraphic: {fileID: 4610567848994518156}
+  _messagePanel: {fileID: 4721242751135140246}
+  <MessageText>k__BackingField: {fileID: 6804949370868109799}
+  <ConfirmButton>k__BackingField: {fileID: 1165646196825315932}
+  <CancelButton>k__BackingField: {fileID: 4106943655868341082}
 --- !u!1 &7671098814513044143
 GameObject:
   m_ObjectHideFlags: 0

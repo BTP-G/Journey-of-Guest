@@ -28,9 +28,9 @@ namespace JoG.UI {
             var result = await LoadingPanelManager.Loading(sessionService.JoinSessionByIdAsync(_sessionId),"加入中······");
             if (result is "success") {
                 var sessionCode = sessionService.SessionCode;
-                ConfirmPopupManager.Popup($"加入成功，是否将会话代码{sessionCode}复制到剪切板，以便他人加入使用。", () => GUIUtility.systemCopyBuffer = sessionCode);
+                PopupManager.PopupConfirm($"加入成功，是否将会话代码{sessionCode}复制到剪切板，以便他人加入使用。", () => GUIUtility.systemCopyBuffer = sessionCode);
             } else {
-                ConfirmPopupManager.Popup("加入失败：" + result);
+                PopupManager.PopupConfirm("加入失败：" + result);
             }
         }
     }

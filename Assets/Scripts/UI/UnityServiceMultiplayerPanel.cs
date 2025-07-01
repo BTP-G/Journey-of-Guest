@@ -18,7 +18,7 @@ namespace JoG.UI {
                 JoinSessionButton.interactable = false;
                 var result = await _sessionManager.CreateSessionAsync(SessionNameInputField.text);
                 if (result is "success") return;
-                else ConfirmPopupManager.Popup("创建失败：" + result);
+                else PopupManager.PopupConfirm("创建失败：" + result);
                 CreateSessionButton.interactable = true;
                 JoinSessionButton.interactable = true;
             });
@@ -27,7 +27,7 @@ namespace JoG.UI {
                 JoinSessionButton.interactable = false;
                 var result = await _sessionManager.JoinSessionAsync(SessionNameInputField.text);
                 if (result is "success") return;
-                else ConfirmPopupManager.Popup("加入失败：" + result);
+                else PopupManager.PopupConfirm("加入失败：" + result);
                 CreateSessionButton.interactable = true;
                 JoinSessionButton.interactable = true;
             });

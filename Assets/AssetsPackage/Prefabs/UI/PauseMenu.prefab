@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1872277367681227554}
   - component: {fileID: 8124271318237563755}
   - component: {fileID: 8834953713485936237}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -86,7 +86,7 @@ GameObject:
   - component: {fileID: 5808677793101625944}
   - component: {fileID: 3279729696796633933}
   - component: {fileID: 7239827782608042159}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -184,15 +184,17 @@ MonoBehaviour:
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_enableWordWrapping: 1
+  m_TextWrappingMode: 1
   m_wordWrappingRatios: 0.4
   m_overflowMode: 0
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 1
+  m_ActiveFontFeatures: 6e72656b
   m_enableExtraPadding: 0
   checkPaddingRequired: 0
   m_isRichText: 1
+  m_EmojiFallbackSupport: 1
   m_parseCtrlCharacters: 1
   m_isOrthographic: 1
   m_isCullingEnabled: 0
@@ -220,7 +222,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4115481764310243804}
   - component: {fileID: 1251036502188800936}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: PauseMenu
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -285,7 +287,7 @@ GameObject:
   - component: {fileID: 6963674984733251687}
   - component: {fileID: 3933855742237752748}
   - component: {fileID: 9108235491314619360}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Title
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -383,15 +385,17 @@ MonoBehaviour:
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_enableWordWrapping: 1
+  m_TextWrappingMode: 1
   m_wordWrappingRatios: 0.4
   m_overflowMode: 0
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 1
+  m_ActiveFontFeatures: 6e72656b
   m_enableExtraPadding: 0
   checkPaddingRequired: 0
   m_isRichText: 1
+  m_EmojiFallbackSupport: 1
   m_parseCtrlCharacters: 1
   m_isOrthographic: 1
   m_isCullingEnabled: 0
@@ -421,7 +425,7 @@ GameObject:
   - component: {fileID: 8842032155097542009}
   - component: {fileID: 127914893551838497}
   - component: {fileID: 3201700540213008700}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: PauesMenuCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -461,9 +465,9 @@ Canvas:
   m_GameObject: {fileID: 6505838837339738840}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 0
+  m_RenderMode: 1
   m_Camera: {fileID: 0}
-  m_PlaneDistance: 100
+  m_PlaneDistance: 1
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
@@ -471,9 +475,9 @@ Canvas:
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 25
-  m_UpdateRectTransformForStandalone: 0
-  m_SortingLayerID: 0
-  m_SortingOrder: 10
+  m_UpdateRectTransformForStandalone: 1
+  m_SortingLayerID: -372683831
+  m_SortingOrder: 1
   m_TargetDisplay: 0
 --- !u!114 &127914893551838497
 MonoBehaviour:
@@ -527,7 +531,7 @@ GameObject:
   - component: {fileID: 4064702002271207088}
   - component: {fileID: 4592389396421024932}
   - component: {fileID: 7935467842925397695}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: QuitToDesktopButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -659,7 +663,7 @@ GameObject:
   - component: {fileID: 1917694792506427346}
   - component: {fileID: 8095127915326919466}
   - component: {fileID: 1057641000421912626}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -757,15 +761,17 @@ MonoBehaviour:
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_enableWordWrapping: 1
+  m_TextWrappingMode: 1
   m_wordWrappingRatios: 0.4
   m_overflowMode: 0
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 1
+  m_ActiveFontFeatures: 6e72656b
   m_enableExtraPadding: 0
   checkPaddingRequired: 0
   m_isRichText: 1
+  m_EmojiFallbackSupport: 1
   m_parseCtrlCharacters: 1
   m_isOrthographic: 1
   m_isCullingEnabled: 0
@@ -795,7 +801,7 @@ GameObject:
   - component: {fileID: 5143354246880465917}
   - component: {fileID: 922966719355358371}
   - component: {fileID: 1685798426460520662}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: ResumeButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -927,7 +933,7 @@ GameObject:
   - component: {fileID: 8336111319293668965}
   - component: {fileID: 8464906993424596394}
   - component: {fileID: 3666137038368850825}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1025,15 +1031,17 @@ MonoBehaviour:
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_enableWordWrapping: 1
+  m_TextWrappingMode: 1
   m_wordWrappingRatios: 0.4
   m_overflowMode: 0
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 1
+  m_ActiveFontFeatures: 6e72656b
   m_enableExtraPadding: 0
   checkPaddingRequired: 0
   m_isRichText: 1
+  m_EmojiFallbackSupport: 1
   m_parseCtrlCharacters: 1
   m_isOrthographic: 1
   m_isCullingEnabled: 0
@@ -1063,7 +1071,7 @@ GameObject:
   - component: {fileID: 6174351831231863058}
   - component: {fileID: 933252419687239163}
   - component: {fileID: 4152000100728816447}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: BackToMainMenuButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}

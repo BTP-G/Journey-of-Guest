@@ -11,7 +11,7 @@ namespace JoG.UI.Managers {
         [Inject] private IAuthenticationService _authenticationService;
 
         public void QuitGame() {
-            ConfirmPopupManager.Popup(confirmAction: () => {
+            PopupManager.PopupConfirm(confirmAction: () => {
 #if UNITY_EDITOR
                 _networkManager.Shutdown();
                 UnityEditor.EditorApplication.isPlaying = false;

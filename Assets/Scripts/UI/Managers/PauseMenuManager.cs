@@ -14,7 +14,7 @@ namespace JoG.UI.Managers {
         [SerializeField] private InputActionReference _pauseInput;
         [SerializeField] private InputActionReference _altInput;
         [Inject] private NetworkManager _networkManager;
-        [Inject] private IPublisher<FocusOnUIMessage> _publisher;
+        [Inject] private IPublisher<CharacterInputLockMessage> _publisher;
         public static PauseMenuManager Instance { get; private set; }
         [field: SerializeField] public UnityEvent<bool> OnIsPausedChanged { get; private set; } = new UnityEvent<bool>();
         public bool IsPaused { get; private set; }
@@ -24,7 +24,7 @@ namespace JoG.UI.Managers {
             Cursor.lockState = CursorLockMode.None;
             CursorManager.lockOnFocus = false;
             OnIsPausedChanged?.Invoke(true);
-            _publisher.Publish(new FocusOnUIMessage(true));
+            _publisher.Publish(new CharacterInputLockMessage(true));
         }
 
         public void Resume() {
@@ -32,17 +32,17 @@ namespace JoG.UI.Managers {
             Cursor.lockState = CursorLockMode.Locked;
             CursorManager.lockOnFocus = true;
             OnIsPausedChanged?.Invoke(false);
-            _publisher.Publish(new FocusOnUIMessage(false));
+            _publisher.Publish(new CharacterInputLockMessage(false));
         }
 
         public void StopConnection() {
-            ConfirmPopupManager.Popup(confirmAction: () => {
+            PopupManager.PopupConfirm(confirmAction: () => {
                 _networkManager.Shutdown();
             });
         }
 
         public void QuitGame() {
-            ConfirmPopupManager.Popup(confirmAction: () => {
+            PopupManager.PopupConfirm(confirmAction: () => {
                 _networkManager.OnClientStopped -= OnClientStopped;
                 _networkManager.Shutdown();
 #if UNITY_EDITOR

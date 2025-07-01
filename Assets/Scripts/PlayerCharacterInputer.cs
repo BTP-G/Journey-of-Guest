@@ -8,7 +8,7 @@ using VContainer;
 
 namespace JoG {
 
-    public class PlayerCharacterInputer : MonoBehaviour, IMessageHandler<CharacterBodyChangedMessage>, IMessageHandler<FocusOnUIMessage> {
+    public class PlayerCharacterInputer : MonoBehaviour, IMessageHandler<CharacterBodyChangedMessage>, IMessageHandler<CharacterInputLockMessage> {
         private BooleanInputBank sprintInputBank;
         private TriggerInputBank interactInputBank;
         private TriggerInputBank jumpInputBank;
@@ -25,8 +25,9 @@ namespace JoG {
         private InputAction _skill;
         private InputAction _interact;
         private IDisposable _characterBodyChangedMessageDisposable;
-        private IBufferedSubscriber<FocusOnUIMessage> _focusOnUIMessageSubscriber;
+        private IBufferedSubscriber<CharacterInputLockMessage> _focusOnUIMessageSubscriber;
         private IDisposable _focusOnUIMessageDisposable;
+        private int _inputLockCount;
 
         void IMessageHandler<CharacterBodyChangedMessage>.Handle(CharacterBodyChangedMessage message) {
             var character = message.next;
@@ -56,16 +57,21 @@ namespace JoG {
             }
         }
 
-        void IMessageHandler<FocusOnUIMessage>.Handle(FocusOnUIMessage message) {
-            if (message.isFocusingOnUI) {
+        void IMessageHandler<CharacterInputLockMessage>.Handle(CharacterInputLockMessage message) {
+            if (message.isLocked) {
+                _inputLockCount++;
                 _commonCharacterActionMap.Disable();
             } else {
-                _commonCharacterActionMap.Enable();
+                _inputLockCount--;
+                if (_inputLockCount <= 0) {
+                    _commonCharacterActionMap.Enable();
+                    _inputLockCount = 0;
+                }
             }
         }
 
         [Inject]
-        private void Construct(InputActionAsset inputActionAsset, IBufferedSubscriber<CharacterBodyChangedMessage> subscriber, IBufferedSubscriber<FocusOnUIMessage> subscriber1) {
+        private void Construct(InputActionAsset inputActionAsset, IBufferedSubscriber<CharacterBodyChangedMessage> subscriber, IBufferedSubscriber<CharacterInputLockMessage> subscriber1) {
             _commonCharacterActionMap = inputActionAsset.FindActionMap("CommonCharacterActionMap", true);
             _focusOnUIMessageSubscriber = subscriber1;
             _move = _commonCharacterActionMap.FindAction("Move", true);

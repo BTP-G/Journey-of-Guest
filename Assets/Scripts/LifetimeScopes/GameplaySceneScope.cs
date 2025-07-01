@@ -1,5 +1,3 @@
-using EditorAttributes;
-using JoG.CameraSystem;
 using JoG.Messages;
 using MessagePipe;
 using VContainer;
@@ -11,7 +9,7 @@ namespace JoG.LifetimeScopes {
 
         protected override void Configure(IContainerBuilder builder) {
             var options = builder.RegisterMessagePipe();
-            builder.RegisterMessageBroker<FocusOnUIMessage>(options);
+            builder.RegisterMessageBroker<CharacterInputLockMessage>(options);
         }
     }
 }
