@@ -8,8 +8,6 @@ namespace JoG.LifetimeScopes {
     public class GameplaySceneScope : LifetimeScope {
 
         protected override void Configure(IContainerBuilder builder) {
-            var options = builder.RegisterMessagePipe();
-            builder.RegisterMessageBroker<CharacterInputLockMessage>(options);
         }
     }
 }

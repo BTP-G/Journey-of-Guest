@@ -4600,8 +4600,6 @@ MonoBehaviour:
   - {fileID: 1514838443883005510}
   - {fileID: 8096190805088235550}
   - {fileID: 458819231}
-  - {fileID: 694990600976626946}
-  - {fileID: 1456071910}
 --- !u!4 &493142735
 Transform:
   m_ObjectHideFlags: 0
@@ -23813,7 +23811,7 @@ PrefabInstance:
         type: 3}
       propertyPath: '_autoInjectObjects.Array.data[1]'
       value: 
-      objectReference: {fileID: 3468189760619999402}
+      objectReference: {fileID: 694990600976626946}
     - target: {fileID: 8337471789532033432, guid: 55678ddc59824c64882ab9bd362dc704,
         type: 3}
       propertyPath: m_LocalPosition.x

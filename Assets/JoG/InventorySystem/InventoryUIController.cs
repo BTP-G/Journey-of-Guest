@@ -20,7 +20,6 @@ namespace JoG.InventorySystem {
         public DragItem dragItem;
         public Color selectedColor = Color.yellow;
         public Color normalColor = Color.white;
-        [Inject] private IPublisher<CharacterInputLockMessage> _publisher;
         private List<Slot> slots = new();
         private Slot selectedSlot;
 
@@ -80,8 +79,15 @@ namespace JoG.InventorySystem {
         private void Update() {
             // Tab键切换背包面板
             if (UnityEngine.InputSystem.Keyboard.current.tabKey.wasPressedThisFrame) {
-                tablePanel.SetActive(!tablePanel.activeSelf);
-                _publisher.Publish(new CharacterInputLockMessage(tablePanel.activeSelf));
+                if (tablePanel.activeSelf) {
+                    tablePanel.SetActive(false);
+                    PlayerCharacterInputer.Instance.RequestEnableInput();
+                    CursorManager.Instance.ReleaseShowCursor();
+                } else {
+                    tablePanel.SetActive(true);
+                    PlayerCharacterInputer.Instance.ReleaseEnableInput();
+                    CursorManager.Instance.RequestShowCursor();
+                }
             }
         }
     }

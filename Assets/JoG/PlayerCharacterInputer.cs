@@ -8,7 +8,7 @@ using VContainer;
 
 namespace JoG {
 
-    public class PlayerCharacterInputer : MonoBehaviour, IMessageHandler<CharacterBodyChangedMessage>, IMessageHandler<CharacterInputLockMessage> {
+    public class PlayerCharacterInputer : MonoBehaviour, IMessageHandler<CharacterBodyChangedMessage> {
         private BooleanInputBank sprintInputBank;
         private TriggerInputBank interactInputBank;
         private TriggerInputBank jumpInputBank;
@@ -25,9 +25,8 @@ namespace JoG {
         private InputAction _skill;
         private InputAction _interact;
         private IDisposable _characterBodyChangedMessageDisposable;
-        private IBufferedSubscriber<CharacterInputLockMessage> _focusOnUIMessageSubscriber;
-        private IDisposable _focusOnUIMessageDisposable;
-        private int _inputLockCount;
+        private int _enableInputCount;
+        public static PlayerCharacterInputer Instance { get; private set; }
 
         void IMessageHandler<CharacterBodyChangedMessage>.Handle(CharacterBodyChangedMessage message) {
             var character = message.next;
@@ -40,8 +39,8 @@ namespace JoG {
                 skillInputBank = character.GetInputBank<TriggerInputBank>("Skill");
                 sprintInputBank = character.GetInputBank<BooleanInputBank>("Sprint");
                 RegisterCallback();
-                _focusOnUIMessageDisposable?.Dispose();
-                _focusOnUIMessageDisposable = _focusOnUIMessageSubscriber.Subscribe(this);
+                RequestEnableInput();
+                CursorManager.Instance.ReleaseShowCursor();
             } else {
                 interactInputBank = null;
                 jumpInputBank = null;
@@ -51,29 +50,35 @@ namespace JoG {
                 skillInputBank = null;
                 sprintInputBank = null;
                 UnregisterCallback();
-                _focusOnUIMessageDisposable?.Dispose();
-                _focusOnUIMessageDisposable = null;
                 _commonCharacterActionMap.Disable();
+                ReleaseEnableInput();
+                CursorManager.Instance.RequestShowCursor();
             }
         }
 
-        void IMessageHandler<CharacterInputLockMessage>.Handle(CharacterInputLockMessage message) {
-            if (message.isLocked) {
-                _inputLockCount++;
-                _commonCharacterActionMap.Disable();
+        public void RequestEnableInput() {
+            _enableInputCount++;
+            UpdateInputState();
+        }
+
+        public void ReleaseEnableInput() {
+            if (_enableInputCount > 0) {
+                _enableInputCount--;
+            }
+            UpdateInputState();
+        }
+
+        private void UpdateInputState() {
+            if (_enableInputCount > 0) {
+                _commonCharacterActionMap.Enable();
             } else {
-                _inputLockCount--;
-                if (_inputLockCount <= 0) {
-                    _commonCharacterActionMap.Enable();
-                    _inputLockCount = 0;
-                }
+                _commonCharacterActionMap.Disable();
             }
         }
 
         [Inject]
-        private void Construct(InputActionAsset inputActionAsset, IBufferedSubscriber<CharacterBodyChangedMessage> subscriber, IBufferedSubscriber<CharacterInputLockMessage> subscriber1) {
+        private void Construct(InputActionAsset inputActionAsset, IBufferedSubscriber<CharacterBodyChangedMessage> subscriber) {
             _commonCharacterActionMap = inputActionAsset.FindActionMap("CommonCharacterActionMap", true);
-            _focusOnUIMessageSubscriber = subscriber1;
             _move = _commonCharacterActionMap.FindAction("Move", true);
             _primaryAction = _commonCharacterActionMap.FindAction("PrimaryAction", true);
             _secondaryAction = _commonCharacterActionMap.FindAction("SecondaryAction", true);
@@ -84,10 +89,14 @@ namespace JoG {
             _characterBodyChangedMessageDisposable = subscriber.Subscribe(this);
         }
 
+        private void Awake() {
+            Instance = this;
+        }
+
         private void OnDestroy() {
-            _commonCharacterActionMap.Disable();
-            _characterBodyChangedMessageDisposable.Dispose();
-            _focusOnUIMessageDisposable?.Dispose();
+            _commonCharacterActionMap?.Disable();
+            _characterBodyChangedMessageDisposable?.Dispose();
+            Instance = null;
         }
 
         private void RegisterCallback() {

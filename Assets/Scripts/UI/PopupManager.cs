@@ -17,7 +17,6 @@ namespace JoG.UI {
         [SerializeField, Required] private GameObject _popup;
         [SerializeField, Required] private Graphic _backgroundGraphic;
         [SerializeField, Required] private Transform _messagePanel;
-        [Inject] private IPublisher<CharacterInputLockMessage> _publisher;
         private Action _confirmAction;
         private Action _cancelAction;
 
@@ -74,7 +73,8 @@ namespace JoG.UI {
             _messagePanel.localScale = Vector3.zero;
             _messagePanel.DOScale(Vector3.one, 0.3f);
             _popup.SetActive(true);
-            _publisher?.Publish(new CharacterInputLockMessage(true));
+            PlayerCharacterInputer.Instance?.ReleaseEnableInput();
+            CursorManager.Instance?.RequestShowCursor();
         }
 
         public void Hide() => _popup.SetActive(false);
@@ -88,12 +88,14 @@ namespace JoG.UI {
             _instance = this;
             ConfirmButton.onClick.AddListener(() => {
                 _confirmAction?.Invoke();
-                _publisher?.Publish(new CharacterInputLockMessage(false));
+                PlayerCharacterInputer.Instance?.RequestEnableInput();
+                CursorManager.Instance?.ReleaseShowCursor();
                 Hide();
             });
             CancelButton.onClick.AddListener(() => {
                 _cancelAction?.Invoke();
-                _publisher?.Publish(new CharacterInputLockMessage(false));
+                PlayerCharacterInputer.Instance?.RequestEnableInput();
+                CursorManager.Instance?.ReleaseShowCursor();
                 Hide();
             });
             Hide();

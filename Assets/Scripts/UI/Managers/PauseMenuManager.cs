@@ -1,6 +1,3 @@
-using JoG.Messages;
-using JoG.Utility;
-using MessagePipe;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Events;
@@ -12,27 +9,23 @@ namespace JoG.UI.Managers {
 
     public class PauseMenuManager : MonoBehaviour {
         [SerializeField] private InputActionReference _pauseInput;
-        [SerializeField] private InputActionReference _altInput;
         [Inject] private NetworkManager _networkManager;
-        [Inject] private IPublisher<CharacterInputLockMessage> _publisher;
         public static PauseMenuManager Instance { get; private set; }
         [field: SerializeField] public UnityEvent<bool> OnIsPausedChanged { get; private set; } = new UnityEvent<bool>();
         public bool IsPaused { get; private set; }
 
         public void Pause() {
             IsPaused = true;
-            Cursor.lockState = CursorLockMode.None;
-            CursorManager.lockOnFocus = false;
+            CursorManager.Instance.RequestShowCursor();
+            PlayerCharacterInputer.Instance.ReleaseEnableInput();
             OnIsPausedChanged?.Invoke(true);
-            _publisher.Publish(new CharacterInputLockMessage(true));
         }
 
         public void Resume() {
             IsPaused = false;
-            Cursor.lockState = CursorLockMode.Locked;
-            CursorManager.lockOnFocus = true;
+            CursorManager.Instance.ReleaseShowCursor();
+            PlayerCharacterInputer.Instance.RequestEnableInput();
             OnIsPausedChanged?.Invoke(false);
-            _publisher.Publish(new CharacterInputLockMessage(false));
         }
 
         public void StopConnection() {
@@ -57,25 +50,18 @@ namespace JoG.UI.Managers {
             Instance = this;
             _networkManager.OnClientStopped += OnClientStopped;
             _pauseInput.action.performed += PausePerformed;
-            _altInput.action.started += HandleAltInput;
-            _altInput.action.canceled += HandleAltInput;
         }
 
         private void OnEnable() {
             _pauseInput.action.Enable();
-            _altInput.action.Enable();
         }
 
         private void OnDisable() {
             _pauseInput.action.Disable();
-            _altInput.action.Disable();
-            Cursor.lockState = CursorLockMode.None;
         }
 
         private void OnDestroy() {
             _pauseInput.action.performed -= PausePerformed;
-            _altInput.action.started -= HandleAltInput;
-            _altInput.action.canceled -= HandleAltInput;
             _networkManager.OnClientStopped -= OnClientStopped;
             Instance = null;
         }
@@ -89,14 +75,6 @@ namespace JoG.UI.Managers {
                 Resume();
             } else {
                 Pause();
-            }
-        }
-
-        private void HandleAltInput(InputAction.CallbackContext context) {
-            if (context.started) {
-                Cursor.lockState = CursorLockMode.Confined;
-            } else if (context.canceled) {
-                Cursor.lockState = CursorLockMode.Locked;
             }
         }
     }
