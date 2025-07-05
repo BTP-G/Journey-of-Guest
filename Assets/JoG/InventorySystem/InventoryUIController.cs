@@ -74,6 +74,7 @@ namespace JoG.InventorySystem {
         private void Start() {
             RefreshAllSlots();
             HighlightAt(inventoryController.selectedIndex);
+            tablePanel.SetActive(false);
         }
 
         private void Update() {

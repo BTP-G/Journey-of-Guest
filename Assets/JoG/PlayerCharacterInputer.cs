@@ -29,8 +29,20 @@ namespace JoG {
         public static PlayerCharacterInputer Instance { get; private set; }
 
         void IMessageHandler<CharacterBodyChangedMessage>.Handle(CharacterBodyChangedMessage message) {
-            var character = message.next;
-            if (character != null && character.IsLocalPlayer) {
+            var character = message.previous;
+            if (character is not null && character.IsLocalPlayer) {
+                interactInputBank = null;
+                jumpInputBank = null;
+                moveInputBank = null;
+                primaryActionInputBank = null;
+                secondaryActionInputBank = null;
+                skillInputBank = null;
+                sprintInputBank = null;
+                UnregisterCallback();
+                ReleaseEnableInput();
+            }
+            character = message.next;
+            if (character is not null && character.IsLocalPlayer) {
                 interactInputBank = character.GetInputBank<TriggerInputBank>("Interact");
                 jumpInputBank = character.GetInputBank<TriggerInputBank>("Jump");
                 moveInputBank = character.GetInputBank<Vector3InputBank>("Move");
@@ -40,19 +52,6 @@ namespace JoG {
                 sprintInputBank = character.GetInputBank<BooleanInputBank>("Sprint");
                 RegisterCallback();
                 RequestEnableInput();
-                CursorManager.Instance.ReleaseShowCursor();
-            } else {
-                interactInputBank = null;
-                jumpInputBank = null;
-                moveInputBank = null;
-                primaryActionInputBank = null;
-                secondaryActionInputBank = null;
-                skillInputBank = null;
-                sprintInputBank = null;
-                UnregisterCallback();
-                _commonCharacterActionMap.Disable();
-                ReleaseEnableInput();
-                CursorManager.Instance.RequestShowCursor();
             }
         }
 
@@ -62,17 +61,15 @@ namespace JoG {
         }
 
         public void ReleaseEnableInput() {
-            if (_enableInputCount > 0) {
-                _enableInputCount--;
-            }
+            _enableInputCount--;
             UpdateInputState();
         }
 
         private void UpdateInputState() {
             if (_enableInputCount > 0) {
-                _commonCharacterActionMap.Enable();
+                _commonCharacterActionMap?.Enable();
             } else {
-                _commonCharacterActionMap.Disable();
+                _commonCharacterActionMap?.Disable();
             }
         }
 

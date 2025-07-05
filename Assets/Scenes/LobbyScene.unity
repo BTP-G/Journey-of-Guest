@@ -23397,7 +23397,7 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6735623091450806371, guid: d7ca91892563c2745b2e61a486feead2,
         type: 3}
       insertIndex: -1
-      addedObject: {fileID: 3468189760619999404}
+      addedObject: {fileID: 3468189760619999403}
   m_SourcePrefab: {fileID: 100100000, guid: d7ca91892563c2745b2e61a486feead2, type: 3}
 --- !u!1 &3468189760619999402 stripped
 GameObject:
@@ -23405,7 +23405,7 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 3468189760619999401}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &3468189760619999404
+--- !u!114 &3468189760619999403
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -23414,7 +23414,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3468189760619999402}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0f0f7339d6f6dee4d8e13fde7cb210f5, type: 3}
+  m_Script: {fileID: 11500000, guid: 902f8a465e6b1b148a86011d80232358, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!33 &4309268098060029725
@@ -23800,18 +23800,23 @@ PrefabInstance:
     - target: {fileID: 6620525062506409076, guid: 55678ddc59824c64882ab9bd362dc704,
         type: 3}
       propertyPath: _autoInjectObjects.Array.size
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 6620525062506409076, guid: 55678ddc59824c64882ab9bd362dc704,
         type: 3}
       propertyPath: '_autoInjectObjects.Array.data[0]'
       value: 
-      objectReference: {fileID: 1087749239}
+      objectReference: {fileID: 694990600976626946}
     - target: {fileID: 6620525062506409076, guid: 55678ddc59824c64882ab9bd362dc704,
         type: 3}
       propertyPath: '_autoInjectObjects.Array.data[1]'
       value: 
-      objectReference: {fileID: 694990600976626946}
+      objectReference: {fileID: 3468189760619999402}
+    - target: {fileID: 6620525062506409076, guid: 55678ddc59824c64882ab9bd362dc704,
+        type: 3}
+      propertyPath: '_autoInjectObjects.Array.data[2]'
+      value: 
+      objectReference: {fileID: 1456071910}
     - target: {fileID: 8337471789532033432, guid: 55678ddc59824c64882ab9bd362dc704,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -24987,12 +24992,12 @@ SceneRoots:
   - {fileID: 40086346}
   - {fileID: 1574149834}
   - {fileID: 493142735}
+  - {fileID: 8096190805088235549}
+  - {fileID: 3468189760619999401}
   - {fileID: 231680310}
   - {fileID: 1495075970}
   - {fileID: 2183710517928975612}
   - {fileID: 535844876}
-  - {fileID: 3468189760619999401}
-  - {fileID: 8096190805088235549}
   - {fileID: 6186521567579716447}
   - {fileID: 659596959}
   - {fileID: 2030723080}

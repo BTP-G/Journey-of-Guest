@@ -1,10 +1,10 @@
 using UnityEngine;
-using UnityUtils; 
+using UnityUtils;
 
 namespace JoG {
 
     public class CursorManager : Singleton<CursorManager> {
-        private int _showRequestCount = 0;
+        protected int _showRequestCount = 1;
 
         /// <summary>请求显示鼠标（可多次叠加）</summary>
         public void RequestShowCursor() {
@@ -14,11 +14,11 @@ namespace JoG {
 
         /// <summary>取消显示鼠标的请求</summary>
         public void ReleaseShowCursor() {
-            _showRequestCount = Mathf.Max(0, _showRequestCount - 1);
+            _showRequestCount--;
             UpdateCursorState();
         }
 
-        private void UpdateCursorState() {
+        protected void UpdateCursorState() {
             if (_showRequestCount > 0) {
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
@@ -28,13 +28,18 @@ namespace JoG {
             }
         }
 
-        private void OnApplicationFocus(bool focus) {
+        protected void OnApplicationFocus(bool focus) {
             if (focus) {
                 UpdateCursorState();
             }
         }
 
-        private void OnDisable() {
+        protected override void Awake() {
+            base.Awake();
+            UpdateCursorState();
+        }
+
+        protected void OnDestroy() {
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }

@@ -74,10 +74,18 @@ namespace JoG.UI {
             _messagePanel.DOScale(Vector3.one, 0.3f);
             _popup.SetActive(true);
             PlayerCharacterInputer.Instance?.ReleaseEnableInput();
-            CursorManager.Instance?.RequestShowCursor();
+            if (CursorManager.HasInstance) {
+                CursorManager.Instance.RequestShowCursor();
+            }
         }
 
-        public void Hide() => _popup.SetActive(false);
+        public void Hide() {
+            _popup.SetActive(false);
+            PlayerCharacterInputer.Instance?.RequestEnableInput();
+            if (CursorManager.HasInstance) {
+                CursorManager.Instance.ReleaseShowCursor();
+            }
+        }
 
         private void Awake() {
             if (_instance) {
@@ -88,17 +96,13 @@ namespace JoG.UI {
             _instance = this;
             ConfirmButton.onClick.AddListener(() => {
                 _confirmAction?.Invoke();
-                PlayerCharacterInputer.Instance?.RequestEnableInput();
-                CursorManager.Instance?.ReleaseShowCursor();
                 Hide();
             });
             CancelButton.onClick.AddListener(() => {
                 _cancelAction?.Invoke();
-                PlayerCharacterInputer.Instance?.RequestEnableInput();
-                CursorManager.Instance?.ReleaseShowCursor();
                 Hide();
             });
-            Hide();
+            _popup.SetActive(false);
         }
 
         private void OnDestroy() {

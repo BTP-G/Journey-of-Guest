@@ -23,22 +23,27 @@ namespace JoG.UI.Managers {
         private IDisposable _disposable;
 
         void IMessageHandler<CharacterBodyChangedMessage>.Handle(CharacterBodyChangedMessage message) {
-            var source = message.next;
+            var source = message.previous;
+            if (source is not null && source.IsLocalPlayer) {
+                _source = null;
+                _interactor = null;
+                _spawnPanel.SetActive(true);
+                enabled = false;
+                CursorManager.Instance.RequestShowCursor();
+            }
+            source = message.next;
             if (source is not null && source.IsLocalPlayer) {
                 _interactor = source.GetComponent<CharacterInteractor>();
                 _spawnPanel.SetActive(false);
                 _source = source;
                 enabled = true;
-            } else {
-                _source = null;
-                _interactor = null;
-                _spawnPanel.SetActive(true);
-                enabled = false;
+                CursorManager.Instance.ReleaseShowCursor();
             }
         }
 
         [Inject]
         private void Construct(IBufferedSubscriber<CharacterBodyChangedMessage> subscriber) {
+            _spawnPanel.SetActive(false);
             _disposable = subscriber.Subscribe(this);
         }
 
