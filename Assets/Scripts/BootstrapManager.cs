@@ -7,6 +7,7 @@ using JoG.UI;
 using JoG.Utility;
 using System;
 using System.Reflection;
+using Unity.Netcode;
 using Unity.Services.Core;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -53,7 +54,24 @@ namespace JoG {
                 package.InjectAssetHandles(assembly);
             }
 
-            ItemCollector.RegisterFromPackage(package);
+            ItemCatalog.RegisterFromPackage(package);
+             
+            NetworkPrefabs prefabs = NetworkManager.Singleton.NetworkConfig.Prefabs;
+            foreach (var assetInfo in package.GetAssetInfos("network_prefab")) {
+                var ah = package.LoadAssetSync(assetInfo);
+                if (ah.Status == EOperationStatus.Succeed) {
+                    if (ah.AssetObject is GameObject go) {
+                        if (go.TryGetComponent<NetworkObject>(out _)) {
+                            prefabs.Add(new NetworkPrefab() { Prefab = go });
+                        } else {
+                            Debug.LogWarning($"[Asset: {ah.AssetObject}] '{assetInfo.AssetPath}' does not have a NetworkObject component. Skipping registration.");
+                        }
+                    } else {
+                        Debug.LogWarning($"[Asset: {ah.AssetObject}] '{assetInfo.AssetPath}' is not a GameObject. Skipping registration.");
+                    }
+                }
+                ah.Release();
+            }
 
             // 3. ³õÊ¼»¯ DI ÈÝÆ÷
             var root = VContainerSettings.Instance.GetOrCreateRootLifetimeScopeInstance();
