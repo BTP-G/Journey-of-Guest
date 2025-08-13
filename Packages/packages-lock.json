@@ -38,7 +38,7 @@
       "hash": "11d46e6201b8e975a4660073360815e69713571c"
     },
     "com.tuyoogame.yooasset": {
-      "version": "2.3.10",
+      "version": "2.3.14",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -96,7 +96,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.burst": {
-      "version": "1.8.23",
+      "version": "1.8.24",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -219,7 +219,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.multiplayer.tools": {
-      "version": "2.2.4",
+      "version": "2.2.6",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -234,7 +234,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.netcode.gameobjects": {
-      "version": "2.4.3",
+      "version": "2.4.4",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -283,7 +283,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.probuilder": {
-      "version": "6.0.5",
+      "version": "6.0.6",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -410,7 +410,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.services.multiplayer": {
-      "version": "1.1.4",
+      "version": "1.1.6",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -509,7 +509,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.timeline": {
-      "version": "1.8.8",
+      "version": "1.8.9",
       "depth": 0,
       "source": "registry",
       "dependencies": {
