@@ -28,8 +28,9 @@ namespace EditorAttributes.Editor
 		Frequency,
 		Data,
 		Density,
-		FuelEconomy
-	}
+		FuelEconomy,
+        Percentage
+    }
 
 	[Serializable]
 	internal class UnitDefinition
@@ -188,7 +189,7 @@ namespace EditorAttributes.Editor
 		
 			// Angle (base = radian)
 			new(Unit.Degree, "°", UnitCategory.Angle, Mathf.PI / 180d),
-			new(Unit.Radian, "rad", UnitCategory.Angle, 1),
+			new(Unit.Radian, "rad", UnitCategory.Angle, 1d),
 			new(Unit.Gradian, "gon", UnitCategory.Angle, Mathf.PI / 200d),
 			new(Unit.MinuteOfArc, "'", UnitCategory.Angle, Mathf.PI / (180d * 60d)),
 			new(Unit.SecondOfArc, "\"", UnitCategory.Angle, Mathf.PI / (180d * 3600d)),
@@ -316,7 +317,13 @@ namespace EditorAttributes.Editor
 			new(Unit.MilesPerGallon_US, "mpg", UnitCategory.FuelEconomy, 1d),
 			new(Unit.MilesPerGallon_UK, "mpg", UnitCategory.FuelEconomy, 1.20095d),
 			new(Unit.LitersPer100Kilometers, "L/100km", UnitCategory.FuelEconomy, 235.215d),
-		};
+
+			// Percent (base: %m)
+			new(Unit.PercentMultiplier, "%m", UnitCategory.Percentage, 1d),
+            new(Unit.Percent, "%", UnitCategory.Percentage, 0.01d),
+            new(Unit.Permille, "‰", UnitCategory.Percentage, 0.001d),
+            new(Unit.Permyriad, "‱", UnitCategory.Percentage, 0.0001d),
+        };
 
 		internal static Dictionary<(string from, string to), UnitConverter> UNIT_CONVERSION_MAP = new();
 

@@ -2,6 +2,7 @@ using Cysharp.Threading.Tasks;
 using JoG.BuffSystem;
 using JoG.DebugExtensions;
 using JoG.InventorySystem;
+using JoG.Localization;
 using JoG.ResourcePackageExtensions;
 using JoG.UI;
 using JoG.Utility;
@@ -19,6 +20,10 @@ namespace JoG {
     public class BootstrapManager : MonoBehaviour {
 
         private async void Awake() {
+            // 注入配置
+            ConfigManager.Inject();
+            // 初始化本地化
+            LocalizationManager.Load();
             // 1. 初始化 Unity Services
             while (UnityServices.State is not ServicesInitializationState.Initialized) {
                 try {

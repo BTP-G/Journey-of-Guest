@@ -10,6 +10,6 @@ AssetOrigin:
   serializedVersion: 1
   productId: 269285
   packageName: EditorAttributes
-  packageVersion: 2.8.0
+  packageVersion: 2.9.0
   assetPath: Assets/EditorAttributes/Samples/ExampleScriptableObject.asset
-  uploadId: 770752
+  uploadId: 778683
