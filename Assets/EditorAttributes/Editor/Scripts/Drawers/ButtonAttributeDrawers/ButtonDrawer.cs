@@ -80,11 +80,11 @@ namespace EditorAttributes.Editor
 				{
 					var parameter = functionParameters[i];
 
-					if (!parameter.ParameterType.IsPrimitive)
-					{
-						foldout.Add(new HelpBox($"Parameter type {parameter.ParameterType} is not supported. Only primitive types are supported.", HelpBoxMessageType.Error));
-						continue;
-					}
+					//if (!parameter.ParameterType.IsPrimitive)
+					//{
+					//	foldout.Add(new HelpBox($"Parameter type {parameter.ParameterType} is not supported. Only primitive types are supported.", HelpBoxMessageType.Error));
+					//	continue;
+					//}
 
 					var field = PropertyDrawerBase.CreateFieldForType(parameter.ParameterType, parameter.Name, ConvertParameterValue(parameter.ParameterType, parameterValues[function][i]));
 
