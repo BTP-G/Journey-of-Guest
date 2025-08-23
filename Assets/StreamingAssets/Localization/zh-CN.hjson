@@ -9,6 +9,10 @@
             name: "中毒",
             desc: "每隔{tickInterval}秒损失{damage}生命值",
             desc2: 1
+        },
+        burning:{
+            name: "燃烧",
+            desc: "每隔{tickInterval}秒损失一次生命值"
         }
     },
     item: {

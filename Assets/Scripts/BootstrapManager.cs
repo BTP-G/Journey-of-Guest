@@ -43,7 +43,7 @@ namespace JoG {
             var package = YooAssetHelper.GetOrCreatePackage("DefaultPackage");
             while (package.InitializeStatus is not EOperationStatus.Succeed) {
                 try {
-                    await LoadingManager.Loading(package.InitializeAsync(), Localizer.GetString("message.initialize",nameof(YooAsset)));
+                    await LoadingManager.Loading(package.InitializeAsync(), Localizer.GetString("message.initialize", nameof(YooAsset)));
                 } catch (Exception e) {
                     Debug.LogException(e);
                 }
@@ -83,7 +83,9 @@ namespace JoG {
             root.Build();
 
             // 4. 注册 Buff
-            BuffRegistrar.Register(Assembly.GetExecutingAssembly());
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies()) {
+                BuffRegistrar.Register(assembly);
+            }
 
             // 5. 异步加载主场景
             await SceneManager.LoadSceneAsync("MainScene");
