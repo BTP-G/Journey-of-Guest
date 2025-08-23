@@ -20,20 +20,20 @@ namespace JoG {
     public class BootstrapManager : MonoBehaviour {
 
         private async void Awake() {
-            // 注入配置
-            ConfigManager.Inject();
-            // 初始化本地化
-            LocalizationManager.Load();
+            Configer.Initialize();
+            Localizer.Initialize();
             // 1. 初始化 Unity Services
             while (UnityServices.State is not ServicesInitializationState.Initialized) {
                 try {
-                    await LoadingPanelManager.Loading(UnityServices.InitializeAsync(), "Initializing Unity Services...");
-                } catch (System.Exception e) {
+                    await LoadingManager.Loading(
+                        UnityServices.InitializeAsync(),
+                        Localizer.GetString("message.initialize", nameof(UnityServices)));
+                } catch (Exception e) {
                     Debug.LogException(e);
                 }
                 if (UnityServices.State is not ServicesInitializationState.Initialized) {
                     this.LogError("[BootstrapManager] Failed to initialize Unity Services. Game startup aborted.");
-                    if (!await PopupManager.PopupConfirmAsync("初始化Unity服务失败，是否重试？取消将退出游戏。")) {
+                    if (!await PopupManager.PopupConfirmAsync(Localizer.GetString("message.initialize.failOrRetry", nameof(UnityServices)))) {
                         Application.Quit();
                     }
                 }
@@ -43,13 +43,13 @@ namespace JoG {
             var package = YooAssetHelper.GetOrCreatePackage("DefaultPackage");
             while (package.InitializeStatus is not EOperationStatus.Succeed) {
                 try {
-                    await LoadingPanelManager.Loading(package.InitializeAsync(), $"Initializing ResourcePackage {package.PackageName}");
-                } catch (System.Exception e) {
+                    await LoadingManager.Loading(package.InitializeAsync(), Localizer.GetString("message.initialize",nameof(YooAsset)));
+                } catch (Exception e) {
                     Debug.LogException(e);
                 }
                 if (package.InitializeStatus is not EOperationStatus.Succeed) {
                     this.LogError("[BootstrapManager] Failed to initialize YooAssets. Game startup aborted.");
-                    if (!await PopupManager.PopupConfirmAsync("加载默认资源包失败，是否重试？取消将退出游戏。")) {
+                    if (!await PopupManager.PopupConfirmAsync(Localizer.GetString("message.initialize.failOrRetry", nameof(YooAsset)))) {
                         Application.Quit();
                     }
                 }
@@ -60,7 +60,7 @@ namespace JoG {
             }
 
             ItemCatalog.RegisterFromPackage(package);
-             
+
             NetworkPrefabs prefabs = NetworkManager.Singleton.NetworkConfig.Prefabs;
             foreach (var assetInfo in package.GetAssetInfos("network_prefab")) {
                 var ah = package.LoadAssetSync(assetInfo);

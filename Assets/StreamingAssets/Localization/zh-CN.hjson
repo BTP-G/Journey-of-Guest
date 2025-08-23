@@ -17,5 +17,29 @@
             desc: "恢复{heal}生命值",
             desc2: 1
         }
+    },
+    teleporter: {
+        name: "传送器",
+        desc: "传送到{0}"
+    },
+    wand: {
+        name: "魔杖",
+        desc: "释放法术{0}"
+    },
+    spell:{
+        fireball: {
+            name: "火球术",
+            desc: "发射一个火球，造成{damage}点伤害"
+        },
+        frostbolt: {
+            name: "霜冻箭",
+            desc: "发射一支霜冻箭，造成{damage}点伤害并减速目标"
+        }
+    },
+    message:{
+        initialize: "初始化{0}",
+        initialize.failOrRetry: "初始化{0}失败，是否重试？",
+        confirm: "确认",
+        cancel: "取消",
     }
 }

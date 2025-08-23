@@ -1,23 +1,18 @@
-
-using System;
+using ANU.IngameDebug.Console;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ANU.IngameDebug.Console;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 [assembly: RegisterDebugCommandTypes(typeof(DefaultCommands))]
 [assembly: RegisterDebugCommandTypes(typeof(DefaultCommandsNoPrefix))]
 
-namespace ANU.IngameDebug.Console
-{
+namespace ANU.IngameDebug.Console {
     [DebugCommandPrefix("default")]
-    internal class DefaultCommands
-    {
+    internal class DefaultCommands {
         [DebugCommand]
-        private static float TimeScale
-        {
+        private static float TimeScale {
             get => Time.timeScale;
             set => Time.timeScale = Mathf.Max(0, value);
         }
@@ -27,21 +22,18 @@ namespace ANU.IngameDebug.Console
             [OptAltNames("i")]
             [OptDesc("Print hierarchy on internal DontDestroyOnLoad scene too")]
             bool includeDontDestroyOnLoad = true
-        )
-        {
+        ) {
             var sb = new StringBuilder();
             var scenesCount = SceneManager.sceneCount;
 
             sb.AppendLine();
 
-            for (int i = 0; i < scenesCount; i++)
-            {
+            for (int i = 0; i < scenesCount; i++) {
                 var scene = SceneManager.GetSceneAt(i);
                 DisplayHierarchy(scene, sb);
             }
 
-            if (includeDontDestroyOnLoad)
-            {
+            if (includeDontDestroyOnLoad) {
                 var dontDestroyScene = DebugConsole.Instance.transform.root.gameObject.scene;
                 DisplayHierarchy(dontDestroyScene, sb);
             }
@@ -49,13 +41,11 @@ namespace ANU.IngameDebug.Console
             DebugConsole.Logger.LogReturnValue(sb.ToString());
         }
 
-        private static void DisplayHierarchy(Scene scene, StringBuilder sb)
-        {
+        private static void DisplayHierarchy(Scene scene, StringBuilder sb) {
             sb.AppendLine(scene.name);
 
             var rootObjects = scene.GetRootGameObjects();
-            foreach (var obj in rootObjects)
-            {
+            foreach (var obj in rootObjects) {
                 sb.Append("|--");
                 sb.AppendLine(obj.name);
 
@@ -63,13 +53,11 @@ namespace ANU.IngameDebug.Console
             }
 
         }
-        private static void DisplayHierarchy(GameObject gameObject, StringBuilder sb, string intent)
-        {
+        private static void DisplayHierarchy(GameObject gameObject, StringBuilder sb, string intent) {
             if (gameObject == null)
                 return;
 
-            for (int i = 0; i < gameObject.transform.childCount; i++)
-            {
+            for (int i = 0; i < gameObject.transform.childCount; i++) {
                 var child = gameObject.transform.GetChild(i);
                 sb.Append(intent);
                 sb.Append("|--");
@@ -80,13 +68,11 @@ namespace ANU.IngameDebug.Console
         }
 
         [DebugCommand]
-        private static void ObjectInfo(GameObject[] gameObjects)
-        {
+        private static void ObjectInfo(GameObject[] gameObjects) {
             var sb = new StringBuilder();
             sb.AppendLine();
 
-            foreach (var item in gameObjects)
-            {
+            foreach (var item in gameObjects) {
                 sb.Append(item.name);
                 sb.Append("[");
                 sb.Append(item.GetInstanceID());
@@ -98,8 +84,7 @@ namespace ANU.IngameDebug.Console
 
                 sb.Append("|--child count: ");
                 sb.AppendLine(item.transform.childCount.ToString());
-                for (int i = 0; i < item.transform.childCount; i++)
-                {
+                for (int i = 0; i < item.transform.childCount; i++) {
                     sb.Append("   |--");
                     sb.AppendLine(item.transform.GetChild(i).name);
                 }
@@ -112,8 +97,7 @@ namespace ANU.IngameDebug.Console
             DebugConsole.Logger.LogReturnValue(sb.ToString());
         }
 
-        private static void ComponentInfo(Component component, StringBuilder sb, string intent)
-        {
+        private static void ComponentInfo(Component component, StringBuilder sb, string intent) {
             sb.Append(intent);
             sb.Append("|--");
             sb.AppendLine(component.GetType().Name);
@@ -122,8 +106,7 @@ namespace ANU.IngameDebug.Console
                 ComponentInfo(transform, sb, intent + "|  ");
         }
 
-        private static void ComponentInfo(Transform transform, StringBuilder sb, string intent)
-        {
+        private static void ComponentInfo(Transform transform, StringBuilder sb, string intent) {
             Append("Position", transform.position, sb, intent);
             Append("Local Position", transform.localPosition, sb, intent);
 
@@ -134,8 +117,7 @@ namespace ANU.IngameDebug.Console
             Append("Local Scale", transform.localScale, sb, intent);
         }
 
-        private static void Append(string propName, Vector3 v3, StringBuilder sb, string intent)
-        {
+        private static void Append(string propName, Vector3 v3, StringBuilder sb, string intent) {
             sb.Append(intent);
             sb.Append("|--");
             sb.Append(propName);
@@ -161,16 +143,14 @@ namespace ANU.IngameDebug.Console
                 ?.FirstOrDefault()
             );
 
-        private static IEnumerable<int> ListSceneIndices()
-        {
+        private static IEnumerable<int> ListSceneIndices() {
             var cnt = SceneManager.sceneCountInBuildSettings;
             for (int i = 0; i < cnt; i++)
                 yield return i;
         }
     }
 
-    internal class DefaultCommandsNoPrefix
-    {
+    internal class DefaultCommandsNoPrefix {
         [DebugCommand(DisplayOptions = CommandDisplayOptions.All & ~CommandDisplayOptions.Dashboard)]
         private static string Echo(string value) => value;
     }
