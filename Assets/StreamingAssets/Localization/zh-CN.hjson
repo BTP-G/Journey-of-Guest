@@ -2,48 +2,55 @@
     buff: {
         bleeding: {
             name: "流血",
-            desc: "每隔{tickInterval}秒损失{damage}生命值",
-            desc2: 1
+            desc: "每隔{tickInterval}秒损失一次生命值"
         },
-        potion: {
+        poison: {
             name: "中毒",
-            desc: "每隔{tickInterval}秒损失{damage}生命值",
-            desc2: 1
+            desc: "每隔{tickInterval}秒损失一次生命值"
         },
-        burning:{
+        burning: {
             name: "燃烧",
             desc: "每隔{tickInterval}秒损失一次生命值"
         }
     },
     item: {
-        potion: {
-            name: "药水",
-            desc: "恢复{heal}生命值",
-            desc2: 1
+        healing_potion: {
+            name: "治疗药水",
+            desc: "恢复{healPercent}生命值"
+        },
+        wand: {
+            name: "魔杖",
+            desc: "释放法术{0}"
         }
     },
     teleporter: {
         name: "传送器",
         desc: "传送到{0}"
     },
-    wand: {
-        name: "魔杖",
-        desc: "释放法术{0}"
-    },
-    spell:{
+    spell: {
         fireball: {
             name: "火球术",
             desc: "发射一个火球，造成{damage}点伤害"
         },
-        frostbolt: {
+        frost_bolt: {
             name: "霜冻箭",
             desc: "发射一支霜冻箭，造成{damage}点伤害并减速目标"
         }
     },
-    message:{
+    character: {
+        cat_girl: {
+            name: "猫女",
+            desc: "普通角色"
+        }
+    },
+    radio: {
+        name: "播放器",
+        desc: "播放或暂停音乐"
+    },
+    message: {
         initialize: "初始化{0}",
-        initialize.failOrRetry: "初始化{0}失败，是否重试？",
+        initialize.retry: "初始化{0}失败，是否重试？",
         confirm: "确认",
-        cancel: "取消",
+        cancel: "取消"
     }
 }
