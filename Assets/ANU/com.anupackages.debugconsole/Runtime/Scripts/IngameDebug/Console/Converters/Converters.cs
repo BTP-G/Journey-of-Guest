@@ -224,7 +224,7 @@ namespace ANU.IngameDebug.Console.Converters
             if (option.ToLower() == "null")
                 return null;
 
-#if UNITY_2023_0_OR_NEWER
+#if UNITY_2023_1_OR_NEWER
             return  GameObject.FindObjectsByType(targetType, FindObjectsSortMode.None).FirstOrDefault(t => t.name == option);
 #else
             return GameObject.FindObjectsOfType(targetType).FirstOrDefault(t => t.name == option);

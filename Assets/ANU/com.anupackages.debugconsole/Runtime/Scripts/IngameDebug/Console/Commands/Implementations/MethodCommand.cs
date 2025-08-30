@@ -215,7 +215,7 @@ namespace ANU.IngameDebug.Console.Commands.Implementations {
             switch (instanceTarget) {
                 case InstanceTargetType.AllActive:
                 case InstanceTargetType.AllIncludingInactive:
-#if UNITY_2023_0_OR_NEWER
+#if UNITY_2023_1_OR_NEWER
                     targets = GameObject.FindObjectsByType(
                         _member.DeclaringType,
                         includeInactive
@@ -233,7 +233,7 @@ namespace ANU.IngameDebug.Console.Commands.Implementations {
 
                 case InstanceTargetType.FirstActive:
                 case InstanceTargetType.FirstIncludingInactive:
-#if UNITY_2023_0_OR_NEWER
+#if UNITY_2023_1_OR_NEWER
                     var target = GameObject.FindFirstObjectByType(
                         _member.DeclaringType,
                         includeInactive
