@@ -78,3 +78,5 @@ crashlytics-build.properties
 /[Bb]undles/
 
 /steam_appid.txt
+/Assets
+/ProjectSettings

@@ -1,13 +1,11 @@
 using Cysharp.Threading.Tasks;
+using GuestUnion.Extensions.Unity;
+using GuestUnion.Utilities.YooAsset;
 using JoG.BuffSystem;
-using JoG.DebugExtensions;
 using JoG.InventorySystem;
 using JoG.Localization;
-using JoG.ResourcePackageExtensions;
 using JoG.UI;
-using JoG.Utility;
 using System;
-using System.Reflection;
 using Unity.Netcode;
 using Unity.Services.Core;
 using UnityEngine;
@@ -22,7 +20,6 @@ namespace JoG {
         private async void Awake() {
             Configer.Initialize();
             Localizer.Initialize();
-            // 1. 初始化 Unity Services
             while (UnityServices.State is not ServicesInitializationState.Initialized) {
                 try {
                     await LoadingManager.Loading(
@@ -39,8 +36,7 @@ namespace JoG {
                 }
             }
 
-            // 2. 初始化 YooAssets
-            var package = YooAssetHelper.GetOrCreatePackage("DefaultPackage");
+            var package = YooAssetUtility.GetOrCreatePackage("DefaultPackage");
             while (package.InitializeStatus is not EOperationStatus.Succeed) {
                 try {
                     await LoadingManager.Loading(package.InitializeAsync(), Localizer.GetString("message.initialize", nameof(YooAsset)));
@@ -49,45 +45,45 @@ namespace JoG {
                 }
                 if (package.InitializeStatus is not EOperationStatus.Succeed) {
                     this.LogError("[BootstrapManager] Failed to initialize YooAssets. Game startup aborted.");
-                    if (!await PopupManager.PopupConfirmAsync(Localizer.GetString("message.initialize.failOrRetry", nameof(YooAsset)))) {
+                    if (!await PopupManager.PopupConfirmAsync(Localizer.GetString("message.initialize.retry", nameof(YooAsset)))) {
                         Application.Quit();
                     }
                 }
             }
             YooAssets.SetDefaultPackage(package);
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies()) {
-                package.InjectAssetHandles(assembly);
+                await YooAssetUtility.InjectAssetAsync(assembly);
             }
 
-            ItemCatalog.RegisterFromPackage(package);
+            await ItemCatalog.RegisterFromPackageAsync(package);
 
-            NetworkPrefabs prefabs = NetworkManager.Singleton.NetworkConfig.Prefabs;
+            var prefabs = NetworkManager.Singleton.NetworkConfig.Prefabs;
             foreach (var assetInfo in package.GetAssetInfos("network_prefab")) {
-                var ah = package.LoadAssetSync(assetInfo);
+                if (assetInfo.AssetType != typeof(GameObject)) {
+                    this.LogWarning($"[AssetAddress: {assetInfo.Address}] '{assetInfo.AssetType}' is not GameObject. Skipping registration.");
+                    continue;
+                }
+                var ah = package.LoadAssetAsync(assetInfo);
+                await ah.Task;
                 if (ah.Status == EOperationStatus.Succeed) {
-                    if (ah.AssetObject is GameObject go) {
-                        if (go.TryGetComponent<NetworkObject>(out _)) {
-                            prefabs.Add(new NetworkPrefab() { Prefab = go });
-                        } else {
-                            Debug.LogWarning($"[Asset: {ah.AssetObject}] '{assetInfo.AssetPath}' does not have a NetworkObject component. Skipping registration.");
-                        }
+                    var go = ah.AssetObject as GameObject;
+                    if (go.TryGetComponent<NetworkObject>(out _)) {
+                        prefabs.Add(new NetworkPrefab() { Prefab = go });
                     } else {
-                        Debug.LogWarning($"[Asset: {ah.AssetObject}] '{assetInfo.AssetPath}' is not a GameObject. Skipping registration.");
+                        this.LogWarning($"[Asset: {ah.AssetObject}] '{assetInfo.AssetPath}' does not have a NetworkObject component. Skipping registration.");
                     }
+
                 }
                 ah.Release();
             }
 
-            // 3. 初始化 DI 容器
             var root = VContainerSettings.Instance.GetOrCreateRootLifetimeScopeInstance();
             root.Build();
 
-            // 4. 注册 Buff
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies()) {
                 BuffRegistrar.Register(assembly);
             }
 
-            // 5. 异步加载主场景
             await SceneManager.LoadSceneAsync("MainScene");
         }
     }
