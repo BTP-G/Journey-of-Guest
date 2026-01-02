@@ -52,7 +52,7 @@ namespace TMPro.Examples
             Vector3[] vertices;
             Matrix4x4 matrix;
 
-            m_TextComponent.havePropertiesChanged = true; // Need to force the TextMeshPro Object to be updated.
+            m_TextComponent.havePropertiesChanged = true; // Need to force the TextMeshPro UObject to be updated.
             CurveScale *= 10;
             float old_CurveScale = CurveScale;
             AnimationCurve old_curve = CopyAnimationCurve(VertexCurve);
@@ -91,7 +91,7 @@ namespace TMPro.Examples
 
                     int vertexIndex = textInfo.characterInfo[i].vertexIndex;
 
-                    // Get the index of the mesh used by this character.
+                    // Get the Index of the mesh used by this character.
                     int materialIndex = textInfo.characterInfo[i].materialReferenceIndex;
 
                     vertices = textInfo.meshInfo[materialIndex].vertices;

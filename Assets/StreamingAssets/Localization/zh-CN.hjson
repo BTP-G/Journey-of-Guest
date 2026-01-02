@@ -1,4 +1,5 @@
 {
+    language: "",
     buff: {
         bleeding: {
             name: "流血",
@@ -23,18 +24,14 @@
             desc: "释放法术{0}"
         }
     },
-    teleporter: {
-        name: "传送器",
-        desc: "传送到{0}"
-    },
-    spell: {
-        fireball: {
-            name: "火球术",
-            desc: "发射一个火球，造成{damage}点伤害"
+    interact: {
+        radio: {
+            name: "播放器",
+            desc: "播放或暂停音乐"
         },
-        frost_bolt: {
-            name: "霜冻箭",
-            desc: "发射一支霜冻箭，造成{damage}点伤害并减速目标"
+        teleporter: {
+            name: "传送器",
+            desc: "传送到{0}"
         }
     },
     character: {
@@ -43,14 +40,110 @@
             desc: "普通角色"
         }
     },
-    radio: {
-        name: "播放器",
-        desc: "播放或暂停音乐"
+    unity_services: {
+        init_failed: "Unity服务初始化失败，是否重试？错误信息：{0}"
     },
-    message: {
-        initialize: "初始化{0}",
-        initialize.retry: "初始化{0}失败，是否重试？",
-        confirm: "确认",
-        cancel: "取消"
+    session: {
+        tittle: "游戏会话",
+        name: {
+            label: "会话名称",
+            placeholder: "请输入会话名称"
+        },
+        password: {
+            label: "会话密码",
+            placeholder: "8~16个数字"
+        },
+        max_players: {
+            label: "最大玩家数",
+            placeholder: "1~16"
+        },
+        is_private: {
+            label: "私有会话"
+        },
+        code: {
+            label: "会话代码",
+            placeholder: "请输入会话代码"
+        },
+        list: {
+            tittle: "会话列表"
+        },
+        create: {
+            tittle: "创建会话",
+            button: "创建",
+            default_name: "{0}的会话"
+            created: "创建会话成功，会话代码 {0} 已复制到剪切板。",
+            failed: "创建会话失败：{0}"
+        },
+        join: {
+            tittle: "加入会话",
+            button: "加入",
+            joined: "成功加入会话，会话代码 {0} 已复制到剪切板。",
+            failed: "加入会话失败：{0}"
+        },
+        query: {
+            tittle: "查询会话",
+            filter: {
+                tittle: "筛选条件"
+            }
+            refresh: {
+                button: "刷新"
+            }
+        }
+    },
+    main_menu: {
+        introduce: {
+            button: "游戏介绍"
+        },
+        multiplayer: {
+            button: "多人游戏"
+        },
+        mods: {
+            button: "模组管理"
+        },
+        settings: {
+            button: "游戏设置"
+        },
+        quit: {
+            button: "退出游戏",
+            message: "确定要退出游戏吗？"
+        }
+    },
+    ingame_menu: {
+        tittle: "游戏菜单",
+        resume: {
+            button: "继续游戏"
+        },
+        settings:{
+            button: "游戏设置"
+        }
+        disconnect: {
+            button: "断开连接",
+            message: "确定要断开与当前会话的连接吗？"
+        },
+        quit: {
+            button: "退出游戏",
+            message: "确定要退出游戏吗？"
+        }
+    },
+    popup: {
+        confirm: {
+            button: "确认"
+        },
+        cancel: {
+            button: "取消"
+        }
+    },
+    profile: {
+        name: {
+            label: "玩家名称",
+            placeholder: "请输入玩家名称",
+            error: {
+                empty_or_whitespace: "玩家名称不能为空或仅包含空格",
+                too_short: "玩家名称长度太短",
+                too_long: "玩家名称长度太长",
+                invalid_characters: "玩家名称不能包含非法字符",
+                no_valid_letters: "玩家名称不能只包含数字和符号"
+            }
+        }
     }
 }

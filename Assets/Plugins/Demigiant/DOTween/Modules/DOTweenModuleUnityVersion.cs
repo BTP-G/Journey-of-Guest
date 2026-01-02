@@ -116,7 +116,7 @@ namespace DG.Tweening
         }
 
         /// <summary>
-        /// Returns a <see cref="CustomYieldInstruction"/> that waits until the tween is killed or has gone through the given amount of loops.
+        /// Returns a <see cref="CustomYieldInstruction"/> that waits until the tween is killed or has gone through the given Amount of loops.
         /// It can be used inside a coroutine as a yield.
         /// <para>Example usage:</para><code>yield return myTween.WaitForElapsedLoops(2);</code>
         /// </summary>
@@ -251,7 +251,7 @@ namespace DG.Tweening
         }
 
         /// <summary>
-        /// Returns an async <see cref="System.Threading.Tasks.Task"/> that waits until the tween is killed or has gone through the given amount of loops.
+        /// Returns an async <see cref="System.Threading.Tasks.Task"/> that waits until the tween is killed or has gone through the given Amount of loops.
         /// It can be used inside an async operation.
         /// <para>Example usage:</para><code>await myTween.AsyncWaitForElapsedLoops();</code>
         /// </summary>

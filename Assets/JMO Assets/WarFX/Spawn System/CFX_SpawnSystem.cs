@@ -10,13 +10,13 @@ using System.Collections.Generic;
 public class CFX_SpawnSystem : MonoBehaviour
 {
 	/// <summary>
-	/// Get the next available preloaded Object.
+	/// Get the next available preloaded UObject.
 	/// </summary>
 	/// <returns>
-	/// The next available preloaded Object.
+	/// The next available preloaded UObject.
 	/// </returns>
 	/// <param _inputName='sourceObj'>
-	/// The _source Object from which to get a preloaded copy.
+	/// The _source UObject from which to get a preloaded copy.
 	/// </param>
 	/// <param _inputName='activateObject'>
 	/// Activates the object before returning it.
@@ -77,13 +77,13 @@ public class CFX_SpawnSystem : MonoBehaviour
 	}
 	
 	/// <summary>
-	/// Preloads an object a number of times in the pool.
+	/// Preloads an object a number of times in the stack.
 	/// </summary>
 	/// <param _inputName='sourceObj'>
-	/// The _source Object.
+	/// The _source UObject.
 	/// </param>
 	/// <param _inputName='poolSize'>
-	/// The number of times it will be instantiated in the pool (i.e. the max number of same object that would appear simultaneously in your Scene).
+	/// The number of times it will be instantiated in the stack (i.e. the max number of same object that would appear simultaneously in your Scene).
 	/// </param>
 	static public void PreloadObject(GameObject sourceObj, int poolSize = 1)
 	{
@@ -91,7 +91,7 @@ public class CFX_SpawnSystem : MonoBehaviour
 	}
 	
 	/// <summary>
-	/// Unloads all the preloaded objects from a _source Object.
+	/// Unloads all the preloaded objects from a _source UObject.
 	/// </summary>
 	/// <param _inputName='sourceObj'>
 	/// Source object.
@@ -134,27 +134,27 @@ public class CFX_SpawnSystem : MonoBehaviour
 	{
 		int uniqueId = sourceObject.GetInstanceID();
 
-		//Add new entry if it doesn't exist
+		//Enqueue new entry if it doesn't exist
 		if(!instantiatedObjects.ContainsKey(uniqueId))
 		{
 			instantiatedObjects.Add(uniqueId, new List<GameObject>());
 			poolCursors.Add(uniqueId, 0);
 		}
 		
-		//Add the new objects
+		//Enqueue the new objects
 		GameObject newObj;
 		for(int i = 0; i < number; i++)
 		{
 			newObj = Instantiate(sourceObject);
 				newObj.SetActive(false);
 
-			//Set flag to not destruct object
+			//Set flags to not destruct object
 			CFX_AutoDestructShuriken[] autoDestruct = newObj.GetComponentsInChildren<CFX_AutoDestructShuriken>(true);
 			foreach(CFX_AutoDestructShuriken ad in autoDestruct)
 			{
 				ad.OnlyDeactivate = true;
 			}
-			//Set flag to not destruct light
+			//Set flags to not destruct light
 			CFX_LightIntensityFade[] lightIntensity = newObj.GetComponentsInChildren<CFX_LightIntensityFade>(true);
 			foreach(CFX_LightIntensityFade li in lightIntensity)
 			{
@@ -189,7 +189,7 @@ public class CFX_SpawnSystem : MonoBehaviour
 			GameObject.Destroy(obj);
 		}
 		
-		//Remove pool entry
+		//Remove stack entry
 		instantiatedObjects.Remove(uniqueId);
 		poolCursors.Remove(uniqueId);
 	}

@@ -98,7 +98,7 @@ namespace TMPro.Examples
                     int first = textInfo.lineInfo[i].firstCharacterIndex;
                     int last = textInfo.lineInfo[i].lastCharacterIndex;
 
-                    // Determine the center of each line
+                    // Determine the _center of each line
                     Vector3 centerOfLine = (textInfo.characterInfo[first].bottomLeft + textInfo.characterInfo[last].topRight) / 2;
                     Quaternion rotation = Quaternion.Euler(0, 0, Random.Range(-0.25f, 0.25f));
 
@@ -109,19 +109,19 @@ namespace TMPro.Examples
                         if (!textInfo.characterInfo[j].isVisible)
                             continue;
 
-                        // Get the index of the material used by the current character.
+                        // Get the Index of the material used by the current character.
                         int materialIndex = textInfo.characterInfo[j].materialReferenceIndex;
 
-                        // Get the index of the first vertex used by this text element.
+                        // Get the Index of the first vertex used by this text element.
                         int vertexIndex = textInfo.characterInfo[j].vertexIndex;
 
                         // Get the vertices of the mesh used by this text element (character or sprite).
                         Vector3[] sourceVertices = textInfo.meshInfo[materialIndex].vertices;
 
-                        // Determine the center point of each character at the baseline.
+                        // Determine the _center point of each character at the baseline.
                         Vector3 charCenter = (sourceVertices[vertexIndex + 0] + sourceVertices[vertexIndex + 2]) / 2;
 
-                        // Need to translate all 4 vertices of each quad to aligned with center of character.
+                        // Need to translate all 4 vertices of each quad to aligned with _center of character.
                         // This is needed so the matrix TRS is applied at the origin for each character.
                         copyOfVertices[materialIndex][vertexIndex + 0] = sourceVertices[vertexIndex + 0] - charCenter;
                         copyOfVertices[materialIndex][vertexIndex + 1] = sourceVertices[vertexIndex + 1] - charCenter;
@@ -134,7 +134,7 @@ namespace TMPro.Examples
                         // Setup the matrix for the scale change.
                         matrix = Matrix4x4.TRS(Vector3.one, Quaternion.identity, Vector3.one * randomScale);
 
-                        // Apply the scale change relative to the center of each character.
+                        // Apply the scale change relative to the _center of each character.
                         copyOfVertices[materialIndex][vertexIndex + 0] = matrix.MultiplyPoint3x4(copyOfVertices[materialIndex][vertexIndex + 0]);
                         copyOfVertices[materialIndex][vertexIndex + 1] = matrix.MultiplyPoint3x4(copyOfVertices[materialIndex][vertexIndex + 1]);
                         copyOfVertices[materialIndex][vertexIndex + 2] = matrix.MultiplyPoint3x4(copyOfVertices[materialIndex][vertexIndex + 2]);
@@ -146,8 +146,8 @@ namespace TMPro.Examples
                         copyOfVertices[materialIndex][vertexIndex + 2] += charCenter;
                         copyOfVertices[materialIndex][vertexIndex + 3] += charCenter;
 
-                        // Need to translate all 4 vertices of each quad to aligned with the center of the line.
-                        // This is needed so the matrix TRS is applied from the center of the line.
+                        // Need to translate all 4 vertices of each quad to aligned with the _center of the line.
+                        // This is needed so the matrix TRS is applied from the _center of the line.
                         copyOfVertices[materialIndex][vertexIndex + 0] -= centerOfLine;
                         copyOfVertices[materialIndex][vertexIndex + 1] -= centerOfLine;
                         copyOfVertices[materialIndex][vertexIndex + 2] -= centerOfLine;
@@ -156,7 +156,7 @@ namespace TMPro.Examples
                         // Setup the matrix rotation.
                         matrix = Matrix4x4.TRS(Vector3.one, rotation, Vector3.one);
 
-                        // Apply the matrix TRS to the individual characters relative to the center of the current line.
+                        // Apply the matrix TRS to the individual characters relative to the _center of the current line.
                         copyOfVertices[materialIndex][vertexIndex + 0] = matrix.MultiplyPoint3x4(copyOfVertices[materialIndex][vertexIndex + 0]);
                         copyOfVertices[materialIndex][vertexIndex + 1] = matrix.MultiplyPoint3x4(copyOfVertices[materialIndex][vertexIndex + 1]);
                         copyOfVertices[materialIndex][vertexIndex + 2] = matrix.MultiplyPoint3x4(copyOfVertices[materialIndex][vertexIndex + 2]);

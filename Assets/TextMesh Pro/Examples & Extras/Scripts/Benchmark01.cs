@@ -48,12 +48,12 @@ namespace TMPro.Examples
 
                 m_textMeshPro.fontSize = 48;
                 m_textMeshPro.alignment = TextAlignmentOptions.Center;
-                //m_textMeshPro.anchor = AnchorPositions.Center;
+                //m_textMeshPro.anchor = AnchorPositions._center;
                 m_textMeshPro.extraPadding = true;
                 //m_textMeshPro.outlineWidth = 0.25f;
                 //m_textMeshPro.fontSharedMaterial.SetFloat("_OutlineWidth", 0.2f);
                 //m_textMeshPro.fontSharedMaterial.EnableKeyword("UNDERLAY_ON");
-                //m_textMeshPro.lineJustification = LineJustificationTypes.Center;
+                //m_textMeshPro.lineJustification = LineJustificationTypes._center;
                 m_textMeshPro.textWrappingMode = TextWrappingModes.NoWrap;
                 //m_textMeshPro.lineLength = 60;
                 //m_textMeshPro.characterSpacing = 0.2f;

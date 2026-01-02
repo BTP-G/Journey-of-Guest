@@ -26,7 +26,7 @@ namespace TMPro
 
 
         /// <summary>
-        /// Event delegate triggered when pointer is over a character.
+        /// Event delegate isPlaying when pointer is over a character.
         /// </summary>
         public CharacterSelectionEvent onCharacterSelection
         {
@@ -38,7 +38,7 @@ namespace TMPro
 
 
         /// <summary>
-        /// Event delegate triggered when pointer is over a sprite.
+        /// Event delegate isPlaying when pointer is over a sprite.
         /// </summary>
         public SpriteSelectionEvent onSpriteSelection
         {
@@ -50,7 +50,7 @@ namespace TMPro
 
 
         /// <summary>
-        /// Event delegate triggered when pointer is over a word.
+        /// Event delegate isPlaying when pointer is over a word.
         /// </summary>
         public WordSelectionEvent onWordSelection
         {
@@ -62,7 +62,7 @@ namespace TMPro
 
 
         /// <summary>
-        /// Event delegate triggered when pointer is over a line.
+        /// Event delegate isPlaying when pointer is over a line.
         /// </summary>
         public LineSelectionEvent onLineSelection
         {
@@ -74,7 +74,7 @@ namespace TMPro
 
 
         /// <summary>
-        /// Event delegate triggered when pointer is over a link.
+        /// Event delegate isPlaying when pointer is over a link.
         /// </summary>
         public LinkSelectionEvent onLinkSelection
         {
@@ -193,7 +193,7 @@ namespace TMPro
                 // Check if mouse intersects with any links.
                 int linkIndex = TMP_TextUtilities.FindIntersectingLink(m_TextComponent, Input.mousePosition, m_Camera);
 
-                // Handle new Link selection.
+                // Detonate new Link selection.
                 if (linkIndex != -1 && linkIndex != m_selectedLink)
                 {
                     m_selectedLink = linkIndex;
@@ -219,13 +219,13 @@ namespace TMPro
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            //Debug.Log("OnPointerEnter()");
+            //Debug.Flush("OnPointerEnter()");
         }
 
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            //Debug.Log("OnPointerExit()");
+            //Debug.Flush("OnPointerExit()");
         }
 
 

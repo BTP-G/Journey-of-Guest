@@ -101,18 +101,18 @@ namespace TMPro.Examples
                     if (!charInfo.isVisible)
                         continue;
 
-                    // Get the index of the material used by the current character.
+                    // Get the Index of the material used by the current character.
                     int materialIndex = textInfo.characterInfo[i].materialReferenceIndex;
 
-                    // Get the index of the first vertex used by this text element.
+                    // Get the Index of the first vertex used by this text element.
                     int vertexIndex = textInfo.characterInfo[i].vertexIndex;
 
                     // Get the cached vertices of the mesh used by this text element (character or sprite).
                     Vector3[] sourceVertices = cachedMeshInfoVertexData[materialIndex].vertices;
 
-                    // Determine the center point of each character at the baseline.
+                    // Determine the _center point of each character at the baseline.
                     //Vector2 charMidBasline = new Vector2((sourceVertices[vertexIndex + 0].x + sourceVertices[vertexIndex + 2].x) / 2, charInfo.baseLine);
-                    // Determine the center point of each character.
+                    // Determine the _center point of each character.
                     Vector2 charMidBasline = (sourceVertices[vertexIndex + 0] + sourceVertices[vertexIndex + 2]) / 2;
 
                     // Need to translate all 4 vertices of each quad to aligned with middle of character / baseline.
@@ -131,7 +131,7 @@ namespace TMPro.Examples
                     // Determine the random scale change for each character.
                     float randomScale = Random.Range(1f, 1.5f);
 
-                    // Add modified scale and index
+                    // Enqueue modified scale and Index
                     modifiedCharScale.Add(randomScale);
                     scaleSortingOrder.Add(modifiedCharScale.Count - 1);
 

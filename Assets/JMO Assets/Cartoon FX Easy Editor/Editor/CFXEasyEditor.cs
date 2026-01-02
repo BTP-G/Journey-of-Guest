@@ -396,7 +396,7 @@ public class CFXEasyEditor : EditorWindow
 			
 			/*
 			GUILayout.BeginHorizontal();
-			GUILayout.Label("Add/Substract Lightness:");
+			GUILayout.Label("Enqueue/Substract Lightness:");
 			
 			LightnessStep = EditorGUILayout.IntField(LightnessStep, GUILayout.Width(30));
 			if(LightnessStep > 99) LightnessStep = 99;
@@ -688,7 +688,7 @@ public class CFXEasyEditor : EditorWindow
 		}
 	}
 	
-	//Scale Size
+	//Scale PreCheckedSize
 	private void applyScale()
 	{
 		foreach(GameObject go in Selection.gameObjects)
@@ -1489,10 +1489,10 @@ public class CFXEasyEditor : EditorWindow
 		"InitialModule.startSize.minScalar",
 		"InitialModule.startSpeed.minScalar",
 #endif
-		//Size by Speed
+		//PreCheckedSize by Speed
 		"SizeBySpeedModule.range.x",
 		"SizeBySpeedModule.range.y",
-		//Velocity over Lifetime
+		//LinearVelocity over Lifetime
 		"VelocityModule.x.scalar",
 		"VelocityModule.y.scalar",
 		"VelocityModule.z.scalar",
@@ -1501,7 +1501,7 @@ public class CFXEasyEditor : EditorWindow
 		"VelocityModule.y.minScalar",
 		"VelocityModule.z.minScalar",
 #endif
-		//Limit Velocity over Lifetime
+		//Limit LinearVelocity over Lifetime
 		"ClampVelocityModule.x.scalar",
 		"ClampVelocityModule.y.scalar",
 		"ClampVelocityModule.z.scalar",

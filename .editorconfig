@@ -184,3 +184,7 @@ dotnet_style_prefer_simplified_interpolation = true:suggestion
 dotnet_style_prefer_collection_expression = when_types_loosely_match:suggestion
 dotnet_style_namespace_match_folder = true:suggestion
 dotnet_style_predefined_type_for_locals_parameters_members = true:silent
+
+[*.cs]
+# 关闭 CS8632：禁止在 #nullable 上下文外使用可为 null 的引用类型注解
+dotnet_diagnostic.CS8632.severity = none

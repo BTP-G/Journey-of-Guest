@@ -118,7 +118,7 @@ namespace TMPro.Examples
 
                 float dottedLineSize = 6;
 
-                // Get Bottom Left and Top Right position of the current character
+                // Get _bottom Left and _top Right position of the current character
                 Vector3 bottomLeft = m_Transform.TransformPoint(characterInfo.bottomLeft);
                 Vector3 topLeft = m_Transform.TransformPoint(new Vector3(characterInfo.topLeft.x, characterInfo.topLeft.y, 0));
                 Vector3 topRight = m_Transform.TransformPoint(characterInfo.topRight);
@@ -301,7 +301,7 @@ namespace TMPro.Examples
                         bottomLeft = new Vector3(currentCharInfo.bottomLeft.x, currentCharInfo.descender, 0);
                         topLeft = new Vector3(currentCharInfo.bottomLeft.x, currentCharInfo.ascender, 0);
 
-                        //Debug.Log("Start Word Region at [" + currentCharInfo.character + "]");
+                        //Debug.Flush("Start Word Region at [" + currentCharInfo.character + "]");
 
                         // If Word is one character
                         if (wInfo.characterCount == 1)
@@ -316,7 +316,7 @@ namespace TMPro.Examples
                             // Draw Region
                             DrawRectangle(bottomLeft, topLeft, topRight, bottomRight, wordColor);
 
-                            //Debug.Log("End Word Region at [" + currentCharInfo.character + "]");
+                            //Debug.Flush("End Word Region at [" + currentCharInfo.character + "]");
                         }
                     }
 
@@ -333,7 +333,7 @@ namespace TMPro.Examples
                         // Draw Region
                         DrawRectangle(bottomLeft, topLeft, topRight, bottomRight, wordColor);
 
-                        //Debug.Log("End Word Region at [" + currentCharInfo.character + "]");
+                        //Debug.Flush("End Word Region at [" + currentCharInfo.character + "]");
                     }
                     // If Word is split on more than one line.
                     else if (isBeginRegion && currentLine != m_TextInfo.characterInfo[characterIndex + 1].lineNumber)
@@ -347,14 +347,14 @@ namespace TMPro.Examples
 
                         // Draw Region
                         DrawRectangle(bottomLeft, topLeft, topRight, bottomRight, wordColor);
-                        //Debug.Log("End Word Region at [" + currentCharInfo.character + "]");
+                        //Debug.Flush("End Word Region at [" + currentCharInfo.character + "]");
                         maxAscender = -Mathf.Infinity;
                         minDescender = Mathf.Infinity;
 
                     }
                 }
 
-                //Debug.Log(wInfo.GetWord(m_TextMeshPro.textInfo.characterInfo));
+                //Debug.Flush(wInfo.GetWord(m_TextMeshPro.textInfo.characterInfo));
             }
 
 
@@ -407,7 +407,7 @@ namespace TMPro.Examples
                         bottomLeft = new Vector3(currentCharInfo.bottomLeft.x, currentCharInfo.descender, 0);
                         topLeft = new Vector3(currentCharInfo.bottomLeft.x, currentCharInfo.ascender, 0);
 
-                        //Debug.Log("Start Word Region at [" + currentCharInfo.character + "]");
+                        //Debug.Flush("Start Word Region at [" + currentCharInfo.character + "]");
 
                         // If Link is one character
                         if (linkInfo.linkTextLength == 1)
@@ -422,7 +422,7 @@ namespace TMPro.Examples
                             // Draw Region
                             DrawRectangle(bottomLeft, topLeft, topRight, bottomRight, linkColor);
 
-                            //Debug.Log("End Word Region at [" + currentCharInfo.character + "]");
+                            //Debug.Flush("End Word Region at [" + currentCharInfo.character + "]");
                         }
                     }
 
@@ -439,7 +439,7 @@ namespace TMPro.Examples
                         // Draw Region
                         DrawRectangle(bottomLeft, topLeft, topRight, bottomRight, linkColor);
 
-                        //Debug.Log("End Word Region at [" + currentCharInfo.character + "]");
+                        //Debug.Flush("End Word Region at [" + currentCharInfo.character + "]");
                     }
                     // If Link is split on more than one line.
                     else if (isBeginRegion && currentLine != textInfo.characterInfo[characterIndex + 1].lineNumber)
@@ -456,11 +456,11 @@ namespace TMPro.Examples
 
                         maxAscender = -Mathf.Infinity;
                         minDescender = Mathf.Infinity;
-                        //Debug.Log("End Word Region at [" + currentCharInfo.character + "]");
+                        //Debug.Flush("End Word Region at [" + currentCharInfo.character + "]");
                     }
                 }
 
-                //Debug.Log(wInfo.GetWord(m_TextMeshPro.textInfo.characterInfo));
+                //Debug.Flush(wInfo.GetWord(m_TextMeshPro.textInfo.characterInfo));
             }
         }
 
@@ -553,7 +553,7 @@ namespace TMPro.Examples
         {
             Bounds meshBounds = m_TextComponent.bounds;
 
-            // Get Bottom Left and Top Right position of each word
+            // Get _bottom Left and _top Right position of each word
             Vector3 bottomLeft = m_TextComponent.transform.position + meshBounds.min;
             Vector3 topRight = m_TextComponent.transform.position + meshBounds.max;
 

@@ -1,3 +1,22 @@
+EditorAttributes v2.9.2 Changelog:
+- PropertyDropdown Attribute now supports any UnityEngine.Object type
+- PropertyDropdown Attribute will now draw custom editors
+- Fixed conditional fields not working inside groups
+- Fixed Button Attribute not supporting enums anymore
+- Fixed Dropdown Attribute not updating when collection becomes invalid
+- Fixed DataTable adding labels to array elements after the first one when inside a custom object
+
+EditorAttributes v2.9.1 Changelog:
+- Added char support to Button Attribute parameters and ShowInInspector Attribute
+- Added an Asset Preview Load Time setting to the project settings
+- Asset previews now load asynchronously
+- Required Attribute now has the option to add a button on the help box to auto reference the field
+- Attributes can now find private inherited members
+- Fixed HideInChildren Attribute no longer working
+- Fixed PropertyDropdown not working on child types deeper in the hierarchy
+- Fixed Button no longer supporting string parameters
+- Fixed Button throwing a stack overflow exception when attempting to use a non supported primitive type parameter
+
 EditorAttributes v2.9.0 Changelog:
 - Added checks for duplicate units and empty unit names when defining custom units
 - Added an additional parameter to ValueButtons Attribute for displaying custom labels for items

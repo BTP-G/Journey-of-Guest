@@ -1,5 +1,4 @@
 using GuestUnion.ObjectPool.Generic;
-using System.Runtime.InteropServices;
 using UnityEditor;
 using UnityEngine;
 
@@ -55,7 +54,7 @@ namespace JoG.Editor {
             using (ListPool<Component>.Rent(out var buffer)) {
                 foreach (var go in Object.FindObjectsByType<GameObject>(FindObjectsInactive.Include, FindObjectsSortMode.None)) {
                     go.GetComponents(buffer);
-                    foreach (var component in buffer.AsSpan()) {
+                    foreach (var component in buffer) {
                         if (component == null) {
                             Debug.Log($"Missing script on: {go.name}", go);
                         }

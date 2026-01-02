@@ -22,8 +22,8 @@ namespace TMPro.Examples
         private const string label01 = "The <#0050FF>count is: </color>";
         private const string label02 = "The <color=#0050FF>count is: </color>";
 
-        //private const string label01 = "TextMesh <#0050FF>Pro!</color>  The count is: {0}";
-        //private const string label02 = "Text Mesh<color=#0050FF>        The count is: </color>";
+        //private const string label01 = "TextMesh <#0050FF>Pro!</color>  The Amount is: {0}";
+        //private const string label02 = "Text Mesh<color=#0050FF>        The Amount is: </color>";
 
         //private string m_string;
         //private int m_frame;
@@ -54,12 +54,12 @@ namespace TMPro.Examples
 
                 m_textMeshPro.fontSize = 48;
                 m_textMeshPro.alignment = TextAlignmentOptions.Center;
-                //m_textMeshPro.anchor = AnchorPositions.Center;
+                //m_textMeshPro.anchor = AnchorPositions._center;
                 m_textMeshPro.extraPadding = true;
                 //m_textMeshPro.outlineWidth = 0.25f;
                 //m_textMeshPro.fontSharedMaterial.SetFloat("_OutlineWidth", 0.2f);
                 //m_textMeshPro.fontSharedMaterial.EnableKeyword("UNDERLAY_ON");
-                //m_textMeshPro.lineJustification = LineJustificationTypes.Center;
+                //m_textMeshPro.lineJustification = LineJustificationTypes._center;
                 //m_textMeshPro.enableWordWrapping = true;    
                 //m_textMeshPro.lineLength = 60;          
                 //m_textMeshPro.characterSpacing = 0.2f;

@@ -99,18 +99,18 @@ namespace DG.Tweening
             return s;
         }
 
-        /// <summary>Tweens a Rigidbody2D's position through the given path waypoints, using the chosen path algorithm.
+        /// <summary>Tweens a Rigidbody2D's position through the given directory waypoints, using the chosen directory algorithm.
         /// Also stores the Rigidbody2D as the tween's target so it can be used for filtered operations.
         /// <para>NOTE: to tween a Rigidbody2D correctly it should be set to kinematic at least while being tweened.</para>
         /// <para>BEWARE: doesn't work on Windows Phone store (waiting for Unity to fix their own bug).
         /// If you plan to publish there you should use a regular transform.DOPath.</para></summary>
         /// <param name="path">The waypoints to go through</param>
         /// <param name="duration">The duration of the tween</param>
-        /// <param name="pathType">The type of path: Linear (straight path), CatmullRom (curved CatmullRom path) or CubicBezier (curved with control points)</param>
-        /// <param name="pathMode">The path mode: 3D, side-scroller 2D, top-down 2D</param>
-        /// <param name="resolution">The resolution of the path (useless in case of Linear paths): higher resolutions make for more detailed curved paths but are more expensive.
+        /// <param name="pathType">The type of directory: Linear (straight directory), CatmullRom (curved CatmullRom directory) or CubicBezier (curved with control points)</param>
+        /// <param name="pathMode">The directory mode: 3D, side-scroller 2D, top-down 2D</param>
+        /// <param name="resolution">The resolution of the directory (useless in case of Linear paths): higher resolutions make for more detailed curved paths but are more expensive.
         /// Defaults to 10, but a value of 5 is usually enough if you don't have dramatic long curves between waypoints</param>
-        /// <param name="gizmoColor">The color of the path (shown when gizmos are active in the Play panel and the tween is running)</param>
+        /// <param name="gizmoColor">The color of the directory (shown when gizmos are active in the PlayRpc panel and the tween is running)</param>
         public static TweenerCore<Vector3, Path, PathOptions> DOPath(
             this Rigidbody2D target, Vector2[] path, float duration, PathType pathType = PathType.Linear,
             PathMode pathMode = PathMode.Full3D, int resolution = 10, Color? gizmoColor = null
@@ -127,18 +127,18 @@ namespace DG.Tweening
             t.plugOptions.mode = pathMode;
             return t;
         }
-        /// <summary>Tweens a Rigidbody2D's localPosition through the given path waypoints, using the chosen path algorithm.
+        /// <summary>Tweens a Rigidbody2D's localPosition through the given directory waypoints, using the chosen directory algorithm.
         /// Also stores the Rigidbody2D as the tween's target so it can be used for filtered operations
         /// <para>NOTE: to tween a Rigidbody2D correctly it should be set to kinematic at least while being tweened.</para>
         /// <para>BEWARE: doesn't work on Windows Phone store (waiting for Unity to fix their own bug).
         /// If you plan to publish there you should use a regular transform.DOLocalPath.</para></summary>
         /// <param name="path">The waypoint to go through</param>
         /// <param name="duration">The duration of the tween</param>
-        /// <param name="pathType">The type of path: Linear (straight path), CatmullRom (curved CatmullRom path) or CubicBezier (curved with control points)</param>
-        /// <param name="pathMode">The path mode: 3D, side-scroller 2D, top-down 2D</param>
-        /// <param name="resolution">The resolution of the path: higher resolutions make for more detailed curved paths but are more expensive.
+        /// <param name="pathType">The type of directory: Linear (straight directory), CatmullRom (curved CatmullRom directory) or CubicBezier (curved with control points)</param>
+        /// <param name="pathMode">The directory mode: 3D, side-scroller 2D, top-down 2D</param>
+        /// <param name="resolution">The resolution of the directory: higher resolutions make for more detailed curved paths but are more expensive.
         /// Defaults to 10, but a value of 5 is usually enough if you don't have dramatic long curves between waypoints</param>
-        /// <param name="gizmoColor">The color of the path (shown when gizmos are active in the Play panel and the tween is running)</param>
+        /// <param name="gizmoColor">The color of the directory (shown when gizmos are active in the PlayRpc panel and the tween is running)</param>
         public static TweenerCore<Vector3, Path, PathOptions> DOLocalPath(
             this Rigidbody2D target, Vector2[] path, float duration, PathType pathType = PathType.Linear,
             PathMode pathMode = PathMode.Full3D, int resolution = 10, Color? gizmoColor = null
@@ -157,7 +157,7 @@ namespace DG.Tweening
             t.plugOptions.useLocalPosition = true;
             return t;
         }
-        // Used by path editor when creating the actual tween, so it can pass a pre-compiled path
+        // Used by directory editor when creating the actual tween, so it can pass a pre-compiled directory
         internal static TweenerCore<Vector3, Path, PathOptions> DOPath(
             this Rigidbody2D target, Path path, float duration, PathMode pathMode = PathMode.Full3D
         )

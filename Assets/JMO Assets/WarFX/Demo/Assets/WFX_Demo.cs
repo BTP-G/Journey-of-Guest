@@ -101,7 +101,7 @@ public class WFX_Demo : MonoBehaviour
 		}
 		
 		/*
-		if(GUILayout.Button(randomSpawns ? "Stop Random Spawns" : "Start Random Spawns", GUILayout.Width(140)))
+		if(GUILayout.Button(randomSpawns ? "StopRpc Random Spawns" : "Start Random Spawns", GUILayout.Width(140)))
 		{
 			randomSpawns = !randomSpawns;
 			if(randomSpawns)	StartCoroutine("RandomSpawnsCoroutine");

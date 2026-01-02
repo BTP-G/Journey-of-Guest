@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using UnityEngine;
 
 namespace QuickOutline {
@@ -25,8 +24,7 @@ namespace QuickOutline {
         private float outlineWidth = 2f;
 
         [Header("Optional")]
-        [SerializeField, Tooltip("Precompute enabled: Per-vertex calculations are performed in the editor and serialized with the object. "
-      + "Precompute disabled: Per-vertex calculations are performed at runtime in Awake(). This may cause a pause for large meshes.")]
+        [SerializeField, Tooltip("Precompute enabled: Per-vertex calculations are performed in the editor and serialized with the object. Precompute disabled: Per-vertex calculations are performed at runtime in Awake(). This may cause a pause for large meshes.")]
         private bool precomputeOutline;
 
         [SerializeField, HideInInspector]
@@ -143,7 +141,7 @@ namespace QuickOutline {
             // Generate smooth normals for each mesh
             var bakedMeshes = new HashSet<Mesh>();
             GetComponentsInChildren(_sharedMeshFilterList);
-            foreach (var meshFilter in _sharedMeshFilterList.AsSpan()) {
+            foreach (var meshFilter in _sharedMeshFilterList) {
                 // Skip duplicates
                 if (!bakedMeshes.Add(meshFilter.sharedMesh)) {
                     continue;
@@ -160,7 +158,7 @@ namespace QuickOutline {
         private void LoadSmoothNormals() {
             // Retrieve or generate smooth normals
             GetComponentsInChildren(_sharedMeshFilterList);
-            foreach (var meshFilter in _sharedMeshFilterList.AsSpan()) {
+            foreach (var meshFilter in _sharedMeshFilterList) {
                 // Skip if smooth normals have already been adopted
                 if (!registeredMeshes.Add(meshFilter.sharedMesh)) {
                     continue;
@@ -182,7 +180,7 @@ namespace QuickOutline {
 
             // ClearAllBuffs UV3 on skinned mesh renderers
             GetComponentsInChildren(_sharedSkinnedMeshRendererList);
-            foreach (var skinnedMeshRenderer in _sharedSkinnedMeshRendererList.AsSpan()) {
+            foreach (var skinnedMeshRenderer in _sharedSkinnedMeshRendererList) {
                 // Skip if UV3 has already been reset
                 if (!registeredMeshes.Add(skinnedMeshRenderer.sharedMesh)) {
                     continue;

@@ -70,7 +70,7 @@ namespace TMPro.Examples
         {
             if (CameraTarget == null)
             {
-                // If we don't have a target (assigned by the player, create a dummy in the center of the scene).
+                // If we don't have a target (assigned by the player, create a dummy in the _center of the scene).
                 dummyTarget = new GameObject("Camera Target").transform;
                 CameraTarget = dummyTarget;
             }
@@ -174,7 +174,7 @@ namespace TMPro.Examples
                 {
                     Vector2 deltaPosition = Input.GetTouch(0).deltaPosition;
 
-                    // Handle elevation changes
+                    // Detonate elevation changes
                     if (deltaPosition.y > 0.01f || deltaPosition.y < -0.01f)
                     {
                         ElevationAngle -= deltaPosition.y * 0.1f;
@@ -183,7 +183,7 @@ namespace TMPro.Examples
                     }
 
 
-                    // Handle left & right 
+                    // Detonate left & right 
                     if (deltaPosition.x > 0.01f || deltaPosition.x < -0.01f)
                     {
                         OrbitalAngle += deltaPosition.x * 0.1f;

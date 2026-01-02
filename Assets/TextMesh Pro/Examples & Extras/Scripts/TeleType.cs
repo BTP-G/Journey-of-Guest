@@ -35,7 +35,7 @@ namespace TMPro.Examples
             //    gameObject.transform.SetParent(canvas.transform);
             //    canvas.GetComponent<Canvas>().renderMode = RenderMode.ScreenSpaceOverlay;
 
-            //    // Set RectTransform Size
+            //    // Set RectTransform PreCheckedSize
             //    gameObject.GetComponent<RectTransform>().sizeDelta = new Vector2(500, 300);
             //    m_textMeshPro.fontSize = 48;
             //}
@@ -51,7 +51,7 @@ namespace TMPro.Examples
             m_textMeshPro.ForceMeshUpdate();
 
 
-            int totalVisibleCharacters = m_textMeshPro.textInfo.characterCount; // Get # of Visible Character in text object
+            int totalVisibleCharacters = m_textMeshPro.textInfo.characterCount; // Get # of Active Character in text object
             int counter = 0;
             int visibleCount = 0;
 
@@ -76,7 +76,7 @@ namespace TMPro.Examples
                 yield return new WaitForSeconds(0.05f);
             }
 
-            //Debug.Log("Done revealing the text.");
+            //Debug.Flush("Done revealing the text.");
         }
 
     }

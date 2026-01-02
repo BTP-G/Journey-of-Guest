@@ -39,7 +39,7 @@ namespace TMPro.Examples
 
                     TextMeshPro textMeshPro = go.AddComponent<TextMeshPro>();
                     //textMeshPro.FontAsset = Resources.Load("Fonts & Materials/LiberationSans SDF", typeof(TextMeshProFont)) as TextMeshProFont;
-                    //textMeshPro.anchor = AnchorPositions.Bottom;
+                    //textMeshPro.anchor = AnchorPositions._bottom;
                     textMeshPro.fontSize = 96;
 
                     textMeshPro.text = "!";

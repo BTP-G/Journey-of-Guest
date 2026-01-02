@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.InputSystem;
 
 // Cartoon FX - (c) 2015 - Jean Moreno
 //
@@ -57,37 +58,26 @@ public class CFX_Demo_New : MonoBehaviour
 	
 	void Update()
 	{
-		if(Input.GetKeyDown(KeyCode.LeftArrow))
-		{
-			prevParticle();
-		}
-		else if(Input.GetKeyDown(KeyCode.RightArrow))
-		{
-			nextParticle();
-		}
-		else if(Input.GetKeyDown(KeyCode.Delete))
-		{
-			destroyParticles();
-		}
-		
-		if(Input.GetMouseButtonDown(0))
+
+
+		if (Mouse.current.leftButton.isPressed )
 		{
 			RaycastHit hit = new RaycastHit();
-			if(groundCollider.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 9999f))
+			var mousePosition = Mouse.current.position.value;
+            if (groundCollider.Raycast(Camera.main.ScreenPointToRay(mousePosition), out hit, 9999f))
 			{
 				GameObject particle = spawnParticle();
 				particle.transform.position = hit.point + particle.transform.position;
 			}
 		}
 		
-		float scroll = Input.GetAxis("Mouse ScrollWheel");
+		float scroll = Mouse.current.scroll.value.y;
 		if(scroll != 0f)
 		{
 			Camera.main.transform.Translate(Vector3.forward * (scroll < 0f ? -1f : 1f), Space.Self);
 		}
 		
-		if(Input.GetMouseButtonDown(2))
-		{
+		if(Mouse.current.middleButton.isPressed) {
 			Camera.main.transform.position = defaultCamPosition;
 			Camera.main.transform.rotation = defaultCamRotation;
 		}

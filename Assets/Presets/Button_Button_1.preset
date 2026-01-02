@@ -27,7 +27,7 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_Navigation.m_Mode
-    value: 3
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_Navigation.m_WrapAround
@@ -55,15 +55,15 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_Colors.m_NormalColor.r
-    value: 0.23529413
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_Colors.m_NormalColor.g
-    value: 0.23529413
+    value: 0.48235294
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_Colors.m_NormalColor.b
-    value: 0.23529413
+    value: 0.7372549
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_Colors.m_NormalColor.a
@@ -71,15 +71,15 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_Colors.m_HighlightedColor.r
-    value: 0.3584906
+    value: 0.14117648
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_Colors.m_HighlightedColor.g
-    value: 0.3584906
+    value: 0.6745098
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_Colors.m_HighlightedColor.b
-    value: 0.3584906
+    value: 0.9490196
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_Colors.m_HighlightedColor.a
@@ -91,11 +91,11 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_Colors.m_PressedColor.g
-    value: 0
+    value: 0.24313726
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_Colors.m_PressedColor.b
-    value: 0
+    value: 0.36862746
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_Colors.m_PressedColor.a
@@ -103,15 +103,15 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_Colors.m_SelectedColor.r
-    value: 0.23529413
+    value: 0.14117648
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_Colors.m_SelectedColor.g
-    value: 0.23529413
+    value: 0.6745098
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_Colors.m_SelectedColor.b
-    value: 0.23529413
+    value: 0.9490196
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_Colors.m_SelectedColor.a
@@ -190,3 +190,8 @@ Preset:
     value: 0
     objectReference: {fileID: 0}
   m_ExcludedProperties: []
+  m_CoupledType:
+    m_NativeTypeID: 0
+    m_ManagedTypePPtr: {fileID: 0}
+    m_ManagedTypeFallback: 
+  m_CoupledProperties: []
