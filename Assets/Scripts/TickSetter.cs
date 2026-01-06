@@ -1,0 +1,38 @@
+using ANU.IngameDebug.Console;
+using Unity.Netcode.Components;
+using UnityEditor;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+namespace JoG {
+
+    [DebugCommandPrefix("debug")]
+    public class TickSetter : MonoBehaviour {
+        public int InterpolationBufferTickOffset;
+        public bool PrintDeltaTime;
+
+        private void Awake() {
+            Application.targetFrameRate = 60;
+            if (Application.isPlaying) {
+                NetworkTransform.InterpolationBufferTickOffset = InterpolationBufferTickOffset;
+            }
+        }
+
+        private void Update() {
+            if (PrintDeltaTime && Time.deltaTime >= 0.02) {
+                Debug.Log($"dt: {Time.deltaTime}, t: {Time.time}");
+            }
+        }
+
+        private void OnValidate() {
+            if (Application.isPlaying) {
+                NetworkTransform.InterpolationBufferTickOffset = InterpolationBufferTickOffset;
+            }
+        }
+
+        [DebugCommand]
+        private void LoadScene(int index) {
+            SceneManager.LoadScene(index);
+        }
+    }
+}
