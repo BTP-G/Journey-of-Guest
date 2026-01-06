@@ -40,9 +40,8 @@
 
 # 新增：针对特定大 .asset 文件 (例如 SDF 字体)
 # 请根据实际情况调整路径和文件名模式
-Assets/AssetsPackage/Fonts/*.SDF.asset filter=lfs diff=lfs merge=lfs -text
 # 或者，如果项目中有很多类似的大 .asset 文件，可以考虑一个更宽泛的模式，但仍需谨慎
-# **/*.SDF.asset filter=lfs diff=lfs merge=lfs -text
+*.SDF.asset filter=lfs diff=lfs merge=lfs -text
 # 但 *不要* 简单地用 *.asset filter=lfs ... 因为这会包含预制件和场景数据
 
 # ==========================================
