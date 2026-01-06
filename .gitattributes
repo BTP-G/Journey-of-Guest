@@ -1,88 +1,54 @@
-###############################################################################
-# Set default behavior to automatically normalize line endings.
-###############################################################################
+# ==========================================
+# 1. 核心设置：自动处理文本，但明确 Windows 换行符
+# ==========================================
+# 全局默认：自动识别
 * text=auto
-###############################################################################
-# Set default behavior for command prompt diff.
-#
-# This is need for earlier builds of msysgit that does not have it on by
-# default for csharp files.
-# Note: This is only used by command line
-###############################################################################
-#*.cs     diff=csharp
-###############################################################################
-# Set the merge driver for project and solution files
-#
-# Merging from the command prompt will add diff markers to the files if there
-# are conflicts (Merging from VS is not affected by the settings below, in VS
-# the diff markers are never inserted). Diff markers may cause the following 
-# file extensions to fail to load in VS. An alternative would be to treat
-# these files as binary and thus will always conflict and require user
-# intervention with every merge. To do so, just uncomment the entries below
-###############################################################################
-#*.sln       merge=binary
-#*.csproj    merge=binary
-#*.vbproj    merge=binary
-#*.vcxproj   merge=binary
-#*.vcproj    merge=binary
-#*.dbproj    merge=binary
-#*.fsproj    merge=binary
-#*.lsproj    merge=binary
-#*.wixproj   merge=binary
-#*.modelproj merge=binary
-#*.sqlproj   merge=binary
-#*.wwaproj   merge=binary
-###############################################################################
-# behavior for image files
-#
-# image files are treated as binary by default.
-###############################################################################
-#*.jpg   binary
-#*.png   binary
-#*.gif   binary
-###############################################################################
-# diff behavior for common document formats
-# 
-# Convert binary document formats to text before diffing them. This feature
-# is only available from the command line. Turn it on by uncommenting the 
-# entries below.
-###############################################################################
-#*.doc   diff=astextplain
-#*.DOC   diff=astextplain
-#*.docx  diff=astextplain
-#*.DOCX  diff=astextplain
-#*.dot   diff=astextplain
-#*.DOT   diff=astextplain
-#*.pdf   diff=astextplain
-#*.PDF   diff=astextplain
-#*.rtf   diff=astextplain
-#*.RTF   diff=astextplain
-*.asset filter=lfs diff=lfs merge=lfs -text
-# 纹理 / 贴图
+
+# 强制 C# 脚本使用 Windows 换行符 (CRLF)，避免 Unity 重写
+*.cs text eol=crlf
+*.js text eol=crlf
+
+# ==========================================
+# 2. Unity 场景与资源文件：关键修复
+# ==========================================
+# --- 保持为文本文件 (不要加 LFS!) ---
+# 这样做可以让你看到版本差异，且能手动解决合并冲突
+*.unity text merge=unityyamlmerge eol=lf
+*.prefab text merge=unityyamlmerge eol=lf
+*.anim text merge=unityyamlmerge eol=lf
+*.controller text merge=unityyamlmerge eol=lf
+*.asset text merge=unityyamlmerge eol=lf
+*.meta text merge=unityyamlmerge eol=lf
+*.mat text merge=unityyamlmerge eol=lf
+
+# ==========================================
+# 3. 真正的大文件：LFS 配置 (仅限二进制资源)
+# ==========================================
+# 注意：如果你使用 Gitee 免费版，请直接删除这一整段，不要写 filter=lfs
+# 如果你使用 GitHub 或付费 Gitee，保留这段
 *.png filter=lfs diff=lfs merge=lfs -text
+*.jpg filter=lfs diff=lfs merge=lfs -text
 *.tga filter=lfs diff=lfs merge=lfs -text
-*.tif filter=lfs diff=lfs merge=lfs -text
 *.psd filter=lfs diff=lfs merge=lfs -text
-
-# 资源包 / 打包文件
-*.bundle filter=lfs diff=lfs merge=lfs -text
-*.unitypackage filter=lfs diff=lfs merge=lfs -text
-*.zip filter=lfs diff=lfs merge=lfs -text
-
-# 场景 / 地形 / 导航 / 光照
-*.unity filter=lfs diff=lfs merge=lfs -text
-*.prefab filter=lfs diff=lfs merge=lfs -text
-*.terrainlayer filter=lfs diff=lfs merge=lfs -text
-LightingData.asset filter=lfs diff=lfs merge=lfs -text
-NavMesh-*.asset filter=lfs diff=lfs merge=lfs -text
-*.navmesh filter=lfs diff=lfs merge=lfs -text
-
-# 模型 / 音频 / 视频
 *.fbx filter=lfs diff=lfs merge=lfs -text
 *.wav filter=lfs diff=lfs merge=lfs -text
 *.mp3 filter=lfs diff=lfs merge=lfs -text
-*.mp4 filter=lfs diff=lfs merge=lfs -text
-*.ogg filter=lfs diff=lfs merge=lfs -text
+*.unitypackage filter=lfs diff=lfs merge=lfs -text
 
-# 库
-*.dll filter=lfs diff=lfs merge=lfs -text
+# ==========================================
+# 4. 纯二进制文件：禁止 Git 做任何处理
+# ==========================================
+# 这些文件绝对不能有 diff 或 merge 属性，否则极慢且无用
+*.dll binary
+*.exe binary
+*.so binary
+*.jar binary
+*.a binary
+*.lib binary
+*.dylib binary
+
+# 游戏构建包
+*.apk binary
+*.app binary
+*.exe binary
+*.msi binary
