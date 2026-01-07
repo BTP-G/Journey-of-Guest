@@ -1,3 +1,77 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:1c21a9a3e1cf6ea1cbcda4b87a327ceaa7ed2b8027d244cdbc6f2157e855978f
-size 2501
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 185f6993d5150494d98da50e26cb1c25, type: 3}
+  m_Name: AssetBundleCollectorSetting
+  m_EditorClassIdentifier: 
+  ShowPackageView: 0
+  ShowEditorAlias: 0
+  UniqueBundleName: 0
+  Packages:
+  - PackageName: DefaultPackage
+    PackageDesc: 
+    EnableAddressable: 1
+    SupportExtensionless: 1
+    LocationToLower: 0
+    IncludeAssetGUID: 0
+    AutoCollectShaders: 1
+    IgnoreRuleName: NormalIgnoreRule
+    Groups:
+    - GroupName: Prefabs
+      GroupDesc: 1
+      AssetTags: 
+      ActiveRuleName: EnableGroup
+      Collectors:
+      - CollectPath: Assets/AssetsPackage/Characters
+        CollectorGUID: 0c4f201ec7c09584cbd4ec46e0cffa60
+        CollectorType: 0
+        AddressRuleName: AddressByFileName
+        PackRuleName: PackDirectory
+        FilterRuleName: CollectPrefabsPrefab
+        AssetTags: network_prefab
+        UserData: 
+      - CollectPath: Assets/AssetsPackage/Projectiles
+        CollectorGUID: 8a20740699056774e983cc6205f880e9
+        CollectorType: 0
+        AddressRuleName: AddressByFileName
+        PackRuleName: PackDirectory
+        FilterRuleName: CollectPrefab
+        AssetTags: network_prefab
+        UserData: 
+      - CollectPath: Assets/AssetsPackage/Items
+        CollectorGUID: 655b0e2e895aa314580b840133b06065
+        CollectorType: 0
+        AddressRuleName: AddressByFileName
+        PackRuleName: PackDirectory
+        FilterRuleName: CollectPrefabsPrefab
+        AssetTags: network_prefab
+        UserData: 
+    - GroupName: ScriptableObjects
+      GroupDesc: 
+      AssetTags: 
+      ActiveRuleName: EnableGroup
+      Collectors:
+      - CollectPath: Assets/AssetsPackage/ScriptableObjects/BuffDatas
+        CollectorGUID: feb66ac436fe86e4988be81d39309cde
+        CollectorType: 0
+        AddressRuleName: AddressByFileName
+        PackRuleName: PackDirectory
+        FilterRuleName: CollectAll
+        AssetTags: buff_data
+        UserData: 
+      - CollectPath: Assets/AssetsPackage/ScriptableObjects/ItemDatas
+        CollectorGUID: 34fa6567b5b8de5408ee926ba1796e87
+        CollectorType: 0
+        AddressRuleName: AddressByFileName
+        PackRuleName: PackDirectory
+        FilterRuleName: CollectAll
+        AssetTags: item_data
+        UserData: 
