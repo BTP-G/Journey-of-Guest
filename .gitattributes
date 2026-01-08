@@ -1,62 +1,64 @@
 # ==========================================
-# 1. 核心设置：自动处理文本，但明确 Windows 换行符
+# 全局默认：自动识别文本，但由下文覆盖
 # ==========================================
-# 全局默认：自动识别
 * text=auto
 
-# 强制 C# 脚本使用 Windows 换行符 (CRLF)，避免 Unity 重写
-*.cs text eol=crlf
-*.js text eol=crlf
+# ==========================================
+# Unity 文本资源：关键！统一用 LF，不依赖 merge driver
+# 即使没有 UnityYAMLMerge，也要确保 eol=lf
+# ==========================================
+*.unity    text eol=lf
+*.prefab   text eol=lf
+*.anim     text eol=lf
+*.controller text eol=lf
+*.mat      text eol=lf
+*.physicMaterial text eol=lf
+*.physicsMaterial2D text eol=lf
+*.mask     text eol=lf
+*.flare    text eol=lf
+*.giparams text eol=lf
+*.renderTexture text eol=lf
+*.terrainLayer text eol=lf
+
+# .meta 文件也必须用 LF
+*.meta     text eol=lf
 
 # ==========================================
-# 2. Unity 场景与资源文件：关键修复
+# 脚本文件（根据团队习惯）
 # ==========================================
-# --- 保持为文本文件 (不要加 LFS!) ---
-# 这样做可以让你看到版本差异，且能手动解决合并冲突
-*.unity text merge=unityyamlmerge eol=lf
-*.prefab text merge=unityyamlmerge eol=lf
-*.anim text merge=unityyamlmerge eol=lf
-*.controller text merge=unityyamlmerge eol=lf
-*.asset text merge=unityyamlmerge eol=lf
-*.meta text merge=unityyamlmerge eol=lf
-*.mat text merge=unityyamlmerge eol=lf
+*.cs       text eol=crlf
+*.js       text eol=crlf
+*.shader   text eol=lf
 
 # ==========================================
-# 3. 真正的大文件：LFS 配置 (仅限二进制资源)
+# 大文件 → Git LFS（保持不变）
 # ==========================================
-# 注意：如果你使用 Gitee 免费版，请直接删除这一整段，不要写 filter=lfs
-# 如果你使用 GitHub 或付费 Gitee，保留这段
 *.png filter=lfs diff=lfs merge=lfs -text
 *.jpg filter=lfs diff=lfs merge=lfs -text
-*.tga filter=lfs diff=lfs merge=lfs -text
-*.psd filter=lfs diff=lfs merge=lfs -text
 *.fbx filter=lfs diff=lfs merge=lfs -text
 *.wav filter=lfs diff=lfs merge=lfs -text
 *.mp3 filter=lfs diff=lfs merge=lfs -text
 *.unitypackage filter=lfs diff=lfs merge=lfs -text
-
-# 新增：YooAsset 生成的资源包
 *.bundle filter=lfs diff=lfs merge=lfs -text
 
-# 新增：针对特定大 .asset 文件 (例如 SDF 字体)
-# 请根据实际情况调整路径和文件名模式
-Assets/Fonts/*.asset filter=lfs diff=lfs merge=lfs -text
-# 但 *不要* 简单地用 *.asset filter=lfs ... 因为这会包含预制件和场景数据
+# 特定大 .asset（谨慎使用）
+Assets/Fonts/**/*.asset filter=lfs diff=lfs merge=lfs -text
 
 # ==========================================
-# 4. 纯二进制文件：禁止 Git 做任何处理
+# 纯二进制文件
 # ==========================================
-# 这些文件绝对不能有 diff 或 merge 属性，否则极慢且无用
-*.dll binary
-*.exe binary
-*.so binary
-*.jar binary
-*.a binary
-*.lib binary
-*.dylib binary
-
-# 游戏构建包
-*.apk binary
-*.app binary
-*.exe binary
-*.msi binary
+*.dll      -text
+*.exe      -text
+*.so       -text
+*.apk      -text
+*.aab      -text
+*.app      -text
+*.msi      -text
+*.zip      -text
+*.rar      -text
+*.7z       -text
+*.pdf      -text
+*.doc      -text
+*.docx     -text
+*.xls      -text
+*.xlsx     -text
