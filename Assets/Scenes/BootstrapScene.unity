@@ -1605,6 +1605,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: PopupManager
       objectReference: {fileID: 0}
+    - target: {fileID: 5039892192899404372, guid: aa4ed537124d35d419db1d5b98a764b3,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5751754815294486907, guid: aa4ed537124d35d419db1d5b98a764b3,
         type: 3}
       propertyPath: m_Pivot.x
@@ -1703,6 +1708,26 @@ PrefabInstance:
     - target: {fileID: 5751754815294486907, guid: aa4ed537124d35d419db1d5b98a764b3,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6894626175512159617, guid: aa4ed537124d35d419db1d5b98a764b3,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6894626175512159617, guid: aa4ed537124d35d419db1d5b98a764b3,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6894626175512159617, guid: aa4ed537124d35d419db1d5b98a764b3,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 1679.406
+      objectReference: {fileID: 0}
+    - target: {fileID: 6894626175512159617, guid: aa4ed537124d35d419db1d5b98a764b3,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
