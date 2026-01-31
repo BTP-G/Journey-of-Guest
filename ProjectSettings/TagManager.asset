@@ -25,13 +25,8 @@ TagManager:
   - UI
   - Character
   - CharacterPart
-  - 
-  - 
-  - Dynamic
-  - Pickup
-  - Item
   - Prop
-  - 
+  - Pickup
   - Projectile
   - 
   - 
@@ -48,7 +43,12 @@ TagManager:
   - 
   - 
   - 
-  - PostProcessing
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
   m_SortingLayers:
   - name: Background
     uniqueID: 788040023

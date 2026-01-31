@@ -1,0 +1,170 @@
+{
+    language: "语言",
+    buff: {
+        bleeding: {
+            name: "流血",
+            desc: "每隔{tickInterval}秒损失一次生命值"
+        },
+        poison: {
+            name: "中毒",
+            desc: "每隔{tickInterval}秒损失一次生命值"
+        },
+        burning: {
+            name: "燃烧",
+            desc: "每隔{tickInterval}秒损失一次生命值"
+        },
+        speed_boost:{
+            name: "加速"
+            desc: "增加{0}%移速"
+        }
+    },
+    item: {
+        healing_potion: {
+            name: "治疗药水",
+            desc: "恢复{healPercent}生命值"
+        },
+        boots_of_speed: {
+            name: "速度之靴",
+            desc: "增加最大移动速度"
+        }
+    },
+    interact: {
+        radio: {
+            name: "播放器",
+            desc: "播放或暂停音乐"
+        },
+        tv:{
+            name: "电视机",
+            desc: "可以播放{0}"
+        },
+        teleporter: {
+            name: "传送器",
+            desc: "传送到{0}"
+        }
+    },
+    character: {
+        cat_girl: {
+            name: "猫女",
+            desc: "普通角色"
+        },
+        ghost:{
+            name: "鬼魂",
+            desc: "普通角色"
+        },
+        leaf_slime:{
+            name: "树叶史莱姆",
+            desc: "普通角色"
+        }
+    },
+    unity_services: {
+        init_failed: "Unity服务初始化失败，是否重试？错误信息：{0}"
+    },
+    session: {
+        title: "游戏会话",
+        name: {
+            label: "会话名称",
+            placeholder: "请输入会话名称"
+        },
+        password: {
+            label: "会话密码",
+            placeholder: "8~16个数字"
+        },
+        max_players: {
+            label: "最大玩家数",
+            placeholder: "1~16"
+        },
+        is_private: {
+            label: "私有会话"
+        },
+        code: {
+            label: "会话代码",
+            placeholder: "请输入会话代码"
+        },
+        list: {
+            title: "会话列表"
+        },
+        create: {
+            title: "创建会话",
+            button: "创建",
+            default_name: "{0}的会话"
+            created: "创建会话成功，会话代码 {0} 已复制到剪切板。",
+            failed: "创建会话失败：{0}"
+        },
+        join: {
+            title: "加入会话",
+            button: "加入",
+            joined: "成功加入会话，会话代码 {0} 已复制到剪切板。",
+            failed: "加入会话失败：{0}"
+        },
+        query: {
+            title: "查询会话",
+            filter: {
+                title: "筛选条件"
+            }
+            refresh: {
+                button: "刷新"
+            }
+        }
+    },
+    settings:{
+        general:{
+            title: "通用"
+        },
+    }
+    main_menu: {
+        introduce: {
+            button: "游戏介绍"
+        },
+        multiplayer: {
+            button: "多人游戏"
+        },
+        mods: {
+            button: "模组管理"
+        },
+        settings: {
+            button: "游戏设置"
+        },
+        quit: {
+            button: "退出游戏",
+            message: "确定要退出游戏吗？"
+        }
+    },
+    ingame_menu: {
+        title: "游戏菜单",
+        resume: {
+            button: "继续游戏"
+        },
+        settings:{
+            button: "游戏设置"
+        }
+        disconnect: {
+            button: "断开连接",
+            message: "确定要断开与当前会话的连接吗？"
+        },
+        quit: {
+            button: "退出游戏",
+            message: "确定要退出游戏吗？"
+        }
+    },
+    popup: {
+        confirm: {
+            button: "确认"
+        },
+        cancel: {
+            button: "取消"
+        }
+    },
+    profile: {
+        name: {
+            label: "玩家名称",
+            placeholder: "请输入玩家名称",
+            error: {
+                empty_or_whitespace: "玩家名称不能为空或仅包含空格",
+                too_short: "玩家名称长度太短",
+                too_long: "玩家名称长度太长",
+                invalid_characters: "玩家名称不能包含非法字符",
+                no_valid_letters: "玩家名称不能只包含数字和符号"
+            }
+        }
+    }
+}

@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace DoubleL
 {
@@ -77,43 +76,36 @@ namespace DoubleL
         Vector3 GetInputTranslationDirection()
         {
             Vector3 direction = new Vector3();
-            var kb = Keyboard.current;
-            if (kb != null)
+            if (Input.GetKey(KeyCode.W))
             {
-                if (kb.wKey.isPressed)
-                {
-                    direction += Vector3.forward;
-                }
-                if (kb.sKey.isPressed)
-                {
-                    direction += Vector3.back;
-                }
-                if (kb.aKey.isPressed)
-                {
-                    direction += Vector3.left;
-                }
-                if (kb.dKey.isPressed)
-                {
-                    direction += Vector3.right;
-                }
-                if (kb.qKey.isPressed)
-                {
-                    direction += Vector3.down;
-                }
-                if (kb.eKey.isPressed)
-                {
-                    direction += Vector3.up;
-                }
+                direction += Vector3.forward;
+            }
+            if (Input.GetKey(KeyCode.S))
+            {
+                direction += Vector3.back;
+            }
+            if (Input.GetKey(KeyCode.A))
+            {
+                direction += Vector3.left;
+            }
+            if (Input.GetKey(KeyCode.D))
+            {
+                direction += Vector3.right;
+            }
+            if (Input.GetKey(KeyCode.Q))
+            {
+                direction += Vector3.down;
+            }
+            if (Input.GetKey(KeyCode.E))
+            {
+                direction += Vector3.up;
             }
             return direction;
         }
 
         void Update()
         {
-            var kb = Keyboard.current;
-            var mouse = Mouse.current;
-
-            if (kb != null && kb.escapeKey.wasPressedThisFrame)
+            if (Input.GetKey(KeyCode.Escape))
             {
                 Application.Quit();
 #if UNITY_EDITOR
@@ -121,23 +113,20 @@ namespace DoubleL
 #endif
             }
             
-            if (mouse != null && mouse.rightButton.wasPressedThisFrame)
+            if (Input.GetMouseButtonDown(1))
             {
                 Cursor.lockState = CursorLockMode.Locked;
-                Cursor.visible = false;
             }
             
-            if (mouse != null && mouse.rightButton.wasReleasedThisFrame)
+            if (Input.GetMouseButtonUp(1))
             {
                 Cursor.visible = true;
                 Cursor.lockState = CursorLockMode.None;
             }
             
-            if (mouse != null && mouse.rightButton.isPressed)
+            if (Input.GetMouseButton(1))
             {
-                // mouse.delta 是像素偏移，乘以一个小系数以靠近旧 Input.GetAxis 行为
-                var rawDelta = mouse.delta.ReadValue();
-                var mouseMovement = new Vector2(rawDelta.x, rawDelta.y * (invertY ? 1 : -1)) * 0.1f;
+                var mouseMovement = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y") * (invertY ? 1 : -1));
 
                 var mouseSensitivityFactor = mouseSensitivityCurve.Evaluate(mouseMovement.magnitude);
 
@@ -147,15 +136,12 @@ namespace DoubleL
             
             var translation = GetInputTranslationDirection() * Time.deltaTime;
                         
-            if (kb != null && kb.leftShiftKey.isPressed)
+            if (Input.GetKey(KeyCode.LeftShift))
             {
                 translation *= 10.0f;
             }
 
-            if (mouse != null)
-            {
-                boost += mouse.scroll.ReadValue().y * 0.2f;
-            }
+            boost += Input.mouseScrollDelta.y * 0.2f;
             translation *= Mathf.Pow(2.0f, boost);
 
             m_TargetCameraState.Translate(translation);
