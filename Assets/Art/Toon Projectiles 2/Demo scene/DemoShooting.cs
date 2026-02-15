@@ -39,7 +39,7 @@ public class DemoShooting : MonoBehaviour
 
     void Update()
     {
-        //Single shoot
+        //SingleValue shoot
         if (Mouse.current.leftButton.wasPressedThisFrame)
         {
             camAnim.Play(camAnim.clip.name);
