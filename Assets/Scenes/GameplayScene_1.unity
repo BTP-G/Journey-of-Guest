@@ -424,7 +424,7 @@ MonoBehaviour:
   m_OverrideVoxelSize: 0
   m_VoxelSize: 0.16666667
   m_MinRegionArea: 2
-  m_NavMeshData: {fileID: 23800000, guid: 267ff884edea17d4b80dac4d106a8109, type: 2}
+  m_NavMeshData: {fileID: 23800000, guid: bf720c0f7d6c224429a63a5925db5856, type: 2}
   m_BuildHeightMesh: 0
 --- !u!4 &422687847
 Transform:
@@ -1757,9 +1757,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   characterPrefab:
-    _assetCache: {fileID: 6567875843816373225, guid: 7c7dc708b76f4f14894f277a2a258d35,
+    _assetCache: {fileID: 4401281832097220430, guid: f12fb2dc40d045945b40496a853fb82b,
       type: 3}
-    _location: MegaspikanLarvae
+    _location: Ghost
     _packageName: DefaultPackage
   buffOnSpawn:
     _assetCache: {fileID: 11400000, guid: 1b4c30584c39ed74f8c067038d7f258d, type: 2}
@@ -2226,70 +2226,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1850744207}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1921249059
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1921249061}
-  - component: {fileID: 1921249060}
-  m_Layer: 0
-  m_Name: Slime NavMesh Surface
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1921249060
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1921249059}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a5ac11cc976e418e8d13136b07e1f52, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_SerializedVersion: 0
-  m_AgentTypeID: -334000983
-  m_CollectObjects: 0
-  m_Size: {x: 10, y: 10, z: 10}
-  m_Center: {x: 0, y: 2, z: 0}
-  m_LayerMask:
-    serializedVersion: 2
-    m_Bits: 1
-  m_UseGeometry: 1
-  m_DefaultArea: 0
-  m_GenerateLinks: 0
-  m_IgnoreNavMeshAgent: 1
-  m_IgnoreNavMeshObstacle: 1
-  m_OverrideTileSize: 0
-  m_TileSize: 256
-  m_OverrideVoxelSize: 0
-  m_VoxelSize: 0.16666667
-  m_MinRegionArea: 2
-  m_NavMeshData: {fileID: 0}
-  m_BuildHeightMesh: 0
---- !u!4 &1921249061
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1921249059}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1986630044
 GameObject:
   m_ObjectHideFlags: 0
@@ -3174,6 +3110,7 @@ MonoBehaviour:
       type: 3}
     _location: Caster
     _packageName: DefaultPackage
+  _player: {fileID: 0}
 --- !u!1001 &3636213989548561983
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3560,7 +3497,6 @@ SceneRoots:
   - {fileID: 1574149834}
   - {fileID: 493142735}
   - {fileID: 422687847}
-  - {fileID: 1921249061}
   - {fileID: 2127700988}
   - {fileID: 904453605}
   - {fileID: 283679289100255621}
