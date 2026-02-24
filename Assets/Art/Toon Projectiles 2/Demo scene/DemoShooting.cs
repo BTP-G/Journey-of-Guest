@@ -95,7 +95,7 @@ public class DemoShooting : MonoBehaviour
         GUI.Label(new Rect(10 * windowDpi, 65 * windowDpi, 400 * windowDpi, 20 * windowDpi), "Use the keyboard buttons A/<- and D/-> to change projectiles!");
     }
 
-    // To change prefabs (Amount - prefab number)
+    // To change items (Amount - prefab number)
     void Counter(int count)
     {
         Prefab += count;

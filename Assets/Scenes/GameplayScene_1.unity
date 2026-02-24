@@ -498,6 +498,16 @@ MonoBehaviour:
     _packageName: DefaultPackage
   characterEntity: {fileID: 0}
   count: 0
+  patrolConfig:
+    mode: 0
+    waypoints: []
+    center: {x: 0, y: 0, z: 0}
+    radius: 10
+    speed: 0.5
+    detectionDistance: 2
+    obstacleMask:
+      serializedVersion: 2
+      m_Bits: 4294967295
 --- !u!114 &449356243
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -723,6 +733,7 @@ MonoBehaviour:
   autoInjectGameObjects:
   - {fileID: 458819231}
   - {fileID: 1078828967679985684}
+  - {fileID: 849012207}
   _worldTooltip: {fileID: 6674578745822495396}
   _screenTooltip: {fileID: 8601162090189894872}
   _chatBoxController: {fileID: 2715327786633650511}
@@ -902,6 +913,84 @@ Light:
   m_LightUnit: 1
   m_LuxAtDistance: 1
   m_EnableSpotReflector: 1
+--- !u!1 &849012207
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 849012209}
+  - component: {fileID: 849012210}
+  - component: {fileID: 849012208}
+  m_Layer: 0
+  m_Name: ItemDropController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &849012208
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 849012207}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87e2d148671685644893d554be1419fc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  dropTable:
+  - dropChance: 1
+    items:
+    - _assetCache: {fileID: 2064240269689213316, guid: 88bb119b18a36224d8e34d9a06a5e9b9,
+        type: 3}
+      _location: WandBasicPickup
+      _packageName: DefaultPackage
+--- !u!4 &849012209
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 849012207}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 3.82, z: 9.63}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &849012210
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 849012207}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 238644755
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 8
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 0
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
 --- !u!1001 &904453605
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1767,6 +1856,16 @@ MonoBehaviour:
     _packageName: DefaultPackage
   characterEntity: {fileID: 0}
   count: 0
+  patrolConfig:
+    mode: 0
+    waypoints: []
+    center: {x: 0, y: 0, z: 0}
+    radius: 10
+    speed: 0.5
+    detectionDistance: 2
+    obstacleMask:
+      serializedVersion: 2
+      m_Bits: 4294967295
 --- !u!114 &1457208765
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2553,6 +2652,16 @@ MonoBehaviour:
     _packageName: DefaultPackage
   characterEntity: {fileID: 0}
   count: 0
+  patrolConfig:
+    mode: 0
+    waypoints: []
+    center: {x: 0, y: 0, z: 0}
+    radius: 10
+    speed: 0.5
+    detectionDistance: 2
+    obstacleMask:
+      serializedVersion: 2
+      m_Bits: 4294967295
 --- !u!114 &2101536804
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3505,3 +3614,4 @@ SceneRoots:
   - {fileID: 27735876}
   - {fileID: 1413198155}
   - {fileID: 2142338463}
+  - {fileID: 849012209}
