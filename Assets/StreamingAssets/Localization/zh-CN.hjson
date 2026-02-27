@@ -51,9 +51,9 @@
             name: "鬼魂",
             desc: "普通角色"
         },
-        leaf_slime:{
-            name: "树叶史莱姆",
-            desc: "普通角色"
+        caster:{
+            name: "法师",
+            desc: "玩家角色"
         }
     },
     unity_services: {
@@ -144,6 +144,10 @@
         quit: {
             button: "退出游戏",
             message: "确定要退出游戏吗？"
+        },
+        respawn:{
+            button: "重生",
+            
         }
     },
     popup: {

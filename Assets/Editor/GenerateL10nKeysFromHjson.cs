@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class GenerateL10nKeysFromHjson {
     // 🔧 配置区 —— 根据你的项目调整
-    private const string FilePath = "StreamingAssets/Localization/ChineseSimplified.hjson"; // 相对于 Assets/
+    private const string FilePath = "StreamingAssets/Localization/zh-CN.hjson"; // 相对于 Assets/
     private const string OutputPath = "JoG/Localization/L10nKeys.cs";
     private const string Namespace = "JoG.Localization";
 
