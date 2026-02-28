@@ -13,8 +13,8 @@
             name: "燃烧",
             desc: "每隔{tickInterval}秒损失一次生命值"
         },
-        speed_boost:{
-            name: "加速"
+        speed_boost: {
+            name: "加速",
             desc: "增加{0}%移速"
         }
     },
@@ -33,7 +33,7 @@
             name: "播放器",
             desc: "播放或暂停音乐"
         },
-        tv:{
+        tv: {
             name: "电视机",
             desc: "可以播放{0}"
         },
@@ -47,11 +47,11 @@
             name: "猫女",
             desc: "普通角色"
         },
-        ghost:{
+        ghost: {
             name: "鬼魂",
             desc: "普通角色"
         },
-        caster:{
+        caster: {
             name: "法师",
             desc: "玩家角色"
         }
@@ -86,7 +86,7 @@
         create: {
             title: "创建会话",
             button: "创建",
-            default_name: "{0}的会话"
+            default_name: "{0}的会话",
             created: "创建会话成功，会话代码 {0} 已复制到剪切板。",
             failed: "创建会话失败：{0}"
         },
@@ -100,17 +100,40 @@
             title: "查询会话",
             filter: {
                 title: "筛选条件"
-            }
+            },
             refresh: {
                 button: "刷新"
             }
         }
     },
-    settings:{
-        general:{
-            title: "通用"
+    settings: {
+        general: {
+            title: "通用",
+            language: "语言",
+            full_screen_mode: {
+                label: "全屏模式",
+                exclusive_full_screen: "独占全屏",
+                full_screen_window: "全屏窗口",
+                maximized_window: "最大化窗口",
+                windowed: "窗口化"
+            }
         },
-    }
+        graphic: {
+            title: "图形",
+            quality_level: {
+                label: "质量",
+                low: "低",
+                medium: "中",
+                high: "高"
+            }
+        },
+        audio: {
+            title: "声音",
+            main_volume: "主音量",
+            music_volume: "音乐音量",
+            effect_volume: "音效音量"
+        }
+    },
     main_menu: {
         introduce: {
             button: "游戏介绍"
@@ -134,9 +157,9 @@
         resume: {
             button: "继续游戏"
         },
-        settings:{
+        settings: {
             button: "游戏设置"
-        }
+        },
         disconnect: {
             button: "断开连接",
             message: "确定要断开与当前会话的连接吗？"
@@ -145,9 +168,8 @@
             button: "退出游戏",
             message: "确定要退出游戏吗？"
         },
-        respawn:{
-            button: "重生",
-            
+        respawn: {
+            button: "重生"
         }
     },
     popup: {

@@ -16,6 +16,9 @@ TagManager:
   - UICamera
   - ItemTooltipView
   - ColorImage
+  - Music
+  - Effect
+  - PlayerSpawnPoint
   layers:
   - Default
   - TransparentFX
