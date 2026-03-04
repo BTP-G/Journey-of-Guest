@@ -16,7 +16,23 @@
         speed_boost: {
             name: "加速",
             desc: "增加{0}%移速"
-        }
+        },
+		atk_boost: {
+		    name: "加攻",
+		    desc: "增加{0}%攻击力"
+		},
+		Health_boost: {
+		    name: "最大生命值增加",
+		    desc: "增加{0}%生命值"
+		},
+		Health_boost: {
+		    name: "最大生命值增加",
+		    desc: "增加{0}%生命值"
+		},
+		damage_Reduction: {
+			name: "免伤值增加",
+			desc: "增加{0}%免伤"
+		}
     },
     item: {
         healing_potion: {
@@ -26,7 +42,19 @@
         boots_of_speed: {
             name: "速度之靴",
             desc: "增加最大移动速度"
-        }
+        },
+		boots_of_atk: {
+		    name: "攻击之仗",
+		    desc: "增加最大攻击力"
+		},
+		boots_of_health: {
+		    name: "生命之靴",
+		    desc: "增加最大生命值"
+		},
+		reduction-of-damage: {
+			name: "免伤之权",
+			desc: "增加免伤百分比"
+		}
     },
     interact: {
         radio: {
@@ -134,6 +162,35 @@
             effect_volume: "音效音量"
         }
     },
+	mods: {
+	    title: "模组管理",
+	    character_mods: {
+	        label: "角色模组",
+	        title: "角色模组管理器",
+	        installed_list_title: "已安装角色模组",
+	        import_placeholder: "请选择角色模组文件"
+	    },
+	    map_mods: {
+	        label: "地图模组",
+	        title: "地图模组管理器",
+	        installed_list_title: "已安装地图模组",
+	        import_placeholder: "请选择地图模组文件"
+	    },
+	    item_mods: {
+	        label: "道具模组",
+	        title: "道具模组管理器",
+	        installed_list_title: "已安装道具模组",
+	        import_placeholder: "请选择道具模组文件"
+	    },
+	    common: {
+	        title: "常规",
+	        close_button: "关闭",
+	        imported_message: "{0} 模组 {1} 导入成功。",
+	        failed_message: "导入失败：{0}",
+			import_button: "导入选定模组",
+			delete_button: "删除选定模组",
+	    }
+	},
     main_menu: {
         introduce: {
             button: "游戏介绍"
