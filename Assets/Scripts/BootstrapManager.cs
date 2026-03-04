@@ -2,6 +2,7 @@ using Cysharp.Threading.Tasks;
 using GuestUnion.UI;
 using System;
 using System.Collections.Generic;
+using Unity.Netcode.Components;
 using Unity.Services.Core;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -14,6 +15,7 @@ namespace JoG {
         public PopupManager PopupManager;
 
         private async void Awake() {
+            NetworkTransform.InterpolationBufferTickOffset = 10;
             using var scope = PopupManager.PopupLoader();
             while (UnityServices.State != ServicesInitializationState.Initialized) {
                 try {
