@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6592542893745767879}
   - component: {fileID: 7020673057089394940}
   - component: {fileID: 8314746162272258562}
-  m_Layer: 10
+  m_Layer: 8
   m_Name: Radio
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -75,8 +75,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2049065514
-  InScenePlacedSourceGlobalObjectIdHash: 0
+  GlobalObjectIdHash: 3066662403
+  InScenePlacedSourceGlobalObjectIdHash: 3025112989
   DeferredDespawnTick: 0
   Ownership: 8
   AlwaysReplicateAsRoot: 0
@@ -95,7 +95,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 13385339065999458}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
   m_Name: 
@@ -122,7 +122,7 @@ GameObject:
   - component: {fileID: 8105864496747717194}
   - component: {fileID: 516221901860263590}
   - component: {fileID: 3732895387911559122}
-  m_Layer: 10
+  m_Layer: 8
   m_Name: Radio
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -209,7 +209,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: -6691140801321915227, guid: 0dc86d60699f0cf479e0d1228d6d56a7,
     type: 2}
-  m_audioClip: {fileID: 8300000, guid: c547d1ade456c1c42a956d9d317c8905, type: 3}
+  m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: c547d1ade456c1c42a956d9d317c8905, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
@@ -356,10 +356,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e91d9134dc1dee947a551beaead55d0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  localizableName:
-    key: 
-  localizableDescription:
-    key: 
+  nameKey: 
+  descriptionKey: 
   tooltipOffset: {x: 0, y: 0.65, z: 0}
   <OnInteracted>k__BackingField:
     m_PersistentCalls:
@@ -387,7 +385,7 @@ GameObject:
   - component: {fileID: 13385339066235994}
   - component: {fileID: 13385339062844540}
   - component: {fileID: 13385339063811772}
-  m_Layer: 10
+  m_Layer: 8
   m_Name: Antenna
   m_TagString: Untagged
   m_Icon: {fileID: 0}
