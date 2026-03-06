@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace QuickOutline {
 
@@ -195,6 +196,9 @@ namespace QuickOutline {
         }
 
         private List<Vector3> SmoothNormals(Mesh mesh) {
+            if (!mesh.isReadable) {
+                Debug.LogError($"Mesh \"{mesh.name}\" is not readable. Enable the Read/Write option in the model import settings.", this);
+            }
             // Group vertices by location
             var groups = mesh.vertices.Select((vertex, index) => new KeyValuePair<Vector3, int>(vertex, index)).GroupBy(pair => pair.Key);
 
