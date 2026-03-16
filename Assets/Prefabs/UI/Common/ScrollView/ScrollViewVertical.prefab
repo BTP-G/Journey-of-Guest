@@ -195,7 +195,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 3833139913670843941}
   m_HandleRect: {fileID: 8622285036998194121}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -349,7 +349,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3244564554789592987}
-  - component: {fileID: 4951844722867385371}
   - component: {fileID: 929721023531232280}
   m_Layer: 5
   m_Name: Viewport
@@ -378,14 +377,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
---- !u!222 &4951844722867385371
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6190012832337420996}
-  m_CullTransparentMesh: 1
 --- !u!114 &929721023531232280
 MonoBehaviour:
   m_ObjectHideFlags: 0
