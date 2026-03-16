@@ -164,32 +164,13 @@
     },
 	mods: {
 	    title: "模组管理",
-	    character_mods: {
-	        label: "角色模组",
-	        title: "角色模组管理器",
-	        installed_list_title: "已安装角色模组",
-	        import_placeholder: "请选择角色模组文件"
+	    list_header: {
+	        mod_name: "名称",
+	        mod_author: "作者",
+	        mod_desc: "描述",
+	        mod_version: "版本"
+            mod_enabled: "是否启用"
 	    },
-	    map_mods: {
-	        label: "地图模组",
-	        title: "地图模组管理器",
-	        installed_list_title: "已安装地图模组",
-	        import_placeholder: "请选择地图模组文件"
-	    },
-	    item_mods: {
-	        label: "道具模组",
-	        title: "道具模组管理器",
-	        installed_list_title: "已安装道具模组",
-	        import_placeholder: "请选择道具模组文件"
-	    },
-	    common: {
-	        title: "常规",
-	        close_button: "关闭",
-	        imported_message: "{0} 模组 {1} 导入成功。",
-	        failed_message: "导入失败：{0}",
-			import_button: "导入选定模组",
-			delete_button: "删除选定模组",
-	    }
 	},
     main_menu: {
         introduce: {
