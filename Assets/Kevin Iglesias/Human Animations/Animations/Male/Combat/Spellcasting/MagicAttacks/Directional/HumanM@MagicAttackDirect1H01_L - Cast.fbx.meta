@@ -25,10 +25,7 @@ ModelImporter:
     removeConstantScaleCurves: 0
     motionNodeName: 
     animationImportErrors: 
-    animationImportWarnings: "\nClip 'HumanM@MagicAttackDirect1H01_L - Cast' has
-      import animation warnings that might lower retargeting quality:\nNote: Activate
-      translation DOF on avatar to improve retargeting quality.\n\t'B-spine' is inbetween
-      humanoid transforms and has rotation animation that will be discarded.\n"
+    animationImportWarnings: 
     animationRetargetingWarnings: 
     animationDoRetargetingWarnings: 0
     importAnimatedCustomProperties: 0
@@ -69,6 +66,13 @@ ModelImporter:
       - time: 0.31363633
         functionName: HandleAnimationEvent
         data: fire
+        objectReferenceParameter: {instanceID: 0}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
+      - time: 0.9957537
+        functionName: HandleAnimationEvent
+        data: exit
         objectReferenceParameter: {instanceID: 0}
         floatParameter: 0
         intParameter: 0

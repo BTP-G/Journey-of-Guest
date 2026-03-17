@@ -1016,7 +1016,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   dropTable:
-  - dropChance: 0.2
+  - dropChance: 1
     items:
     - _assetCache: {fileID: 2064240269689213316, guid: 88bb119b18a36224d8e34d9a06a5e9b9,
         type: 3}
