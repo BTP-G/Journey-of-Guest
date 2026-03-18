@@ -71,8 +71,8 @@
         }
     },
     character: {
-        cat_girl: {
-            name: "猫女",
+        fighter: {
+            name: "战士",
             desc: "普通角色"
         },
         ghost: {

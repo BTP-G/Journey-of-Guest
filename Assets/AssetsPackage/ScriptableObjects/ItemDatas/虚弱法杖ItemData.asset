@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e073d37ae0c0b842b362914d0cfb884, type: 3}
+  m_Name: "\u865A\u5F31\u6CD5\u6756ItemData"
+  m_EditorClassIdentifier: 
+  nameKey: item.healing_potion.name
+  descriptionKey: item.healing_potion.name
+  iconSprite: {fileID: 21300000, guid: 34135b0014e04a34eac210e3bfb586ed, type: 3}
+  pickupPrefab: {fileID: 6930518330201524253, guid: 88bb119b18a36224d8e34d9a06a5e9b9,
+    type: 3}
+  buffDatas:
+  - {fileID: 11400000, guid: 0f87090b7cbb4164da166d68b894b32d, type: 2}
