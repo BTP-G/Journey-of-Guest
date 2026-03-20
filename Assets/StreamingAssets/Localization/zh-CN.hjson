@@ -79,7 +79,7 @@
             name: "鬼魂",
             desc: "普通角色"
         },
-        caster: {
+        mage: {
             name: "法师",
             desc: "玩家角色"
         }
