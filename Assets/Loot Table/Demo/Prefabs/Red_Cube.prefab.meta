@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: c56698d787ebc284fa86b3c2d87e9ab9
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 234682
+  packageName: Loot Table - Universal Loot System
+  packageVersion: 2.1.0a
+  assetPath: Assets/Loot Table/Demo/Prefabs/Red_Cube.prefab
+  uploadId: 861416

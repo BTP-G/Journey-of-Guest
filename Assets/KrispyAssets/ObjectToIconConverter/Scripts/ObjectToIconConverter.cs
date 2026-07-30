@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 
 using System;
 using UnityEditor;
@@ -329,7 +329,7 @@ namespace RRS.Converter
 
             if (Gizmos.HasFlag(GizmoSettings.Camera_To_Corners))
             {
-                //Optional, draw lines connecting the camera position to the corners
+                //Optional, draw lines connecting the camera Position to the corners
                 UnityEngine.Gizmos.DrawLine(camTransform.position, topLeft);
                 UnityEngine.Gizmos.DrawLine(camTransform.position, topRight);
                 UnityEngine.Gizmos.DrawLine(camTransform.position, bottomLeft);
@@ -338,7 +338,7 @@ namespace RRS.Converter
 
             if (Gizmos.HasFlag(GizmoSettings.Camera_To_Middle_Points))
             {
-                //Optional, draw lines connecting the camera position to middle points between the corners
+                //Optional, draw lines connecting the camera Position to middle points between the corners
                 UnityEngine.Gizmos.DrawLine(camTransform.position, middleLeft);
                 UnityEngine.Gizmos.DrawLine(camTransform.position, middleRight);
                 UnityEngine.Gizmos.DrawLine(camTransform.position, middleTop);

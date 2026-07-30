@@ -34,7 +34,7 @@ public class ChatController : MonoBehaviour {
         if (ChatDisplayOutput != null)
         {
             // No special formatting for first entry
-            // Enqueue line feed before each subsequent entries
+            // Enqueue line feed before each subsequent Entries
             if (ChatDisplayOutput.text == string.Empty)
                 ChatDisplayOutput.text = formattedInput;
             else

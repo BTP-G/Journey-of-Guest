@@ -1,4 +1,4 @@
-namespace ANU.IngameDebug.Console.Dashboard
+﻿namespace ANU.IngameDebug.Console.Dashboard
 {
     public static class ConsolePlatformExtensions
     {

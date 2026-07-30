@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 8e281ff4790500446afaef73d3586d53
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 234682
+  packageName: Loot Table - Universal Loot System
+  packageVersion: 2.1.0a
+  assetPath: Assets/Loot Table/Demo/Prefabs/Materials/Base-Scene-Material_2.mat
+  uploadId: 861416

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 65ed8ff883d4f354aabb1a22f19a672c
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 234682
+  packageName: Loot Table - Universal Loot System
+  packageVersion: 2.1.0a
+  assetPath: Assets/Loot Table/Demo/Prefabs/Materials/Material_Blue.mat
+  uploadId: 861416

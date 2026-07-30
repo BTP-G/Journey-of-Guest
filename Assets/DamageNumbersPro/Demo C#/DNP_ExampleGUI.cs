@@ -1,4 +1,4 @@
-/* 
+﻿/* 
  * Hello user.
  * 
  * This is a script made to teach you how to use the asset.

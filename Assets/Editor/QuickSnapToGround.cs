@@ -1,23 +1,17 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEditor;
 using JoG;
 
 public static class QuickSnapToGround {
 
-    [MenuItem("Tools/Snap Selected To Ground _F10")] // ¿ì½İ¼ü F10
+    [MenuItem("Tools/Snap Selected To Ground _F10")] // å¿«æ·é”® F10
     public static void SnapToGround() {
         foreach (GameObject @object in Selection.gameObjects) {
             var origin = @object.transform.position;
-            // ´ÓÎïÌåÎ»ÖÃÏòÏÂ·¢ÉäÉäÏß
             if (Physics.Raycast(origin + new Vector3(0, 100f, 0), Vector3.down, out var hit, 1000f, LayerMasks.Default, QueryTriggerInteraction.Ignore)) {
-                // ¼ÇÂ¼³·Ïú²Ù×÷
                 Undo.RecordObject(@object.transform, "Snap to Ground");
-                // ÒÆ¶¯ÎïÌå£¬±£³ÖÔ­ÓĞµÄÏà¶Ô¸ß¶È£¨Èç¹ûĞèÒªÌùµØ£¬offsetÉèÎª0£©
                 @object.transform.position = hit.point;
-                // Èç¹ûÄãÏëÈÃÎïÌåµ×²¿ÌùµØ£¬¿ÉÄÜĞèÒª¼õÈ¥ÎïÌå×ÔÉí¸ß¶ÈµÄÒ»°ë
                 Debug.DrawLine(origin, hit.point, Color.red, 5);
-                Debug.Log(hit.point);
-                Debug.Log(hit.distance);
             }
         }
     }

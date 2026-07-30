@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using System.Text.RegularExpressions;
 using ANU.IngameDebug.Console.CommandLinePreprocessors;
 using ANU.IngameDebug.Utils;

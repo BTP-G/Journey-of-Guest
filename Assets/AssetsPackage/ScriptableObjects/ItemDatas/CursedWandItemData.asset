@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e073d37ae0c0b842b362914d0cfb884, type: 3}
+  m_Name: CursedWandItemData
+  m_EditorClassIdentifier: 
+  nameKey: item.cursed_wand.name
+  descriptionKey: item.cursed_wand.desc
+  iconSprite: {fileID: -724806789, guid: bb136cc4f32ba4341b31499243226c4d, type: 3}
+  pickupPrefab: {fileID: -9129968861745421761, guid: 639a42e9acf59a542b397f1f1c5332b9,
+    type: 3}
+  buffDatas:
+  - {fileID: 7480024617549415288, guid: 991cd319e10228743a0e40b6bf07c3aa, type: 3}

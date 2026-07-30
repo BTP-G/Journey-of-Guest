@@ -1,4 +1,4 @@
-using ANU.IngameDebug.Utils;
+﻿using ANU.IngameDebug.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 

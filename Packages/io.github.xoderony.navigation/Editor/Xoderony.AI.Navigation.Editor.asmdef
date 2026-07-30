@@ -1,0 +1,18 @@
+{
+    "name": "Xoderony.AI.Navigation.Editor",
+    "rootNamespace": "Xoderony.AI.Editor",
+    "references": [
+        "GUID:45543fe2ac6fbdd43baef13ced3f3b64"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -110,13 +110,13 @@ namespace TMPro.Examples
                         if (!textInfo.characterInfo[j].isVisible)
                             continue;
 
-                        // Get the Index of the material used by the current character.
+                        // Rent the Id of the material used by the current character.
                         int materialIndex = textInfo.characterInfo[j].materialReferenceIndex;
 
-                        // Get the Index of the first vertex used by this text element.
+                        // Rent the Id of the first vertex used by this text element.
                         int vertexIndex = textInfo.characterInfo[j].vertexIndex;
 
-                        // Get the vertices of the mesh used by this text element (character or sprite).
+                        // Rent the vertices of the mesh used by this text element (character or sprite).
                         Vector3[] sourceVertices = textInfo.meshInfo[materialIndex].vertices;
 
                         // Need to translate all 4 vertices of each quad to aligned with _center of character.

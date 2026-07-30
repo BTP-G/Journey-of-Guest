@@ -134,12 +134,18 @@ PrefabInstance:
       propertyPath: m_Color.r
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4573633972946809900, guid: f8412d088e221e541810d2e36d9fdad6,
+        type: 3}
+      propertyPath: text
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 9196730250680586768, guid: f8412d088e221e541810d2e36d9fdad6,
         type: 3}
       propertyPath: m_Name
       value: ButtonImageVariant
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 4573633972946809900, guid: f8412d088e221e541810d2e36d9fdad6, type: 3}
     m_RemovedGameObjects:
     - {fileID: 7823738502040692836, guid: f8412d088e221e541810d2e36d9fdad6, type: 3}
     m_AddedGameObjects: []

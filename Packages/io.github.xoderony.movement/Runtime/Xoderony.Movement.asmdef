@@ -1,0 +1,17 @@
+{
+    "name": "Xoderony.Movement",
+    "rootNamespace": "Xoderony.Movement",
+    "references": [
+        "GUID:41d10574f471d064fb20df337128dac3",
+        "GUID:d04ac73fd7ae7614ab39ad21fe1c5094"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

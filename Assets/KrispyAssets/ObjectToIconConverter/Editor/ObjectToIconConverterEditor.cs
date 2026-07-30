@@ -296,7 +296,7 @@ namespace RRS.Converter
             {
                 EditorGUILayout.BeginVertical(IndentedBackgroundStyle);
                 EditorGUILayout.PropertyField(gizmosProp, new GUIContent("Gizmos"));
-                if (gizmosProp.intValue != 0) // Check if any flags are set
+                if (gizmosProp.intValue != 0) // Check if any Flags are set
                 {
                     EditorGUILayout.PropertyField(gizmoLineLengthMultiplierProp, new GUIContent("Gizmo Line Length Multiplier"));
                     EditorGUILayout.PropertyField(gizmoFrontToEndDepthProp, new GUIContent("Gizmo Front To End Depth"));

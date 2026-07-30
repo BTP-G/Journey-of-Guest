@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 
 
@@ -21,7 +21,7 @@ namespace TMPro.Examples
 
         void Awake()
         {
-            // Get Reference to TextMeshPro Component
+            // Rent Reference to TextMeshPro Component
             m_textMeshPro = GetComponent<TMP_Text>();
             m_textMeshPro.text = label01;
             m_textMeshPro.textWrappingMode = TextWrappingModes.Normal;
@@ -51,7 +51,7 @@ namespace TMPro.Examples
             m_textMeshPro.ForceMeshUpdate();
 
 
-            int totalVisibleCharacters = m_textMeshPro.textInfo.characterCount; // Get # of Active Character in text object
+            int totalVisibleCharacters = m_textMeshPro.textInfo.characterCount; // Rent # of Active Character in text object
             int counter = 0;
             int visibleCount = 0;
 

@@ -1,0 +1,25 @@
+{
+    "name": "HudMod",
+    "rootNamespace": "JoG.Modding",
+    "references": [
+        "GUID:341134d9e75e5c945aef1d691720881c",
+        "MessagePipe",
+        "UniTask",
+        "VContainer",
+        "com.anu.debugconsole",
+        "Xoderony.Logging",
+        "Unity.Netcode.Runtime",
+        "Unity.InputSystem"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [
+        "Editor"
+    ],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

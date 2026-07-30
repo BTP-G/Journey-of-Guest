@@ -41,7 +41,7 @@
             "markerIndex": 0
         },
         {
-            "path": "Assets/JoG",
+            "path": "Packages/io.github.xoderony.jog",
             "color": {
                 "r": 0.49000000953674319,
                 "g": 0.8399999737739563,
@@ -61,7 +61,7 @@
             "markerIndex": 0
         },
         {
-            "path": "Assets/GuestUnion",
+            "path": "Assets/Xoderony",
             "color": {
                 "r": 0.49000000953674319,
                 "g": 0.8399999737739563,

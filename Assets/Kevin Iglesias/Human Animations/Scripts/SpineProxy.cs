@@ -1,4 +1,4 @@
-// -- SPINE PROXY 1.0 | Kevin Iglesias --
+﻿// -- SPINE PROXY 1.0 | Kevin Iglesias --
 // This script ensures correct animation display when mixing upper and lower body animations using Unity Avatar Masks.
 // Attach this script to the 'B-spineProxy' transform, which is a sibling of the 'B-hips' bone.
 // In the 'originalSpine' field, assign the 'B-spine' bone (child of 'B-hips' and parent of 'B-chest').

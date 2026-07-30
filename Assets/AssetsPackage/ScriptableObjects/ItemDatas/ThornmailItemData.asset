@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e073d37ae0c0b842b362914d0cfb884, type: 3}
+  m_Name: ThornmailItemData
+  m_EditorClassIdentifier: 
+  nameKey: item.thornmail.name
+  descriptionKey: item.thornmail.desc
+  pickupPrefab: {fileID: 5939938544044954024, guid: d5b6ec1259302474b80eb10281c77594,
+    type: 3}
+  iconSprite: {fileID: 1203336236, guid: 04a12935b1efade40a4e3580f5125258, type: 3}
+  buffDatas:
+  - {fileID: 3546371367778889042, guid: 5a9cb0b17dfea5045b5fb8c52a8a576f, type: 3}

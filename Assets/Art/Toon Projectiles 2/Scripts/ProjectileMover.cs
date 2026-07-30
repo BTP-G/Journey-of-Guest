@@ -37,7 +37,7 @@ public class ProjectileMover : MonoBehaviour
 		if (speed != 0)
         {
             rb.linearVelocity = transform.forward * speed;
-            //transform.position += transform.forward * (speed * Time.deltaTime);         
+            //transform.Position += transform.forward * (speed * Time.deltaTime);         
         }
 	}
 

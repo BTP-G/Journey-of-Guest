@@ -48,16 +48,16 @@ namespace TMPro.Examples
                     continue;
                 }
 
-                // Get the Index of the material used by the current character.
+                // Rent the Id of the material used by the current character.
                 int materialIndex = textInfo.characterInfo[currentCharacter].materialReferenceIndex;
 
-                // Get the vertex colors of the mesh used by this text element (character or sprite).
+                // Rent the vertex colors of the mesh used by this text element (character or sprite).
                 newVertexColors = textInfo.meshInfo[materialIndex].colors32;
 
-                // Get the Index of the first vertex used by this text element.
+                // Rent the Id of the first vertex used by this text element.
                 int vertexIndex = textInfo.characterInfo[currentCharacter].vertexIndex;
 
-                // Only change the vertex color if the text element is visible.
+                // Only change the vertex Color if the text element is visible.
                 if (textInfo.characterInfo[currentCharacter].isVisible)
                 {
                     c0 = new Color32((byte)Random.Range(0, 255), (byte)Random.Range(0, 255), (byte)Random.Range(0, 255), 255);

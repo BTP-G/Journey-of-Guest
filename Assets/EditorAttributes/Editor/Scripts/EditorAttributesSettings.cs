@@ -1,156 +1,182 @@
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
+using UnityEditor.Build;
 using UnityEngine.UIElements;
+using UnityEditor.UIElements;
 using System.Collections.Generic;
 using FilePath = UnityEditor.FilePathAttribute;
-using UnityEditor.UIElements;
+using System.Linq;
 
 namespace EditorAttributes.Editor
 {
-	[@FilePath("ProjectSettings/EditorAttributes/EditorAttributesSettings.asset", FilePath.Location.ProjectFolder)]
-	internal class EditorAttributesSettings : ScriptableSingleton<EditorAttributesSettings>
-	{
-		[Tooltip("Disables automatic validation when building the project")]
-		[SerializeField] internal bool disableBuildValidation;
+    [@FilePath("ProjectSettings/EditorAttributes/EditorAttributesSettings.asset", FilePath.Location.ProjectFolder)]
+    internal class EditorAttributesSettings : ScriptableSingleton<EditorAttributesSettings>
+    {
+        [Tooltip("Disables the drawing of the editor by the editor extension script, usefull if you want to override the base UnityEngine.Object yourself.\nNote that some attributes like Button, PropertyOrder and ShowInInspector will stop working.")]
+        [SerializeField] internal bool disableEditorExtension;
 
-		[Tooltip("Time in milliseconds to wait for the asset preview to load, increase this value if the previews are not showing up")]
-		[SerializeField, Suffix("ms")] internal int assetPreviewLoadTime = 20;
+        [Tooltip("Disables automatic validation when building the project")]
+        [SerializeField] internal bool disableBuildValidation;
 
-		[Space, Tooltip("Define custom units for use with UnitField Attribute")]
-		[SerializeField, DataTable] internal UnitDefinition[] customUnitDefinitions;
+        [Tooltip("Time in milliseconds to wait for the asset preview to load, increase this value if the previews are not showing up")]
+        [SerializeField, Suffix("ms")] internal int assetPreviewLoadTime = 20;
 
-		[MessageBox(nameof(messageBoxText), nameof(CheckValidUnitDefinitions), MessageMode.Warning, StringInputMode.Dynamic)]
-		[SerializeField] private Void messageBoxHolder;
+        [Space, Tooltip("Define custom units for use with UnitField Attribute")]
+        [SerializeField, DataTable] internal UnitDefinition[] customUnitDefinitions;
 
-		private string messageBoxText;
+        [MessageBox(nameof(messageBoxText), nameof(CheckValidUnitDefinitions), MessageMode.Warning, StringInputMode.Dynamic)]
+        [SerializeField] private Void messageBoxHolder;
 
-		void OnValidate() => UnitConverter.UNIT_CONVERSION_MAP = UnitConverter.GenerateConversionMap();
+        private string messageBoxText;
 
-		internal void AddCustomDefinitions()
-		{
-			var unitDefinitions = UnitConverter.UNIT_DEFINITIONS;
+        void OnValidate() => UnitConverter.UNIT_CONVERSION_MAP = UnitConverter.GenerateConversionMap();
 
-			unitDefinitions.RemoveWhere((unitDefinition) => unitDefinition.unit == Unit.Custom);
+        internal void AddCustomDefinitions()
+        {
+            HashSet<UnitDefinition> unitDefinitions = UnitConverter.UNIT_DEFINITIONS;
 
-			if (customUnitDefinitions == null)
-				return;
+            unitDefinitions.RemoveWhere((unitDefinition) => unitDefinition.unit == Unit.Custom);
 
-			foreach (var customUnitDefinition in customUnitDefinitions)
-			{
-				if (string.IsNullOrWhiteSpace(customUnitDefinition.unitName) || string.IsNullOrWhiteSpace(customUnitDefinition.unitLabel))
-					continue;
+            if (customUnitDefinitions == null)
+                return;
 
-				if (customUnitDefinition.category != UnitCategory.Custom)
-				{
-					customUnitDefinition.categoryName = customUnitDefinition.category.ToString();
-				}
-				else if (string.IsNullOrWhiteSpace(customUnitDefinition.unitName))
-				{
-					continue;
-				}
-			}
+            foreach (var customUnitDefinition in customUnitDefinitions)
+            {
+                if (string.IsNullOrWhiteSpace(customUnitDefinition.unitName) || string.IsNullOrWhiteSpace(customUnitDefinition.unitLabel))
+                    continue;
 
-			unitDefinitions.UnionWith(customUnitDefinitions);
-		}
+                if (customUnitDefinition.category != UnitCategory.Custom)
+                {
+                    customUnitDefinition.categoryName = customUnitDefinition.category.ToString();
+                }
+                else if (string.IsNullOrWhiteSpace(customUnitDefinition.unitName))
+                {
+                    continue;
+                }
+            }
 
-		internal void SaveSettings() => Save(true);
+            unitDefinitions.UnionWith(customUnitDefinitions);
+        }
 
-		private bool CheckValidUnitDefinitions()
-		{
-			foreach (var customUnitDefinition in customUnitDefinitions)
-			{
-				if (string.IsNullOrWhiteSpace(customUnitDefinition.unitName))
-				{
-					messageBoxText = "Custom unit name cannot be empty";
-					return true;
-				}
+        internal void SaveSettings() => Save(true);
 
-				if (customUnitDefinition.category == UnitCategory.Custom && string.IsNullOrWhiteSpace(customUnitDefinition.categoryName))
-				{
-					messageBoxText = "Custom unit category name cannot be empty";
-					return true;
-				}
+        private bool CheckValidUnitDefinitions()
+        {
+            if (customUnitDefinitions == null)
+                return false;
 
-				if (string.IsNullOrWhiteSpace(customUnitDefinition.unitLabel))
-				{
-					messageBoxText = "Custom unit label cannot be empty";
-					return true;
-				}
-			}
+            foreach (var customUnitDefinition in customUnitDefinitions)
+            {
+                if (string.IsNullOrWhiteSpace(customUnitDefinition.unitName))
+                {
+                    messageBoxText = "Custom unit name cannot be empty";
+                    return true;
+                }
 
-			messageBoxText = string.Empty;
-			return false;
-		}
-	}
+                if (customUnitDefinition.category == UnitCategory.Custom && string.IsNullOrWhiteSpace(customUnitDefinition.categoryName))
+                {
+                    messageBoxText = "Custom unit category name cannot be empty";
+                    return true;
+                }
 
-	internal class EditorAttributesSettingsProvider : SettingsProvider
-	{
-		internal EditorAttributesSettingsProvider(string path, SettingsScope scope) : base(path, scope) { }
+                if (string.IsNullOrWhiteSpace(customUnitDefinition.unitLabel))
+                {
+                    messageBoxText = "Custom unit label cannot be empty";
+                    return true;
+                }
+            }
 
-		public override void OnActivate(string searchContext, VisualElement rootElement)
-		{
-			var serializedObject = new SerializedObject(EditorAttributesSettings.instance);
-			var settingsContainer = new VisualElement();
+            messageBoxText = string.Empty;
+            return false;
+        }
+    }
 
-			var header = new Label("Editor Attributes")
-			{
-				style =
-				{
-					fontSize = 19f,
-					unityFontStyleAndWeight = FontStyle.Bold,
-					justifyContent = Justify.FlexEnd,
-					height = 19f,
-					marginTop = 1f,
-					marginLeft = 9f,
-					marginBottom = 12f
-				}
-			};
+    internal class EditorAttributesSettingsProvider : SettingsProvider
+    {
+        internal EditorAttributesSettingsProvider(string path, SettingsScope scope) : base(path, scope) { }
 
-			var helpButton = new Button(() => Application.OpenURL("https://editorattributesdocs.readthedocs.io/en/latest/GettingStarted/editorattributessettings.html"))
-			{
-				tooltip = "Open reference for EditorAttributes Settings.",
-				style =
-				{
-					borderTopLeftRadius = 0f, borderTopRightRadius = 0f, borderBottomLeftRadius = 0f, borderBottomRightRadius = 0f,
-					borderTopWidth = 0f, borderBottomWidth = 0f, borderLeftWidth = 0f, borderRightWidth = 0f,
-					paddingBottom = 0f, paddingTop = 0f, paddingLeft = 0f, paddingRight = 0f,
-					marginTop = 0f, marginBottom = 0f, marginLeft = 0f, marginRight = 0f,
-					width = 16.6f, height = 16.6f,
-					alignSelf = Align.FlexEnd,
-					backgroundColor = Color.clear,
-					backgroundImage = (StyleBackground)EditorGUIUtility.IconContent("d__Help@2x").image
-				}
-			};
+        public override void OnActivate(string searchContext, VisualElement rootElement)
+        {
+            SerializedObject serializedObject = new(EditorAttributesSettings.instance);
+            VisualElement settingsContainer = new();
 
-			helpButton.RegisterCallback<MouseOverEvent>((callack) => helpButton.style.backgroundColor = new Color(0.3f, 0.3f, 0.3f, 1f));
-			helpButton.RegisterCallback<MouseOutEvent>((callack) => helpButton.style.backgroundColor = Color.clear);
+            Label header = new("Editor Attributes")
+            {
+                style =
+                {
+                    fontSize = 19f,
+                    unityFontStyleAndWeight = FontStyle.Bold,
+                    justifyContent = Justify.FlexEnd,
+                    height = 19f,
+                    marginTop = 1f,
+                    marginLeft = 9f,
+                    marginBottom = 12f
+                }
+            };
 
-			var inspectorElement = new InspectorElement(serializedObject);
+            Button helpButton = new(() => Application.OpenURL("https://editorattributesdocs.readthedocs.io/en/latest/GettingStarted/editorattributessettings.html"))
+            {
+                tooltip = "Open reference for EditorAttributes Settings.",
+                style =
+                {
+                    borderTopLeftRadius = 0f, borderTopRightRadius = 0f, borderBottomLeftRadius = 0f, borderBottomRightRadius = 0f,
+                    borderTopWidth = 0f, borderBottomWidth = 0f, borderLeftWidth = 0f, borderRightWidth = 0f,
+                    paddingBottom = 0f, paddingTop = 0f, paddingLeft = 0f, paddingRight = 0f,
+                    marginTop = 0f, marginBottom = 0f, marginLeft = 0f, marginRight = 0f,
+                    width = 16.6f, height = 16.6f,
+                    alignSelf = Align.FlexEnd,
+                    backgroundColor = Color.clear,
+                    backgroundImage = (Texture2D)EditorGUIUtility.IconContent("d__Help@2x").image
+                }
+            };
 
-			inspectorElement.Q<ObjectField>("unity-input-m_Script").parent.RemoveFromHierarchy(); // Remove the auto-generated script field
+            helpButton.RegisterCallback<MouseOverEvent>((callack) => helpButton.style.backgroundColor = new Color(0.3f, 0.3f, 0.3f, 1f));
+            helpButton.RegisterCallback<MouseOutEvent>((callack) => helpButton.style.backgroundColor = Color.clear);
 
-			var clearParamsButton = new Button(() => ButtonDrawer.ClearAllParamsData())
-			{
-				text = "Delete Buttons Parameter Data",
-				tooltip = "Deletes all buttons parameter data stored in ProjectSettings/EditorAttributes",
-				style = { marginTop = 10f }
-			};
+            InspectorElement inspectorElement = new(serializedObject);
 
-			header.Add(helpButton);
+            inspectorElement.Q<ObjectField>("unity-input-m_Script").parent.RemoveFromHierarchy(); // Remove the auto-generated script field
 
-			settingsContainer.Add(inspectorElement);
-			settingsContainer.Add(clearParamsButton);
+            inspectorElement.Q<Toggle>("unity-input-disableEditorExtension").RegisterValueChangedCallback((changeEvent) =>
+            {
+                const string disableEditorExtensionDefine = "DISABLE_EDITOR_EXTENTION";
 
-			rootElement.Add(header);
-			rootElement.Add(settingsContainer);
-		}
+                if (changeEvent.newValue) // Enabled
+                {
+                    PlayerSettings.SetScriptingDefineSymbols(NamedBuildTarget.Standalone, disableEditorExtensionDefine);
+                }
+                else // Disabled
+                {
+                    PlayerSettings.GetScriptingDefineSymbols(NamedBuildTarget.Standalone, out string[] defines);
 
-		public override void OnDeactivate() => EditorAttributesSettings.instance.SaveSettings();
+                    defines = defines.Where((define) => define != disableEditorExtensionDefine).ToArray();
 
-		[SettingsProvider]
-		internal static SettingsProvider CreateSettingsProvider() => new EditorAttributesSettingsProvider("Project/EditorAttributes", SettingsScope.Project)
-		{
-			keywords = new HashSet<string>(new[] { "EditorAttributes", "Editor", "Attributes" })
-		};
-	}
+                    PlayerSettings.SetScriptingDefineSymbols(NamedBuildTarget.Standalone, defines);
+                }
+            });
+
+            Button clearParamsButton = new(() => ButtonDrawer.ClearAllParamsData())
+            {
+                text = "Delete Buttons Parameter Data",
+                tooltip = "Deletes all buttons parameter data stored in ProjectSettings/EditorAttributes",
+                style = { marginTop = 10f }
+            };
+
+            header.Add(helpButton);
+
+            settingsContainer.Add(inspectorElement);
+            settingsContainer.Add(clearParamsButton);
+
+            rootElement.Add(header);
+            rootElement.Add(settingsContainer);
+        }
+
+        public override void OnDeactivate() => EditorAttributesSettings.instance.SaveSettings();
+
+        [SettingsProvider]
+        internal static SettingsProvider CreateSettingsProvider() => new EditorAttributesSettingsProvider("Project/EditorAttributes", SettingsScope.Project)
+        {
+            keywords = new HashSet<string>(new[] { "EditorAttributes", "Editor", "Attributes" })
+        };
+    }
 }

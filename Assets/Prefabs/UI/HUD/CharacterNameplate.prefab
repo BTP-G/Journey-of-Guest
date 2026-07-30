@@ -362,7 +362,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3321275134680658588}
   - component: {fileID: 6683579572050942734}
-  - component: {fileID: 4500110031782769147}
+  - component: {fileID: 534744959690165024}
   - component: {fileID: 6932730357899624727}
   m_Layer: 5
   m_Name: CharacterNameplate
@@ -416,7 +416,7 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
---- !u!114 &4500110031782769147
+--- !u!114 &534744959690165024
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -451,6 +451,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7332bc5140fb59439231eb3e23585b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  nameKey: 
   _nameText: {fileID: 576783887825217802}
   _healthBar:
     speed: 3

@@ -1,0 +1,18 @@
+{
+    "name": "Xoderony.Unity.Editor",
+    "rootNamespace": "Xoderony",
+    "references": [
+        "GUID:d04ac73fd7ae7614ab39ad21fe1c5094"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

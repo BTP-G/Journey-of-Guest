@@ -1,0 +1,16 @@
+{
+    "name": "Xoderony.AI.Navigation",
+    "rootNamespace": "Xoderony.AI",
+    "references": [
+        "GUID:8c4dd21966739024fbd72155091d199e"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

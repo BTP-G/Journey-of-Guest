@@ -64,6 +64,7 @@ GameObject:
   - component: {fileID: 6336281029444662762}
   - component: {fileID: 8238088422420092693}
   - component: {fileID: 3673516025634904692}
+  - component: {fileID: 154393291149903155}
   m_Layer: 5
   m_Name: InputFieldBase
   m_TagString: Untagged
@@ -230,6 +231,20 @@ MonoBehaviour:
   isAlert: 0
   m_InputValidator: {fileID: 0}
   m_ShouldActivateOnSelect: 1
+--- !u!114 &154393291149903155
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3372488227905500484}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56671749f02a3564bad2643f8f12c6e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  text: {fileID: 4465702353695257659}
+  textKey: language
 --- !u!1 &4393896655496739584
 GameObject:
   m_ObjectHideFlags: 0
@@ -378,7 +393,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4341311450755072607}
   - component: {fileID: 8591617613505721674}
-  - component: {fileID: 3578053376906879752}
   - component: {fileID: 4465702353695257659}
   - component: {fileID: 5423715503989358980}
   m_Layer: 5
@@ -415,20 +429,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6496884903847437475}
   m_CullTransparentMesh: 1
---- !u!114 &3578053376906879752
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6496884903847437475}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 56671749f02a3564bad2643f8f12c6e4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _text: {fileID: 4465702353695257659}
-  textKey: language
 --- !u!114 &4465702353695257659
 MonoBehaviour:
   m_ObjectHideFlags: 0

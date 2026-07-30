@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using ANU.IngameDebug.Console;
 using ANU.IngameDebug.Console.CommandLinePreprocessors;

@@ -1,0 +1,14 @@
+{
+  "name": "io.github.xoderony.logging",
+  "version": "0.1.0",
+  "displayName": "Xoderony Logging",
+  "description": "Low-allocation contextual logging helpers for Unity.",
+  "unity": "6000.0",
+  "dependencies": {
+    "com.cysharp.zstring": "2.6.0"
+  },
+  "author": {
+    "name": "Xoderony",
+    "url": "https://github.com/Xoderony"
+  }
+}

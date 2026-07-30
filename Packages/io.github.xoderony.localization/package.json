@@ -1,0 +1,15 @@
+{
+  "name": "io.github.xoderony.localization",
+  "version": "0.1.0",
+  "displayName": "Xoderony Localization",
+  "description": "Runtime localization services and Unity editor tooling.",
+  "unity": "6000.0",
+  "dependencies": {
+    "com.cysharp.zstring": "2.6.0",
+    "io.github.xoderony.unity": "0.1.0"
+  },
+  "author": {
+    "name": "Xoderony",
+    "url": "https://github.com/Xoderony"
+  }
+}

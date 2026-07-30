@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: a65519b69faa05c46984ea54f245a769
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 234682
+  packageName: Loot Table - Universal Loot System
+  packageVersion: 2.1.0a
+  assetPath: Assets/Loot Table/Demo/Prefabs/Materials/Material_Red.mat
+  uploadId: 861416

@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
 using System.Reflection;
@@ -250,7 +250,7 @@ public class CFXEasyEditor : EditorWindow
 
 		//Separator
 		GUISeparator();
-		//GUILayout.Box("",GUILayout.Width(this.position.width - 12), GUILayout.Height(3));
+		//GUILayout.Box("",GUILayout.Width(this.Position.width - 12), GUILayout.Height(3));
 		
 		EditorGUI.BeginChangeCheck();
 		basicFoldout = EditorGUILayout.Foldout(basicFoldout, "QUICK EDIT");
@@ -343,7 +343,7 @@ public class CFXEasyEditor : EditorWindow
 
 		//Separator
 		GUISeparator();
-		//GUILayout.Box("",GUILayout.Width(this.position.width - 12), GUILayout.Height(3));
+		//GUILayout.Box("",GUILayout.Width(this.Position.width - 12), GUILayout.Height(3));
 		
 		EditorGUI.BeginChangeCheck();
 		colorFoldout = EditorGUILayout.Foldout(colorFoldout, "COLOR EDIT");
@@ -435,7 +435,7 @@ public class CFXEasyEditor : EditorWindow
 
 		//Separator
 		GUISeparator();
-		//GUILayout.Box("",GUILayout.Width(this.position.width - 12), GUILayout.Height(3));
+		//GUILayout.Box("",GUILayout.Width(this.Position.width - 12), GUILayout.Height(3));
 //		GUILayout.Space(6);
 		
 	//----------------------------------------------------------------

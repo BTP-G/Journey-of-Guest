@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 8dbfe01dc576fd647810aae52c87010d
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 234682
+  packageName: Loot Table - Universal Loot System
+  packageVersion: 2.1.0a
+  assetPath: Assets/Loot Table/Demo/Prefabs/Glow_Ball.prefab
+  uploadId: 861416

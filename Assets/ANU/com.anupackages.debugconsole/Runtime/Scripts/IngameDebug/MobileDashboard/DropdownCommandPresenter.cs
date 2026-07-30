@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using ANU.IngameDebug.Console.Commands.Implementations;
 using TMPro;
 using UnityEngine;

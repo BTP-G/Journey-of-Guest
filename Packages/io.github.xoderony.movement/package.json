@@ -1,0 +1,14 @@
+{
+  "name": "io.github.xoderony.movement",
+  "version": "0.1.0",
+  "displayName": "Xoderony Movement",
+  "description": "Reusable character movement and collision utilities for Unity.",
+  "unity": "6000.0",
+  "dependencies": {
+    "io.github.xoderony.unity": "0.1.0"
+  },
+  "author": {
+    "name": "Xoderony",
+    "url": "https://github.com/Xoderony"
+  }
+}

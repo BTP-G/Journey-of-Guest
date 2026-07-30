@@ -1,4 +1,4 @@
-using GuestUnion.ObjectPool.Generic;
+ï»¿using Xoderony.ObjectPool.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -8,7 +8,7 @@ namespace JoG.Editor {
 
         [MenuItem("Tools/Check All Prefabs For Missing Scripts")]
         public static void CheckAllPrefabs() {
-            // ÊÕ¼¯ËùÓĞ prefab Â·¾¶
+            // æ”¶é›†æ‰€æœ‰ effectPrefab è·¯å¾„
             string[] guids = AssetDatabase.FindAssets("t:Prefab", new[] { "Assets" });
             if (guids.Length == 0) {
                 Debug.Log("No prefabs found.");
@@ -27,18 +27,18 @@ namespace JoG.Editor {
                 GameObject prefabRoot = AssetDatabase.LoadAssetAtPath<GameObject>(path);
                 if (!prefabRoot) continue;
 
-                // Éî¶È±éÀúËùÓĞ×Ó½Úµã
+                // æ·±åº¦éå†æ‰€æœ‰å­èŠ‚ç‚¹
                 foreach (Transform tr in prefabRoot.GetComponentsInChildren<Transform>(true)) {
                     Component[] components = tr.GetComponents<Component>();
                     for (int c = 0; c < components.Length; c++) {
-                        if (components[c] == null)    // Õâ¾ÍÊÇ Missing Script
+                        if (components[c] == null)    // è¿™å°±æ˜¯ Missing Script
                         {
                             missingCount++;
                             Debug.LogError(
                                 $"Missing script detected!  " +
                                 $"Prefab: {path}  GameObject: {GetFullPath(tr)}",
                                 prefabRoot);
-                            // ·¢ÏÖÒ»´¦¾ÍÌø³öÄÚ²ãÑ­»·£¬¼ÌĞø¼ì²éÏÂÒ»¸öÎïÌå
+                            // å‘ç°ä¸€å¤„å°±è·³å‡ºå†…å±‚å¾ªç¯ï¼Œç»§ç»­æ£€æŸ¥ä¸‹ä¸€ä¸ªç‰©ä½“
                             break;
                         }
                     }
@@ -63,7 +63,7 @@ namespace JoG.Editor {
             }
         }
 
-        // ¹¹ÔìÀàËÆ "/Root/Child/GrandChild" µÄÍêÕûÂ·¾¶
+        // æ„é€ ç±»ä¼¼ "/Root/Child/GrandChild" çš„å®Œæ•´è·¯å¾„
         private static string GetFullPath(Transform tr) {
             string s = tr.name;
             while (tr.parent != null) {

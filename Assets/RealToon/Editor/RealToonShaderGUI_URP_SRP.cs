@@ -1,4 +1,4 @@
-//RealToonGUI URP
+﻿//RealToonGUI URP
 //MJQStudioWorks
 //©2025
 
@@ -886,7 +886,7 @@ static string add_st_string = "Add 'See Through' feature";
         //Minimum (Limit Light Intensity) [172]
         "Minimum Light Intensity value.",
 
-        //Maximum (Limit Light Intensity) [173]
+        //直接叠加伤害和次数 (Limit Light Intensity) [173]
         "Maximum Light Intensity value.",
 
         //Anti-Aliasing Softness (Anti-Aliasing Affects Cutout) (Cutout) [174]
@@ -981,7 +981,7 @@ static string add_st_string = "Add 'See Through' feature";
             //Settings
             materialEditor.SetDefaultGUIWidths();
 
-            //Content
+            //DataSpan
 
             //Will remove soon if no use anymore
             #region Shader Name Switch

@@ -3,86 +3,153 @@
     buff: {
         bleeding: {
             name: "流血",
-            desc: "每隔{tickInterval}秒损失一次生命值"
+            desc: "持续受到伤害"
         },
         poison: {
             name: "中毒",
-            desc: "每隔{tickInterval}秒损失一次生命值"
+            desc: "持续受到伤害"
         },
         burning: {
             name: "燃烧",
-            desc: "每隔{tickInterval}秒损失一次生命值"
+            desc: "持续受到伤害"
         },
-        speed_boost: {
-            name: "加速",
-            desc: "增加{0}%移速"
+        frost: {
+            name: "霜冻",
+            desc: "降低自身最大移动速度。"
         },
-		atk_boost: {
-		    name: "加攻",
-		    desc: "增加{0}%攻击力"
-		},
-		Health_boost: {
-		    name: "最大生命值增加",
-		    desc: "增加{0}%生命值"
-		},
-		Health_boost: {
-		    name: "最大生命值增加",
-		    desc: "增加{0}%生命值"
-		},
-		damage_Reduction: {
-			name: "免伤值增加",
-			desc: "增加{0}%免伤"
-		}
+        curse: {
+            name: "诅咒",
+            desc: "提高自身受到的伤害。"
+        },
+        demonic_might: {
+            name: "恶魔之力",
+            desc: "提高自身攻击力。"
+        },
+        healing: {
+            name: "治疗",
+            desc: "持续恢复生命值"
+        }
     },
     item: {
-        healing_potion: {
-            name: "治疗药水",
-            desc: "恢复{healPercent}生命值"
+        cursed_wand: {
+            name: "诅咒魔杖",
+            desc: "攻击目标后可以施加诅咒，提高目标受到的伤害。"
         },
-        boots_of_speed: {
-            name: "速度之靴",
-            desc: "增加最大移动速度"
+        defense_shield: {
+            name: "防御盾牌",
+            desc: "提高自身防御力，降低自身受到的伤害。"
         },
-		boots_of_atk: {
-		    name: "攻击之仗",
-		    desc: "增加最大攻击力"
-		},
-		boots_of_health: {
-		    name: "生命之靴",
-		    desc: "增加最大生命值"
-		},
-		reduction-of-damage: {
-			name: "免伤之权",
-			desc: "增加免伤百分比"
-		}
+        flame_staff: {
+            name: "火焰法杖",
+            desc: "攻击目标后可以施加燃烧，使目标持续受到伤害。"
+        },
+        frost_staff: {
+            name: "寒冰法杖",
+            desc: "攻击目标后可以施加霜冻，降低目标最大移动速度。"
+        },
+        health_potion: {
+            name: "生命药水",
+            desc: "提高自身最大生命值。"
+        },
+        medkit: {
+            name: "医疗包",
+            desc: "持续恢复自身生命值。"
+        },
+        poison_bottle: {
+            name: "毒液瓶",
+            desc: "攻击目标后可以施加中毒，使目标持续受到伤害。"
+        },
+        vampiric_scythe: {
+            name: "吸血镰刀",
+            desc: "攻击目标后可以施加流血，使目标持续受到伤害；攻击目标后可以将一部分伤害转化为对自身的治疗。"
+        },
+        holy_core: {
+            name: "圣核",
+            desc: "消耗品"
+        },
+        holy_sword: {
+            name: "圣剑",
+            desc: "攻击燃烧目标时，引发一次爆炸，造成相当于燃烧伤害100%的伤害。"
+        },
+        holy_star: {
+            name: "圣星",
+            desc: "所有属性提高10%。"
+        },
+        thornmail: {
+            name: "荆棘之甲",
+            desc: "受到攻击时，对攻击者造成相当于受到伤害50%的反伤。"
+        },
+        crimson_pendant: {
+            name: "绯红吊坠",
+            desc: "鲜血会强化你的攻击。\n每损失1点生命值，造成的伤害提高0.1%。"
+        }
     },
     interact: {
-        radio: {
-            name: "播放器",
-            desc: "播放或暂停音乐"
+        status: {
+            active: "状态：已激活",
+            inactive: "状态：未激活"
         },
-        tv: {
-            name: "电视机",
-            desc: "可以播放{0}"
+        demon_altar: {
+            name: "恶魔祭坛",
+            desc: "交互后献祭{0}%的生命值，获得持续{1}秒的增益效果：\n{2}"
+        },
+        holy_altar: {
+            name: "神圣祭坛",
+            desc: "消耗1个圣核，获得1个神圣道具。"
+        },
+        audio_player: {
+            name: "音乐播放器",
+            desc: "播放或暂停音乐。"
+        },
+        video_player: {
+            name: "视频电视机",
+            desc: "播放或暂停视频。"
         },
         teleporter: {
             name: "传送器",
-            desc: "传送到{0}"
+            desc: "传送到下一关卡。"
+        },
+        game_end_rock: {
+            name: "终点",
+            desc: "交互后结束本局游戏。"
         }
     },
     character: {
         fighter: {
             name: "战士",
-            desc: "普通角色"
+            desc: "玩家角色"
         },
         ghost: {
             name: "鬼魂",
-            desc: "普通角色"
+            desc: "敌人角色"
         },
         mage: {
             name: "法师",
             desc: "玩家角色"
+        },
+        skeleton: {
+            name: "骷髅怪",
+            desc: "敌人角色"
+        },
+        spitter: {
+            name: "酸液怪",
+            desc: "敌人角色"
+        },
+        golem: {
+            name: "魔像",
+            desc: "敌人角色"
+        },
+        giant_dummy: {
+            name: "巨型傀儡",
+            desc: "敌人角色"
         }
+    },
+    objective: {
+        header: "任务",
+        kill_objective: "击杀 {0} / {1} 个敌人",
+        kill_boss_objective: "击杀 {0} / {1} 个 {2} Boss敌人",
+        timer_objective: "坚持{0}秒",
+        end_objective: "与终点石交互结束本局游戏，或者通过传送器重头再来一局。"
     },
     unity_services: {
         init_failed: "Unity服务初始化失败，是否重试？错误信息：{0}"
@@ -135,6 +202,12 @@
         }
     },
     settings: {
+        network: {
+            network_smoothing: {
+                label: "网络平滑度",
+                tooltip: "调高此值可在网络不佳时使其他玩家的移动更平滑，但会增加轻微的视觉延迟。"
+            }
+        },
         general: {
             title: "通用",
             language: "语言",
@@ -162,16 +235,16 @@
             effect_volume: "音效音量"
         }
     },
-	mods: {
-	    title: "模组管理",
-	    list_header: {
-	        mod_name: "名称",
-	        mod_author: "作者",
-	        mod_desc: "描述",
-	        mod_version: "版本"
+    mods: {
+        title: "模组管理",
+        list_header: {
+            mod_name: "名称",
+            mod_author: "作者",
+            mod_desc: "描述",
+            mod_version: "版本",
             mod_enabled: "是否启用"
-	    },
-	},
+        }
+    },
     main_menu: {
         introduce: {
             button: "游戏介绍"
@@ -207,7 +280,7 @@
             message: "确定要退出游戏吗？"
         },
         respawn: {
-            button: "重生"
+            button: "角色重生"
         }
     },
     popup: {

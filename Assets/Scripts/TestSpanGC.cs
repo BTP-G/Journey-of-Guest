@@ -1,27 +1,27 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System;
 using Unity.Profiling;
 
 namespace JoG {
 
     public class TestSpanGC : MonoBehaviour {
-        // ÈÃ²âÊÔÊı¾İ´óµã£¬·½±ã¿´ GC
+        // è®©æµ‹è¯•æ•°æ®å¤§ç‚¹ï¼Œæ–¹ä¾¿çœ‹ GC
         private int[] data = new int[1000];
         private Span<int> Span => new Span<int>(data);
 
-        // ¸ßĞÔÄÜ Recorder£¬Ö»Í³¼Æ GC
+        // é«˜æ€§èƒ½ Recorderï¼Œåªç»Ÿè®¡ GC
         private ProfilerRecorder gcRecorder;
 
         void Start() {
-            // ³õÊ¼»¯Êı×é£¬·ÀÖ¹±àÒëÆ÷ÓÅ»¯µôÑ­»·Ìå
+            // åˆå§‹åŒ–æ•°ç»„ï¼Œé˜²æ­¢ç¼–è¯‘å™¨ä¼˜åŒ–æ‰å¾ªç¯ä½“
             for (int i = 0; i < data.Length; i++)
                 data[i] = i;
-            // ¿ªÆô GC.Alloc ¼ÇÂ¼Æ÷
+            // å¼€å¯ GC.Alloc è®°å½•å™¨
             gcRecorder = ProfilerRecorder.StartNew(ProfilerCategory.Memory, "GC Allocated In Frame");
         }
 
         void Update() {
-            // Ã¿ 2 Ãë½»Ìæ²âÊÔ foreach / for
+            // æ¯ 2 ç§’äº¤æ›¿æµ‹è¯• foreach / for
             bool useForeach = (Time.time % 2f) < 1f;
 
             long gcBefore = gcRecorder.LastValue;
@@ -36,7 +36,7 @@ namespace JoG {
 
             long gcAfter = gcRecorder.LastValue;
 
-            // Ö»ÔÚ±ä»¯Ê±´òÓ¡£¬±ÜÃâË¢ÆÁ
+            // åªåœ¨å˜åŒ–æ—¶æ‰“å°ï¼Œé¿å…åˆ·å±
             if (gcAfter != gcBefore)
                 Debug.Log($"Frame[{Time.frameCount}]  {(useForeach ? "foreach" : "for")}  GC = {gcAfter} Byte");
         }

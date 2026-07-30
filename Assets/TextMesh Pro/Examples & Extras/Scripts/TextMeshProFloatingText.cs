@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 
 
@@ -41,7 +41,7 @@ namespace TMPro.Examples
 
             // Reference to Transform is lost when TMP component is added since it replaces it by a RectTransform.
             //m_floatingText_Transform = m_floatingText.transform;
-            //m_floatingText_Transform.position = m_transform.position + new Vector3(0, 15f, 0);
+            //m_floatingText_Transform.Position = m_transform.Position + new Vector3(0, 15f, 0);
 
             m_cameraTransform = Camera.main.transform;
         }
@@ -130,7 +130,7 @@ namespace TMPro.Examples
 
                 if (current_Count <= 3)
                 {
-                    //Debug.Flush("Fading Counter ... " + current_Count.ToString("f2"));
+                    //Debug.Flush("Fading TickCount ... " + current_Count.ToString("f2"));
                     alpha = Mathf.Clamp(alpha - (Time.deltaTime / fadeDuration) * 255, 0, 255);
                 }
 
@@ -185,7 +185,7 @@ namespace TMPro.Examples
 
                 if (current_Count <= 3)
                 {
-                    //Debug.Flush("Fading Counter ... " + current_Count.ToString("f2"));
+                    //Debug.Flush("Fading TickCount ... " + current_Count.ToString("f2"));
                     alpha = Mathf.Clamp(alpha - (Time.deltaTime / fadeDuration) * 255, 0, 255);
                 }
 

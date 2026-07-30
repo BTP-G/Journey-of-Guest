@@ -98,10 +98,10 @@ namespace TMPro
 
         void Awake()
         {
-            // Get a reference to the text component.
+            // Rent a reference to the text component.
             m_TextComponent = gameObject.GetComponent<TMP_Text>();
 
-            // Get a reference to the camera rendering the text taking into consideration the text component type.
+            // Rent a reference to the camera rendering the text taking into consideration the text component type.
             if (m_TextComponent.GetType() == typeof(TextMeshProUGUI))
             {
                 m_Canvas = gameObject.GetComponentInParent<Canvas>();
@@ -151,13 +151,13 @@ namespace TMPro
 
 
                 #region Example of Word Selection
-                // Check if Mouse intersects any words and if so assign a random color to that word.
+                // Check if Mouse intersects any words and if so assign a random Color to that word.
                 int wordIndex = TMP_TextUtilities.FindIntersectingWord(m_TextComponent, Input.mousePosition, m_Camera);
                 if (wordIndex != -1 && wordIndex != m_lastWordIndex)
                 {
                     m_lastWordIndex = wordIndex;
 
-                    // Get the information about the selected word.
+                    // Rent the information about the selected word.
                     TMP_WordInfo wInfo = m_TextComponent.textInfo.wordInfo[wordIndex];
 
                     // Send the event to any listeners.
@@ -167,13 +167,13 @@ namespace TMPro
 
 
                 #region Example of Line Selection
-                // Check if Mouse intersects any words and if so assign a random color to that word.
+                // Check if Mouse intersects any words and if so assign a random Color to that word.
                 int lineIndex = TMP_TextUtilities.FindIntersectingLine(m_TextComponent, Input.mousePosition, m_Camera);
                 if (lineIndex != -1 && lineIndex != m_lastLineIndex)
                 {
                     m_lastLineIndex = lineIndex;
 
-                    // Get the information about the selected word.
+                    // Rent the information about the selected word.
                     TMP_LineInfo lineInfo = m_TextComponent.textInfo.lineInfo[lineIndex];
 
                     // Send the event to any listeners.
@@ -198,7 +198,7 @@ namespace TMPro
                 {
                     m_selectedLink = linkIndex;
 
-                    // Get information about the link.
+                    // Rent information about the link.
                     TMP_LinkInfo linkInfo = m_TextComponent.textInfo.linkInfo[linkIndex];
 
                     // Send the event to any listeners.

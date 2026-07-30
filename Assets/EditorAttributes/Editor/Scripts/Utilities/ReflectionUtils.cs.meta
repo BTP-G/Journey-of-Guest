@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 1a1422c8e3e13ea4682666538c6a7ace
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 269285
+  packageName: EditorAttributes
+  packageVersion: 3.0.2
+  assetPath: Assets/EditorAttributes/Editor/Scripts/Utilities/ReflectionUtils.cs
+  uploadId: 890538

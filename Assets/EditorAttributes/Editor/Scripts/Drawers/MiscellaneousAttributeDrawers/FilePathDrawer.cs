@@ -1,62 +1,57 @@
-using System.IO;
+﻿using System.IO;
 using UnityEngine;
 using UnityEditor;
 using UnityEngine.UIElements;
+using UnityEditor.UIElements;
 
 namespace EditorAttributes.Editor
 {
-	[CustomPropertyDrawer(typeof(FilePathAttribute))]
+    [CustomPropertyDrawer(typeof(FilePathAttribute))]
     public class FilePathDrawer : PropertyDrawerBase
     {
-		public override VisualElement CreatePropertyGUI(SerializedProperty property)
-		{
-			var filePathAttribute = attribute as FilePathAttribute;
-			var root = new VisualElement();
+        public override VisualElement CreatePropertyGUI(SerializedProperty property)
+        {
+            if (!IsSupportedPropertyType(property))
+                return new HelpBox("The FilePath Attribute can only be attached to a string", HelpBoxMessageType.Error);
 
-			if (property.propertyType != SerializedPropertyType.String)
-			{
-				root.Add(new HelpBox("The FilePath Attribute can only be attached to a string", HelpBoxMessageType.Error));
-				return root;
-			}
+            var filePathAttribute = attribute as FilePathAttribute;
 
-			var filePath = property.stringValue;
+            VisualElement root = new();
+            PropertyField propertyField = CreatePropertyField(property);
 
-			var propertyField = CreatePropertyField(property);
-			var button = new Button(() => filePath = EditorUtility.OpenFilePanel("Select file", "Assets", filePathAttribute.Filters));
+            Button button = new(SetFilePath);
+            Image buttonIcon = new() { image = EditorGUIUtility.IconContent("d_Folder Icon").image };
 
-			var buttonIcon = new Image() { image = EditorGUIUtility.IconContent("d_Folder Icon").image };
+            button.style.width = 40f;
+            button.style.height = 20f;
+            propertyField.style.flexGrow = 1f;
+            root.style.flexDirection = FlexDirection.Row;
 
-			button.style.width = 40f;
-			button.style.height = 20f;
-			propertyField.style.flexGrow = 1f;
-			root.style.flexDirection = FlexDirection.Row;
+            button.Add(buttonIcon);
+            root.Add(propertyField);
+            root.Add(button);
 
-			button.Add(buttonIcon);
-			root.Add(propertyField);
-			root.Add(button);
+            return root;
 
-			var textField = new TextField();
+            void SetFilePath()
+            {
+                string filePath = EditorUtility.OpenFilePanel("Select file", "Assets", filePathAttribute.Filters);
 
-			ExecuteLater(propertyField, () => textField = propertyField.Q<TextField>());
+                if (filePathAttribute.GetRelativePath && !string.IsNullOrEmpty(filePath) && Path.IsPathFullyQualified(filePath))
+                {
+                    string projectRoot = Application.dataPath[..^"Assets".Length];
 
-			UpdateVisualElement(propertyField, () =>
-			{
-				if (filePathAttribute.GetRelativePath && !string.IsNullOrEmpty(filePath) && Path.IsPathFullyQualified(filePath))
-				{
-					string projectRoot = Application.dataPath[..^"Assets".Length];
+                    filePath = Path.GetRelativePath(projectRoot, filePath);
+                }
 
-					filePath = Path.GetRelativePath(projectRoot, filePath);
-				}
+                if (property.hasMultipleDifferentValues)
+                    return;
 
-				if (property.hasMultipleDifferentValues)
-					return;
+                property.stringValue = filePath;
+                property.serializedObject.ApplyModifiedProperties();
+            }
+        }
 
-				textField.value = filePath;
-				property.stringValue = filePath;
-				property.serializedObject.ApplyModifiedProperties();
-			});
-
-			return root;
-		}
-	}
+        protected override bool IsSupportedPropertyType(SerializedProperty property) => property.propertyType == SerializedPropertyType.String;
+    }
 }

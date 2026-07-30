@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5aa80a4f21652164d8ac37ff492439b4, type: 3}
+  m_Name: Validation Demo - No to Use
+  m_EditorClassIdentifier: 
+  GuaranteedLootTable:
+  - Icon: {fileID: 0}
+    Drop: {fileID: 5074111686942249017, guid: ad5b52caf55f5dd48970d126095961c6, type: 3}
+    MinCountItem: 2
+    MaxCountItem: 0
+    Weight: 5
+  - Icon: {fileID: 0}
+    Drop: {fileID: 7476383553058755429, guid: aed1b02bf19cc354084f54143e35b216, type: 3}
+    MinCountItem: 1
+    MaxCountItem: 3
+    Weight: 0
+  - Icon: {fileID: 0}
+    Drop: {fileID: 4159398933232316013, guid: 9f0680fb7dc80624d9df71db35a31c1b, type: 3}
+    MinCountItem: 0
+    MaxCountItem: 2
+    Weight: 0
+  OneItemFromList:
+  - Icon: {fileID: 0}
+    Drop: {fileID: 1628771002131494987, guid: c56698d787ebc284fa86b3c2d87e9ab9, type: 3}
+    MinCountItem: 1
+    MaxCountItem: 2
+    Weight: 90
+  - Icon: {fileID: 0}
+    Drop: {fileID: 2505413902557331434, guid: 2e0f37e5b9b147949897b607ca0bdf1b, type: 3}
+    MinCountItem: 1
+    MaxCountItem: 2
+    Weight: 75
+  - Icon: {fileID: 0}
+    Drop: {fileID: 3756099229369266414, guid: dee2e40c5f7583144ae981ee23bf394a, type: 3}
+    MinCountItem: 8
+    MaxCountItem: 3
+    Weight: 60
+  - Icon: {fileID: 0}
+    Drop: {fileID: 3756099229369266414, guid: dee2e40c5f7583144ae981ee23bf394a, type: 3}
+    MinCountItem: 0
+    MaxCountItem: 3
+    Weight: 60
+  - Icon: {fileID: 0}
+    Drop: {fileID: 3756099229369266414, guid: dee2e40c5f7583144ae981ee23bf394a, type: 3}
+    MinCountItem: -1
+    MaxCountItem: 3
+    Weight: 50
+  - Icon: {fileID: 0}
+    Drop: {fileID: 0}
+    MinCountItem: 1
+    MaxCountItem: 3
+    Weight: 0
+  - Icon: {fileID: 0}
+    Drop: {fileID: 3756099229369266414, guid: dee2e40c5f7583144ae981ee23bf394a, type: 3}
+    MinCountItem: 1
+    MaxCountItem: 3
+    Weight: -50
+  WeightToNoDrop: 100
+  DefualtAdditionalDropCount: 1
+  DefualtMinDropRange: 1
+  DefualtMaxDropRange: 2

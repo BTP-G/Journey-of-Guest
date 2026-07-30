@@ -1,0 +1,8 @@
+{
+  Id: "TestMod0",
+  Name: "测试模组 0",
+  Version: "1.0.0",
+  Author: "Developer",
+  Description: "这是一个用于测试 ModManager 的基础模组。",
+  Dependencies: {}
+}

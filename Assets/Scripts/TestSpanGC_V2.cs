@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.Profiling;
@@ -6,11 +6,11 @@ using UnityEngine.Profiling;
 namespace JoG {
 
     public class TestSpanGC_V2 : MonoBehaviour {
-        private int[] data = new int[200];      // ¹ÊÒâĞ¡Êı×é£¬¶à´Î¸´ÓÃ
+        private int[] data = new int[200];      // æ•…æ„å°æ•°ç»„ï¼Œå¤šæ¬¡å¤ç”¨
         private Span<int> Span => new Span<int>(data);
 
         private void Update() {
-            const int LOOP = 1000;          // ·Å´ó 1000 ±¶
+            const int LOOP = 1000;          // æ”¾å¤§ 1000 å€
             Profiler.BeginSample("Span_FOREACH");
             for (int i = 0; i < LOOP; i++) {
                 int sum = 0;

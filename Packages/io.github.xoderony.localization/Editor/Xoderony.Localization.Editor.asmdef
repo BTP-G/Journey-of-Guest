@@ -1,0 +1,19 @@
+{
+    "name": "Xoderony.Localization.Editor",
+    "rootNamespace": "Xoderony.Localization.Editor",
+    "references": [
+        "GUID:0a8f1cdc672b5854f9713edc2d465cb2",
+        "GUID:d077eb9d5020c814c9b5d72eeededf2e"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,0 +1,8 @@
+{
+  Id: "TestMod1",
+  Name: "攻击武器模组",
+  Version: "1.0.0",
+  Author: "孙晓辉",
+  Description: "假装实现了一个用于攻击武器外表的mod。",
+  Dependencies: {}
+}

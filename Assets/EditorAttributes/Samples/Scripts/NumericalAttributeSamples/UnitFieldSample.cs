@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using EditorAttributes;
 
 namespace EditorAttributesSamples

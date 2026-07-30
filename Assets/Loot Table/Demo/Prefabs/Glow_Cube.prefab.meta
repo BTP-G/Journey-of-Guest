@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 913d65e072fa9f44e9b75255ecb62096
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 234682
+  packageName: Loot Table - Universal Loot System
+  packageVersion: 2.1.0a
+  assetPath: Assets/Loot Table/Demo/Prefabs/Glow_Cube.prefab
+  uploadId: 861416

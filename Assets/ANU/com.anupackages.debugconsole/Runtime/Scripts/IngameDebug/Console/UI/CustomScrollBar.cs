@@ -1,4 +1,4 @@
-using UnityEngine.EventSystems;
+﻿using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace ANU.IngameDebug.Console

@@ -92,12 +92,12 @@ namespace TMPro.Examples
                     switch (linkInfo.GetLinkID())
                     {
                         case "id_01": // 100041637: // id_01
-                                      //m_TextPopup_RectTransform.position = worldPointInRectangle;
+                                      //m_TextPopup_RectTransform.Position = worldPointInRectangle;
                                       //m_TextPopup_RectTransform.gameObject.SetActive(true);
                                       //m_TextPopup_TMPComponent.text = k_LinkText + " ID 01";
                             break;
                         case "id_02": // 100041638: // id_02
-                                      //m_TextPopup_RectTransform.position = worldPointInRectangle;
+                                      //m_TextPopup_RectTransform.Position = worldPointInRectangle;
                                       //m_TextPopup_RectTransform.gameObject.SetActive(true);
                                       //m_TextPopup_TMPComponent.text = k_LinkText + " ID 02";
                             break;
@@ -107,7 +107,7 @@ namespace TMPro.Examples
 
 
                 #region Example of Word Selection
-                // Check if Mouse intersects any words and if so assign a random color to that word.
+                // Check if Mouse intersects any words and if so assign a random Color to that word.
                 int wordIndex = TMP_TextUtilities.FindIntersectingWord(m_TextMeshPro, Input.mousePosition, Camera.main);
                 if (wordIndex != -1 && wordIndex != m_lastWordIndex)
                 {

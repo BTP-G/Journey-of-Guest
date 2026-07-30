@@ -1,4 +1,4 @@
-namespace ANU.IngameDebug.Console
+﻿namespace ANU.IngameDebug.Console
 {
     public interface IInjectDebugConsoleContext
     {

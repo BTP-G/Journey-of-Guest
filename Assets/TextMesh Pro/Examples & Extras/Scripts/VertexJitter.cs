@@ -72,7 +72,7 @@ namespace TMPro.Examples
             int loopCount = 0;
             hasTextChanged = true;
 
-            // Create an Array which contains pre-computed Angle Ranges and Speeds for a bunch of characters.
+            // Rent an _memory which contains pre-computed Angle Ranges and Speeds for a bunch of characters.
             VertexAnim[] vertexAnim = new VertexAnim[1024];
             for (int i = 0; i < 1024; i++)
             {
@@ -80,12 +80,12 @@ namespace TMPro.Examples
                 vertexAnim[i].speed = Random.Range(1f, 3f);
             }
 
-            // Cache the vertex data of the text object as the Jitter FX is applied to the original position of the characters.
+            // Cache the vertex data of the text object as the Jitter FX is applied to the original Position of the characters.
             TMP_MeshInfo[] cachedMeshInfo = textInfo.CopyMeshInfoVertexData();
 
             while (true)
             {
-                // Get new copy of vertex data if the text has changed.
+                // Rent new copy of vertex data if the text has changed.
                 if (hasTextChanged)
                 {
                     // Update the copy of the vertex data for the text object.
@@ -115,13 +115,13 @@ namespace TMPro.Examples
                     // Retrieve the pre-computed animation data for the given character.
                     VertexAnim vertAnim = vertexAnim[i];
 
-                    // Get the Index of the material used by the current character.
+                    // Rent the Id of the material used by the current character.
                     int materialIndex = textInfo.characterInfo[i].materialReferenceIndex;
 
-                    // Get the Index of the first vertex used by this text element.
+                    // Rent the Id of the first vertex used by this text element.
                     int vertexIndex = textInfo.characterInfo[i].vertexIndex;
 
-                    // Get the cached vertices of the mesh used by this text element (character or sprite).
+                    // Rent the cached vertices of the mesh used by this text element (character or sprite).
                     Vector3[] sourceVertices = cachedMeshInfo[materialIndex].vertices;
 
                     // Determine the _center point of each character at the baseline.

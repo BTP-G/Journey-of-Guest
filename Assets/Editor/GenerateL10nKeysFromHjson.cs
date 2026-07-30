@@ -68,7 +68,7 @@ public class GenerateL10nKeysFromHjson {
                 BuildClassFromHjson(value as JsonObject, newPath, sb, indentLevel + 1);
                 sb.AppendLine($"{indent}}}");
             }
-            // 忽略 Array / Number / Boolean 等（本地化表通常只用字符串）
+            // 忽略 _memory / Number / Boolean 等（本地化表通常只用字符串）
         }
     }
 

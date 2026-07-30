@@ -113,6 +113,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4573633972946809900, guid: f8412d088e221e541810d2e36d9fdad6,
+        type: 3}
+      propertyPath: text
+      value: 
+      objectReference: {fileID: 7864764072376923569}
     - target: {fileID: 9196730250680586768, guid: f8412d088e221e541810d2e36d9fdad6,
         type: 3}
       propertyPath: m_Name
@@ -127,10 +132,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 9196730250680586768, guid: f8412d088e221e541810d2e36d9fdad6,
         type: 3}
       insertIndex: -1
-      addedObject: {fileID: 5150792102725557569}
-    - targetCorrespondingSourceObject: {fileID: 9196730250680586768, guid: f8412d088e221e541810d2e36d9fdad6,
-        type: 3}
-      insertIndex: -1
       addedObject: {fileID: 7864764072376923569}
   m_SourcePrefab: {fileID: 100100000, guid: f8412d088e221e541810d2e36d9fdad6, type: 3}
 --- !u!1 &334588080895479201 stripped
@@ -139,20 +140,6 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 8864750350720901041}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &5150792102725557569
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 334588080895479201}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 56671749f02a3564bad2643f8f12c6e4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _text: {fileID: 7864764072376923569}
-  textKey: language
 --- !u!114 &7864764072376923569
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -175,8 +162,9 @@ MonoBehaviour:
       m_Calls: []
   m_text: language
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 149334276bafc5240bab2453cfe4c7e3, type: 2}
+  m_sharedMaterial: {fileID: -26960351006889649, guid: 149334276bafc5240bab2453cfe4c7e3,
+    type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

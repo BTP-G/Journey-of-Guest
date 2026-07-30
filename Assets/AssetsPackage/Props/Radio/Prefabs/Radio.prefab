@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 13385339066235970}
   - component: {fileID: 6592542893745767879}
   - component: {fileID: 7020673057089394940}
-  - component: {fileID: 8314746162272258562}
   m_Layer: 8
   m_Name: Radio
   m_TagString: Untagged
@@ -29,7 +28,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0.0875, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 13385339066235994}
@@ -44,7 +43,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 13385339065999458}
   serializedVersion: 4
-  m_Mass: 10
+  m_Mass: 1
   m_Drag: 0
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -60,9 +59,9 @@ Rigidbody:
   m_ImplicitTensor: 1
   m_UseGravity: 1
   m_IsKinematic: 0
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_Constraints: 80
-  m_CollisionDetection: 0
+  m_CollisionDetection: 3
 --- !u!114 &7020673057089394940
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -88,24 +87,6 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
---- !u!114 &8314746162272258562
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 13385339065999458}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  outlineMode: 1
-  outlineColor: {r: 1, g: 1, b: 0.39215687, a: 1}
-  outlineWidth: 2
-  precomputeOutline: 0
-  bakeKeys: []
-  bakeValues: []
 --- !u!1 &13385339065999480
 GameObject:
   m_ObjectHideFlags: 0
@@ -120,8 +101,8 @@ GameObject:
   - component: {fileID: 6178054579775608411}
   - component: {fileID: 4234362587727081686}
   - component: {fileID: 8105864496747717194}
-  - component: {fileID: 516221901860263590}
   - component: {fileID: 3732895387911559122}
+  - component: {fileID: 929185350870650946}
   m_Layer: 8
   m_Name: Radio
   m_TagString: Untagged
@@ -331,19 +312,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   _audioSource: {fileID: 6178054579775608411}
---- !u!114 &516221901860263590
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 13385339065999480}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ca9522e15f498934cab90892f602134c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  outline: {fileID: 8314746162272258562}
 --- !u!114 &3732895387911559122
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -356,14 +324,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e91d9134dc1dee947a551beaead55d0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nameKey: 
-  descriptionKey: 
+  nameKey: interact.audio_player.name
+  descriptionKey: interact.audio_player.desc
   tooltipOffset: {x: 0, y: 0.65, z: 0}
   <OnInteracted>k__BackingField:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 8105864496747717194}
-        m_TargetAssemblyTypeName: JoG.Audio.NetworkAudioSource, JoG
+        m_TargetAssemblyTypeName: JoG.Audio.NetworkAudioSource, Assembly-CSharp
         m_MethodName: TogglePlay
         m_Mode: 1
         m_Arguments:
@@ -374,6 +342,24 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &929185350870650946
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 13385339065999480}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMode: 1
+  outlineColor: {r: 1, g: 1, b: 0.39215687, a: 1}
+  outlineWidth: 3
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
 --- !u!1 &13385339065999482
 GameObject:
   m_ObjectHideFlags: 0

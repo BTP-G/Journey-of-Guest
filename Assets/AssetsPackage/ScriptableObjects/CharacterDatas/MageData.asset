@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b75632a0f06392a4287a83471abd353d, type: 3}
+  m_Name: MageData
+  m_EditorClassIdentifier: 
+  nameKey: character.mage.name
+  iconSprite: {fileID: -155747102, guid: 87aecd8cea15f8a4e8e42f2dfff8a046, type: 3}
+  networkPrefab: {fileID: 8094826152035991367, guid: a0c307568c445ed46a7a255ceaad8bcc,
+    type: 3}

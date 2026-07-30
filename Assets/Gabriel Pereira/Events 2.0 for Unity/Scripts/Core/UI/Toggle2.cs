@@ -68,15 +68,17 @@ namespace UnityEngine.UI
 			if (Application.isPlaying) return;
 
 #if UNITY_2018_3_OR_NEWER
-			var prefabType = UnityEditor.PrefabUtility.GetPrefabAssetType(this);
-			if (prefabType == UnityEditor.PrefabAssetType.Regular)
-				CanvasUpdateRegistry.RegisterCanvasElementForLayoutRebuild(this);
+            //var prefabType = UnityEditor.PrefabUtility.GetPrefabAssetType(this);
+            //if (prefabType == UnityEditor.PrefabAssetType.Regular)
+            //	CanvasUpdateRegistry.RegisterCanvasElementForLayoutRebuild(this);
+            if (!UnityEditor.PrefabUtility.IsPartOfPrefabAsset(this))
+                CanvasUpdateRegistry.RegisterCanvasElementForLayoutRebuild(this);
 #else
 			var prefabType = UnityEditor.PrefabUtility.GetPrefabType(this);
 			if (prefabType != UnityEditor.PrefabType.Prefab)
 				CanvasUpdateRegistry.RegisterCanvasElementForLayoutRebuild(this);
 #endif
-		}
+        }
 
 #endif // if UNITY_EDITOR
 

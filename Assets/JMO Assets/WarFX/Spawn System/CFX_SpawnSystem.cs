@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
 
 // Cartoon FX  - (c) 2012-2016 Jean Moreno
@@ -10,7 +10,7 @@ using System.Collections.Generic;
 public class CFX_SpawnSystem : MonoBehaviour
 {
 	/// <summary>
-	/// Get the next available preloaded UObject.
+	/// Rent the next available preloaded UObject.
 	/// </summary>
 	/// <returns>
 	/// The next available preloaded UObject.
@@ -102,11 +102,11 @@ public class CFX_SpawnSystem : MonoBehaviour
 	}
 	
 	/// <summary>
-	/// Gets a value indicating whether all objects defined in the Editor are loaded or not.
+	/// Gets a Value indicating whether all objects defined in the Editor are loaded or not.
 	/// </summary>
-	/// <value>
+	/// <Value>
 	/// <c>true</c> if all objects are loaded; otherwise, <c>false</c>.
-	/// </value>
+	/// </Value>
 	static public bool AllObjectsLoaded
 	{
 		get
@@ -148,13 +148,13 @@ public class CFX_SpawnSystem : MonoBehaviour
 			newObj = Instantiate(sourceObject);
 				newObj.SetActive(false);
 
-			//Set flags to not destruct object
+			//Set Flags to not destruct object
 			CFX_AutoDestructShuriken[] autoDestruct = newObj.GetComponentsInChildren<CFX_AutoDestructShuriken>(true);
 			foreach(CFX_AutoDestructShuriken ad in autoDestruct)
 			{
 				ad.OnlyDeactivate = true;
 			}
-			//Set flags to not destruct light
+			//Set Flags to not destruct light
 			CFX_LightIntensityFade[] lightIntensity = newObj.GetComponentsInChildren<CFX_LightIntensityFade>(true);
 			foreach(CFX_LightIntensityFade li in lightIntensity)
 			{

@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 154e124f3dc647848b16d06bb081877f
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {fileID: 2800000, guid: 405af08d8dd7d554b8bbac835e98455c, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 234682
+  packageName: Loot Table - Universal Loot System
+  packageVersion: 2.1.0a
+  assetPath: Assets/Loot Table/Editor/LootDropEditor.cs
+  uploadId: 861416

@@ -1,6 +1,6 @@
-//RealToon - Smear Effect [Helper]
+ï»¿//RealToon - Smear Effect [Helper]
 //MJQStudioWorks
-//©2025
+//?025
 
 using UnityEngine;
 using System.Collections.Generic;

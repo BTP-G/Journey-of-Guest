@@ -1,101 +1,80 @@
-using System;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;
-using EditorAttributes.Editor.Utility;
 
 namespace EditorAttributes.Editor
 {
-	[CustomPropertyDrawer(typeof(PropertyDropdownAttribute))]
-	public class PropertyDropdownDrawer : PropertyDrawerBase
-	{
-		public override VisualElement CreatePropertyGUI(SerializedProperty property)
-		{
-			var fieldType = GetValidPropertyType(property);
+    [CustomPropertyDrawer(typeof(PropertyDropdownAttribute))]
+    public class PropertyDropdownDrawer : PropertyDrawerBase
+    {
+        public override VisualElement CreatePropertyGUI(SerializedProperty property)
+        {
+            if (!IsSupportedPropertyType(property))
+                return new HelpBox("The PropertyDropdown Attribute can only be attached on to <b>UnityEngine.Object</b> types", HelpBoxMessageType.Error);
 
-			var root = new VisualElement();
-			var propertyField = CreatePropertyField(property);
-			var errorBox = new HelpBox("The PropertyDropdown Attribute can only be attached on to <b>UnityEngine.Object</b> types", HelpBoxMessageType.Error);
+            VisualElement root = new();
+            PropertyField propertyField = CreatePropertyField(property);
 
-			ApplyBoxStyle(root);
+            ApplyBoxStyle(root);
 
-			root.Add(propertyField);
+            root.Add(propertyField);
 
-			if (property.propertyType == SerializedPropertyType.ObjectReference)
-			{
-				InitializeFoldoutDrawer(root, property, fieldType, errorBox);
+            InitializeFoldoutDrawer(root, property);
 
-				// Register the callback later to skip any initialization calls
-				ExecuteLater(propertyField, () =>
-				{
-					propertyField.RegisterCallback<SerializedPropertyChangeEvent>((callback) =>
-					{
-						if (root.childCount > 1 && root.ElementAt(1) != null)
-							root.RemoveAt(1);
+            propertyField.RegisterCallback<SerializedPropertyChangeEvent>((callback) =>
+            {
+                if (root.childCount > 1 && root.ElementAt(1) != null)
+                    root.RemoveAt(1);
 
-						InitializeFoldoutDrawer(root, property, fieldType, errorBox);
-					});
-				});
-			}
-			else
-			{
-				root.Add(errorBox);
-			}
+                InitializeFoldoutDrawer(root, property);
+            });
 
-			return root;
-		}
+            return root;
+        }
 
-		private void InitializeFoldoutDrawer(VisualElement root, SerializedProperty property, Type fieldType, HelpBox errorBox)
-		{
-			if (property.objectReferenceValue == null)
-			{
-				var foldout = root.Q<Foldout>();
+        protected override bool IsSupportedPropertyType(SerializedProperty property) => property.propertyType == SerializedPropertyType.ObjectReference;
 
-				if (foldout != null)
-					root.Remove(foldout);
+        private void InitializeFoldoutDrawer(VisualElement root, SerializedProperty property)
+        {
+            if (property.objectReferenceValue == null)
+            {
+                var foldout = root.Q<Foldout>();
 
-				return;
-			}
+                if (foldout != null)
+                    root.Remove(foldout);
 
-			root.Add(CreatePropertyFoldout(new SerializedObject(property.objectReferenceValue), property));
-		}
+                return;
+            }
 
-		private Foldout CreatePropertyFoldout(SerializedObject serializedObject, SerializedProperty serializedProperty)
-		{
-			var foldoutSaveKey = CreatePropertySaveKey(serializedProperty, "IsPropertyDropdownFolded");
+            root.Add(CreatePropertyFoldout(new SerializedObject(property.objectReferenceValue), property));
+        }
 
-			var foldout = new Foldout
-			{
-				text = "Properties",
-				value = EditorPrefs.GetBool(foldoutSaveKey)
-			};
+        private Foldout CreatePropertyFoldout(SerializedObject serializedObject, SerializedProperty serializedProperty)
+        {
+            string foldoutSaveKey = CreatePropertySaveKey(serializedProperty, "IsPropertyDropdownFolded");
 
-			ApplyBoxStyle(foldout);
+            Foldout foldout = new()
+            {
+                text = "Properties",
+                value = EditorPrefs.GetBool(foldoutSaveKey)
+            };
 
-			foldout.style.paddingLeft = 15f;
+            ApplyBoxStyle(foldout);
 
-			foldout.Add(new InspectorElement(serializedObject));
+            foldout.style.paddingLeft = 15f;
+            foldout.Add(new InspectorElement(serializedObject));
 
-			serializedObject.ApplyModifiedProperties();
+            serializedObject.ApplyModifiedProperties();
 
-			foldout.RegisterValueChangedCallback((callback) => EditorPrefs.SetBool(foldoutSaveKey, callback.newValue));
+            foldout.RegisterValueChangedCallback((callback) => EditorPrefs.SetBool(foldoutSaveKey, callback.newValue));
+            foldout.RegisterCallbackOnce<GeometryChangedEvent>((callback) =>
+            {
+                foldout.Q<Label>(className: Foldout.textUssClassName).style.unityFontStyleAndWeight = FontStyle.Bold;
+                foldout.Q<ObjectField>("unity-input-m_Script")?.parent.RemoveFromHierarchy();
+            });
 
-			ExecuteLater(foldout, () =>
-			{
-				foldout.Q<Label>(className: Foldout.textUssClassName).style.unityFontStyleAndWeight = FontStyle.Bold;
-				foldout.Q<ObjectField>("unity-input-m_Script")?.parent.RemoveFromHierarchy();
-			});
-
-			return foldout;
-		}
-
-		private Type GetValidPropertyType(SerializedProperty property)
-		{
-			var validProperty = IsPropertyCollection(property) ? GetCollectionProperty(property) : property;
-			var memberInfo = ReflectionUtility.GetValidMemberInfo(validProperty.name, validProperty);
-
-			return ReflectionUtility.GetMemberInfoType(memberInfo);
-		}
-	}
+            return foldout;
+        }
+    }
 }

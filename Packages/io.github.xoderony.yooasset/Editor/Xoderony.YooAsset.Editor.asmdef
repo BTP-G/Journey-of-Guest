@@ -1,0 +1,20 @@
+{
+    "name": "Xoderony.YooAsset.Editor",
+    "rootNamespace": "Xoderony.YooAsset.Editor",
+    "references": [
+        "GUID:71694910527a96446b69378e8163ffda",
+        "GUID:e34a5702dd353724aa315fb8011f08c3",
+        "GUID:4d1926c9df5b052469a1c63448b7609a"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

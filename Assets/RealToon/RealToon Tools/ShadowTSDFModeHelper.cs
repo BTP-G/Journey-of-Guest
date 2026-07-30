@@ -1,6 +1,6 @@
-//RealToon - ShadowT SDF Mode [Helper]
+ï»¿//RealToon - ShadowT SDF Mode [Helper]
 //MJQStudioWorks
-//©2025
+//?025
 
 using System.Collections;
 using System.Collections.Generic;

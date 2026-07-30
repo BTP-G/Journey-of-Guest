@@ -30,43 +30,43 @@ MonoBehaviour:
       AssetTags: 
       ActiveRuleName: EnableGroup
       Collectors:
-      - CollectPath: Assets/AssetsPackage/Characters
-        CollectorGUID: 0c4f201ec7c09584cbd4ec46e0cffa60
+      - CollectPath: Assets/AssetsPackage/Prefabs/Characters
+        CollectorGUID: 35cf979a024658b468f2b1a98fbe6e51
         CollectorType: 0
         AddressRuleName: AddressByFileName
         PackRuleName: PackDirectory
-        FilterRuleName: CollectPrefabsPrefab
+        FilterRuleName: CollectAll
         AssetTags: network_prefab
         UserData: 
-      - CollectPath: Assets/AssetsPackage/Projectiles
+      - CollectPath: Assets/AssetsPackage/Prefabs/Items
+        CollectorGUID: 098b8eb4f330565479b453a5dfdda868
+        CollectorType: 0
+        AddressRuleName: AddressByFileName
+        PackRuleName: PackDirectory
+        FilterRuleName: CollectAll
+        AssetTags: network_prefab
+        UserData: 
+      - CollectPath: Assets/AssetsPackage/Prefabs/Projectiles
         CollectorGUID: 8a20740699056774e983cc6205f880e9
         CollectorType: 0
         AddressRuleName: AddressByFileName
         PackRuleName: PackDirectory
-        FilterRuleName: CollectPrefab
+        FilterRuleName: CollectAll
         AssetTags: network_prefab
         UserData: 
-      - CollectPath: Assets/AssetsPackage/Items
-        CollectorGUID: 655b0e2e895aa314580b840133b06065
+      - CollectPath: Assets/AssetsPackage/Prefabs/Buffs
+        CollectorGUID: ff794631f402bbc438ec936f78d9847d
         CollectorType: 0
         AddressRuleName: AddressByFileName
         PackRuleName: PackDirectory
-        FilterRuleName: CollectPrefabsPrefab
-        AssetTags: network_prefab
+        FilterRuleName: CollectAll
+        AssetTags: buff_prefab
         UserData: 
     - GroupName: ScriptableObjects
       GroupDesc: 
       AssetTags: 
       ActiveRuleName: EnableGroup
       Collectors:
-      - CollectPath: Assets/AssetsPackage/ScriptableObjects/BuffDatas
-        CollectorGUID: feb66ac436fe86e4988be81d39309cde
-        CollectorType: 0
-        AddressRuleName: AddressByFileName
-        PackRuleName: PackDirectory
-        FilterRuleName: CollectAll
-        AssetTags: buff_data
-        UserData: 
       - CollectPath: Assets/AssetsPackage/ScriptableObjects/ItemDatas
         CollectorGUID: 34fa6567b5b8de5408ee926ba1796e87
         CollectorType: 0
@@ -74,4 +74,20 @@ MonoBehaviour:
         PackRuleName: PackDirectory
         FilterRuleName: CollectAll
         AssetTags: item_data
+        UserData: 
+      - CollectPath: Assets/AssetsPackage/ScriptableObjects/CharacterDatas
+        CollectorGUID: 197964c851976da418478b8543bb380a
+        CollectorType: 0
+        AddressRuleName: AddressByFileName
+        PackRuleName: PackDirectory
+        FilterRuleName: CollectAll
+        AssetTags: character_data
+        UserData: 
+      - CollectPath: Assets/AssetsPackage/ScriptableObjects/ItemDropTables
+        CollectorGUID: 27f67de78e3e9d946ba65577d5aab233
+        CollectorType: 0
+        AddressRuleName: AddressByFileName
+        PackRuleName: PackDirectory
+        FilterRuleName: CollectAll
+        AssetTags: 
         UserData: 

@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2230203478623563623}
   - component: {fileID: 1753040374935943688}
-  - component: {fileID: 2170310399155610313}
   - component: {fileID: 6683092904825309425}
   m_Layer: 5
   m_Name: Text (TMP)
@@ -46,20 +45,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7823738502040692836}
   m_CullTransparentMesh: 1
---- !u!114 &2170310399155610313
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7823738502040692836}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 56671749f02a3564bad2643f8f12c6e4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _text: {fileID: 6683092904825309425}
-  textKey: language
 --- !u!114 &6683092904825309425
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -82,8 +67,9 @@ MonoBehaviour:
       m_Calls: []
   m_text: language
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 149334276bafc5240bab2453cfe4c7e3, type: 2}
+  m_sharedMaterial: {fileID: -26960351006889649, guid: 149334276bafc5240bab2453cfe4c7e3,
+    type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -164,6 +150,7 @@ GameObject:
   - component: {fileID: 5880902404736685797}
   - component: {fileID: 930915749880152320}
   - component: {fileID: 253642423532094939}
+  - component: {fileID: 4573633972946809900}
   m_Layer: 5
   m_Name: ButtonBase
   m_TagString: Untagged
@@ -273,3 +260,17 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &4573633972946809900
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9196730250680586768}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56671749f02a3564bad2643f8f12c6e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  text: {fileID: 6683092904825309425}
+  textKey: language

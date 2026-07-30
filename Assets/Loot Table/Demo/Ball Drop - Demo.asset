@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5aa80a4f21652164d8ac37ff492439b4, type: 3}
+  m_Name: Ball Drop - Demo
+  m_EditorClassIdentifier: 
+  GuaranteedLootTable:
+  - Icon: {fileID: 0}
+    Drop: {fileID: 848816393471183989, guid: 8dbfe01dc576fd647810aae52c87010d, type: 3}
+    MinCountItem: 1
+    MaxCountItem: 1
+    Weight: 100
+  OneItemFromList:
+  - Icon: {fileID: 0}
+    Drop: {fileID: 5074111686942249017, guid: ad5b52caf55f5dd48970d126095961c6, type: 3}
+    MinCountItem: 1
+    MaxCountItem: 1
+    Weight: 100
+  - Icon: {fileID: 0}
+    Drop: {fileID: 4336506130356607247, guid: d6887ebe617a3914ab8d1620f0869dbd, type: 3}
+    MinCountItem: 1
+    MaxCountItem: 2
+    Weight: 75
+  - Icon: {fileID: 0}
+    Drop: {fileID: 6139744156321514788, guid: 5fda7da6d40d0a241ae017bbada992df, type: 3}
+    MinCountItem: 1
+    MaxCountItem: 3
+    Weight: 50
+  - Icon: {fileID: 0}
+    Drop: {fileID: 220642230978387697, guid: 9c33daf642712494d9577a57ca16b3ec, type: 3}
+    MinCountItem: 1
+    MaxCountItem: 3
+    Weight: 50
+  - Icon: {fileID: 0}
+    Drop: {fileID: 7925468204566439248, guid: 5b8e43e55916eb24695fb2df86b13cb3, type: 3}
+    MinCountItem: 1
+    MaxCountItem: 4
+    Weight: 50
+  - Icon: {fileID: 0}
+    Drop: {fileID: 3756099229369266414, guid: dee2e40c5f7583144ae981ee23bf394a, type: 3}
+    MinCountItem: 2
+    MaxCountItem: 3
+    Weight: 50
+  - Icon: {fileID: 0}
+    Drop: {fileID: 5796586805486911755, guid: 40620b3825f38014496321861f847d44, type: 3}
+    MinCountItem: 2
+    MaxCountItem: 4
+    Weight: 30
+  WeightToNoDrop: 20
+  DefualtAdditionalDropCount: 1
+  DefualtMinDropRange: 1
+  DefualtMaxDropRange: 2

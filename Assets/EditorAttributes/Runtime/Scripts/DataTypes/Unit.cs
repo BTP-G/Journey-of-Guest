@@ -1,4 +1,4 @@
-namespace EditorAttributes
+﻿namespace EditorAttributes
 {
 	public enum Unit
 	{

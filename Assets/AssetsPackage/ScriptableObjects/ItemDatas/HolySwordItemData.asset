@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e073d37ae0c0b842b362914d0cfb884, type: 3}
+  m_Name: HolySwordItemData
+  m_EditorClassIdentifier: 
+  nameKey: item.holy_sword.name
+  descriptionKey: item.holy_sword.desc
+  pickupPrefab: {fileID: 7088217531498261141, guid: 2187f9f8445ebe5489e337784310b780,
+    type: 3}
+  iconSprite: {fileID: -546302897, guid: d037606eda87af442b169a56a957361b, type: 3}
+  buffDatas:
+  - {fileID: 3546371367778889042, guid: 4bd5e59667e46fb4793220f63b3833be, type: 3}

@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e073d37ae0c0b842b362914d0cfb884, type: 3}
+  m_Name: PoisonBottleItemData
+  m_EditorClassIdentifier: 
+  nameKey: item.poison_bottle.name
+  descriptionKey: item.poison_bottle.desc
+  iconSprite: {fileID: -662264306, guid: f05e6b3710bf73f44b7c51c2f56fbbd5, type: 3}
+  pickupPrefab: {fileID: 659041034463074960, guid: f808b4726d5a71b43b23e638265cd167,
+    type: 3}
+  buffDatas:
+  - {fileID: 9013766102240801455, guid: d71a9588320ce4643a47b0c20bdbc104, type: 3}

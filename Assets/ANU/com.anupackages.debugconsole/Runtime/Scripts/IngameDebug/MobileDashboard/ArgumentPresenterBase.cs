@@ -1,4 +1,4 @@
-using ANU.IngameDebug.Console.Commands.Implementations;
+﻿using ANU.IngameDebug.Console.Commands.Implementations;
 using TMPro;
 using UnityEngine;
 using static ANU.IngameDebug.Console.Commands.Implementations.MemberCommand;

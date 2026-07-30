@@ -1,0 +1,15 @@
+{
+  "name": "io.github.xoderony.yooasset",
+  "version": "0.1.0",
+  "displayName": "Xoderony YooAsset",
+  "description": "Runtime, utility, and editor integrations for YooAsset.",
+  "unity": "6000.0",
+  "dependencies": {
+    "com.cysharp.unitask": "2.5.3",
+    "com.tuyoogame.yooasset": "2.3.17"
+  },
+  "author": {
+    "name": "Xoderony",
+    "url": "https://github.com/Xoderony"
+  }
+}

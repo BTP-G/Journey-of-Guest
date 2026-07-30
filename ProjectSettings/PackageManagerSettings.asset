@@ -54,11 +54,11 @@ MonoBehaviour:
     m_Compliance:
       m_Status: 0
       m_Violations: []
-  m_UserSelectedRegistryName: package.openupm.com.solidalloy
+  m_UserSelectedRegistryName: package.openupm.com
   m_UserAddingNewScopedRegistry: 0
   m_RegistryInfoDraft:
     m_Modified: 0
     m_ErrorMessage: 
-    m_UserModificationsInstanceId: -868
-    m_OriginalInstanceId: -872
+    m_UserModificationsInstanceId: -876
+    m_OriginalInstanceId: -878
   m_LoadAssets: -1

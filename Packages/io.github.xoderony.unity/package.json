@@ -1,0 +1,14 @@
+{
+  "name": "io.github.xoderony.unity",
+  "version": "0.1.0",
+  "displayName": "Xoderony Unity",
+  "description": "Unity runtime utilities, extensions, numerics, object pools, property attributes, and editor UI helpers.",
+  "unity": "6000.0",
+  "dependencies": {
+    "io.github.xoderony.foundation": "0.1.0"
+  },
+  "author": {
+    "name": "Xoderony",
+    "url": "https://github.com/Xoderony"
+  }
+}

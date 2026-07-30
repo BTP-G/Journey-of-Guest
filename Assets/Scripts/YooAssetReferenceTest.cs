@@ -1,4 +1,4 @@
-using GuestUnion.YooAsset;
+using Xoderony.YooAsset;
 using UnityEngine;
 
 namespace JoG {

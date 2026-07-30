@@ -1,3 +1,37 @@
+EditorAttributes v3.0.2 Changelog:
+- Added applyToCollection parameter to the Validate Attribute
+- AnimatorParamDropdown can now be attached to an int returning the parameter hash
+- Updated deprecated API's in Unity 6.4
+
+EditorAttributes v3.0.1 Changelog:
+- Added the ability to filter TypeDropdown by certain types
+- Added makeDirty parameter to ButtonField Attribute
+- Slightly adjusted group alignments
+- DataTables can now contain serialized objects and collections
+- The editor attributes drawing of the default inspector can now be disabled
+- Fixed DataTable drawing labels in collections past the first element
+- Fixed finding property members inside serialized classes throwing an error
+- Fixed Dropdown reseting value after refreshing the inspector when using dictionaries
+- Fixed AssetPreview not displaying sliced sprites
+
+EditorAttributes v3.0.0 Changelog:
+- Project refactoring
+- Ended support for Unity 2022
+- Added LayerDropdown Attribute
+- Added ApplyMaterial Attribute
+- Added option to toggle whether an object is set to dirty or not on button press
+- Added an optional group title to the vertical group
+- Removed the TimeField Attribute
+- Removed the SelectionButtons Attribute
+- Updated the look of the tab group
+- Made the Void struct readonly
+- AssetPreview Attribute will now display the texture itself instead of its preview if the type is a texture
+- Fixed custom unit definitions throwing null error
+- Fixed Button Attribute enum parameter throwing an argument null error
+- Fixed Button Attribute duplicating from inheritance
+- Fixed Button not supporting vector parameters
+- Fixed member finding getting the member from the base object instead of the nested object if the member has the same name
+
 EditorAttributes v2.9.2 Changelog:
 - PropertyDropdown Attribute now supports any UnityEngine.Object type
 - PropertyDropdown Attribute will now draw custom editors

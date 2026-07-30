@@ -1,4 +1,4 @@
-
+﻿
 namespace NCalc.Domain
 {
     public abstract class LogicalExpressionVisitor

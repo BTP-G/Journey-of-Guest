@@ -1,4 +1,4 @@
-namespace NCalc.Domain
+﻿namespace NCalc.Domain
 {
     public class Identifier : LogicalExpression
     {

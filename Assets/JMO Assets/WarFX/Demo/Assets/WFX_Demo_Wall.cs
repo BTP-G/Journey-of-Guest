@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 /**
  *	Demo Scene Script for WAR FX

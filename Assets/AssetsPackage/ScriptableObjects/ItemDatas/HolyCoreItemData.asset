@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e073d37ae0c0b842b362914d0cfb884, type: 3}
+  m_Name: HolyCoreItemData
+  m_EditorClassIdentifier: 
+  nameKey: item.holy_core.name
+  descriptionKey: item.holy_core.desc
+  iconSprite: {fileID: -801498928, guid: 1e7d613be5c264242933df37989e1abb, type: 3}
+  pickupPrefab: {fileID: 5267793134175497319, guid: f3c0cd063fb6c2845a94d14607e02dc7,
+    type: 3}
+  buffDatas: []

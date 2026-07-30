@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using ANU.IngameDebug.Console.Converters;
 using ANU.IngameDebug.Console.CommandLinePreprocessors;
 using System.Text;

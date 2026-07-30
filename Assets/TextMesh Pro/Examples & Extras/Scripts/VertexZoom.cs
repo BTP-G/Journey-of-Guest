@@ -74,7 +74,7 @@ namespace TMPro.Examples
                 // Allocate new vertices
                 if (hasTextChanged)
                 {
-                    // Get updated vertex data
+                    // Rent updated vertex data
                     cachedMeshInfoVertexData = textInfo.CopyMeshInfoVertexData();
 
                     hasTextChanged = false;
@@ -101,13 +101,13 @@ namespace TMPro.Examples
                     if (!charInfo.isVisible)
                         continue;
 
-                    // Get the Index of the material used by the current character.
+                    // Rent the Id of the material used by the current character.
                     int materialIndex = textInfo.characterInfo[i].materialReferenceIndex;
 
-                    // Get the Index of the first vertex used by this text element.
+                    // Rent the Id of the first vertex used by this text element.
                     int vertexIndex = textInfo.characterInfo[i].vertexIndex;
 
-                    // Get the cached vertices of the mesh used by this text element (character or sprite).
+                    // Rent the cached vertices of the mesh used by this text element (character or sprite).
                     Vector3[] sourceVertices = cachedMeshInfoVertexData[materialIndex].vertices;
 
                     // Determine the _center point of each character at the baseline.
@@ -131,7 +131,7 @@ namespace TMPro.Examples
                     // Determine the random scale change for each character.
                     float randomScale = Random.Range(1f, 1.5f);
 
-                    // Enqueue modified scale and Index
+                    // Enqueue modified scale and Id
                     modifiedCharScale.Add(randomScale);
                     scaleSortingOrder.Add(modifiedCharScale.Count - 1);
 

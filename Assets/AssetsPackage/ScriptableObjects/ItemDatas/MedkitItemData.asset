@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e073d37ae0c0b842b362914d0cfb884, type: 3}
+  m_Name: MedkitItemData
+  m_EditorClassIdentifier: 
+  nameKey: item.medkit.name
+  descriptionKey: item.medkit.desc
+  iconSprite: {fileID: 1783370763, guid: 8b34767075680584a994d26f5dd9259a, type: 3}
+  pickupPrefab: {fileID: 514074203177143086, guid: 4c5c085054a3d124d8041abb10a67933,
+    type: 3}
+  buffDatas:
+  - {fileID: 2411191905293397936, guid: c7303d0560d22ab498166fe7a9d34ce0, type: 3}

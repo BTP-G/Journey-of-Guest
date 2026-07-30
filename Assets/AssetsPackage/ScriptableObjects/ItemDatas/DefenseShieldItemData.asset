@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e073d37ae0c0b842b362914d0cfb884, type: 3}
+  m_Name: DefenseShieldItemData
+  m_EditorClassIdentifier: 
+  nameKey: item.defense_shield.name
+  descriptionKey: item.defense_shield.desc
+  iconSprite: {fileID: 1800170612, guid: 68d4cf024e470fe46b2865444c928e9c, type: 3}
+  pickupPrefab: {fileID: 6403813492585732643, guid: 35e0dec2924d49c44b9d2b3a2dd70798,
+    type: 3}
+  buffDatas:
+  - {fileID: 7595851241548283834, guid: 9bb331fc9bd78134e9dd6b7a8c7edfdc, type: 3}
