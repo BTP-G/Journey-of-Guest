@@ -1,4 +1,5 @@
 using JoG.Character.InputBanks;
+using Xoderony.Numerics;
 using UnityEngine;
 using VContainer;
 
@@ -7,8 +8,8 @@ namespace JoG.Character.Components {
     public class CharacterSprint : MonoBehaviour, IComponent {
         public float sprintSpeedMultiplier = 1.3f;
         [Inject] internal Animator _animator;
-        [Inject, Key(Constants.Stats.MaxMoveSpeed)] internal FloatStat _maxMoveSpeed;
-        [Inject, Key(Constants.Stats.MoveAcceleration)] internal FloatStat _acceleration;
+        [Inject, Key(Constants.Stats.MaxMoveSpeed)] internal Stat _maxMoveSpeed;
+        [Inject, Key(Constants.Stats.MoveAcceleration)] internal Stat _acceleration;
         private BooleanInputBank sprintInput;
 
         private bool _isSprinting;
@@ -22,7 +23,7 @@ namespace JoG.Character.Components {
                 return;
             }
 
-            var multiplier = sprintSpeedMultiplier;
+            var multiplier = new Q16(sprintSpeedMultiplier);
             _accelerationMultiplierSlotIndex = _acceleration.AcquireMultiplierSlot(multiplier);
             _maxMoveSpeedMultiplierSlotIndex = _maxMoveSpeed.AcquireMultiplierSlot(multiplier);
             _isSprinting = true;

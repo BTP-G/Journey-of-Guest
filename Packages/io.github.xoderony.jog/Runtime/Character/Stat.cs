@@ -6,7 +6,14 @@ using UnityEngine.Assertions;
 namespace JoG.Character {
 
     [Serializable]
-    public class Stat : StatBase<Q16>, IStat {
+    public class Stat : IComponent, ISerializationCallbackReceiver {
+
+        private const int InitialMultiplierSlotCount = 2;
+
+        private const int MaxMultiplierSlotCount = 128;
+
+        [SerializeField]
+        private string _name;
 
         [SerializeField]
         private int _baseValue;
@@ -20,55 +27,106 @@ namespace JoG.Character {
         [NonSerialized]
         private int _value;
 
+        [NonSerialized]
+        private Q16[] _multiplierSlots;
+
+        [NonSerialized]
+        private int[] _freeSlotIndices;
+
+        [NonSerialized]
+        private int _freeSlotCount;
+
+        object IComponent.Key => _name;
+
+        public string Name => _name;
+
         public int Value => _value;
 
-        public Stat() : base(Q16.One) {
+        [field: NonSerialized]
+        public event Action ValueChanged;
+
+        public Stat() {
+            ResetMultiplierSlots();
         }
 
-        public Stat(string name, int baseValue, int minValue, int maxValue) : base(name, Q16.One) {
+        public Stat(string name, int baseValue, int minValue, int maxValue) {
+            _name = name;
             _baseValue = baseValue;
             _minValue = minValue;
             _maxValue = maxValue;
+            ResetMultiplierSlots();
             NormalizeSerializedValues();
             Recalculate();
         }
 
-        public int AcquireMultiplierSlot(float multiplier) {
-            var q16Multiplier = new Q16(multiplier);
-            Assert.IsTrue(q16Multiplier > Q16.Zero);
-            var slotIndex = AcquireMultiplierSlotCore(q16Multiplier);
+        void ISerializationCallbackReceiver.OnBeforeSerialize() {
+            NormalizeSerializedValues();
+        }
+
+        void ISerializationCallbackReceiver.OnAfterDeserialize() {
+            ResetMultiplierSlots();
+            NormalizeSerializedValues();
             Recalculate();
-            return slotIndex;
         }
 
         public int AcquireMultiplierSlot(Q16 multiplier) {
             Assert.IsTrue(multiplier > Q16.Zero);
-            var slotIndex = AcquireMultiplierSlotCore(multiplier);
+            if (_freeSlotCount == 0) {
+                GrowByOne();
+            }
+
+            _freeSlotCount--;
+            var slotIndex = _freeSlotIndices[_freeSlotCount];
+            _multiplierSlots[slotIndex] = multiplier;
             Recalculate();
             return slotIndex;
         }
 
         public void ReleaseMultiplierSlot(int slotIndex) {
-            ReleaseMultiplierSlotCore(slotIndex);
-            Recalculate();
-        }
-
-        public void SetMultiplier(int slotIndex, float multiplier) {
-            var q16Multiplier = new Q16(multiplier);
-            Assert.IsTrue(q16Multiplier > Q16.Zero);
-            SetMultiplierCore(slotIndex, q16Multiplier);
+            ValidateSlotIndex(slotIndex);
+            _multiplierSlots[slotIndex] = Q16.One;
+            _freeSlotIndices[_freeSlotCount] = slotIndex;
+            _freeSlotCount++;
             Recalculate();
         }
 
         public void SetMultiplier(int slotIndex, Q16 multiplier) {
             Assert.IsTrue(multiplier > Q16.Zero);
-            SetMultiplierCore(slotIndex, multiplier);
+            ValidateSlotIndex(slotIndex);
+            _multiplierSlots[slotIndex] = multiplier;
             Recalculate();
         }
 
-        protected override void Recalculate() {
+        private void GrowByOne() {
+            var oldLength = _multiplierSlots.Length;
+            var newLength = oldLength + 1;
+            if (newLength > MaxMultiplierSlotCount) {
+                throw new InvalidOperationException($"Exceeded max multiplier slot capacity ({newLength}).");
+            }
+
+            var newMultiplierSlots = new Q16[newLength];
+            Array.Copy(_multiplierSlots, newMultiplierSlots, oldLength);
+            newMultiplierSlots[oldLength] = Q16.One;
+            _multiplierSlots = newMultiplierSlots;
+
+            var newFreeSlotIndices = new int[newLength];
+            Array.Copy(_freeSlotIndices, newFreeSlotIndices, _freeSlotCount);
+            newFreeSlotIndices[_freeSlotCount] = oldLength;
+            _freeSlotIndices = newFreeSlotIndices;
+            _freeSlotCount++;
+        }
+
+        private void NormalizeSerializedValues() {
+            if (_maxValue < _minValue) {
+                _maxValue = _minValue;
+            }
+
+            _baseValue = Math.Clamp(_baseValue, _minValue, _maxValue);
+        }
+
+        private void Recalculate() {
             var value = (long)_baseValue;
-            foreach (var multiplier in MultiplierSlots) {
+            foreach (var multiplier in _multiplierSlots) {
                 value = multiplier.Multiply(value);
             }
 
@@ -79,15 +137,24 @@ namespace JoG.Character {
             }
 
             _value = nextValue;
-            RaiseValueChanged();
+            ValueChanged?.Invoke();
         }
 
-        protected override void NormalizeSerializedValues() {
-            if (_maxValue < _minValue) {
-                _maxValue = _minValue;
+        private void ResetMultiplierSlots() {
+            _multiplierSlots = new Q16[InitialMultiplierSlotCount];
+            _freeSlotIndices = new int[InitialMultiplierSlotCount];
+            for (var i = 0; i < InitialMultiplierSlotCount; i++) {
+                _multiplierSlots[i] = Q16.One;
+                _freeSlotIndices[i] = i;
             }
 
-            _baseValue = Math.Clamp(_baseValue, _minValue, _maxValue);
+            _freeSlotCount = InitialMultiplierSlotCount;
+        }
+
+        private void ValidateSlotIndex(int slotIndex) {
+            if ((uint)slotIndex >= (uint)_multiplierSlots.Length) {
+                throw new ArgumentOutOfRangeException(nameof(slotIndex));
+            }
         }
 
     }

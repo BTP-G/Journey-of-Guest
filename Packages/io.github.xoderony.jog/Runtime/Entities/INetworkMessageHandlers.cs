@@ -19,6 +19,11 @@ namespace JoG {
         void OnGainedOwnership(bool isCurrentOwner);
     }
 
+    public interface INetworkAuthorityChangedHandler {
+
+        void OnAuthorityChanged(bool hasAuthority);
+    }
+
     public interface INetworkSynchronizeHandler {
 
         void OnSynchronize<T>(ref BufferSerializer<T> serializer) where T : IReaderWriter;

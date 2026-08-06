@@ -1,4 +1,5 @@
 using System;
+using Xoderony.GameplayEffects;
 using UnityEngine;
 
 namespace JoG.Gameplay {
@@ -23,8 +24,8 @@ namespace JoG.Gameplay {
         public EffectRarity rarity;
         [Range(0, 100)] public int healthCostPercentage;
         public float duration;
-        public Buff.BuffDefinition buffData;
-        public int buffCount = 1;
+        public GameplayEffectDefinition effectDefinition;
+        public int effectCount = 1;
 
         public bool HasCost => altarType == AltarType.Demon && healthCostPercentage > 0;
     }

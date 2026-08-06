@@ -6,7 +6,7 @@ using VContainer;
 namespace JoG.Character.Components {
 
     [Serializable]
-    public sealed class CharacterMotorNetworkController : IComponent, INetworkSpawnHandler, INetworkDespawnHandler, INetworkOwnershipChangeHandler {
+    public sealed class CharacterMotorNetworkController : IComponent, INetworkSpawnHandler, INetworkDespawnHandler, INetworkAuthorityChangedHandler {
 
         [Inject] internal CharacterMotor motor;
 
@@ -18,12 +18,8 @@ namespace JoG.Character.Components {
             ResetTransform();
         }
 
-        void INetworkOwnershipChangeHandler.OnGainedOwnership(bool isCurrentOwner) {
-            motor.enabled = isCurrentOwner;
-        }
-
-        void INetworkOwnershipChangeHandler.OnLostOwnership(bool isPreviousOwner) {
-            motor.enabled = false;
+        void INetworkAuthorityChangedHandler.OnAuthorityChanged(bool hasAuthority) {
+            motor.enabled = hasAuthority;
         }
 
         private void ResetTransform() {

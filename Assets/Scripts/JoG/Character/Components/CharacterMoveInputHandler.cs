@@ -14,11 +14,11 @@ namespace JoG.Character.Components {
 
         [Inject]
         [Key(Constants.Stats.MaxMoveSpeed)]
-        internal FloatStat _maxMoveSpeed;
+        internal Stat _maxMoveSpeed;
 
         [Inject]
         [Key(Constants.Stats.MoveAcceleration)]
-        internal FloatStat _moveAcceleration;
+        internal Stat _moveAcceleration;
 
         [Inject]
         internal Animator _animator;
@@ -36,7 +36,7 @@ namespace JoG.Character.Components {
             var moveDirection = _moveInput.vector3.ProjectOnPlane(up).normalized;
             var maxMoveSpeed = _maxMoveSpeed.Value;
             var targetVelocity = moveDirection * maxMoveSpeed;
-            var a = _moveAcceleration.Value;
+            var a = (float)_moveAcceleration.Value;
             var dt = Time.fixedDeltaTime;
             if (stateInfo.tagHash == AnimatorHashs.Ground) { } else if (stateInfo.tagHash == AnimatorHashs.Air) {
                 a *= 0.2f;

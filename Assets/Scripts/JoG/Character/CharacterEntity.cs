@@ -2,15 +2,12 @@ using Animancer;
 using Xoderony;
 using Xoderony.Movement;
 using JoG.Health;
-using Unity.Netcode;
 using UnityEngine;
 using VContainer;
 
 namespace JoG.Character {
 
     public class CharacterEntity : Entity {
-
-        public CharacterSpawner Spawner { get; set; }
 
         [Inject]
         internal IDelegateDispatcher<CharacterSpawnHandler> spawnHandlers;
@@ -22,7 +19,11 @@ namespace JoG.Character {
 
         public AnimancerComponent Animancer { get; private set; }
 
-        public CharacterBuffs Buffs { get; private set; }
+        public CharacterEffects Effects { get; private set; }
+
+        public CharacterPeriodicHealthChanges PeriodicHealthChanges { get; private set; }
+
+        public CharacterTimedEffects TimedEffects { get; private set; }
 
         public HealthComponent Health { get; private set; }
 
@@ -41,21 +42,11 @@ namespace JoG.Character {
         public override void OnNetworkSpawn() {
             base.OnNetworkSpawn();
             spawnHandlers.Handlers?.Invoke(this);
-            Spawner.OnBodySpawn(this);
         }
 
         public override void OnNetworkDespawn() {
             base.OnNetworkDespawn();
             despawnHandlers.Handlers?.Invoke(this);
-            Spawner.OnBodyDespawn(this);
-        }
-
-        protected override void OnSynchronize<T>(ref BufferSerializer<T> serializer) {
-            var reference = new NetworkBehaviourReference(Spawner);
-            serializer.SerializeNetworkSerializable(ref reference);
-            reference.TryGet<CharacterSpawner>(out var spawner);
-            Spawner = spawner;
-            base.OnSynchronize(ref serializer);
         }
 
         protected override void Configure(IContainerBuilder builder) {
@@ -76,7 +67,9 @@ namespace JoG.Character {
         private void OnBuilt(IObjectResolver container) {
             InputBankHub = container.Resolve<InputBankHub>();
             Health = container.Resolve<HealthComponent>();
-            Buffs = container.Resolve<CharacterBuffs>();
+            Effects = container.Resolve<CharacterEffects>();
+            PeriodicHealthChanges = container.Resolve<CharacterPeriodicHealthChanges>();
+            TimedEffects = container.Resolve<CharacterTimedEffects>();
             Model = container.Resolve<CharacterModel>();
             HealthChangeRouter = container.Resolve<HealthChangeRouter>();
             HitRouter = container.Resolve<HitRouter>();

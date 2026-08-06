@@ -1,7 +1,8 @@
 using Xoderony.Extensions;
 using Hjson;
-using JoG.Buff;
 using JoG.Character;
+using JoG.Gameplay.Effects;
+using Xoderony.GameplayEffects;
 using JoG.Item;
 using System;
 using System.Collections.Generic;
@@ -20,7 +21,7 @@ namespace JoG.Utilities {
                 return;
             }
             _packageToHandles[package] = handles = new List<AssetHandle>();
-            var tags = new[] { "item_data", "character_data", "buff_prefab", "network_prefab" };
+            var tags = new[] { "item_data", "character_data", "gameplay_effect_def", "periodic_health_change_def", "network_prefab" };
             foreach (var assetInfo in package.GetAssetInfos(tags)) {
                 AssetHandle ah = null;
                 try {
@@ -29,15 +30,16 @@ namespace JoG.Utilities {
                         throw new Exception($"[{nameof(AssetsUtility)}: Loaded asset '{assetInfo.AssetPath}' from package '{package.PackageName}' failed: {ah.LastError}");
                     }
                     if (ah.AssetObject is ItemData itemData) {
+                        GameplayEffectDefinitionRegistry.Shared.Add(itemData);
                         ItemDataDictionary.Shared.Add(itemData);
                     } else if (ah.AssetObject is CharacterData characterData) {
                         CharacterDataDictionary.Shared.Add(characterData);
+                    } else if (ah.AssetObject is GameplayEffectDefinition effectDefinition) {
+                        GameplayEffectDefinitionRegistry.Shared.Add(effectDefinition);
+                    } else if (ah.AssetObject is PeriodicHealthChangeDefinition periodicHealthChangeDefinition) {
+                        PeriodicHealthChangeDefinitionDictionary.Shared.Add(periodicHealthChangeDefinition);
                     } else if (ah.AssetObject is GameObject prefab) {
-                        if (prefab.TryGetComponent<BuffDefinition>(out var buffData)) {
-                            BuffDefinitionDictionary.Shared.Add(buffData);
-                        } else {
-                            NetworkManager.Singleton?.PrefabHandler.AddNetworkPrefab(prefab);
-                        }
+                        NetworkManager.Singleton?.PrefabHandler.AddNetworkPrefab(prefab);
                     } else {
                         throw new Exception($"[{nameof(AssetsUtility)}: Loaded asset '{assetInfo.AssetPath}' from package '{package.PackageName}' is of unsupported type '{ah.AssetObject.GetType().FullName}'.");
                     }
@@ -58,14 +60,15 @@ namespace JoG.Utilities {
                 try {
                     if (ah.AssetObject is ItemData itemData) {
                         ItemDataDictionary.Shared.Remove(itemData);
+                        GameplayEffectDefinitionRegistry.Shared.Remove(itemData);
                     } else if (ah.AssetObject is CharacterData characterData) {
                         CharacterDataDictionary.Shared.Remove(characterData);
+                    } else if (ah.AssetObject is GameplayEffectDefinition effectDefinition) {
+                        GameplayEffectDefinitionRegistry.Shared.Remove(effectDefinition);
+                    } else if (ah.AssetObject is PeriodicHealthChangeDefinition periodicHealthChangeDefinition) {
+                        PeriodicHealthChangeDefinitionDictionary.Shared.Remove(periodicHealthChangeDefinition);
                     } else if (ah.AssetObject is GameObject prefab) {
-                        if (prefab.TryGetComponent<BuffDefinition>(out var buffData)) {
-                            BuffDefinitionDictionary.Shared.Remove(buffData);
-                        } else {
-                            NetworkManager.Singleton?.PrefabHandler.RemoveNetworkPrefab(prefab);
-                        }
+                        NetworkManager.Singleton?.PrefabHandler.RemoveNetworkPrefab(prefab);
                     }
                 } catch (Exception ex) {
                     Debug.LogException(ex);

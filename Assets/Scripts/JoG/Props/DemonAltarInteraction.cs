@@ -1,8 +1,8 @@
 using EditorAttributes;
 using Xoderony.Localization;
 using Xoderony.YooAsset;
-using JoG.Buff;
 using JoG.Character;
+using Xoderony.GameplayEffects;
 using JoG.Interaction;
 using JoG.UI;
 using System;
@@ -15,8 +15,8 @@ namespace JoG.Props {
 
     public class DemonAltarInteraction : NetworkBehaviour, IInteractable, IWorldTooltipSource {
         public InteractionEvent onInteracted = new();
-        public YooAssetReference<GameObject> buffPrefab;
-        public int buffCount = 1;
+        public YooAssetReference<GameplayEffectDefinition> effectDefinition;
+        public int effectCount = 1;
         [Required] public Transform tooltipPoint;
 
         [LocalizationKey(@"^interact\..*\.name$")]
@@ -26,22 +26,22 @@ namespace JoG.Props {
         public string descKey;
 
         [Range(0, 100)] public int healthCostPercentage;
-        private BuffDefinition _buffData;
+        private GameplayEffectDefinition _effect;
         Vector3 IWorldTooltipSource.TooltipPosition => tooltipPoint.position;
 
         public void Awake() {
-            buffPrefab.Load();
-            _buffData = buffPrefab.AssetObject.GetComponent<BuffDefinition>();
+            effectDefinition.Load();
+            _effect = effectDefinition.AssetObject;
         }
 
         public override void OnDestroy() {
             base.OnDestroy();
-            buffPrefab.Unload();
+            effectDefinition.Unload();
         }
 
         void ITooltipSource.BuildTooltip(StringBuilder builder) {
             //builder.AppendLine(Localizer.GetString(nameKey))
-            //    .Append(Localizer.GetString(descKey, healthCostPercentage, buffCount, _buffData));
+            //    .Append(Localizer.GetString(descKey, healthCostPercentage, effectCount, _effect));
         }
 
         bool IInteractable.CanInteract(Entity interactor) {
@@ -51,15 +51,9 @@ namespace JoG.Props {
         }
 
         void IInteractable.OnInteracted(Entity interactor) {
-            //var buff = _buffData.Get();
-            //foreach (var component in buff.ComponentSpan) {
-            //    if (component is Counter counter) {
-            //        counter.count = buffCount;
-            //    }
-            //}
             //var entity = interactor as CharacterEntity;
             //entity.Health.networkHealth.Value -= Mathf.CeilToInt(entity.Health.MaxHealth * healthCostPercentage / 100f);
-            //entity.Buffs.AddBuffRpc(buff);
+            //entity.Effects.AddEffectRpc(_effect.Id, effectCount);
             InvokeOnInteractedRpc(interactor);
         }
 

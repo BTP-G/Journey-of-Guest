@@ -50,7 +50,7 @@ namespace JoG.Modding {
         public void DebugCharacterProperty() {
             var sb = new System.Text.StringBuilder();
             foreach (var entity in Entity.Entities) {
-                if (!entity.TryGetComponent<IEnumerable<IStat>>(out var stats)) {
+                if (!entity.TryGetComponent<IEnumerable<Stat>>(out var stats)) {
                     continue;
                 }
                 sb.Clear();
@@ -173,7 +173,7 @@ namespace JoG.Modding {
                     value = $"{health.Current} / {health.Max}"
                 });
             }
-            if (_player.TryGetComponent<IEnumerable<IStat>>(out var stats)) {
+            if (_player.TryGetComponent<IEnumerable<Stat>>(out var stats)) {
                 foreach (var stat in stats) {
                     list.Add(new StatDisplay {
                         label = stat.Name,
@@ -184,12 +184,8 @@ namespace JoG.Modding {
             _stats = list.ToArray();
         }
 
-        private static string GetStatValue(IStat stat) {
-            return stat switch {
-                Stat intStat => intStat.Value.ToString(),
-                FloatStat floatStat => floatStat.Value.ToString("F1"),
-                _ => "-"
-            };
+        private static string GetStatValue(Stat stat) {
+            return stat.Value.ToString();
         }
 
         private void UpdateDps() {

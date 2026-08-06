@@ -14,10 +14,10 @@ namespace JoG.Character.States {
         internal CharacterMotor motor;
 
         [Inject, Key(Constants.Stats.MaxMoveSpeed)]
-        internal FloatStat maxMoveSpeed;
+        internal Stat maxMoveSpeed;
 
         [Inject, Key(Constants.Stats.MoveAcceleration)]
-        internal FloatStat moveAcceleration;
+        internal Stat moveAcceleration;
 
         private MoveInputBank _moveInput;
 

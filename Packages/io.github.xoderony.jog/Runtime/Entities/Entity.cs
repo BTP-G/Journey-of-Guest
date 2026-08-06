@@ -18,6 +18,7 @@ namespace JoG {
         private IEnumerable<INetworkSpawnHandler> _spawnHandlers;
         private IEnumerable<INetworkDespawnHandler> _depawnHandlers;
         private IEnumerable<INetworkOwnershipChangeHandler> _ownershipChangeHandlers;
+        private IEnumerable<INetworkAuthorityChangedHandler> _authorityChangedHandlers;
         private IEnumerable<INetworkSynchronizeHandler> _synchronizeHandlers;
         private Collider[] _colliders;
         public static Dictionary<ulong, Entity>.ValueCollection Entities => IdToEntity.Values;
@@ -60,6 +61,9 @@ namespace JoG {
             foreach (var handler in _ownershipChangeHandlers) {
                 handler.OnGainedOwnership(IsOwner);
             }
+            foreach (var handler in _authorityChangedHandlers) {
+                handler.OnAuthorityChanged(HasAuthority);
+            }
         }
 
         public override void OnNetworkDespawn() {
@@ -70,6 +74,9 @@ namespace JoG {
             foreach (var handler in _ownershipChangeHandlers) {
                 handler.OnLostOwnership(IsOwner);
             }
+            foreach (var handler in _authorityChangedHandlers) {
+                handler.OnAuthorityChanged(false);
+            }
         }
 
         protected override void OnSynchronize<T>(ref BufferSerializer<T> serializer) {
@@ -79,9 +86,13 @@ namespace JoG {
         }
 
         protected override void OnOwnershipChanged(ulong previous, ulong current) {
+            base.OnOwnershipChanged(previous, current);
             foreach (var handler in _ownershipChangeHandlers) {
                 handler.OnLostOwnership(NetworkManager.LocalClientId == previous);
                 handler.OnGainedOwnership(NetworkManager.LocalClientId == current);
+            }
+            foreach (var handler in _authorityChangedHandlers) {
+                handler.OnAuthorityChanged(HasAuthority);
             }
         }
 
@@ -115,6 +126,7 @@ namespace JoG {
             _spawnHandlers = _container.Resolve<IEnumerable<INetworkSpawnHandler>>();
             _depawnHandlers = _container.Resolve<IEnumerable<INetworkDespawnHandler>>();
             _ownershipChangeHandlers = _container.Resolve<IEnumerable<INetworkOwnershipChangeHandler>>();
+            _authorityChangedHandlers = _container.Resolve<IEnumerable<INetworkAuthorityChangedHandler>>();
             _synchronizeHandlers = _container.Resolve<IEnumerable<INetworkSynchronizeHandler>>();
         }
 

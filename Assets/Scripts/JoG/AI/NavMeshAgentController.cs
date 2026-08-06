@@ -13,8 +13,8 @@ namespace JoG.AI {
         [Required] public NavMeshAgent agent;
         [Required] public AITarget target;
         [Inject] internal Rigidbody body;
-        [Inject, Key(Constants.Stats.MaxMoveSpeed)] internal FloatStat maxMoveSpeedStat;
-        [Inject, Key(Constants.Stats.MoveAcceleration)] internal FloatStat accelerationStat;
+        [Inject, Key(Constants.Stats.MaxMoveSpeed)] internal Stat maxMoveSpeedStat;
+        [Inject, Key(Constants.Stats.MoveAcceleration)] internal Stat accelerationStat;
 
         private void Start() {
             agent.updatePosition = false;

@@ -1,4 +1,3 @@
-using Cysharp.Threading.Tasks;
 using EditorAttributes;
 using Xoderony.Logging;
 using JoG.Item;
@@ -14,13 +13,11 @@ namespace JoG.Inventory {
 
     public class InventorySaveController : MonoBehaviour, IComponent, INetworkSpawnHandler, INetworkDespawnHandler {
         [Inject] internal ISessionService sessionService;
-        [Required, SerializeField] private NetworkInventory _inventory;
+        [Inject] internal CharacterInventory inventory;
         private Dictionary<string, int> _nameToCount;
         [ReadOnly, SerializeField] private string _filePath;
-        private float _lastSaveTime;
 
         private bool _isQuitting = false;
-        private bool _isSaving = false;
 
         public void SaveInventoryImmediate() {
             try {
@@ -50,7 +47,7 @@ namespace JoG.Inventory {
                     _nameToCount = JsonConvert.DeserializeObject<Dictionary<string, int>>(json) ?? new();
                     foreach (var slotData in _nameToCount) {
                         if (ItemDataDictionary.Shared.TryGetValue(slotData.Key, out var itemData)) {
-                            _inventory.AddItemRpc(itemData, slotData.Value);
+                            inventory.AddItem(itemData, slotData.Value);
                         }
                     }
                 } catch (Exception ex) {
@@ -59,11 +56,11 @@ namespace JoG.Inventory {
             } else {
                 _nameToCount = new Dictionary<string, int>();
             }
-            _inventory.OnItemCountChanged += OnInventoryChanged;
+            inventory.ItemCountChanged += OnInventoryChanged;
         }
 
         private void OnDisable() {
-            _inventory.OnItemCountChanged -= OnInventoryChanged;
+            inventory.ItemCountChanged -= OnInventoryChanged;
             if (!_isQuitting) {
                 SaveInventoryImmediate();
             }
@@ -86,18 +83,6 @@ namespace JoG.Inventory {
             }
             SaveInventoryImmediate();
         }
-
-        private async UniTask DebouncedSaveAsync() {
-            const float saveDelay = 1.0f;
-            _lastSaveTime = Time.unscaledTime;
-            if (_isSaving) return;
-            _isSaving = true;
-            var delayTimeSpan = TimeSpan.FromSeconds(saveDelay);
-            do {
-                await UniTask.Delay(delayTimeSpan);
-            } while (Time.unscaledTime - _lastSaveTime <= saveDelay);
-            SaveInventoryImmediate();
-            _isSaving = false;
-        }
     }
 }
+

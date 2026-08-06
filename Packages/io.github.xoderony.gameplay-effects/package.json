@@ -1,0 +1,15 @@
+{
+  "name": "io.github.xoderony.gameplay-effects",
+  "version": "0.1.0",
+  "displayName": "Xoderony Gameplay Effects",
+  "description": "Reusable gameplay effect definitions, data, controllers, and registration for Unity.",
+  "unity": "6000.0",
+  "dependencies": {
+    "com.alexeytaranov.serializereferencedropdown": "1.2.7",
+    "io.github.xoderony.logging": "0.1.0"
+  },
+  "author": {
+    "name": "Xoderony",
+    "url": "https://github.com/Xoderony"
+  }
+}

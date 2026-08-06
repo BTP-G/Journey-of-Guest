@@ -19,7 +19,7 @@ namespace Xoderony.Numerics.Editor {
 
         private const string ValueLabelText = "Value";
 
-        private const string RawValueTooltip = "Q16 fixed-point raw value. 65536 represents a multiplier of 1.";
+        private const string RawValueTooltip = "Q16 fixed-point raw value. 65536 represents 1.";
 
         public override VisualElement CreatePropertyGUI(SerializedProperty property) {
             var rawValueProperty = property.FindPropertyRelative(RawValuePropertyName);
@@ -44,7 +44,7 @@ namespace Xoderony.Numerics.Editor {
             labelElement.style.flexShrink = 0;
             labelElement.style.marginRight = FieldSpacing;
 
-            var initialValueScale = Q16.FromRawValue(rawValueProperty.intValue);
+            var initialValueScale = new Q16(rawValueProperty.intValue);
             var initialValue = initialValueScale.ToFloat();
             valueField.SetValueWithoutNotify(initialValue);
 
@@ -61,7 +61,7 @@ namespace Xoderony.Numerics.Editor {
                 rawValueProperty,
                 changedProperty => {
                     valueField.showMixedValue = changedProperty.hasMultipleDifferentValues;
-                    var valueScale = Q16.FromRawValue(changedProperty.intValue);
+                    var valueScale = new Q16(changedProperty.intValue);
                     var value = valueScale.ToFloat();
                     valueField.SetValueWithoutNotify(value);
                 }
@@ -108,7 +108,7 @@ namespace Xoderony.Numerics.Editor {
                 rawValueLabel
             );
 
-            var currentValueScale = Q16.FromRawValue(rawValueProperty.intValue);
+            var currentValueScale = new Q16(rawValueProperty.intValue);
             var value = currentValueScale.ToFloat();
             var valueLabel = new GUIContent(ValueLabelText, label.tooltip);
             var valueLabelSize = EditorStyles.label.CalcSize(valueLabel);

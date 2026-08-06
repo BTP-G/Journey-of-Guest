@@ -2,7 +2,6 @@ using EditorAttributes;
 using Xoderony.Extensions;
 using Xoderony.Logging;
 using Xoderony.YooAsset;
-using JoG.Character;
 using JoG.Interaction;
 using JoG.Inventory;
 using JoG.UI;
@@ -44,11 +43,11 @@ namespace JoG.Item {
         }
 
         bool IInteractable.CanInteract(Entity entity) {
-            return entity.TryGetComponent<PlayerCharacterInventory>(out _);
+            return entity.TryGetComponent<CharacterInventoryNetwork>(out _);
         }
 
         void IInteractable.OnInteracted(Entity entity) {
-            GivePickupRpc(entity.GetComponent<PlayerCharacterInventory>());
+            GivePickupRpc(entity.GetComponent<CharacterInventoryNetwork>());
         }
 
         protected override void OnSynchronize<T>(ref BufferSerializer<T> serializer) {
@@ -63,10 +62,11 @@ namespace JoG.Item {
         [Rpc(SendTo.Authority)]
         private void GivePickupRpc(NetworkBehaviourReference inventoryReference) {
             if (!IsSpawned) return;
-            if (inventoryReference.TryGet<NetworkInventory>(out var inventory)) {
-                inventory.AddItemRpc(ItemData, Amount);
+            if (inventoryReference.TryGet<CharacterInventoryNetwork>(out var inventoryNetwork)) {
+                inventoryNetwork.AddItemRpc(ItemData, Amount);
             }
             NetworkObject.Despawn();
         }
     }
 }
+

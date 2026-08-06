@@ -20,7 +20,7 @@ namespace JoG.Character {
         [LocalizationKey(@"^character\..*\.name$")]
         public string nameKey;
 
-        [Inject] internal CharacterBuffs _buffs;
+        [Inject] internal CharacterEffects _effects;
         [Inject] internal HealthComponent _health;
         [Inject] internal Billboarder billboarder;
         [SerializeField, Required] private TextMeshProUGUI _nameText;
@@ -65,7 +65,7 @@ namespace JoG.Character {
         protected void OnPostLateUpdate() {
             _healthBar.UpdateView(_health.Ratio);
             if ((Time.frameCount & 0b11) == 0b11) {
-                _buffBar.UpdateView(_buffs);
+                _buffBar.UpdateView(_effects);
             }
         }
 

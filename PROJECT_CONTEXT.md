@@ -31,10 +31,11 @@
 
 | 路径 | 主要职责 |
 | --- | --- |
-| `Assets/Scripts/JoG` | 编入 `Assembly-CSharp` 的项目实现：角色、Buff、AI、物品、UI、场景服务和具体网络玩法 |
+| `Assets/Scripts/JoG` | 编入 `Assembly-CSharp` 的项目实现：角色效果、AI、物品、UI、场景服务和具体网络玩法 |
 | `Packages/io.github.xoderony.jog` | `JoG`：PropertyHub、实体、生命、状态机、属性、输入槽、交互、未命名网络消息和 Mod 公共入口 |
 | `Packages/io.github.xoderony.foundation` | `Xoderony.Foundation`：无 Unity 依赖的集合、委托通道、扩展和对象池 |
 | `Packages/io.github.xoderony.unity` | `Xoderony.Unity` / `Xoderony.Unity.Editor`：Unity 通用组件、序列化集合、编辑器控件、`Xoderony.Numerics` |
+| `Packages/io.github.xoderony.gameplay-effects` | `Xoderony.GameplayEffects`：可复用的 `GameplayEffectData`、Definition、Controller 分发契约和 Definition 注册表 |
 | `Packages/io.github.xoderony.movement` | CharacterMotor、碰撞扫描和地面检测 |
 | `Packages/io.github.xoderony.netcode`、`logging`、`localization`、`navigation`、`yooasset` | 对应领域的可复用基础设施 |
 
@@ -45,7 +46,8 @@
 ### 实体与角色
 
 - `Packages/io.github.xoderony.jog/Runtime/Entities/Entity.cs` 为每个实体创建 VContainer 子作用域，按需提供 `Xoderony` 委托通道，注册子 GameObject 上及 `Entity.Components` 中的 `IComponent`，并转发 NGO Spawn、Despawn、Ownership、Synchronize 生命周期。
-- `Assets/Scripts/JoG/Character/CharacterEntity.cs` 注册角色自身、Rigidbody、Animator、Animancer、CharacterMotor，并缓存生命、Buff、模型、输入和战斗入口。
+- `Assets/Scripts/JoG/Character/CharacterEntity.cs` 注册角色自身、Rigidbody、Animator、Animancer、CharacterMotor，并缓存生命、Gameplay Effect、模型、输入和战斗入口；Spawn、Despawn 与生命事实通过实体局部委托通道发布，角色不向 Spawner 暴露 Ownership、Despawn 或生命 CLR 事件，也不反向依赖具体 Spawner。
+- `Assets/Scripts/JoG/Character/CharacterSpawner.cs` 的基础同步状态只有当前 Body 的 `NetworkObjectReference`；所有副本使用同一协调流程解析 Body 并启停输入，Spawner 与 Body 使用相同所有者且由 NGO 一致转移分布式权威，只有 Spawner 权威端提交 Spawn 或 Recycle。
 - `Assets/Scripts/JoG/Character/PlayerSpawner.cs` 创建玩家角色并处理拥有权实例的初始生命。
 - `Packages/io.github.xoderony.jog/Runtime/Character/InputBanks` 保存角色输入；`Assets/Scripts/JoG/Character/Components` 提供移动、冲刺、跳跃、朝向和受击等组合能力。
 
@@ -58,17 +60,20 @@
 
 ### 角色属性
 
-- 包内 `StatBase<TMultiplier>` 管理名称、变化事件、倍率槽和序列化生命周期，只提供类型确定的槽操作。
-- `Stat` 用于整数离散值，倍率存储为 Q16，使用 `long` 中间值重算。
-- `FloatStat` 用于连续值，倍率存储为 `float`，使用 `double` 中间值重算。
-- `IStat` 提供 float 与 Q16 两套倍率重载；具体属性直接实现，只在表示不匹配时转换。
+- 包内只保留 `Stat`：基础值、上下限和当前值使用 `int`，只有倍率槽使用 Q16；重算时用 `long` 中间值依次应用 Q16 倍率，结果再钳制并写回 `int`。
+- `Stat.Value` 始终是整数；连续 Unity API 只在消费边界接收普通的 int-to-float 数值转换，不通过 Q16 表示属性值。
 - 普通 `IComponent` `CharacterMaxHealthController` 将最大生命属性变化写入 `HealthComponent.Max`，属性对象本身不依赖生命组件。
 - `HealthChangeRouter` 负责生命变化的网络广播、实体局部委托路由和全局报告发布；目标实体的 `IHealthChangeResolver` 负责结算变化并生成报告，默认可序列化的普通 `IComponent`——`HealthComponentChangeResolver`——通过 `Entity.Components` 将其连接到 `HealthComponent`。
 - `Faction` 是 `JoG` 包内可序列化的普通 `IComponent`，使用整数 ID 表达阵营；当前 PVE 关系规则是同 ID 友方、不同 ID 敌方，空来源可造成环境伤害但不能治疗。伤害/治疗、AI 选敌、击杀目标和敌人掉落均使用该组件，Unity Tag 不再承担阵营语义。
 - `CharacterLifeController` 根据 `HealthComponent` 的存活/死亡零点跨越发布 Life Start、Life Stop 和 `DeathMessage`；初始死亡实例只同步本地生命表现，不重复发布死亡事实。`CharacterHealthRegenerationController` 独立处理回复，`CharacterRootStateMachine` 订阅生命事件切换根状态，不再逐帧轮询生命值。
 - `CharacterHurtBoxLifeController` 和 `CharacterMotorNetworkController` 分别承接旧 `CharacterBody` 的 HurtBox 生命周期与 Motor Spawn、Despawn、Ownership 职责；`CharacterHitImpulseController` 独立处理受击冲量。
 - `HitRouter` 负责物理命中消息的网络广播及来源、目标实体局部委托路由；`IHittable` 保留碰撞部位的局部处理入口，命中检测端只在攻击者拥有权威时产生消息。普通 `IComponent` `CharacterHitImpulseController` 订阅目标实体的 Incoming Hit，并只在目标权威端向 `CharacterMotor` 提交冲量。
-- 当前类型映射：最大生命、攻击力、防御使用 `Stat`；最大移动速度、移动加速度、生命恢复速率使用 `FloatStat`。
+- 最大生命、攻击力、防御、最大移动速度、移动加速度和生命恢复速率均使用 `Stat`。
+- `Xoderony.GameplayEffects` 包提供不依赖 JoG、NGO、VContainer 或 `IComponent` 的 `GameplayEffectData`、`GameplayEffectDefinition`、`IGameplayEffectController`、`GameplayEffectController<TData>` 和全局 Definition 注册表。具体项目 Controller 自行选择是否实现 `IComponent`；当前角色 Controller 需要由 `Entity.Components` 序列化和注入，因此显式实现该接口。
+- 角色上的常驻效果统一使用 `GameplayEffectDefinition`：Definition 只组合不同具体类型的静态 `GameplayEffectData`，`CharacterEffects` 是每个 Definition 最终 Count 的唯一所有者，并按 Data 的具体运行时类型把 Definition ID、对应静态 Data 和最终绝对 Count 分发给一一对应的 `GameplayEffectController<TData>`。Controller 不接收完整 Definition，只持有自身需要的本地运行态，不复制 Definition 配置，也不拥有第二份全局 Count。网络只广播 Add/Remove 及延迟加入快照，各客户端本地运行 Controller；不同生命周期来源必须记录自己的已贡献 Count，并以差量 Add/Remove，不能用绝对值覆盖其他来源。
+- `ItemData` 直接继承 `GameplayEffectDefinition`，所以道具数量就是该 Definition 的 Count；背包仍由普通 `CharacterInventory` 唯一持有 `ItemData -> Count`，`CharacterInventoryEffectController` 仅在 Owner 端把库存变化以差量 Add/Remove 投影到 `CharacterEffects`。属性修改、反甲、命中施加效果、命中施加周期伤害和条件范围伤害都由各自的 `GameplayEffectController<TData>` 处理，不再存在独立的 ItemEffect 分发层。`CharacterInventoryNetwork` 只提供 Add/Remove RPC，`CharacterInventoryView` 只负责 Slot、Tooltip 和输入，`CharacterItemDropController` 负责世界掉落，`InventorySaveController` 只读写库存模型。
+- `CharacterTimedEffects` 管理每批限时 Definition 的 Count 与绝对到期时间，提供本地和 RPC 两套 Add/Remove 入口，并以自身贡献的 Count 间接增减 `CharacterEffects`；重复添加保留为独立批次。`PeriodicHealthChangeDefinition` 是带额外运行时参数的独立类别，引用一个用于配置和展示的 `GameplayEffectDefinition`；`CharacterPeriodicHealthChanges` 管理 Source、剩余 TickCount、TickValue 和绝对下一 Tick 时间，重复添加时按 Definition 的 `MergeMode` 合并，并让展示 Definition 的 Count 等于剩余 Tick 总数。两种生命周期组件都只在 NGO Spawn 期间注册 `PostUpdateLoop<FixedUpdate.ScriptRunDelayedFixedFrameRate>`，不使用默认 `FixedUpdate`；运行态只通过 Add/Remove RPC 与初始快照复制，此后每个客户端自行推进，State 直接保存 Source 实体引用。
+- `GameplayEffectDefinition` 使用 `gameplay_effect_def` YooAsset 标签和 `GameplayEffectDefinitionRegistry`；`ItemData` 使用原 `item_data` 标签加载，但同时注册进 Gameplay Effect Definition 注册表。`PeriodicHealthChangeDefinition` 使用 `periodic_health_change_def` 标签和独立 ID 字典。运行时 RPC 与快照边界只传 Definition ID 和必要运行参数，不传 ScriptableObject。
 
 ### 网络入口
 
@@ -82,9 +87,11 @@
 
 - `HitRouter` 已接入网络广播和实体局部路由；`CharacterHitImpulseController` 尚未加入角色的 `Entity.Components` 时，命中仍不会产生实际击退。
 - 现有角色 Prefab 仍挂载旧 `CharacterHealth` 和 `CharacterBody`；新的 `HealthComponent` 尚未挂载，`Faction`、`HealthComponentChangeResolver`、`CharacterLifeController`、`CharacterHealthRegenerationController`、`CharacterHurtBoxLifeController`、`CharacterMotorNetworkController` 与 `CharacterHitImpulseController` 尚未完整加入 `Entity.Components`。完成 Prefab 迁移前不能删除旧脚本，也不能同时启用旧 `CharacterBody` 与其拆分组件。
+- 现有角色和 UI Prefab 尚未迁移到统一效果结构：需要改挂 `CharacterEffects`、按需添加 `CharacterTimedEffects` / `CharacterPeriodicHealthChanges`，并在 `Entity.Components` 中加入 `CharacterInventory`、`CharacterInventoryEffectController`、`CharacterItemDropController` 及所需的具体 `GameplayEffectController<TData>` 子类。`PlayerCharacterOverlay.prefab` 仍引用已移除的 `PlayerCharacterInventory`；现有 Item/Buff 资产仍保存旧序列化字段，需要迁移到 `ItemData` 或独立 `GameplayEffectDefinition` 的 `_dataArray`。Unity 刷新生成新脚本 `.meta` 后再进行脚本引用、YooAsset 标签和配置迁移。
 - 角色仍同时保留 Animator 与 Animancer，迁移尚未完成。
-- 角色 Prefab 的旧 `stats` 是 `CharacterEntity` 已删除字段的遗留数据；`Entity.Components` 尚未配置新的 `Stat`、`FloatStat` 和最大生命连接组件。
+- 角色 Prefab 的旧 `stats` 是 `CharacterEntity` 已删除字段的遗留数据；`Entity.Components` 尚未配置新的 `Stat` 和最大生命连接组件。
 - 角色 Prefab 仍由 `CharacterMoveInputHandler` 驱动物理和 Animator，尚未接入新的移动状态机；迁移时不能让两套逻辑同时写入 CharacterMotor。
+- 玩家和 AI 的具体输入 Driver 目前仍挂在角色 Prefab 上以兼容现有序列化配置；`CharacterInputBinding` 优先使用 Spawner 自身的 Driver，没有时才回退到 Body 上的旧 Driver。后续可逐个把 Driver 迁至 Spawner，而不再修改 Body 输入消费端。
 
 ## 任务导航
 
@@ -95,7 +102,7 @@
 | 角色整体、输入、能力 | `Assets/Scripts/JoG/Character/CharacterEntity.cs`、`Packages/io.github.xoderony.jog/Runtime/Character/InputBanks`、项目 `Components` |
 | 状态机、动画、移动 | `Packages/io.github.xoderony.jog/Runtime/StateMachines`、`States`、`Assets/Scripts/JoG/Character/States`、`Packages/io.github.xoderony.movement` |
 | 状态网络同步 | `Packages/io.github.xoderony.jog/Runtime/StateMachines/NetworkStateMachine.cs`、具体项目子类、包内 `Entity.cs` |
-| 属性、Buff、生命 | `Packages/io.github.xoderony.jog/Runtime/Character`、`Assets/Scripts/JoG/Buff`、`Packages/io.github.xoderony.jog/Runtime/Health` |
+| 属性、角色效果、生命 | `Packages/io.github.xoderony.gameplay-effects`、`Assets/Scripts/JoG/Gameplay/Effects`、`Assets/Scripts/JoG/Character`、`Packages/io.github.xoderony.jog/Runtime/Health` |
 | 会话、网络消息、Prefab | `Assets/Scripts/JoG/Networking`、`Packages/io.github.xoderony.jog/Runtime/Networking` |
 | UI | `Assets/Scripts/JoG/UI`、对应 UXML、Prefab、Scene |
 | Xoderony 包或程序集 | 目标 `Packages/io.github.xoderony.*`、使用方 asmdef、包清单 |

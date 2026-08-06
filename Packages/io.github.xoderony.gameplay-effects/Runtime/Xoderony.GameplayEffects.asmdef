@@ -1,0 +1,17 @@
+{
+    "name": "Xoderony.GameplayEffects",
+    "rootNamespace": "Xoderony.GameplayEffects",
+    "references": [
+        "SerializeReferenceDropdownRuntime",
+        "Xoderony.Logging"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

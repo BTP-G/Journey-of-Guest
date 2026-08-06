@@ -6,7 +6,7 @@ using VContainer;
 
 namespace JoG.AI {
 
-    public class MoveAndAimInputer : MonoBehaviour, IComponent {
+    public class MoveAndAimInputer : MonoBehaviour, IComponent, ICharacterInputDriver {
         [Inject] internal AITarget target;
         [Inject] internal Rigidbody body;
         private NavMeshAgent _agent;
@@ -14,10 +14,23 @@ namespace JoG.AI {
         private AimInputBank _aimInputBank;
 
         [Inject]
-        internal void Inject(InputBankHub inputBankHub, NavMeshAgentController agentController) {
+        internal void Inject(NavMeshAgentController agentController) {
+            _agent = agentController.agent;
+        }
+
+        void ICharacterInputDriver.Bind(CharacterEntity character) {
+            var inputBankHub = character.InputBankHub;
             _moveInputBank = inputBankHub.GetInputBank<MoveInputBank>();
             _aimInputBank = inputBankHub.GetInputBank<AimInputBank>();
-            _agent = agentController.agent;
+            enabled = true;
+        }
+
+        void ICharacterInputDriver.Unbind() {
+            enabled = false;
+        }
+
+        private void Awake() {
+            enabled = false;
         }
 
         private void Update() {

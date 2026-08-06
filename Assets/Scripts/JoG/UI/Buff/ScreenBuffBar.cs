@@ -1,5 +1,6 @@
 using EditorAttributes;
 using JoG.Character;
+using JoG.Gameplay.Effects.Data;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,8 +13,8 @@ namespace JoG.UI.Buff {
         private readonly List<BuffIcon> _icons = new();
         [SerializeField, Required] private GameObject _buffIconTemplate;
 
-        public void UpdateView(CharacterBuffs buffs) {
-            var targetCount = buffs.Count;
+        public void UpdateView(CharacterEffects effects) {
+            var targetCount = GetDisplayedEffectCount(effects);
             var currentCount = _icons.Count;
             if (targetCount > currentCount) {
                 var diff = targetCount - currentCount;
@@ -28,12 +29,25 @@ namespace JoG.UI.Buff {
                 }
             }
             var index = 0;
-            foreach (var buff in buffs) {
+            foreach (var state in effects) {
+                if (!state.Definition.TryGetData<EffectDisplayData>(out var displayData) || displayData.icon == null) {
+                    continue;
+                }
                 var buffIcon = _icons[index];
-                //buffIcon.iconImage.sprite = buff.Icon;
-                //buffIcon.gameObject.SetActive(buff.Icon != null);
+                buffIcon.iconImage.sprite = displayData.icon;
+                buffIcon.gameObject.SetActive(true);
                 index++;
             }
+        }
+
+        private static int GetDisplayedEffectCount(CharacterEffects effects) {
+            var count = 0;
+            foreach (var state in effects) {
+                if (state.Definition.TryGetData<EffectDisplayData>(out var displayData) && displayData.icon != null) {
+                    count++;
+                }
+            }
+            return count;
         }
 
         private struct BuffIcon {

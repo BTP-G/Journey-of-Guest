@@ -7,7 +7,7 @@ using VContainer;
 namespace JoG.Character {
 
     [DefaultExecutionOrder(-10)]
-    public class PlayerCharacterInputer : MonoBehaviour, IComponent, INetworkOwnershipChangeHandler {
+    public class PlayerCharacterInputer : MonoBehaviour, IComponent, ICharacterInputDriver {
         [Inject] internal CinemachineOrbitalFollowAim aimer;
         [Inject, Key(Constants.InputAction.Move)] internal InputAction _move;
         [Inject, Key(Constants.InputAction.PrimaryAction)] internal InputAction _primaryAction;
@@ -25,16 +25,8 @@ namespace JoG.Character {
         private AimInputBank aimInputBank;
         private InteractInputBank ineractInputBank;
 
-        void INetworkOwnershipChangeHandler.OnLostOwnership(bool isPreviousOwner) {
-            enabled = false;
-        }
-
-        void INetworkOwnershipChangeHandler.OnGainedOwnership(bool isNewOwner) {
-            enabled = isNewOwner;
-        }
-
-        [Inject]
-        internal void Inject(InputBankHub inputBankHub) {
+        void ICharacterInputDriver.Bind(CharacterEntity body) {
+            var inputBankHub = body.InputBankHub;
             jumpInputBank = inputBankHub.GetInputBank<JumpInputBank>();
             moveInputBank = inputBankHub.GetInputBank<MoveInputBank>();
             primarySkillInputBank = inputBankHub.GetInputBank<PrimarySkillInputBank>();
@@ -43,9 +35,16 @@ namespace JoG.Character {
             sprintInputBank = inputBankHub.GetInputBank<SprintInputBank>();
             aimInputBank = inputBankHub.GetInputBank<AimInputBank>();
             ineractInputBank = inputBankHub.GetInputBank<InteractInputBank>();
+            enabled = true;
         }
 
+        void ICharacterInputDriver.Unbind() {
+            enabled = false;
+        }
 
+        private void Awake() {
+            enabled = false;
+        }
 
         private void OnEnable() {
             _primaryAction.performed += OnPrimaryAction;

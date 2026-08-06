@@ -43,12 +43,10 @@ namespace JoG.Character.Components {
                 entity = entity,
             });
             NotifyLifeStop();
-            entity.Spawner.OnBodyLifeStop(entity);
         }
 
         private void NotifyLifeStart() {
             lifeStartedHandlers.Handlers?.Invoke(entity);
-            entity.Spawner.OnBodyLifeStart(entity);
         }
 
         private void NotifyLifeStop() {

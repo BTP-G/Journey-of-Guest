@@ -1,7 +1,8 @@
 using Cysharp.Threading.Tasks;
+using Xoderony;
 using Xoderony.YooAsset;
-using JoG.Buff;
 using JoG.Character;
+using Xoderony.GameplayEffects;
 using JoG.Gameplay;
 using Unity.Netcode;
 using UnityEngine;
@@ -14,54 +15,87 @@ namespace JoG.AI {
 
         public YooAssetReference<GameObject> characterPrefab;
 
-        public YooAssetReference<GameObject> maxHealthBuffPrefab;
+        public YooAssetReference<GameplayEffectDefinition> maxHealthEffectDefinition;
 
-        public YooAssetReference<GameObject> attackPowerBuffPrefab;
+        public YooAssetReference<GameplayEffectDefinition> attackPowerEffectDefinition;
 
         [Min(0)]
-        public int buffCountOnSpawn;
+        public int effectCountOnSpawn;
 
-        [Min(0)] public int buffCountIncrementPerSpawn = 1;
+        [Min(0)] public int effectCountIncrementPerSpawn = 1;
 
         [Min(0)] public float respawnDelay = 10;
 
         [Inject] internal DifficultyManager difficultyManager;
 
-        private NetworkObject _characterObject;
+        private readonly NetworkVariable<int> _respawnCount = new(writePerm: NetworkVariableWritePermission.Owner);
 
+        private readonly NetworkVariable<double> _respawnAt = new(-1, writePerm: NetworkVariableWritePermission.Owner);
 
+        private IDelegateSubscriber<CharacterLifeStopHandler> _lifeStoppedSubscriber;
+
+        private bool _isReadyToSpawn;
+
+        private int _appliedMaxHealthEffectCount;
+
+        private int _appliedAttackPowerEffectCount;
 
         public void Awake() {
             characterPrefab.Load();
-            maxHealthBuffPrefab.Load();
-            attackPowerBuffPrefab.Load();
+            maxHealthEffectDefinition.Load();
+            attackPowerEffectDefinition.Load();
 
         }
 
-        public override void OnBodySpawn(CharacterEntity entity) {
-            base.OnBodySpawn(entity);
-            ApplyBuff(entity);
+        protected override void OnBodyAssigned(CharacterEntity entity) {
+            base.OnBodyAssigned(entity);
+            _appliedMaxHealthEffectCount = 0;
+            _appliedAttackPowerEffectCount = 0;
+            _lifeStoppedSubscriber = entity.GetComponent<IDelegateSubscriber<CharacterLifeStopHandler>>();
+            _lifeStoppedSubscriber.Subscribe(OnBodyLifeStopped);
+            if (CanControlBody) {
+                ApplyEffects(entity);
+            }
         }
 
-        public override void OnBodyLifeStop(CharacterEntity entity) {
-            base.OnBodyLifeStop(entity);
-            buffCountOnSpawn += buffCountIncrementPerSpawn;
-            entity.Buffs.Clear();
-            ApplyBuff(entity);
-            Invoke(nameof(Respawn), respawnDelay);
+        protected override void OnBodyReleased(CharacterEntity entity) {
+            base.OnBodyReleased(entity);
+            _lifeStoppedSubscriber.Unsubscribe(OnBodyLifeStopped);
+            _lifeStoppedSubscriber = null;
+            _appliedMaxHealthEffectCount = 0;
+            _appliedAttackPowerEffectCount = 0;
         }
 
         public override void OnDestroy() {
             base.OnDestroy();
             characterPrefab.Unload();
-            maxHealthBuffPrefab.Unload();
-            attackPowerBuffPrefab.Unload();
+            maxHealthEffectDefinition.Unload();
+            attackPowerEffectDefinition.Unload();
         }
 
         protected override async void OnInSceneObjectsSpawned() {
             base.OnInSceneObjectsSpawned();
             await UniTask.WaitForSeconds(3);
-            if (!HasAuthority) {
+            _isReadyToSpawn = true;
+            TrySpawnEnemy();
+        }
+
+        protected override void Update() {
+            base.Update();
+            TrySpawnEnemy();
+
+            if (!HasAuthority || _respawnAt.Value < 0 || !CanControlBody) {
+                return;
+            }
+            if (NetworkManager.ServerTime.Time < _respawnAt.Value) {
+                return;
+            }
+
+            Respawn();
+        }
+
+        private void TrySpawnEnemy() {
+            if (!_isReadyToSpawn || !HasAuthority || HasBodyReference) {
                 return;
             }
 
@@ -70,37 +104,46 @@ namespace JoG.AI {
                 position = hit.position;
             }
             var prefab = characterPrefab.AssetObject.GetComponent<NetworkObject>();
-            SpawnBody(prefab, position, rotation);
+            if (TrySpawnBody(prefab, position, rotation, out _)) {
+                _respawnAt.Value = -1;
+            }
         }
 
-        private void ApplyBuff(CharacterEntity entity) {
-            if (buffCountOnSpawn > 0) {
-                //var maxHealthBuff = maxHealthBuffData.Get();
-                //var attackPowerBuff = attackPowerBuffData.Get();
-                //foreach (var component in maxHealthBuff.ComponentSpan) {
-                //    if (component is Counter counter) {
-                //        var baseCount = buffCountOnSpawn;
-                //        counter.count = Mathf.RoundToInt(baseCount * difficultyManager.CurrentHealthMultiplier);
-                //        break;
-                //    }
-                //}
-                //foreach (var component in attackPowerBuff.ComponentSpan) {
-                //    if (component is Counter counter) {
-                //        var baseCount = buffCountOnSpawn;
-                //        counter.count = Mathf.RoundToInt(baseCount * difficultyManager.CurrentAttackMultiplier);
-                //        break;
-                //    }
-                //}
-                //entity.Buffs.AddBuff(maxHealthBuff);
-                //entity.Buffs.AddBuff(attackPowerBuff);
+        private void OnBodyLifeStopped(CharacterEntity entity) {
+            if (!HasAuthority || entity != Body || _respawnAt.Value >= 0) {
+                return;
             }
+
+            _respawnCount.Value++;
+            _respawnAt.Value = NetworkManager.ServerTime.Time + respawnDelay;
+        }
+
+        private void ApplyEffects(CharacterEntity entity) {
+            var effectCount = effectCountOnSpawn + (_respawnCount.Value * effectCountIncrementPerSpawn);
+            var maxHealthEffect = maxHealthEffectDefinition.AssetObject;
+            var maxHealthEffectCount = Mathf.RoundToInt(effectCount * difficultyManager.CurrentHealthMultiplier);
+            ApplyEffectCountDelta(entity.Effects, maxHealthEffect, ref _appliedMaxHealthEffectCount, maxHealthEffectCount);
+
+            var attackPowerEffect = attackPowerEffectDefinition.AssetObject;
+            var attackPowerEffectCount = Mathf.RoundToInt(effectCount * difficultyManager.CurrentAttackMultiplier);
+            ApplyEffectCountDelta(entity.Effects, attackPowerEffect, ref _appliedAttackPowerEffectCount, attackPowerEffectCount);
         }
 
         private void Respawn() {
-            if (HasAuthority && Body != null) {
-                Body.Health.Current = Body.Health.Max;
-                Body.Motor.Position = transform.position;
+            ApplyEffects(Body);
+            Body.Health.Current = Body.Health.Max;
+            Body.Motor.Position = transform.position;
+            _respawnAt.Value = -1;
+        }
+
+        private static void ApplyEffectCountDelta(CharacterEffects effects, GameplayEffectDefinition definition, ref int appliedCount, int targetCount) {
+            var countDelta = targetCount - appliedCount;
+            if (countDelta > 0) {
+                effects.AddEffectRpc(definition.Id, countDelta);
+            } else if (countDelta < 0) {
+                effects.RemoveEffectRpc(definition.Id, -countDelta);
             }
+            appliedCount = targetCount;
         }
     }
 }

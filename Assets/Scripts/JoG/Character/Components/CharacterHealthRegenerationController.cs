@@ -12,7 +12,7 @@ namespace JoG.Character.Components {
 
         [Inject] internal HealthComponent health;
 
-        [Inject, Key(Constants.Stats.Regen)] internal FloatStat regen;
+        [Inject, Key(Constants.Stats.Regen)] internal Stat regen;
 
         private float _regenBuffer;
 

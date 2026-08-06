@@ -8,7 +8,7 @@ namespace JoG.Character {
 
     [RequireComponent(typeof(Rigidbody))]
     [RequireComponent(typeof(CharacterMotor))]
-    public class CharacterBody : MonoBehaviour, IComponent, INetworkSpawnHandler, INetworkDespawnHandler, INetworkOwnershipChangeHandler {
+    public class CharacterBody : MonoBehaviour, IComponent, INetworkSpawnHandler, INetworkDespawnHandler, INetworkAuthorityChangedHandler {
         public readonly List<Collider> colliders = new();
         public Animator Animator { get; private set; }
         public Rigidbody Rigidbody { get; private set; }
@@ -31,12 +31,8 @@ namespace JoG.Character {
             transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
         }
 
-        void INetworkOwnershipChangeHandler.OnGainedOwnership(bool isNewOwner) {
-            Motor.enabled = isNewOwner;
-        }
-
-        void INetworkOwnershipChangeHandler.OnLostOwnership(bool isPreviousOwner) {
-            Motor.enabled = false;
+        void INetworkAuthorityChangedHandler.OnAuthorityChanged(bool hasAuthority) {
+            Motor.enabled = hasAuthority;
         }
 
         private void Awake() {

@@ -7,7 +7,7 @@ using VContainer;
 
 namespace JoG.AI {
 
-    public class PrimarySkillInputer : MonoBehaviour, IComponent {
+    public class PrimarySkillInputer : MonoBehaviour, IComponent, ICharacterInputDriver {
         public float minTriggerDistance;
         [Required] public Transform aimOrigin;
         [Inject] internal AITarget target;
@@ -15,9 +15,21 @@ namespace JoG.AI {
         private PrimarySkillInputBank _inputBank;
 
         [Inject]
-        internal void Inject(InputBankHub inputBankHub, NavMeshAgentController agentController) {
-            _inputBank = inputBankHub.GetInputBank<PrimarySkillInputBank>();
+        internal void Inject(NavMeshAgentController agentController) {
             _agent = agentController.agent;
+        }
+
+        void ICharacterInputDriver.Bind(CharacterEntity character) {
+            _inputBank = character.InputBankHub.GetInputBank<PrimarySkillInputBank>();
+            enabled = true;
+        }
+
+        void ICharacterInputDriver.Unbind() {
+            enabled = false;
+        }
+
+        private void Awake() {
+            enabled = false;
         }
 
         private void Update() {

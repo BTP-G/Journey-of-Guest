@@ -1,6 +1,7 @@
 using JoG.UI.Popup;
-using JoG.Buff;
 using JoG.Character;
+using JoG.Gameplay.Effects;
+using Xoderony.GameplayEffects;
 using JoG.Item;
 using JoG.Localization;
 using JoG.Modding;
@@ -37,7 +38,8 @@ namespace JoG {
             builder.RegisterInstance(NetworkManager.Singleton);
             builder.Register<NetworkObjectFactory>(Lifetime.Singleton);
             builder.RegisterInstance(ItemDataDictionary.Shared).AsImplementedInterfaces();
-            builder.RegisterInstance(BuffDefinitionDictionary.Shared).AsImplementedInterfaces();
+            builder.RegisterInstance(GameplayEffectDefinitionRegistry.Shared).AsImplementedInterfaces();
+            builder.RegisterInstance(PeriodicHealthChangeDefinitionDictionary.Shared).AsImplementedInterfaces();
             builder.RegisterInstance(CharacterDataDictionary.Shared).AsImplementedInterfaces();
             builder.RegisterInstance(FindFirstObjectByType<PopupManager>()).AsImplementedInterfaces();
             builder.RegisterInstance(FindFirstObjectByType<LoaderPopup>()).AsImplementedInterfaces();

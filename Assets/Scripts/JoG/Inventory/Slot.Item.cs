@@ -5,7 +5,7 @@ using UnityEngine.Assertions;
 
 namespace JoG.Inventory {
 
-    public partial class Slot : IItemSlot {
+    public partial class Slot {
         [ReadOnly, SerializeField] private ItemData _itemData;
         [ReadOnly, SerializeField] private int _itemCount;
         public ItemData ItemData {
@@ -19,8 +19,8 @@ namespace JoG.Inventory {
 
         public int ItemCount {
             get => _itemCount;
-            set {
-                if(_itemCount == value) return;
+            internal set {
+                if (_itemCount == value) return;
                 _itemCount = value < 0 ? 0 : value;
                 countText.text = _itemCount.ToString();
             }
@@ -34,3 +34,4 @@ namespace JoG.Inventory {
         }
     }
 }
+

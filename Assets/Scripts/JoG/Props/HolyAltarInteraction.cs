@@ -3,6 +3,7 @@ using Xoderony.Localization;
 using Xoderony.YooAsset;
 using JoG.Character;
 using JoG.Interaction;
+using JoG.Inventory;
 using JoG.Item;
 using JoG.Localization;
 using JoG.Networking;
@@ -36,13 +37,15 @@ namespace JoG.Props {
 
         public bool CanInteract(Entity interactor) {
             return interactor.HasAuthority
-              && interactor.TryGetComponent(out PlayerCharacterInventory inventory, null)
+              && interactor.TryGetComponent(out CharacterInventory inventory, null)
               && inventory.GetItemCount(itemRequired.AssetObject) > 0;
         }
 
         public void OnInteracted(Entity interactor) {
-            var inventory = interactor.GetComponent<PlayerCharacterInventory>(null);
-            inventory.RemoveItemRpc(itemRequired.AssetObject, 1);
+            var inventory = interactor.GetComponent<CharacterInventory>(null);
+            if (!inventory.RemoveItem(itemRequired.AssetObject, 1)) {
+                return;
+            }
             var dropItem = dropTableReference.AssetObject.Get();
             var item = networkObjectFactory.Instantiate(
                  dropItem,
@@ -59,3 +62,4 @@ namespace JoG.Props {
         }
     }
 }
+

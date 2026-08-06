@@ -1,9 +1,8 @@
 using EditorAttributes;
+using Xoderony.GameplayEffects;
 using Xoderony.Localization;
 using Xoderony.Logging;
-using JoG.Buff;
 using JoG.UI;
-using System;
 using System.Text;
 using Unity.Netcode;
 using UnityEngine;
@@ -11,7 +10,7 @@ using UnityEngine;
 namespace JoG.Item {
 
     [CreateAssetMenu(fileName = "ItemData", menuName = "JoG/Item Data")]
-    public class ItemData : ScriptableObject, ITooltipSource {
+    public class ItemData : GameplayEffectDefinition, ITooltipSource {
 
         [LocalizationKey(@"^item\..*\.name$")]
         public string nameKey;
@@ -26,8 +25,6 @@ namespace JoG.Item {
         [AssetPreview(100, 100)]
         public Sprite iconSprite;
 
-        public BuffDefinition[] buffDatas = Array.Empty<BuffDefinition>();
-
         public virtual string ItemName => Localizer.GetString(nameKey);
 
         public virtual string Description => Localizer.GetString(descriptionKey);
@@ -38,7 +35,8 @@ namespace JoG.Item {
                    .AppendLine(Localizer.GetString(descriptionKey));
         }
 
-        protected virtual void OnValidate() {
+        protected override void OnValidate() {
+            base.OnValidate();
             if ((pickupPrefab != null) && (pickupPrefab.GetComponentInChildren<ItemPickupBehaviour>() == null)) {
                 this.LogWarning($"[{nameof(pickupPrefab)}: {pickupPrefab}] 缺少{nameof(ItemPickupBehaviour)}组件。");
                 pickupPrefab = null;
@@ -48,3 +46,4 @@ namespace JoG.Item {
     }
 
 }
+

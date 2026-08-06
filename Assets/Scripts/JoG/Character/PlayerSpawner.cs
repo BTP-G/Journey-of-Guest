@@ -39,18 +39,27 @@ namespace JoG {
         }
 
         public void SpawnPlayer(NetworkObject prefab) {
-            if ((spawnedPlayerCharacter != null) && spawnedPlayerCharacter.IsSpawned) {
-                spawnedPlayerCharacter.Despawn();
+            if (Body != null && !TryRecycleBody()) {
+                return;
             }
             _spawnPoint.GetPositionAndRotation(out var position, out var rotation);
-            var entity = SpawnBody(prefab, position, rotation, true);
-            spawnedPlayerCharacter = entity.NetworkObject;
+            if (TrySpawnBody(prefab, position, rotation, out var entity, true)) {
+                spawnedPlayerCharacter = entity.NetworkObject;
+            }
         }
 
-        public override void OnBodySpawn(CharacterEntity entity) {
-            base.OnBodySpawn(entity);
+        protected override void OnBodyAssigned(CharacterEntity entity) {
+            base.OnBodyAssigned(entity);
+            spawnedPlayerCharacter = entity.NetworkObject;
             if (entity.HasAuthority) {
                 entity.Health.Current = entity.Health.Max;
+            }
+        }
+
+        protected override void OnBodyReleased(CharacterEntity entity) {
+            base.OnBodyReleased(entity);
+            if (spawnedPlayerCharacter == entity.NetworkObject) {
+                spawnedPlayerCharacter = null;
             }
         }
 

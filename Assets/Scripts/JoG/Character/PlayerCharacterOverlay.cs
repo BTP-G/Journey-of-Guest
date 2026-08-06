@@ -12,7 +12,7 @@ namespace JoG.Character {
     [RequireComponent(typeof(Canvas))]
     public class PlayerCharacterOverlay : MonoBehaviour, IComponent, INetworkOwnershipChangeHandler, INetworkSynchronizeHandler {
         [Inject] internal HealthComponent _health;
-        [Inject] internal CharacterBuffs _buffs;
+        [Inject] internal CharacterEffects _effects;
         [Inject] internal CharacterNameplate _nameplate;
         [Inject] internal CharacterEntity _entity;
         [Inject] internal IProfileService _profileService;
@@ -44,7 +44,7 @@ namespace JoG.Character {
         protected void LateUpdate() {
             _healthBar.UpdateView(_health.Current, _health.Max);
             if ((Time.frameCount & 0b11) == 0b11) {
-                _buffBar.UpdateView(_buffs);
+                _buffBar.UpdateView(_effects);
             }
         }
     }

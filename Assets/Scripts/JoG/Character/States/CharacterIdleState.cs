@@ -15,7 +15,7 @@ namespace JoG.Character.States {
 
         [Inject]
         [Key(Constants.Stats.MoveAcceleration)]
-        internal FloatStat moveAcceleration;
+        internal Stat moveAcceleration;
 
         protected void OnEnable() {
             Play(_animation);

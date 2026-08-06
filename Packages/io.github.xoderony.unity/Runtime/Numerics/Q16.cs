@@ -16,11 +16,14 @@ namespace Xoderony.Numerics {
 
         private const float Raw2Value = 1f / Value2Raw;
 
-        public static Q16 Zero => default;
+        public static readonly Q16 Zero = default;
 
-        public static Q16 One => FromRawValue(Value2Raw);
+        public static readonly Q16 One = new Q16(Value2Raw);
 
-        private Q16(int rawValue) {
+        /// <summary>
+        /// 使用 Q16 的底层原始值构造；参数不会按普通整数值转换，65536 表示数值 1。
+        /// </summary>
+        public Q16(int rawValue) {
             _rawValue = rawValue;
         }
 
@@ -33,11 +36,6 @@ namespace Xoderony.Numerics {
         }
 
         public readonly int RawValue => _rawValue;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Q16 FromRawValue(int rawValue) {
-            return new Q16(rawValue);
-        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly int Multiply(int value) {
@@ -126,13 +124,13 @@ namespace Xoderony.Numerics {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Q16 operator +(Q16 left, Q16 right) {
             var rawValue = ClampToInt32(((long)left._rawValue) + right._rawValue);
-            return FromRawValue(rawValue);
+            return new Q16(rawValue);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Q16 operator *(Q16 left, Q16 right) {
             var rawValue = ClampToInt32((((long)left._rawValue) * right._rawValue) >> FractionalBitCount);
-            return FromRawValue(rawValue);
+            return new Q16(rawValue);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
