@@ -13,8 +13,10 @@ namespace JoG.Character.Components {
         private BooleanInputBank sprintInput;
 
         private bool _isSprinting;
-        private int _accelerationMultiplierSlotIndex;
-        private int _maxMoveSpeedMultiplierSlotIndex;
+
+        private StatModifier _accelerationModifier;
+
+        private StatModifier _maxMoveSpeedModifier;
 
         public bool IsSprinting => _isSprinting;
 
@@ -24,8 +26,8 @@ namespace JoG.Character.Components {
             }
 
             var multiplier = new Q16(sprintSpeedMultiplier);
-            _accelerationMultiplierSlotIndex = _acceleration.AcquireMultiplierSlot(multiplier);
-            _maxMoveSpeedMultiplierSlotIndex = _maxMoveSpeed.AcquireMultiplierSlot(multiplier);
+            _accelerationModifier = _acceleration.AddModifier(multiplier);
+            _maxMoveSpeedModifier = _maxMoveSpeed.AddModifier(multiplier);
             _isSprinting = true;
         }
 
@@ -34,8 +36,8 @@ namespace JoG.Character.Components {
                 return;
             }
 
-            _acceleration.ReleaseMultiplierSlot(_accelerationMultiplierSlotIndex);
-            _maxMoveSpeed.ReleaseMultiplierSlot(_maxMoveSpeedMultiplierSlotIndex);
+            _accelerationModifier.Remove();
+            _maxMoveSpeedModifier.Remove();
             _isSprinting = false;
         }
 

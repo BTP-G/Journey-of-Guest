@@ -29,7 +29,11 @@ namespace JoG.GameplayEffects.Controllers {
                 RemoveState(definitionId);
                 return;
             }
-            AddOrUpdate(new EffectState(definitionId, data, count));
+            AddOrUpdate(new EffectState {
+                DefinitionId = definitionId,
+                Data = data,
+                Count = count
+            });
         }
 
         protected override void Clear() {
@@ -93,12 +97,6 @@ namespace JoG.GameplayEffects.Controllers {
             public DamageReflectEffectData Data;
 
             public int Count;
-
-            public EffectState(int definitionId, DamageReflectEffectData data, int count) {
-                DefinitionId = definitionId;
-                Data = data;
-                Count = count;
-            }
         }
     }
 }

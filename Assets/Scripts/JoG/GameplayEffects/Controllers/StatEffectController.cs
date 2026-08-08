@@ -28,7 +28,7 @@ namespace JoG.GameplayEffects.Controllers {
                     continue;
                 }
                 var multiplier = CalculateMultiplier(data.MultiplierBonus, count);
-                state.Stat.SetMultiplier(state.MultiplierSlotIndex, multiplier);
+                state.Modifier.SetValue(multiplier);
                 return;
             }
 
@@ -39,13 +39,16 @@ namespace JoG.GameplayEffects.Controllers {
             }
 
             var newMultiplier = CalculateMultiplier(data.MultiplierBonus, count);
-            var slotIndex = stat.AcquireMultiplierSlot(newMultiplier);
-            _states.Add(new EffectState(definitionId, stat, slotIndex));
+            var modifier = stat.AddModifier(newMultiplier);
+            _states.Add(new EffectState {
+                DefinitionId = definitionId,
+                Modifier = modifier
+            });
         }
 
         protected override void Clear() {
             foreach (ref var state in _states) {
-                DisposeState(state);
+                state.Modifier.Remove();
             }
             _states.Clear();
         }
@@ -57,15 +60,10 @@ namespace JoG.GameplayEffects.Controllers {
                 if (state.DefinitionId != definitionId) {
                     continue;
                 }
-                DisposeState(state);
+                state.Modifier.Remove();
                 _states.SwapRemoveAt(i);
                 return;
             }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void DisposeState(in EffectState state) {
-            state.Stat.ReleaseMultiplierSlot(state.MultiplierSlotIndex);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -85,19 +83,11 @@ namespace JoG.GameplayEffects.Controllers {
             return multiplier;
         }
 
-        private readonly struct EffectState {
+        private struct EffectState {
 
-            public readonly int DefinitionId;
+            public int DefinitionId;
 
-            public readonly Stat Stat;
-
-            public readonly int MultiplierSlotIndex;
-
-            public EffectState(int definitionId, Stat stat, int multiplierSlotIndex) {
-                DefinitionId = definitionId;
-                Stat = stat;
-                MultiplierSlotIndex = multiplierSlotIndex;
-            }
+            public StatModifier Modifier;
         }
     }
 }

@@ -8,8 +8,6 @@ namespace JoG {
             public const string MaxMoveSpeed = nameof(MaxMoveSpeed);
             public const string MoveAcceleration = nameof(MoveAcceleration);
             public const string AttackPower = nameof(AttackPower);
-            public const string Defense = nameof(Defense);
-            public const string TreatmentAmplification = nameof(TreatmentAmplification);
         }
 
         public static class Tags {

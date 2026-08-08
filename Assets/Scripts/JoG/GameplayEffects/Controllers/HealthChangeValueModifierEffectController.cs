@@ -28,7 +28,11 @@ namespace JoG.GameplayEffects.Controllers {
                 state.Count = count;
                 return;
             }
-            _states.Add(new EffectState(definitionId, data, count));
+            _states.Add(new EffectState {
+                DefinitionId = definitionId,
+                Data = data,
+                Count = count
+            });
         }
 
         protected override void Clear() {
@@ -77,12 +81,6 @@ namespace JoG.GameplayEffects.Controllers {
             public TData Data;
 
             public int Count;
-
-            public EffectState(int definitionId, TData data, int count) {
-                DefinitionId = definitionId;
-                Data = data;
-                Count = count;
-            }
         }
     }
 

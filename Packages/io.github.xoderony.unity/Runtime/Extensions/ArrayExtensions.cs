@@ -1,8 +1,8 @@
 using UnityEngine;
 
-namespace Xoderony.Extensions.Unity {
+namespace Xoderony.Extensions {
 
-    public static class ArrayExtensions {
+    public static class ArrayRandomExtensions {
 
         public static T GetRandomElement<T>(this T[] array) {
             var randomIndex = Random.Range(0, array.Length);

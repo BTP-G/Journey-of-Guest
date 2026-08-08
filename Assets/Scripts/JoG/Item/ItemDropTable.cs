@@ -4,7 +4,6 @@ using System.Runtime.CompilerServices;
 using Unity.Netcode;
 using UnityEngine;
 using Xoderony.Extensions;
-using Xoderony.Extensions.Unity;
 using Random = UnityEngine.Random;
 
 namespace JoG.Item {

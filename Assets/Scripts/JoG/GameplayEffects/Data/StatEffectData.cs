@@ -9,7 +9,11 @@ namespace JoG.GameplayEffects.Data {
     [Serializable]
     public sealed class StatEffectData : GameplayEffectData {
 
+        // 玩家同一种效果/道具的叠加数量按业务约束不超过 1000；
+        // 单槽最大倍率约为 1 + 9.99 * 1000 = 9991，Q16 原始值约 6.5e8，处于 Q16 与 Stat.Recalculate 的 long 中间值安全范围内。
         public static readonly Q16 MinimumMultiplierBonus = new(-999, 1000);
+
+        public static readonly Q16 MaximumMultiplierBonus = new(999, 100);
 
         [SerializeField]
         private string _statKey;
@@ -45,7 +49,13 @@ namespace JoG.GameplayEffects.Data {
         }
 
         private static Q16 ClampMultiplierBonus(Q16 multiplierBonus) {
-            return multiplierBonus < MinimumMultiplierBonus ? MinimumMultiplierBonus : multiplierBonus;
+            if (multiplierBonus < MinimumMultiplierBonus) {
+                return MinimumMultiplierBonus;
+            }
+            if (multiplierBonus > MaximumMultiplierBonus) {
+                return MaximumMultiplierBonus;
+            }
+            return multiplierBonus;
         }
     }
 }
