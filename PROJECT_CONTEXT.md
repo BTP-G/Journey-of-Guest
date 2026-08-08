@@ -1,112 +1,214 @@
-# Journey of Guest - 项目上下文
+# Journey of Guest - 项目上下文（AI 导航）
 
-## 使用方式
+> 定位与速览文件：先看「任务导航」找入口，再沿直接依赖扩展；具体行为以源码、Prefab、Scene 和配置为准。
+> 本文只记录项目事实、模块职责、关键入口与当前状态，不写协作规则（规则见 AGENTS.md）。
 
-本文件是任务入口导航，只记录当前项目事实、核心数据流和已确认风险。先从“任务导航”选择入口，再沿直接依赖扩展；具体行为始终以源码、Prefab、Scene 和配置为准。
+## 快速事实
 
-- 版本以 `ProjectSettings/ProjectVersion.txt`、`Packages/manifest.json`、`Packages/packages-lock.json` 为准。
-- 默认排除第三方 Demo、Samples、`Assets/Plugins` 和 Unity 生成目录。
-- 当前实现与目标设计不一致时，以“已知迁移状态”为准，不把未完成代码视为稳定协议。
-
-## 项目速览
-
-- Unity `6000.0.80f1`，Universal Render Pipeline `17.0.4`。
-- 多人合作冒险肉鸽；Netcode for GameObjects `2.13.0`，倾向分布式权威。
-- VContainer 负责依赖注入；Animancer Pro 负责角色动画；另使用 UniTask、MessagePipe、Input System、YooAsset。
-- 项目业务代码位于 `Assets/Scripts/JoG` 并统一编入 `Assembly-CSharp`；Mod 可独立引用的稳定契约位于 `Packages/io.github.xoderony.jog` 的 `JoG` 程序集；通用基础设施位于其他 `Packages/io.github.xoderony.*`。
-
-## 启动入口
-
-| 入口 | 职责 |
+| 项 | 值 |
 | --- | --- |
-| `Assets/Scenes/BootstrapScene.unity` | Build Settings 入口场景 |
-| `Assets/Scenes/MainScene.unity` | 主场景 |
-| `Assets/Scripts/JoG/RootScope.cs` | 根容器：Unity Services、输入、NetworkManager、数据字典和全局服务 |
-| `Assets/Scripts/JoG/LifetimeScopes/GameplaySceneScope.cs` | 玩法场景：MessagePipe、战斗、聊天、UI、网络 Prefab Handler |
-| `Assets/Scripts/JoG/LifetimeScopes/MainSceneScope.cs` | 主场景作用域，目前内容较少 |
+| Unity | `6000.0.80f1`（`ProjectSettings/ProjectVersion.txt`） |
+| 渲染 / 网络 | URP `17.0.4`；Netcode for GameObjects `2.13.1`（manifest 与 packages-lock 一致）；NGO 分布式权威（Distributed Authority） |
+| 玩法 | 多人合作冒险肉鸽；会话基于 Unity Services Multiplayer + Relay + QoS 选最低延迟区域 |
+| 技术栈 | VContainer（git）、Animancer Pro `8.3.0`（本地包）、UniTask、MessagePipe、Input System `1.19.0`、YooAsset `3.0.5`、ZString、FastReflection、Facepunch Transport、Newtonsoft.Json |
+| 程序集 | `Assets/Scripts/JoG`（264 个 .cs，无 asmdef）→ `Assembly-CSharp`；`Packages/io.github.xoderony.jog` → `JoG`（Mod 契约，不反向依赖 Assembly-CSharp）；`io.github.xoderony.*` → `Xoderony.*` |
+| 场景 | `BootstrapScene.unity` + `MainScene.unity` 启用（Build Settings 入口）；`GameplayScene_1/2.unity` 未启用；另启用 3 个第三方演示场景（非入口）；`Test.unity` 不在 Build Settings |
+| DI 入口 | `Assets/Scripts/JoG/RootScope.cs`（根）；`LifetimeScopes/GameplaySceneScope.cs`（玩法场景）；`LifetimeScopes/MainSceneScope.cs`（空占位） |
+| 数据注册 | YooAsset DefaultPackage 标签 `item_data` / `character_data` / `gameplay_effect_def` / `periodic_health_change_def` / `network_prefab` → `AssetsUtility.LoadDataFromPackage` → 各 Shared 注册表 + NGO PrefabHandler |
+| 效果 ID | `GameplayEffectDefinitionRegistry.Shared`：`Animator.StringToHash(name)`，冲突抛异常，Id 0 保留 |
+| 网络消息 | `UnnamedMessageBroker` 按 byte 类型分发（服务端中继，FastBufferWriter/Reader）：`1`=Chat、`2`=HealthChange、`3`=Hit |
+| 定点数 | `Xoderony.Numerics.Q16`（16 位小数，`Xoderony.Unity` 程序集）；包内 `Q16Serializer.cs` 提供网络读写 |
 
-`GameplayScene_1.unity` 和 `GameplayScene_2.unity` 当前未启用。Build Settings 还包含第三方演示场景，分析正式流程时不要将其视为项目入口。
+> NGO API 有疑问时优先查当前包源码或官方文档，不依赖旧版本记忆。
+> 迁移中代码以「已知迁移状态」为准，不视为稳定协议。
+
+## 任务导航（优先）
+
+| 任务 | 优先读取 |
+| --- | --- |
+| 启动、依赖注入 | `Assets/Scripts/JoG/RootScope.cs`、`LifetimeScopes/GameplaySceneScope.cs`、相关 Scene |
+| 实体、组件生命周期 | `Packages/io.github.xoderony.jog/Runtime/Entities/Entity.cs`、`IComponent.cs`、`EntitySerializer.cs`、`JoG.asmdef` |
+| 角色整体、输入、能力 | `Assets/Scripts/JoG/Character/CharacterEntity.cs`、`CharacterSpawner.cs`、`CharacterInputBinding.cs`、包 `Runtime/Character/InputBanks`、项目 `Character/Components` |
+| 状态机、动画、移动 | 包 `Runtime/StateMachines`、`Assets/Scripts/JoG/StateMachines/CharacterRootStateMachine.cs`、`Character/States`、`Packages/io.github.xoderony.movement` |
+| 状态网络同步 | 包 `Runtime/StateMachines/NetworkStateMachine.cs`、`Entity.OnSynchronize` 链 |
+| 属性、生命 | 包 `Runtime/Character/Stat.cs`、`StatModifier.cs`、`Runtime/Health/*`（HealthComponent、HealthChangeRouter、Damageable/Healable、HealthComponentChangeResolver） |
+| 角色效果（Buff） | `Assets/Scripts/JoG/Character/CharacterEffects.cs`、`CharacterTimedEffects.cs`、`CharacterPeriodicHealthChanges.cs`、`GameplayEffects/Controllers` |
+| 战斗、命中、弹体 | 包 `Runtime/Health/HitRouter.cs`、`HurtBox.cs`；`Character/States/*/SkillController.cs`、`Assets/Scripts/JoG/Projectiles` |
+| 物品、库存、掉落 | `Assets/Scripts/JoG/Item/*`、`Inventory/*` |
+| 会话、网络消息、Prefab | `Assets/Scripts/JoG/Networking/*`（SessionService、NetworkObjectFactory、GenericPrefabInstanceHandler、NetworkPlayerPrefabHandler）、包 `Runtime/Networking/UnnamedMessageBroker.cs` |
+| 大厅（Steam） | `Assets/Scripts/JoG/Lobby/*`、`UI/FacepunchTransportController.cs` |
+| 交互 | 包 `Runtime/Interaction/*`、`Assets/Scripts/JoG/Character/CharacterInteractor.cs`、`Props/*` |
+| AI | `Assets/Scripts/JoG/AI/*`（TargetFinder、EnemySpawner、Patrol） |
+| UI | `Assets/Scripts/JoG/UI/*`、对应 UXML/Prefab/Scene |
+| Mod API | 包 `Runtime/Modding/*`、`Assets/Scripts/JoG/Modding` |
+| Q16 与编辑器 Drawer | `Packages/io.github.xoderony.unity/Runtime/Numerics/Q16.cs`、`Editor/Numerics/Q16Drawer.cs` |
+| 创建本地 UPM 包 | `PackageTemplates/io.github.xoderony.feature-template`、目标包 asmdef 和 `.meta` |
 
 ## 模块地图
 
 | 路径 | 主要职责 |
 | --- | --- |
-| `Assets/Scripts/JoG` | 编入 `Assembly-CSharp` 的项目实现：角色效果、AI、物品、UI、场景服务和具体网络玩法 |
-| `Packages/io.github.xoderony.jog` | `JoG`：PropertyHub、实体、生命、状态机、属性、输入槽、交互、未命名网络消息和 Mod 公共入口 |
-| `Packages/io.github.xoderony.foundation` | `Xoderony.Foundation`：无 Unity 依赖的集合、委托通道、扩展和对象池 |
-| `Packages/io.github.xoderony.unity` | `Xoderony.Unity` / `Xoderony.Unity.Editor`：Unity 通用组件、序列化集合、编辑器控件、`Xoderony.Numerics` |
-| `Packages/io.github.xoderony.gameplay-effects` | `Xoderony.GameplayEffects`：可复用的 `GameplayEffectData`、Definition、Controller 分发契约和 Definition 注册表 |
-| `Packages/io.github.xoderony.movement` | CharacterMotor、碰撞扫描和地面检测 |
-| `Packages/io.github.xoderony.netcode`、`logging`、`localization`、`navigation`、`yooasset` | 对应领域的可复用基础设施 |
+| `Assets/Scripts/JoG` | `Assembly-CSharp` 项目实现：角色、效果、战斗、弹体、物品、AI、交互、大厅、UI、场景服务、具体网络玩法 |
+| `Packages/io.github.xoderony.jog` | `JoG` 契约：Entity/IComponent、Stat/StatModifier、Health 路由与消息、StateMachines/States、InputBanks、Interaction、Faction、Modding、UnnamedMessageBroker、Q16Serializer、EntitySerializer |
+| `io.github.xoderony.foundation` | `Xoderony.Foundation`：无 Unity 依赖集合（IntMap/SpanList/SpanIntMap 等）、委托通道（DelegateChannel/IDelegateDispatcher/IDelegateSubscriber）、扩展、对象池 |
+| `io.github.xoderony.unity` | `Xoderony.Unity`/`.Editor`：Q16、PlayerLoop（PostUpdateLoop/PreUpdateLoop）、GameObject/ComponentPool、通用组件（Billboarder/ColliderEvents/ParticleSystemEvents）、ArrayList、编辑器控件与属性 |
+| `io.github.xoderony.gameplay-effects` | `Xoderony.GameplayEffects`：GameplayEffectData/Definition/Controller 契约 + 全局注册表（不依赖 JoG/NGO/VContainer） |
+| `io.github.xoderony.movement` | CharacterMotor、地面检测/扫掠（GroundDetectionResult/SweepResult） |
+| `io.github.xoderony.netcode` | NetworkBehaviour 编辑器扩展、NetworkObjectReferenceExtensions |
+| `io.github.xoderony.logging` / `localization` / `navigation` / `yooasset` / `integrations` | Logger / Localizer+LocalizationKey / PathQueryFilter / YooAssetReference+Utility / ZString Utf16ValueStringBuilderExtensions |
 
-`Assembly-CSharp` 可以引用启用 `autoReferenced` 的 asmdef 程序集，但 asmdef 程序集不能反向引用预定义程序集。因此依赖方向固定为 `Assembly-CSharp` / 外部 Mod → `JoG` 包；需要被独立 Mod 使用的稳定类型应提升进 `JoG` 包，具体项目实现保留在 `Assets/Scripts/JoG`。Xoderony 包按部署、平台和第三方依赖边界划分程序集，命名空间仅用于组织 API；`foundation` 使用单一 `Xoderony.Foundation`，`unity` 仅保留 `Xoderony.Unity` 与 `Xoderony.Unity.Editor`。
+依赖方向固定为 `Assembly-CSharp` / 外部 Mod → `JoG` 包 → `Xoderony.*`；`JoG.asmdef` 直接引用 `Xoderony.Foundation/.Unity/.Logging`，其余依赖以 asmdef GUID 列表为准。需要被独立 Mod 使用的稳定类型提升进 `JoG` 包，具体实现保留在 `Assets/Scripts/JoG`。
 
-## 核心结构
+## 关键文件速查
 
 ### 实体与角色
 
-- `Packages/io.github.xoderony.jog/Runtime/Entities/Entity.cs` 为每个实体创建 VContainer 子作用域，按需提供 `Xoderony` 委托通道，注册子 GameObject 上及 `Entity.Components` 中的 `IComponent`，并转发 NGO Spawn、Despawn、Ownership、Synchronize 生命周期。
-- `Assets/Scripts/JoG/Character/CharacterEntity.cs` 注册角色自身、Rigidbody、Animator、Animancer、CharacterMotor，并缓存生命、Gameplay Effect、模型、输入和战斗入口；Spawn、Despawn 与生命事实通过实体局部委托通道发布，角色不向 Spawner 暴露 Ownership、Despawn 或生命 CLR 事件，也不反向依赖具体 Spawner。
-- `Assets/Scripts/JoG/Character/CharacterSpawner.cs` 的基础同步状态只有当前 Body 的 `NetworkObjectReference`；所有副本使用同一协调流程解析 Body 并启停输入，Spawner 与 Body 使用相同所有者且由 NGO 一致转移分布式权威，只有 Spawner 权威端提交 Spawn 或 Recycle。
-- `Assets/Scripts/JoG/Character/PlayerSpawner.cs` 创建玩家角色并处理拥有权实例的初始生命。
-- `Packages/io.github.xoderony.jog/Runtime/Character/InputBanks` 保存角色输入；`Assets/Scripts/JoG/Character/Components` 提供移动、冲刺、跳跃、朝向和受击等组合能力。
+| 文件 | 职责 / 关键约束 |
+| --- | --- |
+| 包 `Entities/Entity.cs` | 每实体 VContainer 子作用域；`DefaultExecutionOrder(-5000)`；注册子 GameObject 的 `IComponent` 与 `Entity.Components`（SerializeReference，按 `IComponent.Key` 键控）；转发 Spawn/Despawn/Ownership/Authority/Synchronize；静态 `IdToEntity` |
+| 包 `Entities/IComponent.cs` | 序列化组件接口（`object Key`） |
+| 包 `Entities/EntitySerializer.cs` | Entity 引用按 ID 读写（null → `ulong.MaxValue`） |
+| `Character/CharacterEntity.cs` | 缓存 Animator/Animancer/Motor/Rigidbody；注入 spawn/despawn 委托；OnBuilt 解析 Health/Effects/PeriodicHealthChanges/TimedEffects/Model/HealthChangeRouter/HitRouter |
+| `Character/CharacterSpawner.cs` | `NetworkVariable<NetworkObjectReference>`（Owner 写）；公开 `TrySpawnBody`/`TryRecycleBody`（仅权威）；`CharacterInputBinding` 优先 Spawner Driver，无则回退 Body 旧 Driver |
+| `Character/PlayerSpawner.cs` | 玩家角色创建（DebugCommand、UI 卡片）；`OnBodyAssigned` 满血 |
+| `AI/EnemySpawner.cs` | 敌人重生（`_respawnCount`/`_respawnAt`）；按 DifficultyManager 差值施加 MaxHealth/AttackPower 效果 |
+| `Character/CharacterBody.cs` | 旧 Body 组件（迁移中，仍挂在角色 Prefab） |
+| 包 `Character/InputBanks` + `InputBankHub` | 输入银行（Move/Aim/Jump/Sprint/Primary/Secondary/Special/Interact/Boolean/Vector3），按类型懒创建 |
 
 ### 状态机与移动
 
-- `Packages/io.github.xoderony.jog/Runtime/StateMachines/StateMachine.cs` 只管理当前状态及 Enter/Exit；`MonoStateMachine.cs` 用组件启用状态表达层级。
-- 包内 `NetworkStateMachine.cs` 区分权威端主动切换与 RPC 接收端本地应用，具体 RPC 和初始快照由项目子类实现。
-- `CharacterLocomotionStateMachine.cs` 根据 CharacterMotor 和移动输入决定 Idle、Move、Air；具体状态位于 `Assets/Scripts/JoG/Character/States`。
-- 状态转移和网络边界的稳定设计规则见 `AGENTS.md`。
+| 文件 | 职责 |
+| --- | --- |
+| 包 `StateMachines/StateMachine.cs` | 当前状态 + Enter/Exit |
+| 包 `StateMachines/MonoStateMachine.cs` | MonoBehaviour 启停表达状态层级 |
+| 包 `StateMachines/NetworkStateMachine.cs` | 权威端 `TransitionTo` vs 接收端 `ApplyTransition` |
+| `StateMachines/CharacterRootStateMachine.cs` | LifeStart/LifeStop 委托 → Life/Death 状态切换 |
+| `Character/States/CharacterLocomotionStateMachine.cs` | `Motor.IsStable` + Move 输入 → Air/Move/Idle（未挂 Prefab） |
+| `Character/States/*/SkillController.cs` | 各角色技能：HitBox 命中 → `IHittable.TakeHit`（HitRouter）+ `IDamageable.TakeDamage`（HealthChangeRouter） |
+| `Character/States/HitBox.cs` | 触发式命中盒（UnityEvent，忽略父级碰撞体） |
 
-### 角色属性
+### 属性与生命
 
-- 包内只保留 `Stat`：基础值、上下限和当前值使用 `int`，只有倍率槽使用 Q16；重算时用 `long` 中间值依次应用 Q16 倍率，结果再钳制并写回 `int`。
-- `Stat.Value` 始终是整数；连续 Unity API 只在消费边界接收普通的 int-to-float 数值转换，不通过 Q16 表示属性值。
-- 普通 `IComponent` `CharacterMaxHealthController` 将最大生命属性变化写入 `HealthComponent.Max`，属性对象本身不依赖生命组件。
-- `HealthChangeRouter` 负责生命变化的网络广播、实体局部委托路由和全局报告发布；目标实体的 `IHealthChangeResolver` 负责结算变化并生成报告，默认可序列化的普通 `IComponent`——`HealthComponentChangeResolver`——通过 `Entity.Components` 将其连接到 `HealthComponent`。
-- 对 `HealthChangeMessage.Value` 的乘数运算使用 Q16 定点数：数值修改器倍率与基于实际伤害的比例伤害（反甲、命中施加周期伤害、条件范围伤害）不再经过 float；连续 Unity API 只在消费边界做 int-to-float 转换。
-- `Faction` 是 `JoG` 包内可序列化的普通 `IComponent`，使用整数 ID 表达阵营；当前 PVE 关系规则是同 ID 友方、不同 ID 敌方，空来源可造成环境伤害但不能治疗。伤害/治疗、AI 选敌、击杀目标和敌人掉落均使用该组件，Unity Tag 不再承担阵营语义。
-- `CharacterLifeController` 根据 `HealthComponent` 的存活/死亡零点跨越发布 Life Start、Life Stop 和 `DeathMessage`；初始死亡实例只同步本地生命表现，不重复发布死亡事实。`CharacterHealthRegenerationController` 独立处理回复，`CharacterRootStateMachine` 订阅生命事件切换根状态，不再逐帧轮询生命值。
-- `CharacterHurtBoxLifeController` 和 `CharacterMotorNetworkController` 分别承接旧 `CharacterBody` 的 HurtBox 生命周期与 Motor Spawn、Despawn、Ownership 职责；`CharacterHitImpulseController` 独立处理受击冲量。
-- `HitRouter` 负责物理命中消息的网络广播及来源、目标实体局部委托路由；`IHittable` 保留碰撞部位的局部处理入口，命中检测端只在攻击者拥有权威时产生消息。普通 `IComponent` `CharacterHitImpulseController` 订阅目标实体的 Incoming Hit，并只在目标权威端向 `CharacterMotor` 提交冲量。
-- 最大生命、攻击力、防御、最大移动速度、移动加速度和生命恢复速率均使用 `Stat`。
-- `Xoderony.GameplayEffects` 包提供不依赖 JoG、NGO、VContainer 或 `IComponent` 的 `GameplayEffectData`、`GameplayEffectDefinition`、`IGameplayEffectController`、`GameplayEffectController<TData>` 和全局 Definition 注册表。具体项目 Controller 自行选择是否实现 `IComponent`；当前角色 Controller 需要由 `Entity.Components` 序列化和注入，因此显式实现该接口。
-- 角色上的常驻效果统一使用 `GameplayEffectDefinition`：Definition 只组合不同具体类型的静态 `GameplayEffectData`，`CharacterEffects` 是每个 Definition 最终 Count 的唯一所有者，并按 Data 的具体运行时类型把 Definition ID、对应静态 Data 和最终绝对 Count 分发给一一对应的 `GameplayEffectController<TData>`。Controller 不接收完整 Definition，只持有自身需要的本地运行态，不复制 Definition 配置，也不拥有第二份全局 Count。网络只广播 Add/Remove 及延迟加入快照，各客户端本地运行 Controller；不同生命周期来源必须记录自己的已贡献 Count，并以差量 Add/Remove，不能用绝对值覆盖其他来源。
-- `ItemData` 直接继承 `GameplayEffectDefinition`，所以道具数量就是该 Definition 的 Count；背包仍由普通 `CharacterInventory` 唯一持有 `ItemData -> Count`，`CharacterInventoryEffectController` 仅在 Owner 端把库存变化以差量 Add/Remove 投影到 `CharacterEffects`。属性修改、反甲、命中施加效果、命中施加周期伤害和条件范围伤害都由各自的 `GameplayEffectController<TData>` 处理，不再存在独立的 ItemEffect 分发层。`CharacterInventoryNetwork` 只提供 Add/Remove RPC，`CharacterInventoryView` 只负责 Slot、Tooltip 和输入，`CharacterItemDropController` 负责世界掉落，`InventorySaveController` 只读写库存模型。
-- `CharacterTimedEffects` 管理每批限时 Definition 的 Count 与绝对到期时间，提供本地和 RPC 两套 Add/Remove 入口，并以自身贡献的 Count 间接增减 `CharacterEffects`；重复添加保留为独立批次。`PeriodicHealthChangeDefinition` 是带额外运行时参数的独立类别，引用一个用于配置和展示的 `GameplayEffectDefinition`；`CharacterPeriodicHealthChanges` 管理 Source、剩余 TickCount、TickValue 和绝对下一 Tick 时间，重复添加时按 Definition 的 `MergeMode` 合并，并让展示 Definition 的 Count 等于剩余 Tick 总数。两种生命周期组件都只在 NGO Spawn 期间注册 `PostUpdateLoop<FixedUpdate.ScriptRunDelayedFixedFrameRate>`，不使用默认 `FixedUpdate`；运行态只通过 Add/Remove RPC 与初始快照复制，此后每个客户端自行推进，State 直接保存 Source 实体引用。
-- `GameplayEffectDefinition` 使用 `gameplay_effect_def` YooAsset 标签和 `GameplayEffectDefinitionRegistry`；`ItemData` 使用原 `item_data` 标签加载，但同时注册进 Gameplay Effect Definition 注册表。`PeriodicHealthChangeDefinition` 使用 `periodic_health_change_def` 标签和独立 ID 字典。运行时 RPC 与快照边界只传 Definition ID 和必要运行参数，不传 ScriptableObject。
+| 文件 | 职责 / 关键约束 |
+| --- | --- |
+| 包 `Character/Stat.cs` | int 基础/上下限/当前值 + Q16 倍率槽（池化）；写路径标脏并立即触发 `ValueChanged`（通知语义，回调中读 `Value` 拿最新值）；`Value` 按需重算，消费边界才转 float |
+| 包 `Character/StatModifier.cs` | `Stat.AddModifier` 返回实例句柄；`SetValue`/`Remove`（幂等）；槽位 API 为包内 internal |
+| 包 `Health/HealthComponent.cs` | Current/Max/Ratio/IsAlive；Owner 写 `NetworkVariable`；Max 变化按比例缩放 Current；OnSynchronize 同步本地值 |
+| 包 `Health/HealthChangeRouter.cs` | 消息类型 2；`CanDamage`/`CanHeal` 准入；`Broadcast`（先发远端再本地 Route）；modifier 委托 → resolver → report 委托 → `IPublisher<HealthChangeReport>` |
+| 包 `Health/Damageable.cs` / `Healable.cs` | MonoBehaviour+IComponent 入口，先 `CanTakeDamage`/`CanTakeHeal` 再 Broadcast |
+| 包 `Health/HealthComponentChangeResolver.cs` | `Current += value`；`report.deltaValue` 为实际 HP 变化（value 是修改后的请求值） |
+| 包 `Health/HitRouter.cs` | 消息类型 3；Outgoing/IncomingHitMessageHandler 委托链 |
+| 包 `Factions/Faction.cs` | 整数 Id；同 Id 友方、异 Id 敌方；伤害/治疗/AI 选敌用 Faction，不用 Unity Tag |
+| `Character/Components/CharacterLifeController.cs` | 零点跨越 → `DeathMessage` + LifeStart/Stop 委托 |
+| `Character/Components/CharacterMaxHealthController.cs` | MaxHealth Stat → `HealthComponent.Max` |
+| `Character/Components/CharacterHealthRegenerationController.cs` | Regen Stat，PostUpdateLoop 推进 |
+| `Character/Components/CharacterHitImpulseController.cs` | IncomingHit → `Motor.AddImpulse`（仅权威） |
+| `Character/Components/CharacterHurtBoxLifeController.cs` / `CharacterMotorNetworkController.cs` | 承接旧 CharacterBody 的 HurtBox 生命周期 / Motor Spawn-Despawn-Ownership |
 
-### 网络入口
+### 效果与物品
 
-- `Packages/io.github.xoderony.jog/Runtime/Networking/UnnamedMessageBroker.cs`：通用 NGO 非命名消息分发。
-- `SessionService.cs`：多人会话。
-- `NetworkObjectFactory.cs`、`GenericPrefabInstanceHandler.cs`、`NetworkPlayerPrefabHandler.cs`：网络 Prefab 注册、实例化和 Spawn。
-- `Assets/Scripts/JoG/Networking/Components`：粒子、特效和事件等网络表现。
-- NGO API 有疑问时优先检查当前包源码或官方文档，不依赖旧版本记忆。
+| 文件 | 职责 / 关键约束 |
+| --- | --- |
+| 包 `Xoderony.GameplayEffects` | Data/Definition/Controller 契约；Definition `_dataArray`（SerializeReference）+ `DataSpan`；Registry `Id = Animator.StringToHash(name)` |
+| `Character/CharacterEffects.cs` | NetworkBehaviour+IComponent；Definition→Count 唯一所有者；`Dictionary<Type, IGameplayEffectController>` 按 Data 运行时类型分发；Add/RemoveEffect + Rpc + OnSynchronize 快照；VContainer 注入 `IReadOnlyList<IGameplayEffectController>` 后取具体数组遍历 |
+| `Character/CharacterTimedEffects.cs` | 限时批次（ServerTime 过期），PostUpdateLoop 清理；本地 + RPC 两套 Add/Remove |
+| `Character/CharacterPeriodicHealthChanges.cs` | 周期伤害 Source/Tick；TickCount/TickValue 按 `MergeMode` 合并；展示 Count = 剩余 Tick；Tick 直接 `Router.Route`（不经准入检查，见迁移状态风险） |
+| `GameplayEffects/Controllers/*` | StatEffectController、DamageDealtEffectController、DamageDealtPeriodicDamageController、DamageReflectEffectController、HealthChangeValueModifier（outgoing/incoming）、ConditionalAreaDamageEffectController |
+| `GameplayEffects/Data/StatEffectData.cs` | MultiplierBonus Q16 ∈ [-99.9%, +999%]；层数 ≤ 1000；负加成 `(1+bonus)^count` 复利 |
+| `Item/ItemData.cs` | 继承 `GameplayEffectDefinition` + ITooltipSource；pickupPrefab/icon；`item_data` 标签 |
+| `Inventory/CharacterInventory.cs` | `ItemData -> Count` 唯一持有者；`ItemCountChanged` |
+| `Inventory/CharacterInventoryEffectController.cs` | 差量投影到 `CharacterEffects`（AddEffectRpc/RemoveEffectRpc） |
+| `Inventory/CharacterInventoryNetwork.cs` | AddItemRpc/RemoveItemRpc（SendTo.Owner） |
+| `Item/ItemPickupBehaviour.cs` | 拾取 → `GivePickupRpc`（Authority）→ `AddItemRpc` → 销毁 |
+| `Inventory/CharacterItemDropController.cs` / `Item/ItemDropController.cs` | 玩家丢出 / 死亡掉落表（DeathMessage，仅 Enemy 阵营） |
+| `Inventory/InventorySaveController.cs` | `persistentDataPath/InventorySaves/{Session.Code}.json` 持久化 |
+
+### 战斗与弹体
+
+| 文件 | 职责 |
+| --- | --- |
+| `Projectiles/ProjectileEntity.cs` | Entity 子类；PropertyHub（Owner/Attacker/DamageValue 等）；OnSynchronize 同步 Owner；Owner 端 PreUpdateLoop 到期 DeferDespawn |
+| `Projectiles/ProjectileMotor.cs` | 仅 Owner 启用碰撞；继承速度/忽略碰撞体；OnCollisionEnter 分发 `ICollisionMessageHandler` + DeferDespawn |
+| `Projectiles/ProjectileDamageOnCollision.cs` | 碰撞伤害逻辑整体注释（禁用） |
+| `Projectiles/ProjectileExplosion.cs` | `Detonate`：OverlapSphere → `CanTakeDamage` → `TakeDamage` + onDamage（爆炸伤害有效；impulse 注释） |
+| `Projectiles/ProjectileApplyEffectOnDamage.cs` / `ProjectileApplyDotOnDamage.cs` | 效果/DoT 挂载器（`OnDamage` 无调用方，未接通） |
+| `Character/States/Mage/MageSkillController.cs`、`Spitter/SpitterSkillController.cs` | 创建弹体并 `SetProperty(Attacker/DamageValue)` |
+
+### 网络与会话
+
+| 文件 | 职责 / 关键约束 |
+| --- | --- |
+| 包 `Networking/UnnamedMessageBroker.cs` | byte 类型分发；服务端中继；`SendMessageToOthers` |
+| `Networking/SessionService.cs` | Unity Services Multiplayer 会话（Create/Join/Query/Leave）；`WithDistributedAuthorityNetwork(region)`；Relay+QoS 选最低延迟区域 |
+| `Networking/AuthenticationController.cs` | 匿名登录（IAsyncBootstrapModule） |
+| `Networking/NetworkObjectFactory.cs` | PrefabHandler 注册/移除/实例化；DA 模式下 owner 强制 LocalClientId |
+| `Networking/GenericPrefabInstanceHandler.cs` | 池化实例；LifetimeScope/Entity 父级注入 |
+| `Networking/NetworkPlayerPrefabHandler.cs` | PlayerPrefab 专用 handler（RootScope 注册） |
+| `Networking/SessionOwnerObjectSpawner.cs` | IsSessionOwner 时生成对象（YooAsset 引用） |
+| `Networking/Components/*` | 网络粒子/事件/断线弹窗（NetworkDisconnector → LeaveSession） |
+| `Lobby/SteamLobbyController.cs` | Steam 大厅（Facepunch）；加入大厅后 transport 启动被注释（迁移中） |
+| `UI/FacepunchTransportController.cs` | 手动切换 Facepunch Transport 并 StartHost/Server/Client |
+
+### 交互与 AI
+
+| 文件 | 职责 |
+| --- | --- |
+| 包 `Interaction/IInteractable.cs`、`InteractionHandler.cs` | 交互契约与委托 |
+| `Character/CharacterInteractor.cs` | Aim 目标 + Interact 输入 → `IInteractable.CanInteract/OnInteracted` + WorldTooltip/Outline |
+| `Props/Teleporter.cs` / `GameEndRock.cs` | 目标达成切场景（ObjectiveController）/ 离场（LeaveSession） |
+| `Props/DemonAltarInteraction.cs` / `HolyAltarInteraction.cs` | 祭坛交互（DemonAltar 效果施加被注释，见迁移状态） |
+| `AI/TargetFinder.cs` | Faction 敌我 + HurtBox 最近目标；无目标回巡逻路线 |
+| `AI/Patrol/*` | PatrolService / PatrolRoute / IPatrolBehavior |
+| `AI/AITarget.cs`、`NavMeshAgentController.cs`、`PathFinder.cs` | 目标 Transform / NavMesh 驱动 / 寻路 |
+
+### UI 与表现
+
+| 文件 | 职责 |
+| --- | --- |
+| `UI/Popup/PopupManager.cs` | Toast/Confirm/Message/Loader（池化，DontDestroyOnLoad） |
+| `UI/FloatingTextController.cs` | 订阅 `HealthChangeReport` → 飘字（deltaValue/color/position） |
+| `UI/Health/ScreenHealthBar.cs`、`WorldHealthBar.cs` | 血条（World 按 Ratio） |
+| `UI/Buff/ScreenBuffBar.cs`、`WorldBuffBar.cs`、`BuffIcon.cs` | Buff 图标条（CharacterNameplate/PlayerCharacterOverlay 每 4 帧更新） |
+| `Character/CharacterNameplate.cs` | 名牌：WorldHealthBar + WorldBuffBar + Billboarder；LifeStart/Stop 显隐 |
+| `Character/PlayerCharacterOverlay.cs` | 玩家 HUD：ScreenHealthBar + ScreenBuffBar；Ownership 显隐 |
+| `Audio/NetworkAudioSource.cs`、`Video/NetworkVideoPlayer.cs` | RPC 播放/暂停 + OnSynchronize 时间/帧同步 |
+| `Effects/EffectSpawner.cs`、`Networking/Components/NetworkEffectSpawner.cs` | 本地/网络粒子池化生成 |
+
+### 数据注册与 Modding
+
+| 文件 | 职责 |
+| --- | --- |
+| `Utilities/AssetsUtility.cs` | 按标签加载数据到 Shared 注册表与 NGO PrefabHandler；`LoadLanguageFromHjson` |
+| `DefaultPackageManager.cs` | 创建 YooAsset DefaultPackage 并 `LoadDataFromPackage` |
+| `Character/CharacterDataDictionary.cs`、`Item/ItemDataDictionary.cs`、`GameplayEffects/PeriodicHealthChangeDefinitionDictionary.cs` | Shared 注册表（含 DebugCommand） |
+| `Modding/ModManager.cs` | `Assets/Mods` 扫描 mod.json → 拓扑排序 → `Assembly.LoadFrom` → Mod 启用/禁用（enabled.txt） |
+| 包 `Modding/Mod.cs`、`IModManager.cs` | Mod 基类与契约 |
 
 ## 已知迁移状态
 
-- `HitRouter` 已接入网络广播和实体局部路由；`CharacterHitImpulseController` 尚未加入角色的 `Entity.Components` 时，命中仍不会产生实际击退。
-- 现有角色 Prefab 仍挂载旧 `CharacterHealth` 和 `CharacterBody`；新的 `HealthComponent` 尚未挂载，`Faction`、`HealthComponentChangeResolver`、`CharacterLifeController`、`CharacterHealthRegenerationController`、`CharacterHurtBoxLifeController`、`CharacterMotorNetworkController` 与 `CharacterHitImpulseController` 尚未完整加入 `Entity.Components`。完成 Prefab 迁移前不能删除旧脚本，也不能同时启用旧 `CharacterBody` 与其拆分组件。
-- 现有角色和 UI Prefab 尚未迁移到统一效果结构：需要改挂 `CharacterEffects`、按需添加 `CharacterTimedEffects` / `CharacterPeriodicHealthChanges`，并在 `Entity.Components` 中加入 `CharacterInventory`、`CharacterInventoryEffectController`、`CharacterItemDropController` 及所需的具体 `GameplayEffectController<TData>` 子类。`PlayerCharacterOverlay.prefab` 仍引用已移除的 `PlayerCharacterInventory`；现有 Item/Buff 资产仍保存旧序列化字段，需要迁移到 `ItemData` 或独立 `GameplayEffectDefinition` 的 `_dataArray`。Unity 刷新生成新脚本 `.meta` 后再进行脚本引用、YooAsset 标签和配置迁移。
-- 角色仍同时保留 Animator 与 Animancer，迁移尚未完成。
-- 角色 Prefab 的旧 `stats` 是 `CharacterEntity` 已删除字段的遗留数据；`Entity.Components` 尚未配置新的 `Stat` 和最大生命连接组件。
-- 角色 Prefab 仍由 `CharacterMoveInputHandler` 驱动物理和 Animator，尚未接入新的移动状态机；迁移时不能让两套逻辑同时写入 CharacterMotor。
-- 玩家和 AI 的具体输入 Driver 目前仍挂在角色 Prefab 上以兼容现有序列化配置；`CharacterInputBinding` 优先使用 Spawner 自身的 Driver，没有时才回退到 Body 上的旧 Driver。后续可逐个把 Driver 迁至 Spawner，而不再修改 Body 输入消费端。
+### 稳定实现（静态核对，未运行验证）
 
-## 任务导航
+- 实体链路：Entity 子作用域 + IComponent 注册 + 委托通道；CharacterEntity 缓存入口。
+- 生命链路：Damageable/Healable → HealthChangeRouter（类型 2）→ modifier → resolver → report 委托 + `IPublisher<HealthChangeReport>`；FloatingText/CharacterLifeController 消费。
+- 命中链路：HitRouter（类型 3）+ IncomingHitMessageHandler（CharacterHitImpulseController 未挂 Prefab 前命中不产生击退）。
+- 效果链路：CharacterEffects 分发 + 各 Controller（Stat/伤害响应/反射/值修正/区域伤害）；TimedEffects/PeriodicHealthChanges 独立批次。
+- 物品链路：拾取 RPC → CharacterInventory → 差量投影 CharacterEffects；掉落表/丢出/存档已实现。
+- 会话链路：Unity Services 登录 → SessionService（DA）→ SessionOwnerObjectSpawner / PlayerSpawner。
+- 数据注册：YooAsset 标签加载 → Shared 注册表 + 网络 Prefab 注册。
+- 移动：CharacterMoveInputHandler 驱动 CharacterMotor（当前 Prefab 状态），MaxMoveSpeed/MoveAcceleration Stat 生效。
 
-| 任务 | 优先读取 |
-| --- | --- |
-| 启动、依赖注入 | `Assets/Scripts/JoG/RootScope.cs`、`Assets/Scripts/JoG/LifetimeScopes`、相关 Scene |
-| 实体、组件生命周期 | `Packages/io.github.xoderony.jog/Runtime/Entities/Entity.cs`、`IComponent.cs`、`JoG.asmdef` |
-| 角色整体、输入、能力 | `Assets/Scripts/JoG/Character/CharacterEntity.cs`、`Packages/io.github.xoderony.jog/Runtime/Character/InputBanks`、项目 `Components` |
-| 状态机、动画、移动 | `Packages/io.github.xoderony.jog/Runtime/StateMachines`、`States`、`Assets/Scripts/JoG/Character/States`、`Packages/io.github.xoderony.movement` |
-| 状态网络同步 | `Packages/io.github.xoderony.jog/Runtime/StateMachines/NetworkStateMachine.cs`、具体项目子类、包内 `Entity.cs` |
-| 属性、角色效果、生命 | `Packages/io.github.xoderony.gameplay-effects`、`Assets/Scripts/JoG/GameplayEffects`、`Assets/Scripts/JoG/Character`、`Packages/io.github.xoderony.jog/Runtime/Health` |
-| 会话、网络消息、Prefab | `Assets/Scripts/JoG/Networking`、`Packages/io.github.xoderony.jog/Runtime/Networking` |
-| UI | `Assets/Scripts/JoG/UI`、对应 UXML、Prefab、Scene |
-| Xoderony 包或程序集 | 目标 `Packages/io.github.xoderony.*`、使用方 asmdef、包清单 |
-| JoG 包与 Mod API | `Packages/io.github.xoderony.jog`、`Assets/Scripts/JoG/Modding` |
-| Q16 与编辑器 Drawer | `Packages/io.github.xoderony.unity/Runtime/Numerics/Q16.cs`、`Packages/io.github.xoderony.unity/Editor/Numerics/Q16Drawer.cs` |
-| 创建本地 UPM 包 | `PackageTemplates/io.github.xoderony.feature-template`、目标包 asmdef 和 `.meta` |
+### 迁移中 / 未完成（不视为稳定协议）
+
+- 8 个角色 Prefab（Fighter/Ghost/Golem/GiantDummy/MegaspikanLarvae/Mage/Skeleton/Spitter）：
+  - 已删脚本（含 `CharacterHealth`，2026-08-08 删除；`PlayerCharacterInventory` 已删）残留 12 个不同 Missing Script GUID（8 个 Prefab 共有的 5 个）；`PlayerObject.prefab` 另有 1 个；`PlayerCharacterOverlay.prefab` 有 7 个。具体 GUID→类名未逐项解析，需 Unity 刷新确认。
+  - 新组件未挂载：`HealthComponent`、`Faction`、`HealthComponentChangeResolver`、`CharacterLifeController`、`CharacterMaxHealthController`、`CharacterHealthRegenerationController`、`CharacterHurtBoxLifeController`、`CharacterMotorNetworkController`、`CharacterHitImpulseController`、`CharacterEffects`/`CharacterTimedEffects`/`CharacterPeriodicHealthChanges`、`CharacterInventory` 等；`Entity.Components` 目前为空引用列表（如 Fighter 含 4 个 null），未配置 `Stat`。
+  - 旧 `CharacterBody` 仍挂载，迁移完成前不能与拆分组件同时启用。
+  - 角色同时保留 Animator 与 Animancer，迁移未完成。
+  - 仍由 `CharacterMoveInputHandler` 驱动 Motor，新移动状态机（`CharacterLocomotionStateMachine`/Idle/Move/Air）未挂 Prefab；不能让两套逻辑同时写 CharacterMotor。
+  - 输入 Driver 仍在角色 Prefab 上（兼容旧序列化）；`CharacterInputBinding` 优先用 Spawner Driver，无则回退 Body 旧 Driver；后续迁至 Spawner。
+- 弹体战斗：`ProjectileDamageOnCollision` 伤害块被注释 → 碰撞伤害禁用（爆炸伤害可用）；`ProjectileApplyEffectOnDamage` 仅加载无挂钩；`ProjectileApplyDotOnDamage.OnDamage` 无调用方；`Gameplay/Attacker.cs` 整体注释（旧 Source 类型已移除）。
+- 祭坛：`DemonAltarInteraction` 的生命代价与效果施加被注释，仅广播交互事件（`CanInteract` 仍检查血量比例）。
+- Steam 大厅：`SteamLobbyController.OnLobbyEntered` 中 transport 启动被注释 → 加入大厅不会自动联网；`FacepunchTransportController` 可手动 Start。Unity Services 会话为当前主路径（两路径共存行为未验证）。
+- 占位实现：`MainSceneScope`（空）、`IngameOverlayController`（空）、`JoGApplication.Initialize`（空）。
+- 旧目录：`Assets/Scripts/JoG/Buff` 仅剩 `.meta`（旧 Buff 脚本已迁移至 GameplayEffects/CharacterEffects）。
+- 风险点（代码事实，未验证是否预期）：`CharacterPeriodicHealthChanges.ApplyTick` 直接 `Router.Route`，不经 `CanDamage`/`CanHeal` 准入；`HealthChangeReport.value` 为修改后的请求值，`deltaValue` 为实际 HP 变化，消费方需按语义选择（如满血治疗/过量伤害）。
