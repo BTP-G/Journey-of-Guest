@@ -13,7 +13,7 @@ namespace TMPro {
             Debug.Log("Trying to validate...");
 
             // Return unless the character is a valid digit
-            if (ch is < '0' and > '9') {
+            if (ch is < '0' or > '9') {
                 return (char)0;
             }
 

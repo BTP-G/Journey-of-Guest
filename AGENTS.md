@@ -14,6 +14,7 @@
 - 项目业务代码使用 `JoG.*` 并保留在 `Assets/Scripts/JoG`，统一编入 `Assembly-CSharp`；供 Mod 独立引用的稳定 JoG 契约放入 `Packages/io.github.xoderony.jog` 的 `JoG` 程序集，且不得反向依赖 `Assembly-CSharp`。跨项目复用的基础设施优先进入 `io.github.xoderony.*` UPM 包并使用 `Xoderony.*`。`Xoderony` 是作者的 GitHub 用户名。
 - 优先使用职责单一的组件扩展能力，保持调用链短、所有权明确；不要持续膨胀基础类或建立庞大统一上下文。
 - 约定大于配置：能用清晰约定覆盖的边界不引入配置参数；可读性和性能优先，安全性其次。程序员可手动避免的异常不写防御性检查（如 null 参数守卫），以调用约定表达。
+- 只靠约定出问题不好定位时加断言，不抛异常：用断言代替防御性抛异常，失败直接暴露位置；发布构建自动剥离，无运行时开销。可引用 Unity 的代码用 `UnityEngine.Debug.Assert`（`UNITY_ASSERTIONS`，编辑器与 Development Build 生效）；无 Unity 依赖的代码用 `System.Diagnostics.Debug.Assert`（`DEBUG`，默认仅编辑器生效）。
 - 不为不存在或未证实的需求设计通用抽象：完全相同的代码可以抽基类复用，不通用的情况单独实现；允许少量直接重复，不为强行统一引入额外基类、回调参数或配置项。
 - 角色由轻量状态机统一协调 Animancer、CharacterMotor、输入、玩法组件和网络同步，不另设并行的统一物理或动画控制器。
 - 多个简单状态机可以并行或借助 GameObject 组合成层级。状态只处理自身行为并报告完成等事实；具体状态机决定状态转移。
@@ -39,7 +40,7 @@
 
 ## C# 与 Unity 编辑器
 
-- 遵循根目录 `.editorconfig` 和附近 `JoG` 风格；当前 C# 文件使用 UTF-8、CRLF，并保留末尾换行。
+- 遵循根目录 `.editorconfig` 和附近 `JoG` 风格；当前 C# 文件使用 UTF-8（无 BOM）、LF，并保留末尾换行。
 - API 标识符使用 `PascalCase`；私有实例字段使用 `_camelCase`；参数和局部变量使用 `camelCase`。
 - 依赖注入优先使用 `[Inject]` 字段；只有需要在注入时组合、转换或立即执行初始化逻辑时才使用方法注入。
 - 在语义等价且生命周期有保证时，优先通过成对注册/注销和输入值边界直接表达行为，避免额外状态标记与重复保护分支。

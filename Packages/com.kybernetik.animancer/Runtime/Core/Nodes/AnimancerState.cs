@@ -113,7 +113,6 @@ namespace Animancer {
             }
 
 #endif
-#endif
 
             Parent?.OnRemoveChild(this);
             Parent = null;

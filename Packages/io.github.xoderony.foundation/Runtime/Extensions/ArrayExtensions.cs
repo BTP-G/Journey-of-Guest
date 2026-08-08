@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-#nullable enable
-
 namespace Xoderony.Extensions {
 
     public static class ArrayExtensions {

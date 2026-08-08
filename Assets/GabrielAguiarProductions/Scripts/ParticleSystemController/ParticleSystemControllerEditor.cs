@@ -6,6 +6,7 @@ using UnityEditor;
 namespace GAP_ParticleSystemController {
     [CustomEditor(typeof(ParticleSystemController))]
     public class ParticleSystemControllerEditor : Editor {
+
         [System.Obsolete]
         public override void OnInspectorGUI() {
             DrawDefaultInspector();

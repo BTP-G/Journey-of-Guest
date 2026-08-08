@@ -1,5 +1,5 @@
-#nullable enable
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace Xoderony.ObjectPool.Generic {
@@ -32,6 +32,7 @@ namespace Xoderony.ObjectPool.Generic {
         /// <param name="value">待归还的 Queue，归还后调用方不得继续使用。</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Return(Queue<T> value) {
+            Debug.Assert(value is not null);
             if (value is null || _pool.Count >= _capacity) {
                 return;
             }
