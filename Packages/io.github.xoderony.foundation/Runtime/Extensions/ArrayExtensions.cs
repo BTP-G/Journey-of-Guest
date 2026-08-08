@@ -114,7 +114,5 @@ namespace Xoderony.Extensions {
                 length
             );
         }
-
     }
-
 }

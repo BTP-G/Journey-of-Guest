@@ -1,15 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace TinyScript
-{
+namespace TinyScript {
     [CustomPropertyDrawer(typeof(DropChangeItem))]
-    public class DropChangeItemDrawer : PropertyDrawer
-    {
-        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-        {
+    public class DropChangeItemDrawer : PropertyDrawer {
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {
             var _oldColor = GUI.backgroundColor;
             EditorGUI.BeginProperty(position, label, property);
             //GUI.backgroundColor = Color.red;
@@ -50,8 +45,7 @@ namespace TinyScript
 
             EditorGUI.EndProperty();
         }
-        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-        {
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
             return 40;
         }
     }

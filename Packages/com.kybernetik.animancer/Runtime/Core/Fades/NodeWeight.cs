@@ -2,12 +2,10 @@
 
 using System.Text;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>An <see cref="AnimancerNode"/> and its <see cref="StartingWeight"/>.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer/NodeWeight
-    public readonly struct NodeWeight
-    {
+    public readonly struct NodeWeight {
         /************************************************************************************************************************/
 
         /// <summary>The <see cref="AnimancerNode"/>.</summary>
@@ -19,8 +17,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Creates a new <see cref="NodeWeight"/>.</summary>
-        public NodeWeight(AnimancerNode node)
-        {
+        public NodeWeight(AnimancerNode node) {
             Node = node;
             StartingWeight = node.Weight;
         }
@@ -28,8 +25,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Creates a new <see cref="NodeWeight"/>.</summary>
-        public NodeWeight(AnimancerNode node, float startingWeight)
-        {
+        public NodeWeight(AnimancerNode node, float startingWeight) {
             Node = node;
             StartingWeight = startingWeight;
         }
@@ -37,8 +33,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Creates a copy of `copyFrom`.</summary>
-        public NodeWeight(NodeWeight copyFrom, CloneContext context)
-        {
+        public NodeWeight(NodeWeight copyFrom, CloneContext context) {
             Node = context.GetOrCreateCloneOrOriginal(copyFrom.Node);
             StartingWeight = copyFrom.StartingWeight;
         }
@@ -46,17 +41,13 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Appends a detailed descrption of this object.</summary>
-        public void AppendDescription(StringBuilder text, float targetWeight)
-        {
-            if (Node == null)
-            {
+        public void AppendDescription(StringBuilder text, float targetWeight) {
+            if (Node == null) {
                 text.Append("Null: ")
                     .Append(StartingWeight)
                     .Append(" -> ")
                     .Append(targetWeight);
-            }
-            else
-            {
+            } else {
                 text.Append(Node.GetPath())
                     .Append(": ")
                     .Append(StartingWeight)

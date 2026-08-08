@@ -31,7 +31,5 @@ namespace Xoderony.Unity {
                 billboard.rotation = _transform.rotation;
             }
         }
-
     }
-
 }

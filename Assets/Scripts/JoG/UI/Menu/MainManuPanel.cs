@@ -1,10 +1,10 @@
-using Xoderony.Localization;
-using JoG.UI.Popup;
 using JoG.Localization;
+using JoG.UI.Popup;
 using System;
 using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
+using Xoderony.Localization;
 
 namespace JoG.UI.Menu {
 

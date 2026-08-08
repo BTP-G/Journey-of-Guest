@@ -1,7 +1,7 @@
-using Xoderony.Numerics;
 using System;
 using UnityEngine;
 using UnityEngine.Assertions;
+using Xoderony.Numerics;
 
 namespace JoG.Character {
 
@@ -156,7 +156,5 @@ namespace JoG.Character {
                 throw new ArgumentOutOfRangeException(nameof(slotIndex));
             }
         }
-
     }
-
 }

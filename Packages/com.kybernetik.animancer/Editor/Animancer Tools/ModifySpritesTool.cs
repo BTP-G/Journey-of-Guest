@@ -8,8 +8,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace Animancer.Editor.Tools
-{
+namespace Animancer.Editor.Tools {
     /// <summary>[Editor-Only] [Pro-Only] 
     /// A <see cref="SpriteModifierTool"/> for modifying <see cref="Sprite"/> detauls.
     /// </summary>
@@ -21,8 +20,7 @@ namespace Animancer.Editor.Tools
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor.Tools/ModifySpritesTool
     /// 
     [Serializable]
-    public class ModifySpritesTool : SpriteModifierTool
-    {
+    public class ModifySpritesTool : SpriteModifierTool {
         /************************************************************************************************************************/
 
         [SerializeField] private OffsetRectMode _RectMode;
@@ -58,15 +56,15 @@ namespace Animancer.Editor.Tools
         public override string HelpURL => Strings.DocsURLs.ModifySprites;
 
         /// <inheritdoc/>
-        public override string Instructions
-        {
-            get
-            {
-                if (Sprites.Count == 0)
+        public override string Instructions {
+            get {
+                if (Sprites.Count == 0) {
                     return "Select the Sprites you want to modify.";
+                }
 
-                if (!IsValidModification())
+                if (!IsValidModification()) {
                     return "The current Rect Offset would move some Sprites outside the texture bounds.";
+                }
 
                 return "Enter the desired modifications and click Apply.";
             }
@@ -75,8 +73,7 @@ namespace Animancer.Editor.Tools
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void OnEnable(int index)
-        {
+        public override void OnEnable(int index) {
             base.OnEnable(index);
 
             _SerializedProperty = AnimancerToolsWindow.Instance.FindSerializedPropertyForTool(this);
@@ -86,27 +83,25 @@ namespace Animancer.Editor.Tools
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void DoBodyGUI()
-        {
+        public override void DoBodyGUI() {
             base.DoBodyGUI();
 
             var area = AnimancerGUI.LayoutSingleLineRect();
             area.xMin += 4;
 
-            using (var label = PooledGUIContent.Acquire("Offset Rects", null))
+            using (var label = PooledGUIContent.Acquire("Offset Rects", null)) {
                 area = EditorGUI.PrefixLabel(area, label);
+            }
 
             AnimancerToolsWindow.BeginChangeCheck();
             var selected = (OffsetRectMode)GUI.Toolbar(area, (int)_RectMode, OffsetRectModes);
             AnimancerToolsWindow.EndChangeCheck(ref _RectMode, selected);
 
-            using (var property = _SerializedProperty.Copy())
-            {
+            using (var property = _SerializedProperty.Copy()) {
                 property.serializedObject.Update();
 
                 var depth = property.depth;
-                while (property.Next(false) && property.depth >= depth)
-                {
+                while (property.Next(false) && property.depth >= depth) {
                     EditorGUILayout.PropertyField(property, true);
                 }
 
@@ -114,23 +109,25 @@ namespace Animancer.Editor.Tools
             }
 
             GUI.enabled = false;
-            for (int i = 0; i < Sprites.Count; i++)
-            {
-                if (_ShowDetails)
+            for (var i = 0; i < Sprites.Count; i++) {
+                if (_ShowDetails) {
                     GUILayout.BeginVertical(GUI.skin.box);
+                }
 
                 var sprite = Sprites[i] = AnimancerGUI.DoObjectFieldGUI("", Sprites[i], false);
 
-                if (_ShowDetails)
-                {
-                    if (_RectMode != OffsetRectMode.None)
+                if (_ShowDetails) {
+                    if (_RectMode != OffsetRectMode.None) {
                         EditorGUILayout.RectField("Rect", sprite.rect);
+                    }
 
-                    if (_SetPivot)
+                    if (_SetPivot) {
                         EditorGUILayout.Vector2Field("Pivot", sprite.pivot);
+                    }
 
-                    if (_SetBorder)
+                    if (_SetBorder) {
                         EditorGUILayout.Vector4Field("Border", sprite.border);
+                    }
 
                     GUILayout.EndVertical();
                 }
@@ -142,8 +139,7 @@ namespace Animancer.Editor.Tools
 
                 GUI.enabled = Sprites.Count > 0 && IsValidModification();
 
-                if (GUILayout.Button("Apply"))
-                {
+                if (GUILayout.Button("Apply")) {
                     AnimancerGUI.Deselect();
                     AskAndApply();
                 }
@@ -153,10 +149,8 @@ namespace Animancer.Editor.Tools
 
         /************************************************************************************************************************/
 
-        private bool IsValidModification()
-        {
-            switch (_RectMode)
-            {
+        private bool IsValidModification() {
+            switch (_RectMode) {
                 default:
                 case OffsetRectMode.None:
                     return true;
@@ -169,15 +163,13 @@ namespace Animancer.Editor.Tools
             var offset = GetOffset();
 
             var sprites = Sprites;
-            for (int i = 0; i < sprites.Count; i++)
-            {
+            for (var i = 0; i < sprites.Count; i++) {
                 var sprite = sprites[i];
                 var rect = Add(sprite.rect, offset);
                 if (rect.xMin < 0 ||
                     rect.yMin < 0 ||
                     rect.xMax >= sprite.texture.width ||
-                    rect.xMax >= sprite.texture.height)
-                {
+                    rect.xMax >= sprite.texture.height) {
                     return false;
                 }
             }
@@ -187,10 +179,8 @@ namespace Animancer.Editor.Tools
 
         /************************************************************************************************************************/
 
-        private Rect GetOffset()
-        {
-            return _RectMode switch
-            {
+        private Rect GetOffset() {
+            return _RectMode switch {
                 OffsetRectMode.Add
                     => _RectOffset,
                 OffsetRectMode.Subtract
@@ -200,8 +190,7 @@ namespace Animancer.Editor.Tools
             };
         }
 
-        private static Rect Add(Rect a, Rect b)
-        {
+        private static Rect Add(Rect a, Rect b) {
             a.x += b.x;
             a.y += b.y;
             a.width += b.width;
@@ -217,10 +206,8 @@ namespace Animancer.Editor.Tools
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override void Modify(SpriteDataEditor data, int index, Sprite sprite)
-        {
-            switch (_RectMode)
-            {
+        protected override void Modify(SpriteDataEditor data, int index, Sprite sprite) {
+            switch (_RectMode) {
                 default:
                 case OffsetRectMode.None:
                     break;
@@ -233,14 +220,17 @@ namespace Animancer.Editor.Tools
                     break;
             }
 
-            if (_SetPivot)
+            if (_SetPivot) {
                 data.SetPivot(index, _Pivot);
+            }
 
-            if (_SetAlignment)
+            if (_SetAlignment) {
                 data.SetAlignment(index, _Alignment);
+            }
 
-            if (_SetBorder)
+            if (_SetBorder) {
                 data.SetBorder(index, new(_Border.left, _Border.bottom, _Border.right, _Border.top));
+            }
         }
 
         /************************************************************************************************************************/

@@ -36,7 +36,10 @@ namespace JoG.UI {
         }
 
         private void OnApplicationFocus(bool focus) {
-            if (focus) return;
+            if (focus) {
+                return;
+            }
+
             enabled = true;
         }
 

@@ -3,13 +3,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>An object with various parameters.</summary>
     /// <remarks>This system is inefficient and intended for Editor-Only use.</remarks>
     /// https://kybernetik.com.au/animancer/api/Animancer/IParametizedState
-    public interface IParametizedState
-    {
+    public interface IParametizedState {
         /************************************************************************************************************************/
 
         /// <summary>Gets the details of all parameters in this state.</summary>
@@ -23,8 +21,7 @@ namespace Animancer
 
     /// <summary>Details of a parameter in an <see cref="IParametizedState"/>.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer/StateParameterDetails
-    public struct StateParameterDetails
-    {
+    public struct StateParameterDetails {
         /************************************************************************************************************************/
 
         /// <summary>The display name.</summary>
@@ -55,8 +52,7 @@ namespace Animancer
             string label,
             string name,
             AnimatorControllerParameterType type,
-            object value)
-        {
+            object value) {
             this.label = label;
             this.name = name;
             this.type = type;
@@ -68,8 +64,7 @@ namespace Animancer
             string label,
             AnimatorControllerParameterType type,
             object value)
-            : this(label, NoBinding, type, value)
-        { }
+            : this(label, NoBinding, type, value) { }
 
         /************************************************************************************************************************/
     }

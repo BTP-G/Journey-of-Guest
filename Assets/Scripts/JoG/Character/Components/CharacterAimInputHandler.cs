@@ -1,8 +1,8 @@
-using Xoderony.Extensions;
-using Xoderony.Movement;
 using JoG.Character.InputBanks;
 using UnityEngine;
 using VContainer;
+using Xoderony.Extensions;
+using Xoderony.Movement;
 
 namespace JoG.Character.Components {
 
@@ -28,7 +28,10 @@ namespace JoG.Character.Components {
             } else {
                 forward = _motor.InputVelocity.normalized;
             }
-            if (forward.IsZero()) return;
+            if (forward.IsZero()) {
+                return;
+            }
+
             var targetRotation = Quaternion.LookRotation(forward, up);
             var rotation = Quaternion.Slerp(currentRotation, targetRotation, 10 * Time.deltaTime);
             _motor.MoveRotation(rotation);

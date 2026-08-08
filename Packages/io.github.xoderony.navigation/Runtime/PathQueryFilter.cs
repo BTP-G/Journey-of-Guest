@@ -16,7 +16,5 @@ namespace Xoderony.AI {
                 areaMask = filter.areaMask
             };
         }
-
     }
-
 }

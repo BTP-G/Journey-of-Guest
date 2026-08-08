@@ -1,17 +1,13 @@
-﻿//RealToon - ShadowT SDF Mode [Helper]
+//RealToon - ShadowT SDF Mode [Helper]
 //MJQStudioWorks
 //?025
 
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace RealToon.Script
-{
+namespace RealToon.Script {
     [ExecuteAlways]
     [AddComponentMenu("RealToon/Tools/ShadowT SDF Mode - Helper")]
-    public class ShadowTSDFModeHelper : MonoBehaviour
-    {
+    public class ShadowTSDFModeHelper : MonoBehaviour {
         [Header("Note: ShadowT feature and SDF Mode will be automatically enable\nWhen you put a material that uses RealToon Shader on the Material slot.")]
 
         [Space(25)]
@@ -29,39 +25,35 @@ namespace RealToon.Script
 
         [SerializeField]
         [Tooltip("The amount of light.")]
-        float LightThreshold = 200.0f;
+        private float LightThreshold = 200.0f;
 
         [Space(10)]
 
         [SerializeField]
         [Tooltip("Invert the Foward/Front position of the object.")]
-        bool ForwardInverted = false;
+        private bool ForwardInverted = false;
 
         [Tooltip("Invert the Right position of the object.")]
         [SerializeField]
-        bool RightInverted = false;
+        private bool RightInverted = false;
 
         [HideInInspector]
         [SerializeField]
-        bool checkstart = true;
+        private bool checkstart = true;
 
-        string RT_Sha_Nam_URP = "Universal Render Pipeline/RealToon/Version 5/Default/Default";
-        string RT_Sha_Nam_HDRP = "HDRP/RealToon/Version 5/Default";
+        private string RT_Sha_Nam_URP = "Universal Render Pipeline/RealToon/Version 5/Default/Default";
+        private string RT_Sha_Nam_HDRP = "HDRP/RealToon/Version 5/Default";
 
-        string RT_Sha_Nam_BiRP_DD = "RealToon/Version 5/Default/Default";
-        string RT_Sha_Nam_BiRP_DFT = "RealToon/Version 5/Default/Fade Transparency";
-        string RT_Sha_Nam_BiRP_DR = "RealToon/Version 5/Default/Refraction";
-        string RT_Sha_Nam_BiRP_TDD = "RealToon/Version 5/Tessellation/Default";
-        string RT_Sha_Nam_BiRP_TDFT = "RealToon/Version 5/Tessellation/Fade Transparency";
-        string RT_Sha_Nam_BiRP_TDR = "RealToon/Version 5/Tessellation/Refraction";
+        private string RT_Sha_Nam_BiRP_DD = "RealToon/Version 5/Default/Default";
+        private string RT_Sha_Nam_BiRP_DFT = "RealToon/Version 5/Default/Fade Transparency";
+        private string RT_Sha_Nam_BiRP_DR = "RealToon/Version 5/Default/Refraction";
+        private string RT_Sha_Nam_BiRP_TDD = "RealToon/Version 5/Tessellation/Default";
+        private string RT_Sha_Nam_BiRP_TDFT = "RealToon/Version 5/Tessellation/Fade Transparency";
+        private string RT_Sha_Nam_BiRP_TDR = "RealToon/Version 5/Tessellation/Refraction";
 
-        void LateUpdate()
-        {
+        private void LateUpdate() {
 
-            if (Material == null || ObjectToFollow == null)
-            { }
-            else
-            {
+            if (Material == null || ObjectToFollow == null) { } else {
                 if (Material.shader.name == RT_Sha_Nam_URP ||
                     Material.shader.name == RT_Sha_Nam_HDRP ||
                     Material.shader.name == RT_Sha_Nam_BiRP_DD ||
@@ -69,40 +61,28 @@ namespace RealToon.Script
                     Material.shader.name == RT_Sha_Nam_BiRP_DR ||
                     Material.shader.name == RT_Sha_Nam_BiRP_TDD ||
                     Material.shader.name == RT_Sha_Nam_BiRP_TDFT ||
-                    Material.shader.name == RT_Sha_Nam_BiRP_TDR)
-                {
+                    Material.shader.name == RT_Sha_Nam_BiRP_TDR) {
                     Material.SetFloat("_ShadowTLightThreshold", LightThreshold);
 
-                    if (ForwardInverted != true)
-                    {
+                    if (ForwardInverted != true) {
                         Material.SetVector("_ObjectForward", ObjectToFollow.transform.forward);
-                    }
-                    else
-                    {
+                    } else {
                         Material.SetVector("_ObjectForward", -ObjectToFollow.transform.forward);
                     }
 
-                    if (RightInverted != true)
-                    {
+                    if (RightInverted != true) {
                         Material.SetVector("_ObjectRight", ObjectToFollow.transform.right);
-                    }
-                    else
-                    {
+                    } else {
                         Material.SetVector("_ObjectRight", -ObjectToFollow.transform.right);
                     }
                 }
             }
-
         }
 
-        void OnValidate()
-        {
-            if (Material == null)
-            {
+        private void OnValidate() {
+            if (Material == null) {
                 checkstart = true;
-            }
-            else if (Material != null)
-            {
+            } else if (Material != null) {
                 if (Material.shader.name == RT_Sha_Nam_URP ||
                     Material.shader.name == RT_Sha_Nam_HDRP ||
                     Material.shader.name == RT_Sha_Nam_BiRP_DD ||
@@ -110,14 +90,11 @@ namespace RealToon.Script
                     Material.shader.name == RT_Sha_Nam_BiRP_DR ||
                     Material.shader.name == RT_Sha_Nam_BiRP_TDD ||
                     Material.shader.name == RT_Sha_Nam_BiRP_TDFT ||
-                    Material.shader.name == RT_Sha_Nam_BiRP_TDR)
-                {
-                    if (checkstart == true)
-                    {
-                        if ( (Material.IsKeywordEnabled("N_F_ST_ON") == false && Material.IsKeywordEnabled("N_F_STSDFM_ON") == false) ||
+                    Material.shader.name == RT_Sha_Nam_BiRP_TDR) {
+                    if (checkstart == true) {
+                        if ((Material.IsKeywordEnabled("N_F_ST_ON") == false && Material.IsKeywordEnabled("N_F_STSDFM_ON") == false) ||
                             (Material.IsKeywordEnabled("N_F_ST_ON") == true && Material.IsKeywordEnabled("N_F_STSDFM_ON") == false) ||
-                            (Material.IsKeywordEnabled("N_F_ST_ON") == false && Material.IsKeywordEnabled("N_F_STSDFM_ON") == true) )
-                        {
+                            (Material.IsKeywordEnabled("N_F_ST_ON") == false && Material.IsKeywordEnabled("N_F_STSDFM_ON") == true)) {
                             Material.EnableKeyword("N_F_ST_ON");
                             Material.SetFloat("_N_F_ST", 1.0f);
 
@@ -130,13 +107,10 @@ namespace RealToon.Script
             }
         }
 
-        void Reset()
-        {
+        private void Reset() {
             Material = null;
             ObjectToFollow = null;
             checkstart = true;
         }
-
     }
-
 }

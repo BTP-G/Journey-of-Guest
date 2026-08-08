@@ -1632,6 +1632,7 @@ MonoBehaviour:
   Ownership: 8
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
+  m_InScenePlaced: 0
   ActiveSceneSynchronization: 0
   SceneMigrationSynchronization: 0
   SpawnWithObservers: 1
@@ -1717,8 +1718,8 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   itemDataReference:
     _assetCache: {fileID: 11400000, guid: 4acb459bfc4265640826bac8102af782, type: 2}
-    location: CursedWandItemData
-    packageName: DefaultPackage
+    _location: CursedWandItemData
+    _packageName: DefaultPackage
   tooltipPoint: {fileID: 8137604757711855927}
 --- !u!114 &6451683514697601449
 MonoBehaviour:

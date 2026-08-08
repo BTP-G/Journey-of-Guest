@@ -7,18 +7,15 @@ using UnityEditor.Animations;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only] A GUI wrapper for drawing any object as a label with an icon.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/FastObjectField
     /// 
-    public struct FastObjectField
-    {
+    public struct FastObjectField {
         /************************************************************************************************************************/
 
         /// <summary>A <see cref="FastObjectField"/> representing <c>null</c>.</summary>
-        public static FastObjectField Null => new()
-        {
+        public static FastObjectField Null => new() {
             Text = "Null"
         };
 
@@ -36,8 +33,7 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Sets the current details directly.</summary>
-        public void Set(object value, string text, Texture icon)
-        {
+        public void Set(object value, string text, Texture icon) {
             Value = value;
             Text = text;
             Icon = icon;
@@ -46,13 +42,12 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Draws a field for the `value`.</summary>
-        public Rect Draw(Rect area, string label, object value, bool drawPing = true)
-        {
-            if (drawPing)
+        public Rect Draw(Rect area, string label, object value, bool drawPing = true) {
+            if (drawPing) {
                 ObjectHighlightGUI.Draw(area, value);
+            }
 
-            if (!string.IsNullOrEmpty(label))
-            {
+            if (!string.IsNullOrEmpty(label)) {
                 var labelWidth = EditorGUIUtility.labelWidth - area.x + AnimancerGUI.StandardSpacing + 1;
                 var labelArea = AnimancerGUI.StealFromLeft(ref area, labelWidth);
                 EditorGUI.LabelField(labelArea, label);
@@ -65,10 +60,10 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Draws a field for the `value`.</summary>
-        public void Draw(Rect area, object value, bool drawPing = true)
-        {
-            if (Value != value && Event.current.type == EventType.Layout)
+        public void Draw(Rect area, object value, bool drawPing = true) {
+            if (Value != value && Event.current.type == EventType.Layout) {
                 SetValue(value);
+            }
 
             Draw(area, drawPing);
         }
@@ -76,12 +71,10 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Draws a field for the <see cref="Value"/>.</summary>
-        public readonly void Draw(Rect area, bool drawPing = true)
-        {
+        public readonly void Draw(Rect area, bool drawPing = true) {
             HandleClick(area, drawPing);
 
-            if (Icon != null)
-            {
+            if (Icon != null) {
                 var iconArea = AnimancerGUI.StealFromLeft(ref area, area.height);
                 GUI.DrawTexture(iconArea, Icon);
             }
@@ -91,23 +84,22 @@ namespace Animancer.Editor
 
         /************************************************************************************************************************/
 
-        private readonly void HandleClick(Rect area, bool drawPing)
-        {
+        private readonly void HandleClick(Rect area, bool drawPing) {
             var currentEvent = Event.current;
 
-            switch (currentEvent.rawType)
-            {
+            switch (currentEvent.rawType) {
                 case EventType.MouseUp:
                     if (currentEvent.button == 0 &&
-                        area.Contains(currentEvent.mousePosition))
-                    {
+                        area.Contains(currentEvent.mousePosition)) {
                         ObjectHighlightGUI.Highlight(Value);
                     }
                     break;
 
                 case EventType.Repaint:
-                    if (drawPing)
+                    if (drawPing) {
                         ObjectHighlightGUI.Draw(area, Value);
+                    }
+
                     break;
             }
         }
@@ -115,8 +107,7 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Sets the cached details.</summary>
-        public void SetValue(object value, string text, Texture icon = null)
-        {
+        public void SetValue(object value, string text, Texture icon = null) {
             Value = value;
             Text = text;
             Icon = icon;
@@ -125,8 +116,7 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Sets the cached details based on the `value`.</summary>
-        public void SetValue(object value)
-        {
+        public void SetValue(object value) {
             Value = value;
             Text = GetText();
             Icon = GetIcon();
@@ -135,21 +125,22 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Returns a string based on the <see cref="Value"/>.</summary>
-        private readonly string GetText()
-        {
-            if (Value == null)
+        private readonly string GetText() {
+            if (Value == null) {
                 return "Null";
+            }
 
-            if (Value is Object obj)
-            {
-                if (obj == null)
+            if (Value is Object obj) {
+                if (obj == null) {
                     return $"Null({obj.GetType().Name})";
+                }
 
                 return obj.GetCachedName();
             }
 
-            if (Value is string str)
+            if (Value is string str) {
                 return $"\"{str}\"";
+            }
 
             return Value.ToString();
         }
@@ -157,17 +148,19 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Returns an icon based on the type of the <see cref="Value"/>.</summary>
-        private readonly Texture GetIcon()
-            => GetIcon(Value);
+        private readonly Texture GetIcon() {
+            return GetIcon(Value);
+        }
 
         /// <summary>Returns an icon based on the type of the `value`.</summary>
-        public static Texture GetIcon(object value)
-        {
-            if (value == null)
+        public static Texture GetIcon(object value) {
+            if (value == null) {
                 return null;
+            }
 
-            if (value is Object obj)
+            if (value is Object obj) {
                 return AssetPreview.GetMiniThumbnail(obj);
+            }
 
             var type = value is AnimancerState
                 ? typeof(AnimatorState)
@@ -179,8 +172,7 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Clears all cached details.</summary>
-        public void Clear()
-        {
+        public void Clear() {
             Value = null;
             Text = null;
             Icon = null;
@@ -188,7 +180,6 @@ namespace Animancer.Editor
 
         /************************************************************************************************************************/
     }
-
 }
 
 #endif

@@ -33,8 +33,8 @@ namespace JoG.Effects {
 
             _fogLayers = new DynamicFogController[layerCount];
 
-            for (int i = 0; i < layerCount; i++) {
-                float height = baseHeight + i * layerSpacing;
+            for (var i = 0; i < layerCount; i++) {
+                var height = baseHeight + (i * layerSpacing);
                 CreateFogPlane(i, height);
             }
 
@@ -42,7 +42,7 @@ namespace JoG.Effects {
         }
 
         private void CreateFogPlane(int index, float height) {
-            GameObject fogPlane = GameObject.CreatePrimitive(PrimitiveType.Plane);
+            var fogPlane = GameObject.CreatePrimitive(PrimitiveType.Plane);
             fogPlane.name = $"FogLayer_{index:D2}";
             fogPlane.transform.SetParent(transform);
             fogPlane.transform.position = new Vector3(0, height, 0);
@@ -51,16 +51,16 @@ namespace JoG.Effects {
 
             Object.DestroyImmediate(fogPlane.GetComponent<Collider>());
 
-            DynamicFogController fogController = fogPlane.AddComponent<DynamicFogController>();
+            var fogController = fogPlane.AddComponent<DynamicFogController>();
 
-            float heightFactor = 1f - (float)index / layerCount;
+            var heightFactor = 1f - ((float)index / layerCount);
             fogController.SetFogColor(new Color(
                 fogColor.r + Random.Range(-0.05f, 0.05f),
                 fogColor.g + Random.Range(-0.05f, 0.05f),
                 fogColor.b + Random.Range(-0.05f, 0.05f),
-                fogDensity * (0.7f + heightFactor * 0.3f)
+                fogDensity * (0.7f + (heightFactor * 0.3f))
             ));
-            fogController.SetFogDensity(fogDensity * (0.8f + heightFactor * 0.2f));
+            fogController.SetFogDensity(fogDensity * (0.8f + (heightFactor * 0.2f)));
             fogController.SetAnimationSpeed(animationSpeed * (0.9f + Random.Range(-0.1f, 0.1f)));
             fogController.SetTurbulence(turbulence);
             fogController.SetDepthFog(fogHeight * (1f + heightFactor), fogOffset, depthFogIntensity * heightFactor);
@@ -74,7 +74,7 @@ namespace JoG.Effects {
         }
 
         private void SetupMultiLayerController() {
-            MultiLayerFogController multiController = GetComponent<MultiLayerFogController>();
+            var multiController = GetComponent<MultiLayerFogController>();
             if (multiController == null) {
                 multiController = gameObject.AddComponent<MultiLayerFogController>();
             }
@@ -83,7 +83,7 @@ namespace JoG.Effects {
 
         [ContextMenu("Clear Fog Layers")]
         public void ClearExistingLayers() {
-            DynamicFogController[] existing = GetComponentsInChildren<DynamicFogController>();
+            var existing = GetComponentsInChildren<DynamicFogController>();
             foreach (var fog in existing) {
                 if (fog.gameObject != gameObject) {
                     if (Application.isPlaying) {
@@ -97,7 +97,10 @@ namespace JoG.Effects {
         }
 
         public void SetGlobalDensity(float density) {
-            if (_fogLayers == null) return;
+            if (_fogLayers == null) {
+                return;
+            }
+
             foreach (var layer in _fogLayers) {
                 if (layer != null) {
                     layer.SetFogDensity(density);
@@ -106,7 +109,9 @@ namespace JoG.Effects {
         }
 
         public void FadeGlobalDensity(float targetDensity, float duration) {
-            if (_fogLayers == null) return;
+            if (_fogLayers == null) {
+                return;
+            }
 
             foreach (var layer in _fogLayers) {
                 if (layer != null) {
@@ -116,7 +121,10 @@ namespace JoG.Effects {
         }
 
         public void SetFogColor(Color color) {
-            if (_fogLayers == null) return;
+            if (_fogLayers == null) {
+                return;
+            }
+
             foreach (var layer in _fogLayers) {
                 if (layer != null) {
                     layer.SetFogColor(color);
@@ -130,8 +138,8 @@ namespace JoG.Effects {
 
         private void OnDrawGizmosSelected() {
             Gizmos.color = Color.cyan;
-            for (int i = 0; i < layerCount; i++) {
-                float height = baseHeight + i * layerSpacing;
+            for (var i = 0; i < layerCount; i++) {
+                var height = baseHeight + (i * layerSpacing);
                 Gizmos.DrawWireCube(new Vector3(0, height, 0), new Vector3(layerScale, 0.1f, layerScale));
             }
         }

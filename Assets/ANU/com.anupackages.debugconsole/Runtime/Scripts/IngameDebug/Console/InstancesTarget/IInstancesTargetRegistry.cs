@@ -1,10 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
-namespace ANU.IngameDebug.Console
-{
-    public interface IInstancesTargetRegistry
-    {
+namespace ANU.IngameDebug.Console {
+    public interface IInstancesTargetRegistry {
         void Register<T>(params T[] targets);
         void Register<T>(IEnumerable<T> targets);
         void Unregister<T>(params T[] targets);

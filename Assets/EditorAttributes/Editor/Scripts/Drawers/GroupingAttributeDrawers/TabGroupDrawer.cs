@@ -1,33 +1,29 @@
-﻿using UnityEditor;
-using UnityEngine.UIElements;
 using System.Collections.Generic;
+using UnityEditor;
+using UnityEngine.UIElements;
 
-namespace EditorAttributes.Editor
-{
+namespace EditorAttributes.Editor {
     [CustomPropertyDrawer(typeof(TabGroupAttribute))]
-    public class TabGroupDrawer : GroupDrawer
-    {
-        public override VisualElement CreatePropertyGUI(SerializedProperty property)
-        {
+    public class TabGroupDrawer : GroupDrawer {
+        public override VisualElement CreatePropertyGUI(SerializedProperty property) {
             var tabGroupAttribute = attribute as TabGroupAttribute;
 
-            string selectedTabSaveKey = CreatePropertySaveKey(property, "SelectedTab");
-            string[] propertyNames = GetPropertyDisplayNames(property, tabGroupAttribute);
+            var selectedTabSaveKey = CreatePropertySaveKey(property, "SelectedTab");
+            var propertyNames = GetPropertyDisplayNames(property, tabGroupAttribute);
 
             TabView tabView = new() { selectedTabIndex = EditorPrefs.GetInt(selectedTabSaveKey) };
             tabView.activeTabChanged += (_, _) => EditorPrefs.SetInt(selectedTabSaveKey, tabView.selectedTabIndex);
 
             ApplyBoxStyle(tabView);
 
-            for (int i = 0; i < propertyNames.Length; i++)
-            {
-                string propertyName = propertyNames[i];
+            for (var i = 0; i < propertyNames.Length; i++) {
+                var propertyName = propertyNames[i];
                 Tab tab = new(propertyName);
 
                 ApplyBoxStyle(tab);
 
-                string fieldName = tabGroupAttribute.FieldsToGroup[i];
-                VisualElement groupProperty = CreateGroupProperty(fieldName, property);
+                var fieldName = tabGroupAttribute.FieldsToGroup[i];
+                var groupProperty = CreateGroupProperty(fieldName, property);
 
                 tab.Add(groupProperty);
                 tabView.Add(tab);
@@ -36,13 +32,11 @@ namespace EditorAttributes.Editor
             return tabView;
         }
 
-        private string[] GetPropertyDisplayNames(SerializedProperty property, TabGroupAttribute tabGroupAttribute)
-        {
+        private string[] GetPropertyDisplayNames(SerializedProperty property, TabGroupAttribute tabGroupAttribute) {
             List<string> stringList = new();
 
-            foreach (var field in tabGroupAttribute.FieldsToGroup)
-            {
-                SerializedProperty fieldProperty = FindNestedProperty(property, GetSerializedPropertyName(field, property));
+            foreach (var field in tabGroupAttribute.FieldsToGroup) {
+                var fieldProperty = FindNestedProperty(property, GetSerializedPropertyName(field, property));
 
                 stringList.Add(fieldProperty == null ? field : fieldProperty.displayName);
             }

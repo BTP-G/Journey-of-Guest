@@ -1,9 +1,9 @@
 using Cysharp.Threading.Tasks;
-using Xoderony.YooAsset;
 using JoG.Utilities;
 using System;
 using Unity.Netcode;
 using VContainer;
+using Xoderony.YooAsset;
 using YooAsset;
 
 namespace JoG {
@@ -14,7 +14,6 @@ namespace JoG {
 
         async UniTask IAsyncBootstrapModule.InitializeAsync() {
             package = await YooAssetUtility.CreatePackageAsync("DefaultPackage");
-            YooAssets.SetDefaultPackage(package);
             AssetsUtility.LoadDataFromPackage(package);
         }
 

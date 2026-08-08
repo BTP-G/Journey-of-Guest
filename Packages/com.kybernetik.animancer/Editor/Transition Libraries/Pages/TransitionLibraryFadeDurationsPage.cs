@@ -5,16 +5,14 @@
 using Animancer.TransitionLibraries;
 using System;
 
-namespace Animancer.Editor.TransitionLibraries
-{
+namespace Animancer.Editor.TransitionLibraries {
     /// <summary>[Editor-Only]
     /// A <see cref="TransitionLibraryWindowPage"/> for editing 
     /// <see cref="TransitionModifierDefinition.FadeDuration"/>.
     /// </summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor.TransitionLibraries/TransitionLibraryFadeDurationsPage
     [Serializable]
-    public class TransitionLibraryFadeDurationsPage : TransitionLibraryModifiersPage
-    {
+    public class TransitionLibraryFadeDurationsPage : TransitionLibraryModifiersPage {
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
@@ -31,20 +29,22 @@ namespace Animancer.Editor.TransitionLibraries
 
         /// <inheritdoc/>
         public TransitionLibraryFadeDurationsPage()
-            : base(Units.AnimationTimeAttribute.Units.Seconds)
-        { }
+            : base(Units.AnimationTimeAttribute.Units.Seconds) { }
 
         /// <inheritdoc/>
-        public override float GetValue(ITransition transition)
-            => transition.FadeDuration;
+        public override float GetValue(ITransition transition) {
+            return transition.FadeDuration;
+        }
 
         /// <inheritdoc/>
-        public override float GetValue(TransitionModifierDefinition modifier)
-            => modifier.FadeDuration;
+        public override float GetValue(TransitionModifierDefinition modifier) {
+            return modifier.FadeDuration;
+        }
 
         /// <inheritdoc/>
-        public override void SetValue(ref TransitionModifierDefinition modifier, float value)
-            => modifier = modifier.WithFadeDuration(value);
+        public override void SetValue(ref TransitionModifierDefinition modifier, float value) {
+            modifier = modifier.WithFadeDuration(value);
+        }
 
         /************************************************************************************************************************/
     }

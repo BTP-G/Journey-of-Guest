@@ -1,36 +1,31 @@
-﻿#if DOTWEEN_ENABLED
-using System;
+#if DOTWEEN_ENABLED
 using DG.Tweening;
+using System;
 using UnityEngine;
 
-namespace BrunoMikoski.AnimationSequencer
-{
+namespace BrunoMikoski.AnimationSequencer {
     // Modified by Pablo Huaxteco
     [Serializable]
-    public sealed class WaitForIntervalStep : AnimationStepBase
-    {
+    public sealed class WaitForIntervalStep : AnimationStepBase {
         public override string DisplayName => "Wait for Interval";
 
         [SerializeField, Min(0)]
         private float interval;
-        public float Interval
-        {
+        public float Interval {
             get => interval;
             set => interval = Mathf.Clamp(value, 0, Mathf.Infinity);
         }
 
         private float duration;
 
-        public override Sequence GenerateTweenSequence()
-        {
+        public override Sequence GenerateTweenSequence() {
             duration = delay + interval;
-            if (duration == 0)
-            {
+            if (duration == 0) {
                 Debug.LogWarning($"The duration of the <b>\"{DisplayName}\"</b> Step is <b>\"Zero\"</b>. Please consider assigning a <b>\"Greater\"</b> value or removing the step.");
                 return null;
             }
 
-            Sequence sequence = DOTween.Sequence();
+            var sequence = DOTween.Sequence();
             sequence.SetDelay(delay);
             sequence.AppendInterval(interval);
 
@@ -39,14 +34,12 @@ namespace BrunoMikoski.AnimationSequencer
 
         protected override void ResetToInitialState_Internal() { }
 
-        public override string GetDisplayNameForEditor(int index)
-        {
-            float seconds = delay + interval;
+        public override string GetDisplayNameForEditor(int index) {
+            var seconds = delay + interval;
             return $"{index}. Wait {seconds} second{(seconds != 1 ? "s" : "")}";
         }
 
-        public override float GetDuration()
-        {
+        public override float GetDuration() {
             //Manual calculation is performed here due to a "sequence.Duration()" error when called in the "Backwards" direction, as it always returns zero.
             return createdSequence == null ? -1 : duration;
         }

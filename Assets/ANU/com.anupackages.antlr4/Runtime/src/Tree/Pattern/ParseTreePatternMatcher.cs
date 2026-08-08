@@ -1,18 +1,13 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Antlr4.Runtime;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
-using Antlr4.Runtime.Tree;
-using Antlr4.Runtime.Tree.Pattern;
+using System;
+using System.Collections.Generic;
 
-namespace Antlr4.Runtime.Tree.Pattern
-{
+namespace Antlr4.Runtime.Tree.Pattern {
     /// <summary>
     /// A tree pattern matching mechanism for ANTLR
     /// <see cref="Antlr4.Runtime.Tree.IParseTree"/>
@@ -128,20 +123,16 @@ namespace Antlr4.Runtime.Tree.Pattern
     /// <c>\&gt;</c>
     /// .</p>
     /// </summary>
-    public class ParseTreePatternMatcher
-    {
+    public class ParseTreePatternMatcher {
         [System.Serializable]
-        public class CannotInvokeStartRule : Exception
-        {
+        public class CannotInvokeStartRule : Exception {
             public CannotInvokeStartRule(Exception e)
-                : base(e.Message, e)
-            {
+                : base(e.Message, e) {
             }
         }
 
         [System.Serializable]
-        public class StartRuleDoesNotConsumeFullPattern : Exception
-        {
+        public class StartRuleDoesNotConsumeFullPattern : Exception {
             // Fixes https://github.com/antlr/antlr4/issues/413
             // "Tree pattern compilation doesn't check for a complete parse"
         }
@@ -177,8 +168,7 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// the tree patterns. The parser is used as a convenient mechanism to get
         /// the grammar name, plus token, rule names.
         /// </summary>
-        public ParseTreePatternMatcher(Lexer lexer, Parser parser)
-        {
+        public ParseTreePatternMatcher(Lexer lexer, Parser parser) {
             // e.g., \< and \> must escape BOTH!
             this.lexer = lexer;
             this.parser = parser;
@@ -211,19 +201,16 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// <see langword="null"/>
         /// or empty.
         /// </exception>
-        public virtual void SetDelimiters(string start, string stop, string escapeLeft)
-        {
-            if (string.IsNullOrEmpty(start))
-            {
+        public virtual void SetDelimiters(string start, string stop, string escapeLeft) {
+            if (string.IsNullOrEmpty(start)) {
                 throw new ArgumentException("start cannot be null or empty");
             }
-            if (string.IsNullOrEmpty(stop))
-            {
+            if (string.IsNullOrEmpty(stop)) {
                 throw new ArgumentException("stop cannot be null or empty");
             }
             this.start = start;
             this.stop = stop;
-            this.escape = escapeLeft;
+            escape = escapeLeft;
         }
 
         /// <summary>
@@ -235,9 +222,8 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// <paramref name="tree"/>
         /// ?
         /// </summary>
-        public virtual bool Matches(IParseTree tree, string pattern, int patternRuleIndex)
-        {
-            ParseTreePattern p = Compile(pattern, patternRuleIndex);
+        public virtual bool Matches(IParseTree tree, string pattern, int patternRuleIndex) {
+            var p = Compile(pattern, patternRuleIndex);
             return Matches(tree, p);
         }
 
@@ -247,10 +233,9 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// matched as rule patternRuleIndex match tree? Pass in a
         /// compiled pattern instead of a string representation of a tree pattern.
         /// </summary>
-        public virtual bool Matches(IParseTree tree, ParseTreePattern pattern)
-        {
-            MultiMap<string, IParseTree> labels = new MultiMap<string, IParseTree>();
-            IParseTree mismatchedNode = MatchImpl(tree, pattern.PatternTree, labels);
+        public virtual bool Matches(IParseTree tree, ParseTreePattern pattern) {
+            var labels = new MultiMap<string, IParseTree>();
+            var mismatchedNode = MatchImpl(tree, pattern.PatternTree, labels);
             return mismatchedNode == null;
         }
 
@@ -266,9 +251,8 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// object that contains the
         /// matched elements, or the node at which the match failed.
         /// </summary>
-        public virtual ParseTreeMatch Match(IParseTree tree, string pattern, int patternRuleIndex)
-        {
-            ParseTreePattern p = Compile(pattern, patternRuleIndex);
+        public virtual ParseTreeMatch Match(IParseTree tree, string pattern, int patternRuleIndex) {
+            var p = Compile(pattern, patternRuleIndex);
             return Match(tree, p);
         }
 
@@ -284,10 +268,9 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// string representation of a tree pattern.
         /// </summary>
         [return: NotNull]
-        public virtual ParseTreeMatch Match(IParseTree tree, ParseTreePattern pattern)
-        {
-            MultiMap<string, IParseTree> labels = new MultiMap<string, IParseTree>();
-            IParseTree mismatchedNode = MatchImpl(tree, pattern.PatternTree, labels);
+        public virtual ParseTreeMatch Match(IParseTree tree, ParseTreePattern pattern) {
+            var labels = new MultiMap<string, IParseTree>();
+            var mismatchedNode = MatchImpl(tree, pattern.PatternTree, labels);
             return new ParseTreeMatch(tree, pattern, labels, mismatchedNode);
         }
 
@@ -296,38 +279,29 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// <see cref="ParseTreePattern"/>
         /// using this method.
         /// </summary>
-        public virtual ParseTreePattern Compile(string pattern, int patternRuleIndex)
-        {
-            IList<IToken> tokenList = Tokenize(pattern);
-            ListTokenSource tokenSrc = new ListTokenSource(tokenList);
-            CommonTokenStream tokens = new CommonTokenStream(tokenSrc);
-            ParserInterpreter parserInterp = new ParserInterpreter(parser.GrammarFileName,
+        public virtual ParseTreePattern Compile(string pattern, int patternRuleIndex) {
+            var tokenList = Tokenize(pattern);
+            var tokenSrc = new ListTokenSource(tokenList);
+            var tokens = new CommonTokenStream(tokenSrc);
+            var parserInterp = new ParserInterpreter(parser.GrammarFileName,
                                                                    parser.Vocabulary,
                                                                    Arrays.AsList(parser.RuleNames),
                                                                    parser.GetATNWithBypassAlts(),
                                                                    tokens);
             IParseTree tree = null;
-            try
-            {
+            try {
                 parserInterp.ErrorHandler = new BailErrorStrategy();
                 tree = parserInterp.Parse(patternRuleIndex);
-            }
-            catch (ParseCanceledException e)
-            {
+            } catch (ParseCanceledException e) {
                 //			System.out.println("pattern tree = "+tree.toStringTree(parserInterp));
                 throw (RecognitionException)e.InnerException;
-            }
-            catch (RecognitionException)
-            {
+            } catch (RecognitionException) {
                 throw;
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 throw new ParseTreePatternMatcher.CannotInvokeStartRule(e);
             }
             // Make sure tree pattern compilation checks for a complete parse
-            if (tokens.LA(1) != TokenConstants.EOF)
-            {
+            if (tokens.LA(1) != TokenConstants.EOF) {
                 throw new ParseTreePatternMatcher.StartRuleDoesNotConsumeFullPattern();
             }
             return new ParseTreePattern(this, pattern, patternRuleIndex, tree);
@@ -339,10 +313,8 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// input stream is reset.
         /// </remarks>
         [NotNull]
-        public virtual Lexer Lexer
-        {
-            get
-            {
+        public virtual Lexer Lexer {
+            get {
                 return lexer;
             }
         }
@@ -356,10 +328,8 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// used to parse the pattern into a parse tree.
         /// </remarks>
         [NotNull]
-        public virtual Parser Parser
-        {
-            get
-            {
+        public virtual Parser Parser {
+            get {
                 return parser;
             }
         }
@@ -388,104 +358,68 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// algorithm used by the implementation, and may be overridden.
         /// </returns>
         [return: Nullable]
-        protected internal virtual IParseTree MatchImpl(IParseTree tree, IParseTree patternTree, MultiMap<string, IParseTree> labels)
-        {
-            if (tree == null)
-            {
+        protected internal virtual IParseTree MatchImpl(IParseTree tree, IParseTree patternTree, MultiMap<string, IParseTree> labels) {
+            if (tree == null) {
                 throw new ArgumentException("tree cannot be null");
             }
-            if (patternTree == null)
-            {
+            if (patternTree == null) {
                 throw new ArgumentException("patternTree cannot be null");
             }
             // x and <ID>, x and y, or x and x; or could be mismatched types
-            if (tree is ITerminalNode && patternTree is ITerminalNode)
-            {
-                ITerminalNode t1 = (ITerminalNode)tree;
-                ITerminalNode t2 = (ITerminalNode)patternTree;
+            if (tree is ITerminalNode && patternTree is ITerminalNode) {
+                var t1 = (ITerminalNode)tree;
+                var t2 = (ITerminalNode)patternTree;
                 IParseTree mismatchedNode = null;
                 // both are tokens and they have same type
-                if (t1.Symbol.Type == t2.Symbol.Type)
-                {
-                    if (t2.Symbol is TokenTagToken)
-                    {
-                        // x and <ID>
-                        TokenTagToken tokenTagToken = (TokenTagToken)t2.Symbol;
+                if (t1.Symbol.Type == t2.Symbol.Type) {
+                    // x and <ID>
+                    if (t2.Symbol is TokenTagToken tokenTagToken) {
                         // track label->list-of-nodes for both token name and label (if any)
 
                         labels.Map(tokenTagToken.TokenName, tree);
-                        if (tokenTagToken.Label != null)
-                        {
+                        if (tokenTagToken.Label != null) {
                             labels.Map(tokenTagToken.Label, tree);
                         }
-                    }
-                    else
-                    {
-                        if (t1.GetText().Equals(t2.GetText(), StringComparison.Ordinal))
-                        {
-                        }
-                        else
-                        {
+                    } else {
+                        if (t1.GetText().Equals(t2.GetText(), StringComparison.Ordinal)) {
+                        } else {
                             // x and x
                             // x and y
-                            if (mismatchedNode == null)
-                            {
-                                mismatchedNode = t1;
-                            }
+                            mismatchedNode ??= t1;
                         }
                     }
-                }
-                else
-                {
-                    if (mismatchedNode == null)
-                    {
-                        mismatchedNode = t1;
-                    }
+                } else {
+                    mismatchedNode ??= t1;
                 }
                 return mismatchedNode;
             }
-            if (tree is ParserRuleContext && patternTree is ParserRuleContext)
-            {
-                ParserRuleContext r1 = (ParserRuleContext)tree;
-                ParserRuleContext r2 = (ParserRuleContext)patternTree;
+            if (tree is ParserRuleContext && patternTree is ParserRuleContext) {
+                var r1 = (ParserRuleContext)tree;
+                var r2 = (ParserRuleContext)patternTree;
                 IParseTree mismatchedNode = null;
                 // (expr ...) and <expr>
-                RuleTagToken ruleTagToken = GetRuleTagToken(r2);
-                if (ruleTagToken != null)
-                {
-                    if (r1.RuleIndex == r2.RuleIndex)
-                    {
+                var ruleTagToken = GetRuleTagToken(r2);
+                if (ruleTagToken != null) {
+                    if (r1.RuleIndex == r2.RuleIndex) {
                         // track label->list-of-nodes for both rule name and label (if any)
                         labels.Map(ruleTagToken.RuleName, tree);
-                        if (ruleTagToken.Label != null)
-                        {
+                        if (ruleTagToken.Label != null) {
                             labels.Map(ruleTagToken.Label, tree);
                         }
-                    }
-                    else
-                    {
-                        if (mismatchedNode == null)
-                        {
-                            mismatchedNode = r1;
-                        }
+                    } else {
+                        mismatchedNode ??= r1;
                     }
                     return mismatchedNode;
                 }
                 // (expr ...) and (expr ...)
-                if (r1.ChildCount != r2.ChildCount)
-                {
-                    if (mismatchedNode == null)
-                    {
-                        mismatchedNode = r1;
-                    }
+                if (r1.ChildCount != r2.ChildCount) {
+                    mismatchedNode ??= r1;
                     return mismatchedNode;
                 }
-                int n = r1.ChildCount;
-                for (int i = 0; i < n; i++)
-                {
-                    IParseTree childMatch = MatchImpl(r1.GetChild(i), patternTree.GetChild(i), labels);
-                    if (childMatch != null)
-                    {
+                var n = r1.ChildCount;
+                for (var i = 0; i < n; i++) {
+                    var childMatch = MatchImpl(r1.GetChild(i), patternTree.GetChild(i), labels);
+                    if (childMatch != null) {
                         return childMatch;
                     }
                 }
@@ -502,16 +436,11 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// <c>(expr &lt;expr&gt;)</c>
         /// subtree?
         /// </summary>
-        protected internal virtual RuleTagToken GetRuleTagToken(IParseTree t)
-        {
-            if (t is IRuleNode)
-            {
-                IRuleNode r = (IRuleNode)t;
-                if (r.ChildCount == 1 && r.GetChild(0) is ITerminalNode)
-                {
-                    ITerminalNode c = (ITerminalNode)r.GetChild(0);
-                    if (c.Symbol is RuleTagToken)
-                    {
+        protected internal virtual RuleTagToken GetRuleTagToken(IParseTree t) {
+            if (t is IRuleNode r) {
+                if (r.ChildCount == 1 && r.GetChild(0) is ITerminalNode) {
+                    var c = (ITerminalNode)r.GetChild(0);
+                    if (c.Symbol is RuleTagToken) {
                         //					System.out.println("rule tag subtree "+t.toStringTree(parser));
                         return (RuleTagToken)c.Symbol;
                     }
@@ -520,54 +449,39 @@ namespace Antlr4.Runtime.Tree.Pattern
             return null;
         }
 
-        public virtual IList<IToken> Tokenize(string pattern)
-        {
+        public virtual IList<IToken> Tokenize(string pattern) {
             // split pattern into chunks: sea (raw input) and islands (<ID>, <expr>)
-            IList<Chunk> chunks = Split(pattern);
+            var chunks = Split(pattern);
             // create token stream from text and tags
             IList<IToken> tokens = new List<IToken>();
-            foreach (Chunk chunk in chunks)
-            {
-                if (chunk is TagChunk)
-                {
-                    TagChunk tagChunk = (TagChunk)chunk;
+            foreach (var chunk in chunks) {
+                if (chunk is TagChunk tagChunk) {
                     // add special rule token or conjure up new token from name
-                    if (System.Char.IsUpper(tagChunk.Tag[0]))
-                    {
-                        int ttype = parser.GetTokenType(tagChunk.Tag);
-                        if (ttype == TokenConstants.InvalidType)
-                        {
+                    if (char.IsUpper(tagChunk.Tag[0])) {
+                        var ttype = parser.GetTokenType(tagChunk.Tag);
+                        if (ttype == TokenConstants.InvalidType) {
                             throw new ArgumentException("Unknown token " + tagChunk.Tag + " in pattern: " + pattern);
                         }
-                        TokenTagToken t = new TokenTagToken(tagChunk.Tag, ttype, tagChunk.Label);
+                        var t = new TokenTagToken(tagChunk.Tag, ttype, tagChunk.Label);
                         tokens.Add(t);
-                    }
-                    else
-                    {
-                        if (System.Char.IsLower(tagChunk.Tag[0]))
-                        {
-                            int ruleIndex = parser.GetRuleIndex(tagChunk.Tag);
-                            if (ruleIndex == -1)
-                            {
+                    } else {
+                        if (char.IsLower(tagChunk.Tag[0])) {
+                            var ruleIndex = parser.GetRuleIndex(tagChunk.Tag);
+                            if (ruleIndex == -1) {
                                 throw new ArgumentException("Unknown rule " + tagChunk.Tag + " in pattern: " + pattern);
                             }
-                            int ruleImaginaryTokenType = parser.GetATNWithBypassAlts().ruleToTokenType[ruleIndex];
+                            var ruleImaginaryTokenType = parser.GetATNWithBypassAlts().ruleToTokenType[ruleIndex];
                             tokens.Add(new RuleTagToken(tagChunk.Tag, ruleImaginaryTokenType, tagChunk.Label));
-                        }
-                        else
-                        {
+                        } else {
                             throw new ArgumentException("invalid tag: " + tagChunk.Tag + " in pattern: " + pattern);
                         }
                     }
-                }
-                else
-                {
-                    TextChunk textChunk = (TextChunk)chunk;
-                    AntlrInputStream @in = new AntlrInputStream(textChunk.Text);
+                } else {
+                    var textChunk = (TextChunk)chunk;
+                    var @in = new AntlrInputStream(textChunk.Text);
                     lexer.SetInputStream(@in);
-                    IToken t = lexer.NextToken();
-                    while (t.Type != TokenConstants.EOF)
-                    {
+                    var t = lexer.NextToken();
+                    while (t.Type != TokenConstants.EOF) {
                         tokens.Add(t);
                         t = lexer.NextToken();
                     }
@@ -584,42 +498,28 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// <see cref="Tokenize(string)"/>
         /// .
         /// </summary>
-        internal virtual IList<Chunk> Split(string pattern)
-        {
-            int p = 0;
-            int n = pattern.Length;
+        internal virtual IList<Chunk> Split(string pattern) {
+            var p = 0;
+            var n = pattern.Length;
             IList<Chunk> chunks = new List<Chunk>();
             // find all start and stop indexes first, then collect
             IList<int> starts = new List<int>();
             IList<int> stops = new List<int>();
-            while (p < n)
-            {
-                if (p == pattern.IndexOf(escape + start, p))
-                {
+            while (p < n) {
+                if (p == pattern.IndexOf(escape + start, p)) {
                     p += escape.Length + start.Length;
-                }
-                else
-                {
-                    if (p == pattern.IndexOf(escape + stop, p))
-                    {
+                } else {
+                    if (p == pattern.IndexOf(escape + stop, p)) {
                         p += escape.Length + stop.Length;
-                    }
-                    else
-                    {
-                        if (p == pattern.IndexOf(start, p))
-                        {
+                    } else {
+                        if (p == pattern.IndexOf(start, p)) {
                             starts.Add(p);
                             p += start.Length;
-                        }
-                        else
-                        {
-                            if (p == pattern.IndexOf(stop, p))
-                            {
+                        } else {
+                            if (p == pattern.IndexOf(stop, p)) {
                                 stops.Add(p);
                                 p += stop.Length;
-                            }
-                            else
-                            {
+                            } else {
                                 p++;
                             }
                         }
@@ -629,74 +529,59 @@ namespace Antlr4.Runtime.Tree.Pattern
             //		System.out.println("");
             //		System.out.println(starts);
             //		System.out.println(stops);
-            if (starts.Count > stops.Count)
-            {
+            if (starts.Count > stops.Count) {
                 throw new ArgumentException("unterminated tag in pattern: " + pattern);
             }
-            if (starts.Count < stops.Count)
-            {
+            if (starts.Count < stops.Count) {
                 throw new ArgumentException("missing start tag in pattern: " + pattern);
             }
-            int ntags = starts.Count;
-            for (int i = 0; i < ntags; i++)
-            {
-                if (starts[i] >= stops[i])
-                {
+            var ntags = starts.Count;
+            for (var i = 0; i < ntags; i++) {
+                if (starts[i] >= stops[i]) {
                     throw new ArgumentException("tag delimiters out of order in pattern: " + pattern);
                 }
             }
             // collect into chunks now
-            if (ntags == 0)
-            {
-                string text = Sharpen.Runtime.Substring(pattern, 0, n);
+            if (ntags == 0) {
+                var text = Sharpen.Runtime.Substring(pattern, 0, n);
                 chunks.Add(new TextChunk(text));
             }
-            if (ntags > 0 && starts[0] > 0)
-            {
+            if (ntags > 0 && starts[0] > 0) {
                 // copy text up to first tag into chunks
-                string text = Sharpen.Runtime.Substring(pattern, 0, starts[0]);
+                var text = Sharpen.Runtime.Substring(pattern, 0, starts[0]);
                 chunks.Add(new TextChunk(text));
             }
-            for (int i_1 = 0; i_1 < ntags; i_1++)
-            {
+            for (var i_1 = 0; i_1 < ntags; i_1++) {
                 // copy inside of <tag>
-                string tag = Sharpen.Runtime.Substring(pattern, starts[i_1] + start.Length, stops[i_1]);
-                string ruleOrToken = tag;
+                var tag = Sharpen.Runtime.Substring(pattern, starts[i_1] + start.Length, stops[i_1]);
+                var ruleOrToken = tag;
                 string label = null;
-                int colon = tag.IndexOf(':');
-                if (colon >= 0)
-                {
+                var colon = tag.IndexOf(':');
+                if (colon >= 0) {
                     label = Sharpen.Runtime.Substring(tag, 0, colon);
                     ruleOrToken = Sharpen.Runtime.Substring(tag, colon + 1, tag.Length);
                 }
                 chunks.Add(new TagChunk(label, ruleOrToken));
-                if (i_1 + 1 < ntags)
-                {
+                if (i_1 + 1 < ntags) {
                     // copy from end of <tag> to start of next
-                    string text = Sharpen.Runtime.Substring(pattern, stops[i_1] + stop.Length, starts[i_1 + 1]);
+                    var text = Sharpen.Runtime.Substring(pattern, stops[i_1] + stop.Length, starts[i_1 + 1]);
                     chunks.Add(new TextChunk(text));
                 }
             }
-            if (ntags > 0)
-            {
-                int afterLastTag = stops[ntags - 1] + stop.Length;
-                if (afterLastTag < n)
-                {
+            if (ntags > 0) {
+                var afterLastTag = stops[ntags - 1] + stop.Length;
+                if (afterLastTag < n) {
                     // copy text from end of last tag to end
-                    string text = Sharpen.Runtime.Substring(pattern, afterLastTag, n);
+                    var text = Sharpen.Runtime.Substring(pattern, afterLastTag, n);
                     chunks.Add(new TextChunk(text));
                 }
             }
             // strip out the escape sequences from text chunks but not tags
-            for (int i_2 = 0; i_2 < chunks.Count; i_2++)
-            {
-                Chunk c = chunks[i_2];
-                if (c is TextChunk)
-                {
-                    TextChunk tc = (TextChunk)c;
-                    string unescaped = tc.Text.Replace(escape, string.Empty);
-                    if (unescaped.Length < tc.Text.Length)
-                    {
+            for (var i_2 = 0; i_2 < chunks.Count; i_2++) {
+                var c = chunks[i_2];
+                if (c is TextChunk tc) {
+                    var unescaped = tc.Text.Replace(escape, string.Empty);
+                    if (unescaped.Length < tc.Text.Length) {
                         chunks.Set(i_2, new TextChunk(unescaped));
                     }
                 }

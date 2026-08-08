@@ -1,7 +1,4 @@
-﻿using System;
-
-namespace System.Diagnostics.CodeAnalysis
-{
+namespace System.Diagnostics.CodeAnalysis {
     /// <summary>
     /// Specifies that the attributed code should be excluded from code coverage
     /// collection.  Placing this attribute on a class/struct excludes all
@@ -12,10 +9,8 @@ namespace System.Diagnostics.CodeAnalysis
         Inherited = false,
         AllowMultiple = false
     )]
-    internal sealed class ExcludeFromCodeCoverageAttribute : Attribute
-    {
-        public ExcludeFromCodeCoverageAttribute()
-        {
+    internal sealed class ExcludeFromCodeCoverageAttribute : Attribute {
+        public ExcludeFromCodeCoverageAttribute() {
         }
     }
 }

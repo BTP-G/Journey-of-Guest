@@ -1,8 +1,8 @@
-using Xoderony.ObjectPool.Generic;
 using System;
 using Unity.Netcode;
 using VContainer;
 using VContainer.Unity;
+using Xoderony.ObjectPool.Generic;
 
 namespace JoG.Networking {
 
@@ -45,7 +45,10 @@ namespace JoG.Networking {
             if (_networkManager.IsServer) {
                 using (ListPool<ulong>.Rent(out var targetClientIds)) {
                     foreach (var client in _networkManager.ConnectedClientsList) {
-                        if (client.ClientId == senderClientId) continue;
+                        if (client.ClientId == senderClientId) {
+                            continue;
+                        }
+
                         targetClientIds.Add(client.ClientId);
                     }
                     _messageManager.SendUnnamedMessage(targetClientIds, writer, networkDelivery);
@@ -57,7 +60,7 @@ namespace JoG.Networking {
 
         private unsafe void OnReceviedUnnamedMessage(ulong clientId, FastBufferReader reader) {
             reader.TryBeginRead(13);
-            reader.ReadByte(out byte messageType);
+            reader.ReadByte(out var messageType);
             reader.ReadValue(out ulong senderClientId);
             reader.ReadValue(out int contentSize);
             _handers[messageType]?.Invoke(senderClientId, reader);
@@ -68,7 +71,10 @@ namespace JoG.Networking {
                 writer.WriteBytes(reader.GetUnsafePtrAtCurrentPosition(), contentSize);
                 using (ListPool<ulong>.Rent(out var targetClientIds)) {
                     foreach (var client in _networkManager.ConnectedClientsList) {
-                        if (client.ClientId == senderClientId || client.ClientId == _networkManager.LocalClientId) continue;
+                        if (client.ClientId == senderClientId || client.ClientId == _networkManager.LocalClientId) {
+                            continue;
+                        }
+
                         targetClientIds.Add(client.ClientId);
                     }
                     _messageManager.SendUnnamedMessage(targetClientIds, writer, NetworkDelivery.Reliable);

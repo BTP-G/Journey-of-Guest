@@ -1,22 +1,20 @@
-﻿using System;
+using EditorAttributes.Editor.Utility;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using UnityEditor;
-using UnityEngine;
 using System.Reflection;
-using UnityEngine.UIElements;
+using UnityEditor;
 using UnityEditor.UIElements;
-using System.Collections.Generic;
-using EditorAttributes.Editor.Utility;
+using UnityEngine;
+using UnityEngine.UIElements;
 using Object = UnityEngine.Object;
 
-namespace EditorAttributes.Editor
-{
+namespace EditorAttributes.Editor {
 #if !DISABLE_EDITOR_EXTENTION
     [CanEditMultipleObjects, CustomEditor(typeof(Object), true)]
 #endif
-    public class EditorExtension : UnityEditor.Editor
-    {
+    public class EditorExtension : UnityEditor.Editor {
         public static readonly Color DEFAULT_GLOBAL_COLOR = new(0.8f, 0.8f, 0.8f, 1.0f);
         public static Color GLOBAL_COLOR = DEFAULT_GLOBAL_COLOR;
 
@@ -27,19 +25,17 @@ namespace EditorAttributes.Editor
 
         private MethodInfo[] functions;
 
-        protected virtual void OnEnable()
-        {
+        protected virtual void OnEnable() {
             List<MethodInfo> functionList = new();
-            Type targetType = target.GetType();
+            var targetType = target.GetType();
 
-            while (targetType != null)
-            {
+            while (targetType != null) {
                 var buttonMethods = targetType.GetMethods(ReflectionUtils.BINDING_FLAGS ^ BindingFlags.FlattenHierarchy).Where((method) => method.GetCustomAttribute<ButtonAttribute>() != null);
 
-                foreach (var methodInfo in buttonMethods)
-                {
-                    if (!functionList.Contains(methodInfo))
+                foreach (var methodInfo in buttonMethods) {
+                    if (!functionList.Contains(methodInfo)) {
                         functionList.Add(methodInfo);
+                    }
                 }
 
                 targetType = targetType.BaseType;
@@ -49,37 +45,35 @@ namespace EditorAttributes.Editor
 
             ButtonDrawer.LoadParamsData(functions, target, ref buttonFoldouts, ref buttonParameterValues);
 
-            try
-            {
+            try {
                 buttonParamsDataFilePath = Path.Combine(ButtonDrawer.PARAMS_DATA_LOCATION, ButtonDrawer.GetFileName(target));
-            }
-            catch (ArgumentException)
-            {
+            } catch (ArgumentException) {
                 return;
             }
         }
 
-        protected virtual void OnDisable()
-        {
-            if (target == null)
+        protected virtual void OnDisable() {
+            if (target == null) {
                 ButtonDrawer.DeleteParamsData(buttonParamsDataFilePath);
+            }
 
             EditorHandles.handleProperties.Clear();
             EditorHandles.boundsHandleList.Clear();
         }
 
-        void OnSceneGUI() => EditorHandles.DrawHandles();
+        private void OnSceneGUI() {
+            EditorHandles.DrawHandles();
+        }
 
-        public override VisualElement CreateInspectorGUI()
-        {
+        public override VisualElement CreateInspectorGUI() {
             // Reset the global color per component GUI so it doesnt leak from other components
             GLOBAL_COLOR = DEFAULT_GLOBAL_COLOR;
 
             VisualElement root = new();
 
-            VisualElement nonSerializedMembers = DrawNonSerializedMembers();
-            VisualElement defaultInspector = DrawDefaultInspector();
-            VisualElement buttons = DrawButtons();
+            var nonSerializedMembers = DrawNonSerializedMembers();
+            var defaultInspector = DrawDefaultInspector();
+            var buttons = DrawButtons();
 
             root.Add(defaultInspector);
             root.Add(nonSerializedMembers);
@@ -88,43 +82,36 @@ namespace EditorAttributes.Editor
             return root;
         }
 
-        protected virtual new VisualElement DrawDefaultInspector()
-        {
+        protected new virtual VisualElement DrawDefaultInspector() {
             VisualElement root = new();
             Dictionary<string, PropertyField> propertyList = new();
 
-            using (SerializedProperty property = serializedObject.GetIterator())
-            {
-                if (property.NextVisible(true))
-                {
+            using (var property = serializedObject.GetIterator()) {
+                if (property.NextVisible(true)) {
                     IColorAttribute prevColor = null;
 
-                    do
-                    {
-                        PropertyField propertyField = PropertyDrawerBase.CreatePropertyField(property);
+                    do {
+                        var propertyField = PropertyDrawerBase.CreatePropertyField(property);
 
-                        if (property.name == "m_Script")
-                        {
+                        if (property.name == "m_Script") {
                             propertyField.SetEnabled(false);
                             root.Add(propertyField);
 
                             continue;
                         }
 
-                        FieldInfo field = ReflectionUtils.FindField(property.name, target);
+                        var field = ReflectionUtils.FindField(property.name, target);
 
-                        if (field?.GetCustomAttribute<HidePropertyAttribute>() != null)
+                        if (field?.GetCustomAttribute<HidePropertyAttribute>() != null) {
                             propertyField.style.display = DisplayStyle.None;
+                        }
 
                         var colorAttribute = field?.GetCustomAttribute<GUIColorAttribute>();
 
-                        if (colorAttribute != null)
-                        {
+                        if (colorAttribute != null) {
                             GUIColorDrawer.ColorField(propertyField, colorAttribute);
                             prevColor = colorAttribute;
-                        }
-                        else if (prevColor != null)
-                        {
+                        } else if (prevColor != null) {
                             GUIColorDrawer.ColorField(propertyField, prevColor);
                         }
 
@@ -134,20 +121,21 @@ namespace EditorAttributes.Editor
                 }
             }
 
-            var orderedProperties = propertyList.OrderBy((property) =>
-            {
-                FieldInfo field = ReflectionUtils.FindField(property.Key, target);
+            var orderedProperties = propertyList.OrderBy((property) => {
+                var field = ReflectionUtils.FindField(property.Key, target);
 
                 var propertyOrderAttribute = field?.GetCustomAttribute<PropertyOrderAttribute>();
 
-                if (propertyOrderAttribute != null)
+                if (propertyOrderAttribute != null) {
                     return propertyOrderAttribute.PropertyOrder;
+                }
 
                 return 0;
             });
 
-            foreach (var property in orderedProperties)
+            foreach (var property in orderedProperties) {
                 root.Add(property.Value);
+            }
 
             return root;
         }
@@ -156,57 +144,49 @@ namespace EditorAttributes.Editor
         /// Draws all the members marked with the ShowInInspector attribute
         /// </summary>
         /// <returns>A visual element containing all non serialized member fields</returns>
-        protected VisualElement DrawNonSerializedMembers()
-        {
+        protected VisualElement DrawNonSerializedMembers() {
             VisualElement root = new();
 
             var nonSerializedFields = target.GetType().GetFields(ReflectionUtils.BINDING_FLAGS).Where((field) => field.GetCustomAttribute<ShowInInspectorAttribute>() != null);
 
-            foreach (var nonSerializedField in nonSerializedFields)
-            {
-                if (HasRestrictedAttributes(nonSerializedField, out string errorMessage))
-                {
+            foreach (var nonSerializedField in nonSerializedFields) {
+                if (HasRestrictedAttributes(nonSerializedField, out var errorMessage)) {
                     root.Add(new HelpBox(errorMessage, HelpBoxMessageType.Error));
                     continue;
                 }
 
-                VisualElement field = DrawNonSerializedField(nonSerializedField, nonSerializedField.FieldType, nonSerializedField.GetValue(target));
+                var field = DrawNonSerializedField(nonSerializedField, nonSerializedField.FieldType, nonSerializedField.GetValue(target));
 
                 root.Add(field);
             }
 
             var nonSerializedProperties = target.GetType().GetProperties(ReflectionUtils.BINDING_FLAGS).Where((field) => field.GetCustomAttribute<ShowInInspectorAttribute>() != null);
 
-            foreach (var nonSerializedProperty in nonSerializedProperties)
-            {
-                if (HasRestrictedAttributes(nonSerializedProperty, out string errorMessage))
-                {
+            foreach (var nonSerializedProperty in nonSerializedProperties) {
+                if (HasRestrictedAttributes(nonSerializedProperty, out var errorMessage)) {
                     root.Add(new HelpBox(errorMessage, HelpBoxMessageType.Error));
                     continue;
                 }
 
-                VisualElement field = DrawNonSerializedField(nonSerializedProperty, nonSerializedProperty.PropertyType, nonSerializedProperty.GetValue(target));
+                var field = DrawNonSerializedField(nonSerializedProperty, nonSerializedProperty.PropertyType, nonSerializedProperty.GetValue(target));
 
                 root.Add(field);
             }
 
             var nonSerializedMethods = target.GetType().GetMethods(ReflectionUtils.BINDING_FLAGS).Where((field) => field.GetCustomAttribute<ShowInInspectorAttribute>() != null);
 
-            foreach (var nonSerializedMethod in nonSerializedMethods)
-            {
-                if (HasRestrictedAttributes(nonSerializedMethod, out string errorMessage))
-                {
+            foreach (var nonSerializedMethod in nonSerializedMethods) {
+                if (HasRestrictedAttributes(nonSerializedMethod, out var errorMessage)) {
                     root.Add(new HelpBox(errorMessage, HelpBoxMessageType.Error));
                     continue;
                 }
 
-                if (nonSerializedMethod.GetParameters().Length > 0 || nonSerializedMethod.ContainsGenericParameters)
-                {
+                if (nonSerializedMethod.GetParameters().Length > 0 || nonSerializedMethod.ContainsGenericParameters) {
                     root.Add(new HelpBox($"Method <b>{nonSerializedMethod.Name}</b> cannot be drawn because it has parameters or is generic", HelpBoxMessageType.Error));
                     continue;
                 }
 
-                VisualElement field = DrawNonSerializedField(nonSerializedMethod, nonSerializedMethod.ReturnType, nonSerializedMethod.Invoke(target, null));
+                var field = DrawNonSerializedField(nonSerializedMethod, nonSerializedMethod.ReturnType, nonSerializedMethod.Invoke(target, null));
 
                 root.Add(field);
             }
@@ -214,11 +194,9 @@ namespace EditorAttributes.Editor
             return root;
         }
 
-        private VisualElement DrawNonSerializedField(MemberInfo memberInfo, Type memberType, object memberValue)
-        {
+        private VisualElement DrawNonSerializedField(MemberInfo memberInfo, Type memberType, object memberValue) {
             VisualElement root = new();
-            Label header = new()
-            {
+            Label header = new() {
                 style = {
                     marginTop = 13,
                     marginLeft = 3,
@@ -230,22 +208,18 @@ namespace EditorAttributes.Editor
 
             header.AddToClassList("unity-header-drawer__label");
 
-            VisualElement field = PropertyDrawerBase.CreateFieldForType(memberType, memberInfo.Name, memberValue, AreNonSerializedMemberValuesDifferent(memberInfo, targets));
+            var field = PropertyDrawerBase.CreateFieldForType(memberType, memberInfo.Name, memberValue, AreNonSerializedMemberValuesDifferent(memberInfo, targets));
 
-            if (field is Foldout)
-            {
+            if (field is Foldout) {
                 field.contentContainer.SetEnabled(false);
                 field.Q<Label>().SetEnabled(false);
-            }
-            else
-            {
+            } else {
                 field.SetEnabled(false);
             }
 
             PropertyDrawerBase.BindFieldToMember(memberType, field, memberInfo, target);
 
-            foreach (var spaceAttribute in memberInfo.GetCustomAttributes<SpaceAttribute>())
-            {
+            foreach (var spaceAttribute in memberInfo.GetCustomAttributes<SpaceAttribute>()) {
                 VisualElement space = new();
 
                 space.style.height = spaceAttribute.height;
@@ -256,8 +230,7 @@ namespace EditorAttributes.Editor
 
             var headerAttribute = memberInfo.GetCustomAttribute<HeaderAttribute>();
 
-            if (headerAttribute != null)
-            {
+            if (headerAttribute != null) {
                 header.text = headerAttribute.header;
                 root.Add(header);
             }
@@ -267,34 +240,31 @@ namespace EditorAttributes.Editor
             return root;
         }
 
-        private bool AreNonSerializedMemberValuesDifferent(MemberInfo memberInfo, Object[] targets)
-        {
-            if (targets == null || targets.Length <= 1)
+        private bool AreNonSerializedMemberValuesDifferent(MemberInfo memberInfo, Object[] targets) {
+            if (targets == null || targets.Length <= 1) {
                 return false;
+            }
 
-            object firstValue = ReflectionUtils.GetMemberInfoValue(memberInfo, targets[0]);
+            var firstValue = ReflectionUtils.GetMemberInfoValue(memberInfo, targets[0]);
 
-            for (int i = 1; i < targets.Length; i++)
-            {
-                object otherValue = ReflectionUtils.GetMemberInfoValue(memberInfo, targets[i]);
+            for (var i = 1; i < targets.Length; i++) {
+                var otherValue = ReflectionUtils.GetMemberInfoValue(memberInfo, targets[i]);
 
-                if (!Equals(firstValue, otherValue))
+                if (!Equals(firstValue, otherValue)) {
                     return true;
+                }
             }
 
             return false;
         }
 
-        private bool HasRestrictedAttributes(MemberInfo memberInfo, out string errorMessage)
-        {
-            if (memberInfo.GetCustomAttribute<HideInInspector>() != null || memberInfo.GetCustomAttribute<HidePropertyAttribute>() != null)
-            {
+        private bool HasRestrictedAttributes(MemberInfo memberInfo, out string errorMessage) {
+            if (memberInfo.GetCustomAttribute<HideInInspector>() != null || memberInfo.GetCustomAttribute<HidePropertyAttribute>() != null) {
                 errorMessage = $"You want to show the member <b>{memberInfo.Name}</b> but you mark it with the HideInInspector or HideProperty Attribute, make up your mind bro";
                 return true;
             }
 
-            if (memberInfo.GetCustomAttribute<SerializeField>() != null || memberInfo.GetCustomAttribute<SerializeReference>() != null)
-            {
+            if (memberInfo.GetCustomAttribute<SerializeField>() != null || memberInfo.GetCustomAttribute<SerializeReference>() != null) {
                 errorMessage = $"The member <b>{memberInfo.Name}</b> is already serialized, there is no need to use the ShowInInspector Attribute";
                 return true;
             }
@@ -307,44 +277,37 @@ namespace EditorAttributes.Editor
         /// Draws all the buttons from functions using the Button Attribute
         /// </summary>
         /// <returns>A visual element containing all drawn buttons</returns>
-        protected VisualElement DrawButtons()
-        {
+        protected VisualElement DrawButtons() {
             VisualElement root = new();
             HelpBox errorBox = new();
 
             IColorAttribute prevColor = null;
 
-            foreach (var function in functions)
-            {
+            foreach (var function in functions) {
                 var buttonAttribute = function.GetCustomAttribute<ButtonAttribute>();
                 var colorAttribute = function?.GetCustomAttribute<GUIColorAttribute>();
 
-                if (colorAttribute != null)
-                {
+                if (colorAttribute != null) {
                     GUIColorDrawer.ColorField(root, colorAttribute);
                     prevColor = colorAttribute;
-                }
-                else if (prevColor != null)
-                {
+                } else if (prevColor != null) {
                     GUIColorDrawer.ColorField(root, prevColor);
                 }
 
-                VisualElement button = ButtonDrawer.DrawButton(function, buttonAttribute, buttonFoldouts, buttonParameterValues, targets);
-                MemberInfo conditionalProperty = ReflectionUtils.GetValidMemberInfo(buttonAttribute.ConditionName, target);
+                var button = ButtonDrawer.DrawButton(function, buttonAttribute, buttonFoldouts, buttonParameterValues, targets);
+                var conditionalProperty = ReflectionUtils.GetValidMemberInfo(buttonAttribute.ConditionName, target);
 
                 button.RegisterCallback<FocusOutEvent>((callback) => ButtonDrawer.SaveParamsData(functions, target, buttonFoldouts, buttonParameterValues));
 
-                if (conditionalProperty != null)
-                {
-                    PropertyDrawerBase.UpdateVisualElement(root, () =>
-                    {
-                        bool conditionValue = PropertyDrawerBase.GetConditionValue(conditionalProperty, buttonAttribute, target, errorBox);
+                if (conditionalProperty != null) {
+                    PropertyDrawerBase.UpdateVisualElement(root, () => {
+                        var conditionValue = PropertyDrawerBase.GetConditionValue(conditionalProperty, buttonAttribute, target, errorBox);
 
-                        if (buttonAttribute.Negate)
+                        if (buttonAttribute.Negate) {
                             conditionValue = !conditionValue;
+                        }
 
-                        switch (buttonAttribute.ConditionResult)
-                        {
+                        switch (buttonAttribute.ConditionResult) {
                             case ConditionResult.ShowHide:
                                 button.style.display = conditionValue ? DisplayStyle.Flex : DisplayStyle.None;
                                 break;

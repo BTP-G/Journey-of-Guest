@@ -6,8 +6,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Playables;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>A list of <see cref="AnimancerLayer"/>s with methods to control their mixing and masking.</summary>
     /// <remarks>
     /// The default implementation of this class is <see cref="AnimancerLayerMixerList"/>.
@@ -19,8 +18,7 @@ namespace Animancer
     /// https://kybernetik.com.au/animancer/api/Animancer/AnimancerLayerList
     public abstract class AnimancerLayerList :
         IEnumerable<AnimancerLayer>,
-        IAnimationClipCollection
-    {
+        IAnimationClipCollection {
         /************************************************************************************************************************/
         #region Fields
         /************************************************************************************************************************/
@@ -42,8 +40,7 @@ namespace Animancer
 
         /// <summary>Creates a new <see cref="AnimancerLayerList"/>.</summary>
         /// <remarks>The <see cref="Playable"/> must be assigned by the end of the derived constructor.</remarks>
-        protected AnimancerLayerList(AnimancerGraph graph, int capacity)
-        {
+        protected AnimancerLayerList(AnimancerGraph graph, int capacity) {
             Graph = graph;
             _Layers = new AnimancerLayer[capacity];
         }
@@ -60,31 +57,30 @@ namespace Animancer
         /// so if you do actually need more layers you can just increase the limit.
         /// </exception>
         /// <exception cref="IndexOutOfRangeException">The value is set to a negative number.</exception>
-        public int Count
-        {
+        public int Count {
             get => _Count;
-            set
-            {
+            set {
                 var count = _Count;
 
-                if (value == count)
+                if (value == count) {
                     return;
+                }
 
-                CheckAgain:
+            CheckAgain:
 
                 if (value > count)// Increasing.
                 {
                     Add();
                     count++;
                     goto CheckAgain;
-                }
-                else// Decreasing.
-                {
-                    while (value < count--)
-                    {
+                } else// Decreasing.
+                  {
+                    while (value < count--) {
                         var layer = _Layers[count];
-                        if (layer._Playable.IsValid())
+                        if (layer._Playable.IsValid()) {
                             Graph._PlayableGraph.DestroySubgraph(layer._Playable);
+                        }
+
                         layer.DestroyStates();
                     }
 
@@ -102,10 +98,10 @@ namespace Animancer
         /// <summary>[Pro-Only]
         /// If the <see cref="Count"/> is below the specified `min`, this method increases it to that value.
         /// </summary>
-        public void SetMinCount(int min)
-        {
-            if (Count < min)
+        public void SetMinCount(int min) {
+            if (Count < min) {
                 Count = min;
+            }
         }
 
         /************************************************************************************************************************/
@@ -136,10 +132,10 @@ namespace Animancer
         /// <summary>[Pro-Only]
         /// If the <see cref="DefaultCapacity"/> is below the specified `min`, this method increases it to that value.
         /// </summary>
-        public static void SetMinDefaultCapacity(int min)
-        {
-            if (DefaultCapacity < min)
+        public static void SetMinDefaultCapacity(int min) {
+            if (DefaultCapacity < min) {
                 DefaultCapacity = min;
+            }
         }
 
         /************************************************************************************************************************/
@@ -157,16 +153,16 @@ namespace Animancer
         /// </remarks>
         /// 
         /// <exception cref="ArgumentOutOfRangeException">The value is not greater than 0.</exception>
-        public int Capacity
-        {
+        public int Capacity {
             get => _Layers.Length;
-            set
-            {
-                if (value <= 0)
+            set {
+                if (value <= 0) {
                     throw new ArgumentOutOfRangeException(nameof(Capacity), $"must be greater than 0 ({value} <= 0)");
+                }
 
-                if (_Count > value)
+                if (_Count > value) {
                     Count = value;
+                }
 
                 Array.Resize(ref _Layers, value);
             }
@@ -176,12 +172,12 @@ namespace Animancer
 
         /// <summary>[Pro-Only] Creates and returns a new <see cref="AnimancerLayer"/> at the end of this list.</summary>
         /// <remarks>If the <see cref="Capacity"/> would be exceeded, it will be doubled.</remarks>
-        public virtual AnimancerLayer Add()
-        {
+        public virtual AnimancerLayer Add() {
             var index = _Count;
 
-            if (index >= _Layers.Length)
+            if (index >= _Layers.Length) {
                 Capacity *= 2;
+            }
 
             var layer = new AnimancerLayer(Graph, index);
 
@@ -197,10 +193,8 @@ namespace Animancer
 
         /// <summary>Returns the layer at the specified index. If it didn't already exist, this method creates it.</summary>
         /// <remarks>To only get an existing layer without creating new ones, use <see cref="GetLayer"/> instead.</remarks>
-        public AnimancerLayer this[int index]
-        {
-            get
-            {
+        public AnimancerLayer this[int index] {
+            get {
                 SetMinCount(index + 1);
                 return _Layers[index];
             }
@@ -210,8 +204,9 @@ namespace Animancer
 
         /// <summary>Returns the layer at the specified index.</summary>
         /// <remarks>To create a new layer if the target doesn't exist, use <see cref="this[int]"/> instead.</remarks>
-        public AnimancerLayer GetLayer(int index)
-            => _Layers[index];
+        public AnimancerLayer GetLayer(int index) {
+            return _Layers[index];
+        }
 
         /************************************************************************************************************************/
         #endregion
@@ -220,22 +215,26 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Returns an enumerator that will iterate through all layers.</summary>
-        public FastEnumerator<AnimancerLayer> GetEnumerator()
-            => new(_Layers, _Count);
+        public FastEnumerator<AnimancerLayer> GetEnumerator() {
+            return new(_Layers, _Count);
+        }
 
         /// <inheritdoc/>
-        IEnumerator<AnimancerLayer> IEnumerable<AnimancerLayer>.GetEnumerator()
-            => GetEnumerator();
+        IEnumerator<AnimancerLayer> IEnumerable<AnimancerLayer>.GetEnumerator() {
+            return GetEnumerator();
+        }
 
         /// <inheritdoc/>
-        IEnumerator IEnumerable.GetEnumerator()
-            => GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() {
+            return GetEnumerator();
+        }
 
         /************************************************************************************************************************/
 
         /// <summary>[<see cref="IAnimationClipCollection"/>] Gathers all the animations in all layers.</summary>
-        public void GatherAnimationClips(ICollection<AnimationClip> clips)
-            => clips.GatherFromSource(_Layers);
+        public void GatherAnimationClips(ICollection<AnimationClip> clips) {
+            clips.GatherFromSource(_Layers);
+        }
 
         /************************************************************************************************************************/
         #endregion
@@ -247,8 +246,9 @@ namespace Animancer
         /// Is the layer at the specified index is set to additive blending?
         /// Otherwise it will override lower layers.
         /// </summary>
-        public virtual bool IsAdditive(int index)
-            => false;
+        public virtual bool IsAdditive(int index) {
+            return false;
+        }
 
         /// <summary>[Pro-Only]
         /// Sets the layer at the specified index to blend additively with earlier layers (if true)
@@ -272,8 +272,9 @@ namespace Animancer
 
         /// <summary>[Editor-Conditional] Sets the Inspector display name of the layer at the specified index.</summary>
         [System.Diagnostics.Conditional(Strings.UnityEditor)]
-        public void SetDebugName(int index, string name)
-            => this[index].SetDebugName(name);
+        public void SetDebugName(int index, string name) {
+            this[index].SetDebugName(name);
+        }
 
         /************************************************************************************************************************/
 
@@ -281,14 +282,11 @@ namespace Animancer
         /// The average velocity of the root motion of all currently playing animations,
         /// taking their current <see cref="AnimancerNode.Weight"/> into account.
         /// </summary>
-        public Vector3 AverageVelocity
-        {
-            get
-            {
+        public Vector3 AverageVelocity {
+            get {
                 var velocity = default(Vector3);
 
-                for (int i = 0; i < _Count; i++)
-                {
+                for (var i = 0; i < _Count; i++) {
                     var layer = _Layers[i];
                     velocity += layer.AverageVelocity * layer.Weight;
                 }

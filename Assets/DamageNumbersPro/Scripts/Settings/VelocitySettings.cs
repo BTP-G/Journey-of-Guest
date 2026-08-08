@@ -1,14 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace DamageNumbersPro
-{
+namespace DamageNumbersPro {
     [System.Serializable]
-    public struct VelocitySettings
-    {
-        public VelocitySettings(float customDefault)
-        {
+    public struct VelocitySettings {
+        public VelocitySettings(float customDefault) {
             minX = -1f;
             maxX = 1f;
             minY = 4f;

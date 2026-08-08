@@ -7,8 +7,7 @@ using System.Reflection;
 using System.Collections;
 #endif
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>[Editor-Conditional]
     /// Specifies a set of acceptable names for <see cref="AnimancerEvent"/>s
     /// so they can display a warning in the Inspector if an unexpected name is used.
@@ -81,8 +80,7 @@ namespace Animancer
         ///     private void OnHitEnd() { }
         /// }
         /// </code></remarks>
-        public EventNamesAttribute()
-        {
+        public EventNamesAttribute() {
         }
 
         /************************************************************************************************************************/
@@ -106,8 +104,7 @@ namespace Animancer
         ///     private void OnHitEnd() { }
         /// }
         /// </code></remarks>
-        public EventNamesAttribute(params string[] names)
-        {
+        public EventNamesAttribute(params string[] names) {
 #if UNITY_EDITOR
             Names = StringReference.Get(names);
 #endif
@@ -145,8 +142,7 @@ namespace Animancer
         /// </code></remarks>
         /// 
         /// <exception cref="ArgumentNullException"/>
-        public EventNamesAttribute(Type type)
-        {
+        public EventNamesAttribute(Type type) {
 #if UNITY_EDITOR
             Initialize(type);
 #endif
@@ -188,33 +184,34 @@ namespace Animancer
         /// <exception cref="ArgumentNullException"/>
         /// <exception cref="ArgumentException">No member with the specified `name` exists in the `type`.</exception>
         /// 
-        public EventNamesAttribute(Type type, string name)
-        {
+        public EventNamesAttribute(Type type, string name) {
 #if UNITY_EDITOR
             var obj = GetValue(type, name)
                 ?? throw new ArgumentException(
                     $"The collection retrieved from {type.GetNameCS()}.{name} is null");
 
-            if (obj is not IEnumerable collection)
+            if (obj is not IEnumerable collection) {
                 throw new ArgumentException(
                     $"The object retrieved from {type.GetNameCS()}.{name} is not an {nameof(IEnumerable)}");
+            }
 
-            using (ListPool<StringReference>.Instance.Acquire(out var names))
-            {
-                foreach (var item in collection)
-                {
-                    if (item == null)
+            using (ListPool<StringReference>.Instance.Acquire(out var names)) {
+                foreach (var item in collection) {
+                    if (item == null) {
                         continue;
+                    }
 
                     var itemName = item.ToString();
-                    if (string.IsNullOrEmpty(itemName))
+                    if (string.IsNullOrEmpty(itemName)) {
                         continue;
+                    }
 
                     names.Add(itemName);
                 }
 
-                if (names.Count == 0)
+                if (names.Count == 0) {
                     throw new ArgumentException($"The collection retrieved from {type.GetNameCS()}.{name} is empty");
+                }
 
                 Names = names.ToArray();
             }
@@ -226,20 +223,18 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Initializes the <see cref="Names"/> if they weren't already set in the constructor.</summary>
-        public void Initialize(MemberInfo member)
-        {
-            if (HasNames)
+        public void Initialize(MemberInfo member) {
+            if (HasNames) {
                 return;
-
-            if (member == null)
-                throw new ArgumentNullException(nameof(member));
-
-            if (member is Type type)
-            {
-                Initialize(type);
             }
-            else
-            {
+
+            if (member == null) {
+                throw new ArgumentNullException(nameof(member));
+            }
+
+            if (member is Type type) {
+                Initialize(type);
+            } else {
                 Names = GatherNames(member.DeclaringType);
             }
         }
@@ -247,86 +242,85 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Initializes the <see cref="Names"/> if they weren't already set in the constructor.</summary>
-        public void Initialize(Type type)
-        {
-            if (HasNames)
+        public void Initialize(Type type) {
+            if (HasNames) {
                 return;
-
-            if (type == null)
-                throw new ArgumentNullException(nameof(type));
-
-            if (type.IsEnum)
-            {
-                Names = StringReference.Get(Enum.GetNames(type));
             }
-            else
-            {
+
+            if (type == null) {
+                throw new ArgumentNullException(nameof(type));
+            }
+
+            if (type.IsEnum) {
+                Names = StringReference.Get(Enum.GetNames(type));
+            } else {
                 Names = GatherNames(type);
             }
         }
 
         /************************************************************************************************************************/
 
-        private static object GetValue(Type type, string name)
-        {
-            if (type == null)
+        private static object GetValue(Type type, string name) {
+            if (type == null) {
                 throw new ArgumentNullException(nameof(type));
+            }
 
-            if (name == null)
+            if (name == null) {
                 throw new ArgumentNullException(nameof(name));
+            }
 
             var field = type.GetField(name, AnimancerReflection.StaticBindings);
-            if (field != null)
+            if (field != null) {
                 return field.GetValue(null);
+            }
 
             var property = type.GetProperty(name, AnimancerReflection.StaticBindings);
-            if (property != null)
+            if (property != null) {
                 return property.GetValue(null, null);
+            }
 
             var method = type.GetMethod(name, AnimancerReflection.StaticBindings, null, Type.EmptyTypes, null);
-            if (method != null)
+            if (method != null) {
                 return method.Invoke(null, null);
+            }
 
             throw new ArgumentException($"{type.GetNameCS()} does not contain a member named '{name}'");
         }
 
         /************************************************************************************************************************/
 
-        private static StringReference[] GatherNames(Type type)
-        {
-            using (ListPool<StringReference>.Instance.Acquire(out var names))
-            {
-                while (type != null)
-                {
+        private static StringReference[] GatherNames(Type type) {
+            using (ListPool<StringReference>.Instance.Acquire(out var names)) {
+                while (type != null) {
                     var fields = type.GetFields(AnimancerReflection.StaticBindings | BindingFlags.DeclaredOnly);
-                    for (int i = 0; i < fields.Length; i++)
-                    {
+                    for (var i = 0; i < fields.Length; i++) {
                         var field = fields[i];
 
-                        if (field.DeclaringType.Assembly.FullName.StartsWith("Unity"))
+                        if (field.DeclaringType.Assembly.FullName.StartsWith("Unity")) {
                             continue;
+                        }
 
                         StringReference name;
 
-                        if (field.FieldType == typeof(string))
-                        {
+                        if (field.FieldType == typeof(string)) {
                             name = (string)field.GetValue(null);
-                        }
-                        else if (field.FieldType == typeof(StringReference))
-                        {
+                        } else if (field.FieldType == typeof(StringReference)) {
                             name = (StringReference)field.GetValue(null);
+                        } else {
+                            continue;
                         }
-                        else continue;
 
-                        if (!name.IsNullOrEmpty() && !names.Contains(name))
+                        if (!name.IsNullOrEmpty() && !names.Contains(name)) {
                             names.Add(name);
+                        }
                     }
 
                     type = type.BaseType;
                 }
 
-                if (names.Count == 0)
+                if (names.Count == 0) {
                     return null;
+                }
 
                 names.Sort();
                 return names.ToArray();
@@ -339,21 +333,23 @@ namespace Animancer
         private string _NamesToString;
 
         /// <summary>Returns a string containing all the <see cref="Names"/>.</summary>
-        public string NamesToString(string prefix, string delimiter = "\n• ")
-        {
-            if (!HasNames)
+        public string NamesToString(string prefix, string delimiter = "\n• ") {
+            if (!HasNames) {
                 return prefix;
+            }
 
-            if (_NamesToString != null && _Prefix == prefix)
+            if (_NamesToString != null && _Prefix == prefix) {
                 return _NamesToString;
+            }
 
             var text = StringBuilderPool.Instance.Acquire();
 
             _Prefix = prefix;
             text.Append(prefix);
 
-            for (int i = 0; i < Names.Length; i++)
+            for (var i = 0; i < Names.Length; i++) {
                 text.Append(delimiter).Append(Names[i]);
+            }
 
             return _NamesToString = text.ReleaseToString();
         }

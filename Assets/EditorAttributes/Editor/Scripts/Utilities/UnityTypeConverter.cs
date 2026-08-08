@@ -1,91 +1,72 @@
-﻿#nullable enable
+#nullable enable
 
-using System;
-using UnityEngine;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using UnityEngine;
 
-namespace EditorAttributes.Editor.Utility
-{
-    public class UnityTypeConverter : JsonConverter
-    {
-        public override bool CanConvert(Type objectType) =>
-            typeof(Vector2).IsAssignableFrom(objectType) || typeof(Vector2Int).IsAssignableFrom(objectType) || typeof(Vector3).IsAssignableFrom(objectType) || typeof(Vector3Int).IsAssignableFrom(objectType) ||
+namespace EditorAttributes.Editor.Utility {
+    public class UnityTypeConverter : JsonConverter {
+        public override bool CanConvert(Type objectType) {
+            return typeof(Vector2).IsAssignableFrom(objectType) || typeof(Vector2Int).IsAssignableFrom(objectType) || typeof(Vector3).IsAssignableFrom(objectType) || typeof(Vector3Int).IsAssignableFrom(objectType) ||
             typeof(Vector4).IsAssignableFrom(objectType) || typeof(Color).IsAssignableFrom(objectType) || typeof(Rect).IsAssignableFrom(objectType) || typeof(RectInt).IsAssignableFrom(objectType) ||
             typeof(Bounds).IsAssignableFrom(objectType) || typeof(BoundsInt).IsAssignableFrom(objectType);
+        }
 
-        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
-        {
-            JObject jsonObject = JObject.Load(reader);
+        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer) {
+            var jsonObject = JObject.Load(reader);
 
-            if (objectType == typeof(Vector2))
-            {
+            if (objectType == typeof(Vector2)) {
                 var x = jsonObject["x"]?.Value<float>() ?? 0f;
                 var y = jsonObject["y"]?.Value<float>() ?? 0f;
 
                 return new Vector2(x, y);
-            }
-            else if (objectType == typeof(Vector2Int))
-            {
+            } else if (objectType == typeof(Vector2Int)) {
                 var x = jsonObject["x"]?.Value<int>() ?? 0;
                 var y = jsonObject["y"]?.Value<int>() ?? 0;
 
                 return new Vector2Int(x, y);
-            }
-            else if (objectType == typeof(Vector3))
-            {
+            } else if (objectType == typeof(Vector3)) {
                 var x = jsonObject["x"]?.Value<float>() ?? 0f;
                 var y = jsonObject["y"]?.Value<float>() ?? 0f;
                 var z = jsonObject["z"]?.Value<float>() ?? 0f;
 
                 return new Vector3(x, y, z);
-            }
-            else if (objectType == typeof(Vector3Int))
-            {
+            } else if (objectType == typeof(Vector3Int)) {
                 var x = jsonObject["x"]?.Value<int>() ?? 0;
                 var y = jsonObject["y"]?.Value<int>() ?? 0;
                 var z = jsonObject["z"]?.Value<int>() ?? 0;
 
                 return new Vector3Int(x, y, z);
-            }
-            else if (objectType == typeof(Vector4))
-            {
+            } else if (objectType == typeof(Vector4)) {
                 var x = jsonObject["x"]?.Value<float>() ?? 0f;
                 var y = jsonObject["y"]?.Value<float>() ?? 0f;
                 var z = jsonObject["z"]?.Value<float>() ?? 0f;
                 var w = jsonObject["w"]?.Value<float>() ?? 0f;
 
                 return new Vector4(x, y, z, w);
-            }
-            else if (objectType == typeof(Color))
-            {
+            } else if (objectType == typeof(Color)) {
                 var r = jsonObject["r"]?.Value<float>() ?? 0f;
                 var g = jsonObject["g"]?.Value<float>() ?? 0f;
                 var b = jsonObject["b"]?.Value<float>() ?? 0f;
                 var a = jsonObject["a"]?.Value<float>() ?? 0f;
 
                 return new Color(r, g, b, a);
-            }
-            else if (objectType == typeof(Rect))
-            {
+            } else if (objectType == typeof(Rect)) {
                 var x = jsonObject["x"]?.Value<float>() ?? 0f;
                 var y = jsonObject["y"]?.Value<float>() ?? 0f;
                 var width = jsonObject["width"]?.Value<float>() ?? 0f;
                 var height = jsonObject["height"]?.Value<float>() ?? 0f;
 
                 return new Rect(x, y, width, height);
-            }
-            else if (objectType == typeof(RectInt))
-            {
+            } else if (objectType == typeof(RectInt)) {
                 var x = jsonObject["x"]?.Value<int>() ?? 0;
                 var y = jsonObject["y"]?.Value<int>() ?? 0;
                 var width = jsonObject["width"]?.Value<int>() ?? 0;
                 var height = jsonObject["height"]?.Value<int>() ?? 0;
 
                 return new RectInt(x, y, width, height);
-            }
-            else if (objectType == typeof(Bounds))
-            {
+            } else if (objectType == typeof(Bounds)) {
                 var centerX = jsonObject["centerX"]?.Value<float>() ?? 0f;
                 var centerY = jsonObject["centerY"]?.Value<float>() ?? 0f;
                 var centerZ = jsonObject["centerZ"]?.Value<float>() ?? 0f;
@@ -94,9 +75,7 @@ namespace EditorAttributes.Editor.Utility
                 var sizeZ = jsonObject["sizeZ"]?.Value<float>() ?? 0f;
 
                 return new Bounds(new(centerX, centerY, centerZ), new(sizeX, sizeY, sizeZ));
-            }
-            else if (objectType == typeof(BoundsInt))
-            {
+            } else if (objectType == typeof(BoundsInt)) {
                 var centerX = jsonObject["centerX"]?.Value<int>() ?? 0;
                 var centerY = jsonObject["centerY"]?.Value<int>() ?? 0;
                 var centerZ = jsonObject["centerZ"]?.Value<int>() ?? 0;
@@ -110,10 +89,8 @@ namespace EditorAttributes.Editor.Utility
             return null;
         }
 
-        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
-        {
-            if (value is Vector2 vector2)
-            {
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer) {
+            if (value is Vector2 vector2) {
                 JObject jsonObject = new()
                 {
                     { "x", vector2.x },
@@ -121,9 +98,7 @@ namespace EditorAttributes.Editor.Utility
                 };
 
                 jsonObject.WriteTo(writer);
-            }
-            else if (value is Vector2Int vector2int)
-            {
+            } else if (value is Vector2Int vector2int) {
 
                 JObject jsonObject = new()
                 {
@@ -132,9 +107,7 @@ namespace EditorAttributes.Editor.Utility
                 };
 
                 jsonObject.WriteTo(writer);
-            }
-            else if (value is Vector3 vector3)
-            {
+            } else if (value is Vector3 vector3) {
                 JObject jsonObject = new()
                 {
 
@@ -144,9 +117,7 @@ namespace EditorAttributes.Editor.Utility
                 };
 
                 jsonObject.WriteTo(writer);
-            }
-            else if (value is Vector3Int vector3Int)
-            {
+            } else if (value is Vector3Int vector3Int) {
 
                 JObject jsonObject = new()
                 {
@@ -156,9 +127,7 @@ namespace EditorAttributes.Editor.Utility
                 };
 
                 jsonObject.WriteTo(writer);
-            }
-            else if (value is Vector4 vector4)
-            {
+            } else if (value is Vector4 vector4) {
                 JObject jsonObject = new()
                 {
                     { "x", vector4.x },
@@ -168,9 +137,7 @@ namespace EditorAttributes.Editor.Utility
                 };
 
                 jsonObject.WriteTo(writer);
-            }
-            else if (value is Color color)
-            {
+            } else if (value is Color color) {
                 JObject jsonObject = new()
                 {
                     { "r", color.r },
@@ -180,9 +147,7 @@ namespace EditorAttributes.Editor.Utility
                 };
 
                 jsonObject.WriteTo(writer);
-            }
-            else if (value is Rect rect)
-            {
+            } else if (value is Rect rect) {
                 JObject jsonObject = new()
                 {
                     { "x", rect.x },
@@ -192,9 +157,7 @@ namespace EditorAttributes.Editor.Utility
                 };
 
                 jsonObject.WriteTo(writer);
-            }
-            else if (value is RectInt rectInt)
-            {
+            } else if (value is RectInt rectInt) {
                 JObject jsonObject = new()
                 {
                     { "x", rectInt.x },
@@ -204,9 +167,7 @@ namespace EditorAttributes.Editor.Utility
                 };
 
                 jsonObject.WriteTo(writer);
-            }
-            else if (value is Bounds bounds)
-            {
+            } else if (value is Bounds bounds) {
                 JObject jsonObject = new()
                 {
                     { "centerX", bounds.center.x },
@@ -218,9 +179,7 @@ namespace EditorAttributes.Editor.Utility
                 };
 
                 jsonObject.WriteTo(writer);
-            }
-            else if (value is BoundsInt boundsInt)
-            {
+            } else if (value is BoundsInt boundsInt) {
                 JObject jsonObject = new()
                 {
                     { "centerX", boundsInt.center.x },
@@ -232,9 +191,7 @@ namespace EditorAttributes.Editor.Utility
                 };
 
                 jsonObject.WriteTo(writer);
-            }
-            else
-            {
+            } else {
                 Debug.LogError($"Serialization of type <b>{value?.GetType()}</b> is not supported");
             }
         }

@@ -12,5 +12,4 @@ namespace JoG.Character.States {
             return animancer.Layers[layerIndex].Play(transition);
         }
     }
-
 }

@@ -1,19 +1,16 @@
-﻿using System;
+using System;
 using System.Text.RegularExpressions;
 using UnityEditor;
 
-namespace Utilities.BetterHierarchy
-{
-    public abstract class Preference<T>
-    {
+namespace Utilities.BetterHierarchy {
+    public abstract class Preference<T> {
         public event Action<T> OnValueChanged = delegate { };
 
-        public string Label
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(label))
+        public string Label {
+            get {
+                if (string.IsNullOrEmpty(label)) {
                     label = ConvertCamelCaseToWords(Key);
+                }
 
                 return label;
             }
@@ -27,14 +24,14 @@ namespace Utilities.BetterHierarchy
         private T cachedValue;
         private bool isCached;
 
-        public T Get()
-        {
-            if (isCached) return cachedValue;
+        public T Get() {
+            if (isCached) {
+                return cachedValue;
+            }
 
             isCached = true;
 
-            if (!EditorPrefs.HasKey(Key))
-            {
+            if (!EditorPrefs.HasKey(Key)) {
                 SetImpl(DefaultValue);
                 cachedValue = DefaultValue;
                 return GetImpl();
@@ -44,27 +41,24 @@ namespace Utilities.BetterHierarchy
             return cachedValue;
         }
 
-        public void Set(T value)
-        {
+        public void Set(T value) {
             cachedValue = value;
             SetImpl(value);
             OnValueChanged.Invoke(value);
         }
 
-
-        public override string ToString()
-        {
+        public override string ToString() {
             return Label;
         }
 
-        private static string ConvertCamelCaseToWords(string input)
-        {
-            if (string.IsNullOrEmpty(input))
+        private static string ConvertCamelCaseToWords(string input) {
+            if (string.IsNullOrEmpty(input)) {
                 return input;
+            }
 
-            string[] words = Regex.Split(input, @"(?<!^)(?=[A-Z])");
-            string result = string.Join(" ", words);
-            result = char.ToUpper(result[0]) + result.Substring(1);
+            var words = Regex.Split(input, @"(?<!^)(?=[A-Z])");
+            var result = string.Join(" ", words);
+            result = char.ToUpper(result[0]) + result[1..];
 
             return result;
         }

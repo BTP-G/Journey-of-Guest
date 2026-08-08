@@ -1,8 +1,8 @@
-using Xoderony.GameplayEffects;
 using System;
 using System.Collections.Generic;
 using Unity.Netcode;
 using VContainer;
+using Xoderony.GameplayEffects;
 
 namespace JoG.Character {
 

@@ -3,8 +3,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>A set of up/right/down/left animations.</summary>
     /// <remarks>
     /// <strong>Documentation:</strong>
@@ -18,13 +17,13 @@ namespace Animancer
         order = Strings.AssetMenuOrder + 4)]
     [AnimancerHelpUrl(typeof(DirectionalAnimationSet2))]
     public class DirectionalAnimationSet2 : DirectionalSet2<AnimationClip>,
-        IAnimationClipSource
-    {
+        IAnimationClipSource {
         /************************************************************************************************************************/
 
         /// <summary>[<see cref="IAnimationClipSource"/>] Adds all animations from this set to the `clips`.</summary>
-        void IAnimationClipSource.GetAnimationClips(List<AnimationClip> clips)
-            => AddTo(clips);
+        void IAnimationClipSource.GetAnimationClips(List<AnimationClip> clips) {
+            AddTo(clips);
+        }
 
         /************************************************************************************************************************/
     }

@@ -7,21 +7,18 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace Animancer.Editor.TransitionLibraries
-{
+namespace Animancer.Editor.TransitionLibraries {
     /// <summary>[Editor-Only]
     /// A dummy object for tracking the selection within the <see cref="TransitionLibraryWindow"/>
     /// and showing its details in the Inspector.
     /// </summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor.TransitionLibraries/TransitionLibrarySelection
     [AnimancerHelpUrl(typeof(TransitionLibrarySelection))]
-    public class TransitionLibrarySelection : ScriptableObject
-    {
+    public class TransitionLibrarySelection : ScriptableObject {
         /************************************************************************************************************************/
 
         /// <summary>[Editor-Only] Types of objects can be selected.</summary>
-        public enum SelectionType
-        {
+        public enum SelectionType {
             /// <summary>Nothing selected.</summary>
             None,
 
@@ -91,10 +88,8 @@ namespace Animancer.Editor.TransitionLibraries
         [NonSerialized] private object _Selected;
 
         /// <summary>The currently selected object.</summary>
-        public object Selected
-        {
-            get
-            {
+        public object Selected {
+            get {
                 Validate();
                 return _Selected;
             }
@@ -103,26 +98,27 @@ namespace Animancer.Editor.TransitionLibraries
         /************************************************************************************************************************/
 
         /// <summary>Deselects the current object if it isn't valid.</summary>
-        public bool Validate()
-        {
-            if (IsValid())
+        public bool Validate() {
+            if (IsValid()) {
                 return true;
+            }
 
             Deselect();
             return false;
         }
 
         /// <summary>Is the current selection valid?</summary>
-        public bool IsValid()
-        {
+        public bool IsValid() {
             if (this == null ||
                 _Window == null ||
-                Selection.activeObject != this)
+                Selection.activeObject != this) {
                 return false;
+            }
 
             var library = _Window.SourceObject;
-            if (library == null)
+            if (library == null) {
                 return false;
+            }
 
             FromTransition = null;
             ToTransition = null;
@@ -130,8 +126,7 @@ namespace Animancer.Editor.TransitionLibraries
             NormalizedStartTime = float.NaN;
             HasModifier = false;
 
-            switch (_Type)
-            {
+            switch (_Type) {
                 case SelectionType.Library:
                     name = "Transition Library";
                     _Selected = library;
@@ -139,8 +134,9 @@ namespace Animancer.Editor.TransitionLibraries
 
                 case SelectionType.FromTransition:
                     name = "From Transition";
-                    if (!_Window.Data.Transitions.TryGet(_FromIndex, out var transition))
+                    if (!_Window.Data.Transitions.TryGet(_FromIndex, out var transition)) {
                         return false;
+                    }
 
                     FromTransition = transition;
                     FadeDuration = transition.TryGetFadeDuration();
@@ -150,8 +146,9 @@ namespace Animancer.Editor.TransitionLibraries
 
                 case SelectionType.ToTransition:
                     name = "To Transition";
-                    if (!_Window.Data.Transitions.TryGet(_ToIndex, out transition))
+                    if (!_Window.Data.Transitions.TryGet(_ToIndex, out transition)) {
                         return false;
+                    }
 
                     ToTransition = transition;
                     FadeDuration = transition.TryGetFadeDuration();
@@ -168,12 +165,9 @@ namespace Animancer.Editor.TransitionLibraries
                     hasTransitions |= _Window.Data.TryGetTransition(_ToIndex, out transition);
                     ToTransition = transition;
 
-                    if (_Window.Data.TryGetModifier(_FromIndex, _ToIndex, out var modifier))
-                    {
+                    if (_Window.Data.TryGetModifier(_FromIndex, _ToIndex, out var modifier)) {
                         HasModifier = true;
-                    }
-                    else if (!hasTransitions)
-                    {
+                    } else if (!hasTransitions) {
                         return false;
                     }
 
@@ -206,10 +200,8 @@ namespace Animancer.Editor.TransitionLibraries
             TransitionLibraryWindow window,
             object select,
             int index,
-            SelectionType type)
-        {
-            switch (type)
-            {
+            SelectionType type) {
+            switch (type) {
                 case SelectionType.Library:
                     _FromIndex = -1;
                     _ToIndex = -1;
@@ -226,27 +218,21 @@ namespace Animancer.Editor.TransitionLibraries
                     break;
 
                 case SelectionType.Modifier:
-                    if (select is TransitionModifierDefinition modifier)
-                    {
+                    if (select is TransitionModifierDefinition modifier) {
                         _FromIndex = modifier.FromIndex;
                         _ToIndex = modifier.ToIndex;
                         break;
-                    }
-                    else
-                    {
+                    } else {
                         Deselect();
                         return;
                     }
 
                 case SelectionType.Group:
-                    if (select is TransitionGroup group)
-                    {
+                    if (select is TransitionGroup group) {
                         _FromIndex = index;
                         _ToIndex = index;
                         break;
-                    }
-                    else
-                    {
+                    } else {
                         Deselect();
                         return;
                     }
@@ -269,8 +255,7 @@ namespace Animancer.Editor.TransitionLibraries
         /************************************************************************************************************************/
 
         /// <summary>Clears the <see cref="Selected"/> object.</summary>
-        public void Deselect()
-        {
+        public void Deselect() {
             _Window = null;
             _Type = default;
             _FromIndex = -1;
@@ -278,31 +263,33 @@ namespace Animancer.Editor.TransitionLibraries
             _Selected = null;
             _Version++;
 
-            if (Selection.activeObject == this)
+            if (Selection.activeObject == this) {
                 Selection.activeObject = null;
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <summary>Handles selection changes.</summary>
-        public void OnSelectionChange()
-        {
-            if (Selection.activeObject == this)
+        public void OnSelectionChange() {
+            if (Selection.activeObject == this) {
                 return;
+            }
 
             Deselect();
 
-            if (_Window != null)
+            if (_Window != null) {
                 _Window.Repaint();
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <summary>Selects this object if it contains a valid selection.</summary>
-        protected virtual void OnEnable()
-        {
-            if (Selected != null)
+        protected virtual void OnEnable() {
+            if (Selected != null) {
                 Selection.activeObject = this;
+            }
         }
 
         /************************************************************************************************************************/

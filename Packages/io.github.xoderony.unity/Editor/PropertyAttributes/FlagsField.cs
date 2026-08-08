@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEditor;
@@ -68,10 +68,13 @@ internal class FlagsField : BaseField<Enum> {
         var names = Enum.GetNames(_enumType);
         var values = Enum.GetValues(_enumType);
         var everythingFlag = 0UL;
-        for (int i = 0; i < names.Length; i++) {
+        for (var i = 0; i < names.Length; i++) {
             var enumValue = (Enum)values.GetValue(i);
             var enumValueAsUInt64 = ToUInt64(enumValue);
-            if (enumValueAsUInt64 == 0) continue; // 跳过0值选项
+            if (enumValueAsUInt64 == 0) {
+                continue; // 跳过0值选项
+            }
+
             everythingFlag |= enumValueAsUInt64;
             var name = ObjectNames.NicifyVariableName(names[i]);
             _options.Add((name, enumValue));
@@ -129,22 +132,11 @@ internal class FlagsField : BaseField<Enum> {
     }
 
     private ulong ToUInt64(Enum value) {
-        switch (value.GetTypeCode()) {
-            case TypeCode.SByte:
-            case TypeCode.Int16:
-            case TypeCode.Int32:
-            case TypeCode.Int64:
-                return (ulong)Convert.ToInt64(value);
-
-            case TypeCode.Byte:
-            case TypeCode.UInt16:
-            case TypeCode.UInt32:
-            case TypeCode.UInt64:
-                return Convert.ToUInt64(value);
-
-            default:
-                return 0;
-        }
+        return value.GetTypeCode() switch {
+            TypeCode.SByte or TypeCode.Int16 or TypeCode.Int32 or TypeCode.Int64 => (ulong)Convert.ToInt64(value),
+            TypeCode.Byte or TypeCode.UInt16 or TypeCode.UInt32 or TypeCode.UInt64 => Convert.ToUInt64(value),
+            _ => 0,
+        };
     }
 
     private Enum ToEnum(ulong value) {

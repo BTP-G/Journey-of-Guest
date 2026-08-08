@@ -1,7 +1,7 @@
 using Animancer;
-using Xoderony.Movement;
 using UnityEngine;
 using VContainer;
+using Xoderony.Movement;
 
 namespace JoG.Character.States {
 
@@ -25,7 +25,5 @@ namespace JoG.Character.States {
             var acceleration = moveAcceleration.Value;
             motor.InputVelocity = Vector3.MoveTowards(motor.InputVelocity, Vector3.zero, acceleration * Time.fixedDeltaTime);
         }
-
     }
-
 }

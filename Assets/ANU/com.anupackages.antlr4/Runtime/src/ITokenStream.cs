@@ -1,13 +1,10 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-using Antlr4.Runtime;
 using Antlr4.Runtime.Misc;
-using Antlr4.Runtime.Sharpen;
 
-namespace Antlr4.Runtime
-{
+namespace Antlr4.Runtime {
     /// <summary>
     /// An
     /// <see cref="IIntStream"/>
@@ -15,8 +12,7 @@ namespace Antlr4.Runtime
     /// <see cref="IToken"/>
     /// instances.
     /// </summary>
-    public interface ITokenStream : IIntStream
-    {
+    public interface ITokenStream : IIntStream {
         /// <summary>
         /// Get the
         /// <see cref="IToken"/>
@@ -77,8 +73,7 @@ namespace Antlr4.Runtime
         /// which provides tokens for this
         /// stream.
         /// </summary>
-        ITokenSource TokenSource
-        {
+        ITokenSource TokenSource {
             get;
         }
 

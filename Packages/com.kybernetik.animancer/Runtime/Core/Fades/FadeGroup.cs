@@ -11,8 +11,7 @@ using UnityEngine;
 using UnityEngine.Playables;
 using Object = UnityEngine.Object;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>A group of <see cref="AnimancerNode"/>s which are cross-fading.</summary>
     /// 
     /// <remarks>
@@ -26,8 +25,7 @@ namespace Animancer
     public partial class FadeGroup : Updatable,
         ICloneable<FadeGroup>,
         ICopyable<FadeGroup>,
-        IHasDescription
-    {
+        IHasDescription {
         /************************************************************************************************************************/
         #region Fields and Properties
         /************************************************************************************************************************/
@@ -44,8 +42,7 @@ namespace Animancer
         public float NormalizedFadeSpeed { get; set; }
 
         /// <summary>The speed at which the <see cref="AnimancerNode.Weight"/>s change.</summary>
-        public float FadeSpeed
-        {
+        public float FadeSpeed {
             get => FadeDistance * NormalizedFadeSpeed;
             set => NormalizedFadeSpeed = value / FadeDistance;
         }
@@ -55,8 +52,7 @@ namespace Animancer
             => Math.Abs(TargetWeight - FadeIn.StartingWeight);
 
         /// <summary>The total amount of time this fade will take to complete (in seconds).</summary>
-        public float FadeDuration
-        {
+        public float FadeDuration {
             get => NormalizedFadeSpeed != 0
                 ? 1 / NormalizedFadeSpeed
                 : float.PositiveInfinity;
@@ -66,8 +62,7 @@ namespace Animancer
         }
 
         /// <summary>The remaining amount of time this fade will take to complete (in seconds).</summary>
-        public float RemainingFadeDuration
-        {
+        public float RemainingFadeDuration {
             get => NormalizedFadeSpeed != 0
                 ? (1 - NormalizedTime) / NormalizedFadeSpeed
                 : float.PositiveInfinity;
@@ -125,11 +120,9 @@ namespace Animancer
         /// <para></para>
         /// <em>Animancer Lite ignores this property in runtime builds.</em>
         /// </remarks>
-        public Func<float, float> Easing
-        {
+        public Func<float, float> Easing {
             get => _Easing;
-            set
-            {
+            set {
                 _Easing = value;
                 AssertNormalizedBounds(value, nameof(Easing));
             }
@@ -146,8 +139,7 @@ namespace Animancer
             AnimancerNode parent,
             AnimancerNode fadeIn,
             IReadOnlyList<AnimancerNode> fadeOut,
-            bool keepChildrenConnected)
-        {
+            bool keepChildrenConnected) {
             Parent = parent;
             Graph = parent.Graph;
             ParentPlayable = parent.Playable;
@@ -155,19 +147,19 @@ namespace Animancer
 
             FadeIn = new(fadeIn);
 
-            if (fadeIn.FadeGroup != this)
+            if (fadeIn.FadeGroup != this) {
                 fadeIn.FadeGroup = this;
+            }
 
             var count = fadeOut.Count;
-            for (int i = 0; i < count; i++)
-            {
+            for (var i = 0; i < count; i++) {
                 var node = fadeOut[i];
-                if (node != fadeIn)
-                {
+                if (node != fadeIn) {
                     FadeOutInternal.Add(new(node));
 
-                    if (node.FadeGroup != this)
+                    if (node.FadeGroup != this) {
                         node.FadeGroup = this;
+                    }
                 }
             }
         }
@@ -175,11 +167,9 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Assigns the <see cref="FadeIn"/> with no <see cref="FadeOut"/>.</summary>
-        public void SetFadeIn(AnimancerNode fadeIn)
-        {
+        public void SetFadeIn(AnimancerNode fadeIn) {
             Parent = fadeIn.Parent;
-            if (Parent != null)
-            {
+            if (Parent != null) {
                 Graph = fadeIn.Graph;
                 ParentPlayable = Parent.Playable;
                 KeepChildrenConnected = Parent.KeepChildrenConnected;
@@ -192,8 +182,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Adds a node to the <see cref="FadeOut"/> list.</summary>
-        public void AddFadeOut(AnimancerNode fadeOut)
-        {
+        public void AddFadeOut(AnimancerNode fadeOut) {
             FadeOutInternal.Add(new(fadeOut));
             fadeOut.FadeGroup = this;
         }
@@ -203,8 +192,7 @@ namespace Animancer
         /// <summary>Sets the starting values and registers this fade to be updated.</summary>
         public void StartFade(
             float targetWeight,
-            float normalizedFadeSpeed)
-        {
+            float normalizedFadeSpeed) {
             NormalizedTime = 0;
             TargetWeight = targetWeight;
             NormalizedFadeSpeed = normalizedFadeSpeed;
@@ -213,13 +201,13 @@ namespace Animancer
         }
 
         /// <summary>Registers this fade to be updated.</summary>
-        public void StartFade()
-        {
+        public void StartFade() {
             Graph?.RequirePreUpdate(this);
 
             FadeIn.Node?.OnStartFade();
-            for (int i = FadeOutInternal.Count - 1; i >= 0; i--)
+            for (var i = FadeOutInternal.Count - 1; i >= 0; i--) {
                 FadeOutInternal[i].Node.OnStartFade();
+            }
         }
 
         /************************************************************************************************************************/
@@ -235,14 +223,16 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Does this fade affect the `node`?</summary>
-        public bool Contains(AnimancerNode node)
-        {
-            if (FadeIn.Node == node)
+        public bool Contains(AnimancerNode node) {
+            if (FadeIn.Node == node) {
                 return true;
+            }
 
-            for (int i = 0; i < FadeOutInternal.Count; i++)
-                if (FadeOutInternal[i].Node == node)
+            for (var i = 0; i < FadeOutInternal.Count; i++) {
+                if (FadeOutInternal[i].Node == node) {
                     return true;
+                }
+            }
 
             return false;
         }
@@ -253,8 +243,7 @@ namespace Animancer
         /// Returns the <see cref="TargetWeight"/> if the `node` is the <see cref="FadeIn"/>.
         /// Otherwise, returns 0.
         /// </summary>
-        public float GetTargetWeight(AnimancerNode node)
-        {
+        public float GetTargetWeight(AnimancerNode node) {
             return FadeIn.Node == node
                 ? TargetWeight
                 : 0;
@@ -267,10 +256,8 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void Update()
-        {
-            if (!IsValid)
-            {
+        public override void Update() {
+            if (!IsValid) {
                 Cancel();
                 return;
             }
@@ -282,9 +269,8 @@ namespace Animancer
             if (NormalizedTime < 1)// Fade.
             {
                 ApplyWeights();
-            }
-            else// End.
-            {
+            } else// End.
+              {
                 Finish();
             }
         }
@@ -292,33 +278,33 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Immediately finishes this fade.</summary>
-        public void Finish()
-        {
+        public void Finish() {
             NormalizedTime = 1;
 
-            if (KeepChildrenConnected)
-            {
+            if (KeepChildrenConnected) {
                 ApplyWeights(1);
 
-                for (int i = FadeOutInternal.Count - 1; i >= 0; i--)
+                for (var i = FadeOutInternal.Count - 1; i >= 0; i--) {
                     FadeOutInternal[i].Node.StopWithoutWeight();
+                }
 
-                if (TargetWeight == 0)
+                if (TargetWeight == 0) {
                     FadeIn.Node?.StopWithoutWeight();
-            }
-            else// Disconnect all faded out nodes and only apply the faded in weight.
-            {
-                for (int i = FadeOutInternal.Count - 1; i >= 0; i--)
+                }
+            } else// Disconnect all faded out nodes and only apply the faded in weight.
+              {
+                for (var i = FadeOutInternal.Count - 1; i >= 0; i--) {
                     StopAndDisconnect(FadeOutInternal[i].Node);
+                }
 
                 FadeOutInternal.Clear();
 
-                if (FadeIn.Node != null)
-                {
-                    if (TargetWeight > 0)
+                if (FadeIn.Node != null) {
+                    if (TargetWeight > 0) {
                         FadeIn.Node.SetWeight(TargetWeight);
-                    else
+                    } else {
                         StopAndDisconnect(FadeIn.Node);
+                    }
                 }
             }
 
@@ -330,24 +316,22 @@ namespace Animancer
         /// <summary>
         /// Recalculates the node weights based on the <see cref="NormalizedTime"/>.
         /// </summary>
-        public void ApplyWeights()
-        {
+        public void ApplyWeights() {
             if (NormalizedTime < 1)// Fade.
             {
                 var progress = NormalizedTime;
-                if (_Easing != null)
+                if (_Easing != null) {
                     progress = _Easing(progress);
+                }
 
                 ApplyWeights(progress);
-            }
-            else// End.
-            {
+            } else// End.
+              {
                 Finish();
             }
         }
 
-        private void ApplyWeights(float progress)
-        {
+        private void ApplyWeights(float progress) {
             // Move FadeIn towards target (usually 1 or 0).
 
             FadeIn.Node?.SetWeight(Mathf.LerpUnclamped(FadeIn.StartingWeight, TargetWeight, progress));
@@ -356,15 +340,13 @@ namespace Animancer
 
             progress = 1 - progress;
 
-            for (int i = FadeOutInternal.Count - 1; i >= 0; i--)
-            {
+            for (var i = FadeOutInternal.Count - 1; i >= 0; i--) {
                 var node = FadeOutInternal[i];
                 node.Node.SetWeight(node.StartingWeight * progress);
             }
         }
 
-        private void StopAndDisconnect(AnimancerNode node)
-        {
+        private void StopAndDisconnect(AnimancerNode node) {
             // Don't InternalClearFade because it's virtual.
             node._FadeGroup = null;
             node.Stop();
@@ -372,21 +354,21 @@ namespace Animancer
 
         /************************************************************************************************************************/
 
-        private void Release()
-        {
+        private void Release() {
             NormalizedFadeSpeed = 0;
             _Easing = null;
             Graph = null;
             Parent = null;
 
-            if (FadeIn.Node != null)
-            {
+            if (FadeIn.Node != null) {
                 FadeIn.Node.InternalClearFade();
                 FadeIn = default;
             }
 
-            for (int i = FadeOutInternal.Count - 1; i >= 0; i--)
+            for (var i = FadeOutInternal.Count - 1; i >= 0; i--) {
                 FadeOutInternal[i].Node.InternalClearFade();
+            }
+
             FadeOutInternal.Clear();
 
             Pool.Instance.Release(this);
@@ -395,8 +377,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Interrupts this fade and releases it to the <see cref="ObjectPool{T}"/>.</summary>
-        public void Cancel()
-        {
+        public void Cancel() {
             Graph?.CancelPreUpdate(this);
             Release();
         }
@@ -404,28 +385,26 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Removes the `node` from this <see cref="FadeGroup"/> and returns true if successful.</summary>
-        public bool Remove(AnimancerNode node)
-        {
-            if (FadeIn.Node == node)
-            {
+        public bool Remove(AnimancerNode node) {
+            if (FadeIn.Node == node) {
                 FadeIn = new(null, FadeIn.StartingWeight);
 
-                if (FadeOutInternal.Count == 0)
+                if (FadeOutInternal.Count == 0) {
                     Cancel();
+                }
 
                 node.InternalClearFade();
 
                 return true;
             }
 
-            for (int i = FadeOutInternal.Count - 1; i >= 0; i--)
-            {
-                if (FadeOutInternal[i].Node == node)
-                {
+            for (var i = FadeOutInternal.Count - 1; i >= 0; i--) {
+                if (FadeOutInternal[i].Node == node) {
                     FadeOutInternal.RemoveAt(i);
 
-                    if (FadeIn.Node == null && FadeOutInternal.Count == 0)
+                    if (FadeIn.Node == null && FadeOutInternal.Count == 0) {
                         Cancel();
+                    }
 
                     node.InternalClearFade();
 
@@ -439,18 +418,17 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public virtual void AppendDescription(StringBuilder text, string separator = "\n")
-        {
+        public virtual void AppendDescription(StringBuilder text, string separator = "\n") {
             text.Append(GetType().FullName);
 
-            if (!IsValid)
-            {
+            if (!IsValid) {
                 text.Append("(Cancelled)");
                 return;
             }
 
-            if (!separator.StartsWithNewLine())
+            if (!separator.StartsWithNewLine()) {
                 separator = "\n" + separator;
+            }
 
             text.AppendField(separator, nameof(NormalizedTime), NormalizedTime);
             text.AppendField(separator, nameof(NormalizedFadeSpeed), NormalizedFadeSpeed);
@@ -460,8 +438,7 @@ namespace Animancer
             FadeIn.AppendDescription(text, TargetWeight);
 
             text.AppendField(separator, nameof(FadeOut), FadeOutInternal.Count);
-            for (int i = 0; i < FadeOutInternal.Count; i++)
-            {
+            for (var i = 0; i < FadeOutInternal.Count; i++) {
                 text.Append(separator)
                     .Append(Strings.Indent);
                 FadeOutInternal[i].AppendDescription(text, 0);
@@ -472,16 +449,16 @@ namespace Animancer
 
         /// <summary>[Assert-Conditional] Checks <see cref="OptionalWarning.FadeEasingBounds"/>.</summary>
         [System.Diagnostics.Conditional(Strings.Assertions)]
-        public static void AssertNormalizedBounds(Func<float, float> easing, string name = "function")
-        {
+        public static void AssertNormalizedBounds(Func<float, float> easing, string name = "function") {
 #if UNITY_ASSERTIONS
-            if (easing != null && OptionalWarning.FadeEasingBounds.IsEnabled())
-            {
-                if (easing(0) != 0)
+            if (easing != null && OptionalWarning.FadeEasingBounds.IsEnabled()) {
+                if (easing(0) != 0) {
                     OptionalWarning.FadeEasingBounds.Log(name + "(0) != 0.");
+                }
 
-                if (easing(1) != 1)
+                if (easing(1) != 1) {
                     OptionalWarning.FadeEasingBounds.Log(name + "(1) != 1.");
+                }
             }
 #endif
         }
@@ -493,10 +470,10 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public virtual FadeGroup Clone(CloneContext context)
-        {
-            if (!IsValid)
+        public virtual FadeGroup Clone(CloneContext context) {
+            if (!IsValid) {
                 return null;
+            }
 
             var clone = new FadeGroup();
             clone.CopyFrom(this, context);
@@ -506,15 +483,14 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public virtual void CopyFrom(FadeGroup copyFrom, CloneContext context)
-        {
+        public virtual void CopyFrom(FadeGroup copyFrom, CloneContext context) {
             CopyNodesFrom(copyFrom, context);
 
             var node = FadeIn.Node;
-            if (node == null)
-            {
-                if (FadeOut.Count == 0)
+            if (node == null) {
+                if (FadeOut.Count == 0) {
                     return;
+                }
 
                 node = FadeOut[0].Node;
             }
@@ -525,19 +501,16 @@ namespace Animancer
 
         /************************************************************************************************************************/
 
-        private void CopyNodesFrom(FadeGroup copyFrom, CloneContext context)
-        {
+        private void CopyNodesFrom(FadeGroup copyFrom, CloneContext context) {
             FadeIn = new(copyFrom.FadeIn, context);
             FadeIn.Node.FadeGroup = this;
 
             FadeOutInternal.Clear();
 
             var count = copyFrom.FadeOutInternal.Count;
-            for (int i = 0; i < count; i++)
-            {
+            for (var i = 0; i < count; i++) {
                 var nodeWeight = new NodeWeight(copyFrom.FadeOutInternal[i], context);
-                if (nodeWeight.Node != null)
-                {
+                if (nodeWeight.Node != null) {
                     FadeOutInternal.Add(nodeWeight);
                     nodeWeight.Node.FadeGroup = this;
                 }
@@ -546,15 +519,14 @@ namespace Animancer
 
         /************************************************************************************************************************/
 
-        internal void ChangeParent(AnimancerNode child)
-        {
+        internal void ChangeParent(AnimancerNode child) {
             var parent = child.Parent;
-            if (Parent == parent)
+            if (Parent == parent) {
                 return;
+            }
 
             Parent = parent;
-            if (Parent != null)
-            {
+            if (Parent != null) {
                 ParentPlayable = Parent.Playable;
                 KeepChildrenConnected = Parent.KeepChildrenConnected;
 
@@ -566,10 +538,10 @@ namespace Animancer
 
         /************************************************************************************************************************/
 
-        internal void ChangeGraph(AnimancerGraph graph)
-        {
-            if (Graph == graph)
+        internal void ChangeGraph(AnimancerGraph graph) {
+            if (Graph == graph) {
                 return;
+            }
 
             Graph?.CancelPreUpdate(this);
             Graph = graph;
@@ -582,36 +554,36 @@ namespace Animancer
 
         private bool _AssertGraphNextFrame;
 
-        private void AssertGraph()
-        {
-            if (!_AssertGraphNextFrame)
+        private void AssertGraph() {
+            if (!_AssertGraphNextFrame) {
                 return;
+            }
 
             _AssertGraphNextFrame = false;
 
-            if (FadeIn.Node != null && !AssertNode(FadeIn.Node))
+            if (FadeIn.Node != null && !AssertNode(FadeIn.Node)) {
                 return;
+            }
 
-            for (int i = 0; i < FadeOutInternal.Count; i++)
-                if (!AssertNode(FadeOutInternal[i].Node))
+            for (var i = 0; i < FadeOutInternal.Count; i++) {
+                if (!AssertNode(FadeOutInternal[i].Node)) {
                     return;
+                }
+            }
         }
 
-        private bool AssertNode(AnimancerNode node)
-        {
+        private bool AssertNode(AnimancerNode node) {
             string propertyName;
             string nodeValue, myValue;
-            if (node.Graph == Graph)
-            {
-                if (node.Parent == Parent)
+            if (node.Graph == Graph) {
+                if (node.Parent == Parent) {
                     return true;
+                }
 
                 propertyName = nameof(node.Parent);
                 nodeValue = AnimancerUtilities.ToStringOrNull(node.Parent);
                 myValue = AnimancerUtilities.ToStringOrNull(Parent);
-            }
-            else
-            {
+            } else {
                 propertyName = nameof(node.Graph);
                 nodeValue = AnimancerUtilities.ToStringOrNull(node.Graph);
                 myValue = AnimancerUtilities.ToStringOrNull(Graph);
@@ -630,8 +602,7 @@ namespace Animancer
 
         /************************************************************************************************************************/
 
-        private void CopyDetailsFrom(FadeGroup copyFrom)
-        {
+        private void CopyDetailsFrom(FadeGroup copyFrom) {
             NormalizedTime = copyFrom.NormalizedTime;
             NormalizedFadeSpeed = copyFrom.NormalizedFadeSpeed;
             TargetWeight = copyFrom.TargetWeight;
@@ -641,24 +612,19 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Creates a clone of this <see cref="FadeGroup"/> for a single target node (`copyTo`).</summary>
-        public FadeGroup CloneForSingleTarget(AnimancerNode copyFrom, AnimancerNode copyTo)
-        {
-            if (!IsValid)
+        public FadeGroup CloneForSingleTarget(AnimancerNode copyFrom, AnimancerNode copyTo) {
+            if (!IsValid) {
                 return null;
+            }
 
             var clone = Pool.Instance.Acquire();
 
-            if (copyFrom == FadeIn.Node)
-            {
+            if (copyFrom == FadeIn.Node) {
                 clone.FadeIn = new(copyTo, FadeIn.StartingWeight);
-            }
-            else
-            {
-                for (int i = 0; i < FadeOutInternal.Count; i++)
-                {
+            } else {
+                for (var i = 0; i < FadeOutInternal.Count; i++) {
                     var fadeOut = FadeOutInternal[i];
-                    if (fadeOut.Node == copyFrom)
-                    {
+                    if (fadeOut.Node == copyFrom) {
                         clone.FadeOutInternal.Add(new(copyTo, fadeOut.StartingWeight));
                         goto CopyDetails;
                     }
@@ -667,7 +633,7 @@ namespace Animancer
                 return null;
             }
 
-            CopyDetails:
+        CopyDetails:
             clone.ChangeParent(copyTo);
             clone.CopyDetailsFrom(this);
             clone.StartFade();
@@ -683,8 +649,7 @@ namespace Animancer
 
         /// <summary>An <see cref="ObjectPool{T}"/> for <see cref="FadeGroup"/>.</summary>
         /// https://kybernetik.com.au/animancer/api/Animancer/Pool
-        public class Pool : ObjectPool<FadeGroup>
-        {
+        public class Pool : ObjectPool<FadeGroup> {
             /************************************************************************************************************************/
 
             /// <summary>Singleton.</summary>
@@ -693,16 +658,16 @@ namespace Animancer
             /************************************************************************************************************************/
 
             /// <inheritdoc/>
-            protected override FadeGroup New()
-                => new();
+            protected override FadeGroup New() {
+                return new();
+            }
 
             /************************************************************************************************************************/
 #if UNITY_ASSERTIONS
             /************************************************************************************************************************/
 
             /// <inheritdoc/>
-            public override FadeGroup Acquire()
-            {
+            public override FadeGroup Acquire() {
                 var fade = base.Acquire();
                 Debug.Assert(fade.FadeIn.Node == null, $"{nameof(fade.FadeIn)} is not null");
                 Debug.Assert(fade.FadeOutInternal.Count == 0, $"{nameof(fade.FadeOutInternal)} is not empty");
@@ -711,8 +676,7 @@ namespace Animancer
             }
 
             /// <inheritdoc/>
-            public override void Release(FadeGroup item)
-            {
+            public override void Release(FadeGroup item) {
                 Debug.Assert(((IUpdatable)item).UpdatableIndex < 0,
                     $"Releasing {nameof(FadeGroup)} which is still registered for updates.",
                     item.Graph?.Component as Object);

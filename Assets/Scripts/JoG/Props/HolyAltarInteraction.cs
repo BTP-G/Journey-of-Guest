@@ -1,17 +1,15 @@
 using EditorAttributes;
-using Xoderony.Localization;
-using Xoderony.YooAsset;
-using JoG.Character;
 using JoG.Interaction;
 using JoG.Inventory;
 using JoG.Item;
-using JoG.Localization;
 using JoG.Networking;
 using JoG.UI;
 using System.Text;
 using Unity.Netcode;
 using UnityEngine;
 using VContainer;
+using Xoderony.Localization;
+using Xoderony.YooAsset;
 
 namespace JoG.Props {
 

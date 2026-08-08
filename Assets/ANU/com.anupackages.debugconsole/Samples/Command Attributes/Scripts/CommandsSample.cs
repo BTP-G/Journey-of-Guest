@@ -1,11 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
 using ANU.IngameDebug.Console;
+using System.Collections.Generic;
 using UnityEngine;
 
 [DebugCommandPrefix("test-commands")]
-public class CommandsSample : MonoBehaviour
-{
+public class CommandsSample : MonoBehaviour {
     [DebugCommand][field: SerializeField] public bool Prop2 { get; set; } = true;
     [DebugCommand][SerializeField] private TwoEnum _twoEnum;
     [DebugCommand][SerializeField] private ThreeEnum _threeEnum;
@@ -17,29 +15,54 @@ public class CommandsSample : MonoBehaviour
     private enum ThreeEnum { OneOfThree, SecondName, ThirdValue }
     private enum FourEnum { OneOfFour, TwoOfFour, Third, Fourth }
 
-    [DebugCommand] private void SetTwoEnum(TwoEnum value) => _twoEnum = value;
-    [DebugCommand] private void SetThreeEnum(ThreeEnum value) => _threeEnum = value;
-    [DebugCommand] private void SetFourEnum(FourEnum value) => _fourEnum = value;
+    [DebugCommand]
+    private void SetTwoEnum(TwoEnum value) {
+        _twoEnum = value;
+    }
 
-    [DebugCommand] private TwoEnum GetTwoEnum() => _twoEnum;
-    [DebugCommand] private ThreeEnum GetThreeEnum() => _threeEnum;
-    [DebugCommand] private FourEnum GetFourEnum() => _fourEnum;
+    [DebugCommand]
+    private void SetThreeEnum(ThreeEnum value) {
+        _threeEnum = value;
+    }
+
+    [DebugCommand]
+    private void SetFourEnum(FourEnum value) {
+        _fourEnum = value;
+    }
+
+    [DebugCommand]
+    private TwoEnum GetTwoEnum() {
+        return _twoEnum;
+    }
+
+    [DebugCommand]
+    private ThreeEnum GetThreeEnum() {
+        return _threeEnum;
+    }
+
+    [DebugCommand]
+    private FourEnum GetFourEnum() {
+        return _fourEnum;
+    }
 
     [DebugCommand]
     private void SetStringFromList(
         [OptValDynamic("test-commands.list-string-values")]
         string value
-    ) => _stringValue = value;
+    ) {
+        _stringValue = value;
+    }
 
     [DebugCommand]
     private void SetStringFromListDefault(
         [OptValDynamic("test-commands.list-string-values")]
         string value = "default value not from list"
-    ) => _stringValue = value;
+    ) {
+        _stringValue = value;
+    }
 
     [DebugCommand]
-    private IEnumerable<string> ListStringValues()
-    {
+    private IEnumerable<string> ListStringValues() {
         yield return "first string value";
         yield return "second";
         yield return "third value longer than first one";
@@ -56,15 +79,19 @@ public class CommandsSample : MonoBehaviour
     [DebugCommand(Platforms = TargetPlatforms.PC | TargetPlatforms.Mobile)] private void Cmd_Pv_Mobile() { }
 
     [DebugCommand(Platforms = TargetPlatforms.Any)]
-    private bool AnyPlatform() => true;
+    private bool AnyPlatform() {
+        return true;
+    }
 
     [DebugCommand(DisplayOptions = CommandDisplayOptions.None)]
-    private bool ExcludedFromSuggestions() => true;
+    private bool ExcludedFromSuggestions() {
+        return true;
+    }
 
     [DebugCommand]
-    private void RegisterDummyCommands()
-    {
-        for (int i = 0; i < 10; i++)
+    private void RegisterDummyCommands() {
+        for (var i = 0; i < 10; i++) {
             DebugConsole.Commands.RegisterCommand($"dummy.dummy-command-{i + 1}", "", () => { });
+        }
     }
 }

@@ -1,4 +1,4 @@
-﻿using ANU.IngameDebug.Console;
+using ANU.IngameDebug.Console;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -28,7 +28,7 @@ namespace ANU.IngameDebug.Console {
 
             sb.AppendLine();
 
-            for (int i = 0; i < scenesCount; i++) {
+            for (var i = 0; i < scenesCount; i++) {
                 var scene = SceneManager.GetSceneAt(i);
                 DisplayHierarchy(scene, sb);
             }
@@ -51,13 +51,13 @@ namespace ANU.IngameDebug.Console {
 
                 DisplayHierarchy(obj, sb, "|  ");
             }
-
         }
         private static void DisplayHierarchy(GameObject gameObject, StringBuilder sb, string intent) {
-            if (gameObject == null)
+            if (gameObject == null) {
                 return;
+            }
 
-            for (int i = 0; i < gameObject.transform.childCount; i++) {
+            for (var i = 0; i < gameObject.transform.childCount; i++) {
                 var child = gameObject.transform.GetChild(i);
                 sb.Append(intent);
                 sb.Append("|--");
@@ -79,19 +79,21 @@ namespace ANU.IngameDebug.Console {
                 sb.AppendLine("]:");
 
                 sb.Append("|--parent: ");
-                if (item.transform.parent != null)
+                if (item.transform.parent != null) {
                     sb.AppendLine(item.transform.parent.name);
+                }
 
                 sb.Append("|--child count: ");
                 sb.AppendLine(item.transform.childCount.ToString());
-                for (int i = 0; i < item.transform.childCount; i++) {
+                for (var i = 0; i < item.transform.childCount; i++) {
                     sb.Append("   |--");
                     sb.AppendLine(item.transform.GetChild(i).name);
                 }
 
                 sb.AppendLine("|--components:");
-                foreach (var c in item.GetComponents<Component>())
+                foreach (var c in item.GetComponents<Component>()) {
                     ComponentInfo(c, sb, "   ");
+                }
             }
 
             DebugConsole.Logger.LogReturnValue(sb.ToString());
@@ -102,8 +104,9 @@ namespace ANU.IngameDebug.Console {
             sb.Append("|--");
             sb.AppendLine(component.GetType().Name);
 
-            if (component is Transform transform)
+            if (component is Transform transform) {
                 ComponentInfo(transform, sb, intent + "|  ");
+            }
         }
 
         private static void ComponentInfo(Transform transform, StringBuilder sb, string intent) {
@@ -126,32 +129,38 @@ namespace ANU.IngameDebug.Console {
         }
 
         [DebugCommand]
-        private static void SceneLoad([OptAltNames("n")][OptDesc("Load scene by name")][OptValDynamic("default.list-scene-names")] string name)
-            => SceneManager.LoadScene(name);
+        private static void SceneLoad([OptAltNames("n")][OptDesc("Load scene by name")][OptValDynamic("default.list-scene-names")] string name) {
+            SceneManager.LoadScene(name);
+        }
 
         [DebugCommand]
-        private static void SceneReload()
-            => SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        private static void SceneReload() {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
 
         [DebugCommand(DisplayOptions = CommandDisplayOptions.Console)]
-        private static IEnumerable<string> ListSceneNames()
-            => ListSceneIndices().Select(i => SceneUtility
-                .GetScenePathByBuildIndex(i)
-                .Split('/')
-                .LastOrDefault()
-                ?.Split('.')
-                ?.FirstOrDefault()
-            );
+        private static IEnumerable<string> ListSceneNames() {
+            return ListSceneIndices().Select(i => SceneUtility
+                                                                            .GetScenePathByBuildIndex(i)
+                                                                            .Split('/')
+                                                                            .LastOrDefault()
+                                                                            ?.Split('.')
+                                                                            ?.FirstOrDefault()
+                                                                        );
+        }
 
         private static IEnumerable<int> ListSceneIndices() {
             var cnt = SceneManager.sceneCountInBuildSettings;
-            for (int i = 0; i < cnt; i++)
+            for (var i = 0; i < cnt; i++) {
                 yield return i;
+            }
         }
     }
 
     internal class DefaultCommandsNoPrefix {
         [DebugCommand(DisplayOptions = CommandDisplayOptions.All & ~CommandDisplayOptions.Dashboard)]
-        private static string Echo(string value) => value;
+        private static string Echo(string value) {
+            return value;
+        }
     }
 }

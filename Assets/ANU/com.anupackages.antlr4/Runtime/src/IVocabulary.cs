@@ -1,13 +1,10 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-using Antlr4.Runtime;
 using Antlr4.Runtime.Misc;
-using Antlr4.Runtime.Sharpen;
 
-namespace Antlr4.Runtime
-{
+namespace Antlr4.Runtime {
     /// <summary>
     /// This interface provides information about the vocabulary used by a
     /// recognizer.
@@ -18,8 +15,7 @@ namespace Antlr4.Runtime
     /// </remarks>
     /// <seealso cref="Recognizer{Symbol, ATNInterpreter}.Vocabulary()"/>
     /// <author>Sam Harwell</author>
-    public interface IVocabulary
-    {
+    public interface IVocabulary {
         /// <summary>Gets the string literal associated with a token type.</summary>
         /// <remarks>
         /// Gets the string literal associated with a token type. The string returned

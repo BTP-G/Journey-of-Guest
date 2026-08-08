@@ -1,20 +1,16 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using Antlr4.Runtime;
-using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Dfa;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 
-namespace Antlr4.Runtime.Atn
-{
-    public class ATN
-    {
+namespace Antlr4.Runtime.Atn {
+    public class ATN {
         public const int INVALID_ALT_NUMBER = 0;
 
         [NotNull]
@@ -77,23 +73,20 @@ namespace Antlr4.Runtime.Atn
         private readonly PredictionContextCache contextCache = new PredictionContextCache();
 
         [NotNull]
-		public DFA[] decisionToDFA = new DFA[0];
+        public DFA[] decisionToDFA = new DFA[0];
 
         [NotNull]
-		public DFA[] modeToDFA = new DFA[0];
+        public DFA[] modeToDFA = new DFA[0];
 
         protected internal readonly ConcurrentDictionary<int, int> LL1Table = new ConcurrentDictionary<int, int>();
 
         /// <summary>Used for runtime deserialization of ATNs from strings</summary>
-        public ATN(ATNType grammarType, int maxTokenType)
-        {
+        public ATN(ATNType grammarType, int maxTokenType) {
             this.grammarType = grammarType;
             this.maxTokenType = maxTokenType;
         }
 
-
-        public virtual PredictionContext GetCachedContext(PredictionContext context)
-        {
+        public virtual PredictionContext GetCachedContext(PredictionContext context) {
             return PredictionContext.GetCachedContext(context, contextCache, new PredictionContext.IdentityHashMap());
         }
 
@@ -114,10 +107,9 @@ namespace Antlr4.Runtime.Atn
         /// 's rule.
         /// </summary>
         [return: NotNull]
-        public virtual IntervalSet NextTokens(ATNState s, RuleContext ctx)
-        {
-            LL1Analyzer anal = new LL1Analyzer(this);
-            IntervalSet next = anal.Look(s, ctx);
+        public virtual IntervalSet NextTokens(ATNState s, RuleContext ctx) {
+            var anal = new LL1Analyzer(this);
+            var next = anal.Look(s, ctx);
             return next;
         }
 
@@ -131,64 +123,53 @@ namespace Antlr4.Runtime.Atn
         /// rule.
         /// </summary>
         [return: NotNull]
-        public virtual IntervalSet NextTokens(ATNState s)
-        {
-            if (s.nextTokenWithinRule != null)
-            {
+        public virtual IntervalSet NextTokens(ATNState s) {
+            if (s.nextTokenWithinRule != null) {
                 return s.nextTokenWithinRule;
             }
-			s.nextTokenWithinRule = NextTokens(s, null);
+            s.nextTokenWithinRule = NextTokens(s, null);
             s.nextTokenWithinRule.SetReadonly(true);
             return s.nextTokenWithinRule;
         }
 
-        public virtual void AddState(ATNState state)
-        {
-            if (state != null)
-            {
+        public virtual void AddState(ATNState state) {
+            if (state != null) {
                 state.atn = this;
                 state.stateNumber = states.Count;
             }
             states.Add(state);
         }
 
-        public virtual void RemoveState(ATNState state)
-        {
+        public virtual void RemoveState(ATNState state) {
             states[state.stateNumber] = null;
         }
 
         // just free mem, don't shift states in list
-        public virtual void DefineMode(string name, TokensStartState s)
-        {
+        public virtual void DefineMode(string name, TokensStartState s) {
             modeNameToStartState[name] = s;
             modeToStartState.Add(s);
             modeToDFA = Arrays.CopyOf(modeToDFA, modeToStartState.Count);
-            modeToDFA[modeToDFA.Length - 1] = new DFA(s);
+            modeToDFA[^1] = new DFA(s);
             DefineDecisionState(s);
         }
 
-        public virtual int DefineDecisionState(DecisionState s)
-        {
+        public virtual int DefineDecisionState(DecisionState s) {
             decisionToState.Add(s);
             s.decision = decisionToState.Count - 1;
             decisionToDFA = Arrays.CopyOf(decisionToDFA, decisionToState.Count);
-            decisionToDFA[decisionToDFA.Length - 1] = new DFA(s, s.decision);
+            decisionToDFA[^1] = new DFA(s, s.decision);
             return s.decision;
         }
 
-        public virtual DecisionState GetDecisionState(int decision)
-        {
-            if (decisionToState.Count != 0)
-            {
+        public virtual DecisionState GetDecisionState(int decision) {
+            if (decisionToState.Count != 0) {
                 return decisionToState[decision];
             }
             return null;
         }
 
-        public virtual int NumberOfDecisions
-        {
-            get
-            {
+        public virtual int NumberOfDecisions {
+            get {
                 return decisionToState.Count;
             }
         }
@@ -227,33 +208,28 @@ namespace Antlr4.Runtime.Atn
         /// <paramref name="stateNumber"/>
         /// </exception>
         [return: NotNull]
-        public virtual IntervalSet GetExpectedTokens(int stateNumber, RuleContext context)
-        {
-            if (stateNumber < 0 || stateNumber >= states.Count)
-            {
+        public virtual IntervalSet GetExpectedTokens(int stateNumber, RuleContext context) {
+            if (stateNumber < 0 || stateNumber >= states.Count) {
                 throw new ArgumentException("Invalid state number.");
             }
-            RuleContext ctx = context;
-            ATNState s = states[stateNumber];
-            IntervalSet following = NextTokens(s);
-            if (!following.Contains(TokenConstants.EPSILON))
-            {
+            var ctx = context;
+            var s = states[stateNumber];
+            var following = NextTokens(s);
+            if (!following.Contains(TokenConstants.EPSILON)) {
                 return following;
             }
-            IntervalSet expected = new IntervalSet();
+            var expected = new IntervalSet();
             expected.AddAll(following);
             expected.Remove(TokenConstants.EPSILON);
-            while (ctx != null && ctx.invokingState >= 0 && following.Contains(TokenConstants.EPSILON))
-            {
-                ATNState invokingState = states[ctx.invokingState];
-                RuleTransition rt = (RuleTransition)invokingState.Transition(0);
+            while (ctx != null && ctx.invokingState >= 0 && following.Contains(TokenConstants.EPSILON)) {
+                var invokingState = states[ctx.invokingState];
+                var rt = (RuleTransition)invokingState.Transition(0);
                 following = NextTokens(rt.followState);
                 expected.AddAll(following);
                 expected.Remove(TokenConstants.EPSILON);
                 ctx = ctx.Parent;
             }
-            if (following.Contains(TokenConstants.EPSILON))
-            {
+            if (following.Contains(TokenConstants.EPSILON)) {
                 expected.Add(TokenConstants.EOF);
             }
             return expected;

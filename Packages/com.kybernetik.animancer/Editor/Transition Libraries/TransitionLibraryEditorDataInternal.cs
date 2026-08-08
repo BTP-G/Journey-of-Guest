@@ -6,8 +6,7 @@ using Animancer.TransitionLibraries;
 using System;
 using UnityEngine;
 
-namespace Animancer.Editor.TransitionLibraries
-{
+namespace Animancer.Editor.TransitionLibraries {
     /// <summary>[Editor-Only]
     /// Additional data for a <see cref="TransitionLibraryAsset"/> which is excluded from Runtime Builds.
     /// </summary>
@@ -21,52 +20,56 @@ namespace Animancer.Editor.TransitionLibraries
     [Serializable]
     public partial class TransitionLibraryEditorDataInternal :
         ICopyable<TransitionLibraryEditorDataInternal>,
-        IEquatable<TransitionLibraryEditorDataInternal>
-    {
+        IEquatable<TransitionLibraryEditorDataInternal> {
         /************************************************************************************************************************/
         #region Equality
         /************************************************************************************************************************/
 
         /// <summary>Are all fields in this object equal to the equivalent in `obj`?</summary>
-        public override bool Equals(object obj)
-            => Equals(obj as TransitionLibraryEditorDataInternal);
+        public override bool Equals(object obj) {
+            return Equals(obj as TransitionLibraryEditorDataInternal);
+        }
 
         /// <summary>Are all fields in this object equal to the equivalent fields in `other`?</summary>
-        public bool Equals(TransitionLibraryEditorDataInternal other)
-            => other != null
-            && _TransitionSortMode == other._TransitionSortMode
-            && AnimancerUtilities.ContentsAreEqual(_TransitionGroups, other._TransitionGroups);
+        public bool Equals(TransitionLibraryEditorDataInternal other) {
+            return other != null
+                                                                                  && _TransitionSortMode == other._TransitionSortMode
+                                                                                  && AnimancerUtilities.ContentsAreEqual(_TransitionGroups, other._TransitionGroups);
+        }
 
         /// <summary>Are all fields in `a` equal to the equivalent fields in `b`?</summary>
-        public static bool operator ==(TransitionLibraryEditorDataInternal a, TransitionLibraryEditorDataInternal b)
-            => a is null
-            ? b is null
-            : a.Equals(b);
+        public static bool operator ==(TransitionLibraryEditorDataInternal a, TransitionLibraryEditorDataInternal b) {
+            return a is null
+                                                                                                                                 ? b is null
+                                                                                                                                 : a.Equals(b);
+        }
 
         /// <summary>Are any fields in `a` not equal to the equivalent fields in `b`?</summary>
-        public static bool operator !=(TransitionLibraryEditorDataInternal a, TransitionLibraryEditorDataInternal b)
-            => !(a == b);
+        public static bool operator !=(TransitionLibraryEditorDataInternal a, TransitionLibraryEditorDataInternal b) {
+            return !(a == b);
+        }
 
         /************************************************************************************************************************/
 
         /// <summary>Returns a hash code based on the values of this object's fields.</summary>
-        public override int GetHashCode()
-            => AnimancerUtilities.Hash(287475157,
-                _TransitionSortMode.GetHashCode(),
-                _TransitionGroups.SafeGetHashCode());
+        public override int GetHashCode() {
+            return AnimancerUtilities.Hash(287475157,
+                                                          _TransitionSortMode.GetHashCode(),
+                                                          _TransitionGroups.SafeGetHashCode());
+        }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public void CopyFrom(TransitionLibraryEditorDataInternal copyFrom, CloneContext context)
-        {
+        public void CopyFrom(TransitionLibraryEditorDataInternal copyFrom, CloneContext context) {
             _TransitionSortMode = copyFrom._TransitionSortMode;
 
             var myGroups = TransitionGroups;
             var copyGroups = copyFrom.TransitionGroups;
             myGroups.Clear();
-            for (int i = 0; i < copyGroups.Count; i++)
+            for (var i = 0; i < copyGroups.Count; i++) {
                 myGroups.Add(copyGroups[i].CopyableClone(context));
+            }
         }
 
         /************************************************************************************************************************/

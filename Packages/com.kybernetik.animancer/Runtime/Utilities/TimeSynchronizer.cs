@@ -3,8 +3,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>
     /// A system for synchronizing the <see cref="AnimancerState.NormalizedTime"/>
     /// of animations within the same "group".
@@ -53,8 +52,7 @@ namespace Animancer
     /// 
     /// https://kybernetik.com.au/animancer/api/Animancer/TimeSynchronizer_1
     /// 
-    public class TimeSynchronizer<T>
-    {
+    public class TimeSynchronizer<T> {
         /************************************************************************************************************************/
 
         /// <summary>The group that the current animation is in.</summary>
@@ -73,12 +71,10 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Creates a new <see cref="TimeSynchronizer{T}"/>.</summary>
-        public TimeSynchronizer()
-        { }
+        public TimeSynchronizer() { }
 
         /// <summary>Creates a new <see cref="TimeSynchronizer{T}"/>.</summary>
-        public TimeSynchronizer(T group, bool synchronizeDefaultGroup = false)
-        {
+        public TimeSynchronizer(T group, bool synchronizeDefaultGroup = false) {
             CurrentGroup = group;
             SynchronizeDefaultGroup = synchronizeDefaultGroup;
         }
@@ -88,18 +84,19 @@ namespace Animancer
         /// <summary>
         /// Stores the <see cref="AnimancerState.NormalizedTimeD"/> of the <see cref="AnimancerLayer.CurrentState"/>.
         /// </summary>
-        public void StoreTime(AnimancerLayer layer)
-            => StoreTime(layer.CurrentState);
+        public void StoreTime(AnimancerLayer layer) {
+            StoreTime(layer.CurrentState);
+        }
 
         /// <summary>Stores the <see cref="AnimancerState.NormalizedTimeD"/> of the `state`.</summary>
-        public void StoreTime(AnimancerState state)
-            => StoreTime(state, state != null ? state.NormalizedTimeD : double.NaN);
+        public void StoreTime(AnimancerState state) {
+            StoreTime(state, state != null ? state.NormalizedTimeD : double.NaN);
+        }
 
         /************************************************************************************************************************/
 
         /// <summary>Sets the <see cref="State"/> and <see cref="NormalizedTime"/>.</summary>
-        public void StoreTime(AnimancerState state, double normalizedTime)
-        {
+        public void StoreTime(AnimancerState state, double normalizedTime) {
             State = state;
             NormalizedTime = normalizedTime;
         }
@@ -110,22 +107,25 @@ namespace Animancer
         /// Applies the <see cref="NormalizedTime"/> to the <see cref="AnimancerLayer.CurrentState"/>
         /// if the `group` matches the <see cref="CurrentGroup"/>.
         /// </summary>
-        public bool SyncTime(AnimancerLayer layer, T group)
-            => SyncTime(layer.CurrentState, group, Time.deltaTime);
+        public bool SyncTime(AnimancerLayer layer, T group) {
+            return SyncTime(layer.CurrentState, group, Time.deltaTime);
+        }
 
         /// <summary>
         /// Applies the <see cref="NormalizedTime"/> to the <see cref="AnimancerLayer.CurrentState"/>
         /// if the `group` matches the <see cref="CurrentGroup"/>.
         /// </summary>
-        public bool SyncTime(AnimancerLayer layer, T group, float deltaTime)
-            => SyncTime(layer.CurrentState, group, deltaTime);
+        public bool SyncTime(AnimancerLayer layer, T group, float deltaTime) {
+            return SyncTime(layer.CurrentState, group, deltaTime);
+        }
 
         /// <summary>
         /// Applies the <see cref="NormalizedTime"/> to the `state`
         /// if the `group` matches the <see cref="CurrentGroup"/>.
         /// </summary>
-        public bool SyncTime(AnimancerState state, T group)
-            => SyncTime(state, group, Time.deltaTime);
+        public bool SyncTime(AnimancerState state, T group) {
+            return SyncTime(state, group, Time.deltaTime);
+        }
 
         /// <summary>
         /// Applies the <see cref="NormalizedTime"/> to the `state`
@@ -134,21 +134,19 @@ namespace Animancer
         /// <remarks>
         /// If the `state` is the same one the time was stored from, this method does nothing and returns false.
         /// </remarks>
-        public bool SyncTime(AnimancerState state, T group, float deltaTime)
-        {
+        public bool SyncTime(AnimancerState state, T group, float deltaTime) {
             if (state == null ||
                 state == State ||
                 double.IsNaN(NormalizedTime) ||
                 !EqualityComparer<T>.Default.Equals(CurrentGroup, group) ||
-                (!SynchronizeDefaultGroup && EqualityComparer<T>.Default.Equals(default, group)))
-            {
+                (!SynchronizeDefaultGroup && EqualityComparer<T>.Default.Equals(default, group))) {
                 CurrentGroup = group;
                 return false;
             }
 
             // Setting the Time forces it to stay at that value after the next animation update.
             // But we actually want it to keep playing, so we need to add deltaTime manually.
-            state.MoveTime(NormalizedTime * state.Length + deltaTime * state.EffectiveSpeed, false);
+            state.MoveTime((NormalizedTime * state.Length) + (deltaTime * state.EffectiveSpeed), false);
 
             return true;
         }

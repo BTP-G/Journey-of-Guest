@@ -1,9 +1,6 @@
-﻿namespace ANU.IngameDebug.Console
-{
-    public static class ConsoleInputFactory
-    {
-        public static IConsoleInput GetInput()
-        {
+namespace ANU.IngameDebug.Console {
+    public static class ConsoleInputFactory {
+        public static IConsoleInput GetInput() {
 #if ENABLE_INPUT_SYSTEM
             return new ConsoleNewInput();
 #else

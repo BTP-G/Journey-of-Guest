@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace ANU.IngameDebug.Console
-{
+namespace ANU.IngameDebug.Console {
     [RequireComponent(typeof(RectTransform))]
     [ExecuteAlways]
-    internal class UILogPresenter : MonoBehaviour
-    {
+    internal class UILogPresenter : MonoBehaviour {
         [SerializeField] private Button _button;
         [SerializeField] private TextMeshProUGUI _message;
         [SerializeField] private TextMeshProUGUI _stacktrace;
@@ -35,8 +32,7 @@ namespace ANU.IngameDebug.Console
             _debugConsoleLogType,
             _debugMessageType,
             $"{_debugConsoleLogType} {_debugMessageType} {_message.text.Replace(_debugConsoleLogType.ToString(), "").Replace(_debugMessageType.ToString(), "").Trim()}",
-            _stacktrace.text.Trim())
-        {
+            _stacktrace.text.Trim()) {
             IsExpanded = _debugExpanded
         };
 
@@ -46,12 +42,12 @@ namespace ANU.IngameDebug.Console
         //TODO: later add there other elements
         public float PrefferedHeight => LayoutUtility.GetPreferredHeight(_message.rectTransform);
 
-        private void Awake()
-        {
-            _button.onClick.AddListener(() =>
-            {
-                if (Log == null)
+        private void Awake() {
+            _button.onClick.AddListener(() => {
+                if (Log == null) {
                     return;
+                }
+
                 Log.IsExpanded = !Log.IsExpanded;
 
                 UpdateStacktrace();
@@ -60,19 +56,16 @@ namespace ANU.IngameDebug.Console
             });
         }
 
-        private void OnEnable()
-        {
+        private void OnEnable() {
             DebugConsole.ThemeChanged += UpdateTheme;
             UpdateTheme(DebugConsole.CurrentTheme);
         }
 
-        private void OnDisable()
-        {
+        private void OnDisable() {
             DebugConsole.ThemeChanged -= UpdateTheme;
         }
 
-        public void Present(LogNode node, Action onClick)
-        {
+        public void Present(LogNode node, Action onClick) {
             Node = node;
             _onClick = onClick;
             UpdateMessage();
@@ -83,16 +76,15 @@ namespace ANU.IngameDebug.Console
             UpdateStacktrace();
         }
 
-        private void UpdateMessage() => _message.text = _iconSpace + Log.DisplayString;
+        private void UpdateMessage() {
+            _message.text = _iconSpace + Log.DisplayString;
+        }
 
-        private void UpdateIcon()
-        {
-            _icon.sprite = Log.ConsoleLogtype switch
-            {
+        private void UpdateIcon() {
+            _icon.sprite = Log.ConsoleLogtype switch {
                 ConsoleLogType.Input => _iconInput,
                 ConsoleLogType.Output => _iconOutput,
-                ConsoleLogType.AppMessage => Log.MessageType switch
-                {
+                ConsoleLogType.AppMessage => Log.MessageType switch {
                     LogType.Log => _iconLog,
                     LogType.Warning => _iconWarning,
                     LogType.Exception => _iconError,
@@ -104,15 +96,12 @@ namespace ANU.IngameDebug.Console
             };
         }
 
-        private void UpdateTheme(UITheme theme)
-        {
+        private void UpdateTheme(UITheme theme) {
             var color = theme == null
                 ? Color.white
-                : Log.ConsoleLogtype switch
-                {
+                : Log.ConsoleLogtype switch {
                     ConsoleLogType.Input => theme.Input,
-                    ConsoleLogType.Output => Log.MessageType switch
-                    {
+                    ConsoleLogType.Output => Log.MessageType switch {
                         LogType.Log => theme.Output_Log,
                         LogType.Warning => theme.Output_Warnings,
                         LogType.Exception => theme.Output_Exceptions,
@@ -120,8 +109,7 @@ namespace ANU.IngameDebug.Console
                         LogType.Error => theme.Output_Errors,
                         _ => throw new System.NotImplementedException()
                     },
-                    ConsoleLogType.AppMessage => Log.MessageType switch
-                    {
+                    ConsoleLogType.AppMessage => Log.MessageType switch {
                         LogType.Log => theme.Message_Log,
                         LogType.Warning => theme.Message_Warnings,
                         LogType.Exception => theme.Message_Exceptions,
@@ -138,24 +126,21 @@ namespace ANU.IngameDebug.Console
             _stacktrace.color = theme == null ? Color.white : theme.Stacktrace;
         }
 
-        private void UpdateStacktrace()
-        {
-            if (Log.IsExpanded && !string.IsNullOrEmpty(Log.StackTrace))
-            {
+        private void UpdateStacktrace() {
+            if (Log.IsExpanded && !string.IsNullOrEmpty(Log.StackTrace)) {
                 _stacktrace.text = _timeSpace + Log.StackTrace;
                 _stacktrace.gameObject.SetActive(true);
-            }
-            else
-            {
+            } else {
                 _stacktrace.gameObject.SetActive(false);
             }
         }
 
-        private void Update()
-        {
+        private void Update() {
             UpdateStacktrace();
-            if (Application.isPlaying)
+            if (Application.isPlaying) {
                 return;
+            }
+
             UpdateMessage();
             UpdateIcon();
         }

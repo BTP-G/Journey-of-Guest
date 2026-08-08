@@ -11,13 +11,11 @@ using UnityEngine.Playables;
 using static Animancer.Editor.AnimancerGUI;
 using Object = UnityEngine.Object;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only] Draws the Inspector GUI for an <see cref="IAnimancerComponent.Graph"/>.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/AnimancerGraphDrawer
     /// 
-    public class AnimancerGraphDrawer
-    {
+    public class AnimancerGraphDrawer {
         /************************************************************************************************************************/
 
         /// <summary>The currently drawing instance.</summary>
@@ -33,10 +31,10 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Draws the GUI of the <see cref="IAnimancerComponent.Graph"/> if there is only one target.</summary>
-        public void DoGUI(IAnimancerComponent[] targets)
-        {
-            if (targets.Length != 1)
+        public void DoGUI(IAnimancerComponent[] targets) {
+            if (targets.Length != 1) {
                 return;
+            }
 
             DoGUI(targets[0]);
         }
@@ -44,14 +42,12 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Draws the GUI of the <see cref="IAnimancerComponent.Graph"/>.</summary>
-        public void DoGUI(IAnimancerComponent target)
-        {
+        public void DoGUI(IAnimancerComponent target) {
             Current = this;
 
             DoNativeAnimatorControllerGUI(target);
 
-            if (!target.IsGraphInitialized)
-            {
+            if (!target.IsGraphInitialized) {
                 DoGraphNotInitializedGUI(target);
                 return;
             }
@@ -67,8 +63,7 @@ namespace Animancer.Editor
 
             // Gather the during the layout event and use the same ones during subsequent events to avoid GUI errors
             // in case they change (they shouldn't, but this is also more efficient).
-            if (Event.current.type == EventType.Layout)
-            {
+            if (Event.current.type == EventType.Layout) {
                 AnimancerLayerDrawer.GatherLayerEditors(graph, LayerDrawers, out _LayerCount);
                 GatherMainObjectUsage(graph);
             }
@@ -76,8 +71,9 @@ namespace Animancer.Editor
             AnimancerGraphControls.DoGraphGUI(graph, out var area);
             CheckContextMenu(area, graph);
 
-            for (int i = 0; i < _LayerCount; i++)
+            for (var i = 0; i < _LayerCount; i++) {
                 LayerDrawers[i].DoGUI();
+            }
 
             DoOrphanStatesGUI(graph);
 
@@ -88,11 +84,13 @@ namespace Animancer.Editor
             ParameterDictionaryDrawer.DoParametersGUI(graph);
             NamedEventDictionaryDrawer.DoEventsGUI(graph);
 
-            if (ShowInternalDetails)
+            if (ShowInternalDetails) {
                 DoInternalDetailsGUI(graph);
+            }
 
-            if (EditorGUI.EndChangeCheck() && !graph.IsGraphPlaying)
+            if (EditorGUI.EndChangeCheck() && !graph.IsGraphPlaying) {
                 graph.Evaluate();
+            }
 
             DoMultipleAnimationSystemWarningGUI(target);
 
@@ -108,19 +106,21 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Draws a GUI for the <see cref="Animator.runtimeAnimatorController"/> if there is one.</summary>
-        private void DoNativeAnimatorControllerGUI(IAnimancerComponent target)
-        {
+        private void DoNativeAnimatorControllerGUI(IAnimancerComponent target) {
             if (!EditorApplication.isPlaying &&
-                !target.IsGraphInitialized)
+                !target.IsGraphInitialized) {
                 return;
+            }
 
             var animator = target.Animator;
-            if (animator == null)
+            if (animator == null) {
                 return;
+            }
 
             var controller = animator.runtimeAnimatorController;
-            if (controller == null)
+            if (controller == null) {
                 return;
+            }
 
             BeginVerticalBox(GUI.skin.box);
 
@@ -128,19 +128,18 @@ namespace Animancer.Editor
 
             EditorGUI.BeginChangeCheck();
             controller = DoObjectFieldGUI(label, controller, false);
-            if (EditorGUI.EndChangeCheck())
+            if (EditorGUI.EndChangeCheck()) {
                 animator.runtimeAnimatorController = controller;
+            }
 
-            if (controller is AnimatorController editorController)
-            {
+            if (controller is AnimatorController editorController) {
                 var layers = editorController.layers;
-                for (int i = 0; i < layers.Length; i++)
-                {
+                for (var i = 0; i < layers.Length; i++) {
                     var layer = layers[i];
 
-                    var runtimeState = animator.IsInTransition(i) ?
-                        animator.GetNextAnimatorStateInfo(i) :
-                        animator.GetCurrentAnimatorStateInfo(i);
+                    var runtimeState = animator.IsInTransition(i)
+                        ? animator.GetNextAnimatorStateInfo(i)
+                        : animator.GetCurrentAnimatorStateInfo(i);
 
                     var states = layer.stateMachine.states;
                     var editorState = GetState(states, runtimeState.shortNameHash);
@@ -150,8 +149,7 @@ namespace Animancer.Editor
                     var weight = i == 0 ? 1 : animator.GetLayerWeight(i);
 
                     string stateName;
-                    if (editorState != null)
-                    {
+                    if (editorState != null) {
                         stateName = editorState.GetCachedName();
 
                         var isLooping = editorState.motion != null && editorState.motion.isLooping;
@@ -163,9 +161,7 @@ namespace Animancer.Editor
                             runtimeState.speed,
                             runtimeState.length,
                             isLooping);
-                    }
-                    else
-                    {
+                    } else {
                         stateName = "State Not Found";
                     }
 
@@ -181,13 +177,10 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Returns the state with the specified <see cref="AnimatorState.nameHash"/>.</summary>
-        private static AnimatorState GetState(ChildAnimatorState[] states, int nameHash)
-        {
-            for (int i = 0; i < states.Length; i++)
-            {
+        private static AnimatorState GetState(ChildAnimatorState[] states, int nameHash) {
+            for (var i = 0; i < states.Length; i++) {
                 var state = states[i].state;
-                if (state.nameHash == nameHash)
-                {
+                if (state.nameHash == nameHash) {
                     return state;
                 }
             }
@@ -197,19 +190,18 @@ namespace Animancer.Editor
 
         /************************************************************************************************************************/
 
-        private void DoGraphNotInitializedGUI(IAnimancerComponent target)
-        {
+        private void DoGraphNotInitializedGUI(IAnimancerComponent target) {
             if (!EditorApplication.isPlaying ||
                 target.Animator == null ||
-                EditorUtility.IsPersistent(target.Animator))
+                EditorUtility.IsPersistent(target.Animator)) {
                 return;
+            }
 
             EditorGUILayout.HelpBox("Animancer is not initialized." +
                 " It will be initialized automatically when something uses it, such as playing an animation.",
                  MessageType.Info);
 
-            if (TryUseClickEventInLastRect(1))
-            {
+            if (TryUseClickEventInLastRect(1)) {
                 var menu = new GenericMenu();
 
                 menu.AddItem(new("Initialize"), false, () => target.Graph.Evaluate());
@@ -224,16 +216,16 @@ namespace Animancer.Editor
 
         private readonly AnimancerLayerDrawer OrphanStatesDrawer = new();
 
-        private void DoOrphanStatesGUI(AnimancerGraph graph)
-        {
+        private void DoOrphanStatesGUI(AnimancerGraph graph) {
             var states = OrphanStatesDrawer.ActiveStates;
             states.Clear();
-            foreach (var state in graph.States)
-                if (state.Parent == null)
+            foreach (var state in graph.States) {
+                if (state.Parent == null) {
                     states.Add(state);
+                }
+            }
 
-            if (states.Count > 0)
-            {
+            if (states.Count > 0) {
                 ApplySortStatesByName(states);
 
                 OrphanStatesDrawer.DoStatesGUI("Orphans", states);
@@ -242,43 +234,44 @@ namespace Animancer.Editor
 
         /************************************************************************************************************************/
 
-        private void DoLayerWeightWarningGUI(IAnimancerComponent target)
-        {
-            if (_LayerCount == 0)
-            {
+        private void DoLayerWeightWarningGUI(IAnimancerComponent target) {
+            if (_LayerCount == 0) {
                 EditorGUILayout.HelpBox(
                     "No layers have been created, which likely means no animations have been played yet.",
                     MessageType.Warning);
 
-                if (GUILayout.Button("Create Base Layer"))
+                if (GUILayout.Button("Create Base Layer")) {
                     target.Graph.Layers.Count = 1;
+                }
 
                 return;
             }
 
             if (!target.gameObject.activeInHierarchy ||
                 !target.enabled ||
-                (target.Animator != null && target.Animator.runtimeAnimatorController != null))
-                return;
-
-            if (_LayerCount == 1)
-            {
-                var layer = LayerDrawers[0].Value;
-                if (layer.Weight == 0)
-                    EditorGUILayout.HelpBox(
-                        layer + " is at 0 weight, which likely means no animations have been played yet.",
-                        MessageType.Warning);
+                (target.Animator != null && target.Animator.runtimeAnimatorController != null)) {
                 return;
             }
 
-            for (int i = 0; i < _LayerCount; i++)
-            {
+            if (_LayerCount == 1) {
+                var layer = LayerDrawers[0].Value;
+                if (layer.Weight == 0) {
+                    EditorGUILayout.HelpBox(
+                        layer + " is at 0 weight, which likely means no animations have been played yet.",
+                        MessageType.Warning);
+                }
+
+                return;
+            }
+
+            for (var i = 0; i < _LayerCount; i++) {
                 var layer = LayerDrawers[i].Value;
                 if (layer.Weight == 1 &&
                     !layer.IsAdditive &&
                     layer._Mask == null &&
-                    Mathf.Approximately(layer.GetTotalChildWeight(), 1))
+                    Mathf.Approximately(layer.GetTotalChildWeight(), 1)) {
                     return;
+                }
             }
 
             EditorGUILayout.HelpBox(
@@ -286,27 +279,23 @@ namespace Animancer.Editor
                 " Click here for more information.",
                 MessageType.Warning);
 
-            if (TryUseClickEventInLastRect())
+            if (TryUseClickEventInLastRect()) {
                 EditorUtility.OpenWithDefaultApp(Strings.DocsURLs.Layers + "#blending");
+            }
         }
 
         /************************************************************************************************************************/
 
-        private void DoMultipleAnimationSystemWarningGUI(IAnimancerComponent target)
-        {
+        private void DoMultipleAnimationSystemWarningGUI(IAnimancerComponent target) {
             const string OnlyOneSystemWarning =
                 "This is not supported. Each object can only be controlled by one system at a time.";
 
-            using (ListPool<IAnimancerComponent>.Instance.Acquire(out var animancers))
-            {
+            using (ListPool<IAnimancerComponent>.Instance.Acquire(out var animancers)) {
                 target.gameObject.GetComponents(animancers);
-                if (animancers.Count > 1)
-                {
-                    for (int i = 0; i < animancers.Count; i++)
-                    {
+                if (animancers.Count > 1) {
+                    for (var i = 0; i < animancers.Count; i++) {
                         var other = animancers[i];
-                        if (other != target && other.Animator == target.Animator)
-                        {
+                        if (other != target && other.Animator == target.Animator) {
                             EditorGUILayout.HelpBox(
                                 $"There are multiple {nameof(IAnimancerComponent)}s trying to control the target" +
                                 $" {nameof(Animator)}. {OnlyOneSystemWarning}",
@@ -318,8 +307,7 @@ namespace Animancer.Editor
                 }
             }
 
-            if (target.Animator.TryGetComponent<Animation>(out _))
-            {
+            if (target.Animator.TryGetComponent<Animation>(out _)) {
                 EditorGUILayout.HelpBox(
                     $"There is a Legacy {nameof(Animation)} component on the same object as the target" +
                     $" {nameof(Animator)}. {OnlyOneSystemWarning}",
@@ -335,8 +323,7 @@ namespace Animancer.Editor
             AreDisposablesExpanded = new(KeyPrefix + nameof(AreDisposablesExpanded), false);
 
         /// <summary>Draws a box describing the internal details of the `graph`.</summary>
-        private void DoInternalDetailsGUI(AnimancerGraph graph)
-        {
+        private void DoInternalDetailsGUI(AnimancerGraph graph) {
             EditorGUI.indentLevel++;
 
             DoGroupDetailsGUI(graph.PreUpdatables, "Pre-Updatables", ArePreUpdatablesExpanded);
@@ -347,26 +334,25 @@ namespace Animancer.Editor
         }
 
         /// <summary>Draws the `items`.</summary>
-        private static void DoGroupDetailsGUI<T>(IReadOnlyList<T> items, string groupName, BoolPref isExpanded)
-        {
+        private static void DoGroupDetailsGUI<T>(IReadOnlyList<T> items, string groupName, BoolPref isExpanded) {
             var count = items.Count;
 
             isExpanded.Value = DoLabelFoldoutFieldGUI(groupName, count.ToStringCached(), isExpanded);
 
             EditorGUI.indentLevel++;
 
-            if (isExpanded)
-                for (int i = 0; i < count; i++)
+            if (isExpanded) {
+                for (var i = 0; i < count; i++) {
                     DoDetailsGUI(items[i]);
+                }
+            }
 
             EditorGUI.indentLevel--;
         }
 
         /// <summary>Draws the details of the `item`.</summary>
-        private static void DoDetailsGUI(object item)
-        {
-            if (item is AnimancerNode node)
-            {
+        private static void DoDetailsGUI(object item) {
+            if (item is AnimancerNode node) {
                 var area = LayoutSingleLineRect(SpacingMode.Before);
                 area = EditorGUI.IndentedRect(area);
 
@@ -377,8 +363,7 @@ namespace Animancer.Editor
             }
 
             var gui = CustomGUIFactory.GetOrCreateForObject(item);
-            if (gui != null)
-            {
+            if (gui != null) {
                 gui.DoGUI();
                 return;
             }
@@ -396,37 +381,34 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Is the given `mainObject` used as the <see cref="AnimancerState.MainObject"/> of multiple states?</summary>
-        public bool IsMainObjectUsedMultipleTimes(Object mainObject)
-            => MainObjectDuplicateUsage.TryGetValue(mainObject, out var duplicate)
-            && duplicate;
+        public bool IsMainObjectUsedMultipleTimes(Object mainObject) {
+            return MainObjectDuplicateUsage.TryGetValue(mainObject, out var duplicate)
+                                                                                 && duplicate;
+        }
 
         /************************************************************************************************************************/
 
-        private void GatherMainObjectUsage(AnimancerGraph graph)
-        {
+        private void GatherMainObjectUsage(AnimancerGraph graph) {
             MainObjectDuplicateUsage.Clear();
 
             var layers = graph.Layers;
             var layerCount = layers.Count;
 
-            for (int iLayer = 0; iLayer < layerCount; iLayer++)
-            {
+            for (var iLayer = 0; iLayer < layerCount; iLayer++) {
                 var layer = layers[iLayer];
                 var childCount = layer.ChildCount;
-                for (int iState = 0; iState < childCount; iState++)
-                {
+                for (var iState = 0; iState < childCount; iState++) {
                     var state = layer.GetChild(iState);
                     var mainObject = state.MainObject;
-                    if (mainObject == null)
+                    if (mainObject == null) {
                         continue;
-
-                    if (MainObjectDuplicateUsage.TryGetValue(mainObject, out var duplicate))
-                    {
-                        if (!duplicate)
-                            MainObjectDuplicateUsage[mainObject] = true;
                     }
-                    else
-                    {
+
+                    if (MainObjectDuplicateUsage.TryGetValue(mainObject, out var duplicate)) {
+                        if (!duplicate) {
+                            MainObjectDuplicateUsage[mainObject] = true;
+                        }
+                    } else {
                         MainObjectDuplicateUsage.Add(mainObject, false);
                     }
                 }
@@ -443,10 +425,10 @@ namespace Animancer.Editor
         /// Checks if the current event is a context menu click within the `clickArea`
         /// and opens a context menu with various functions for the `graph`.
         /// </summary>
-        private void CheckContextMenu(Rect clickArea, AnimancerGraph graph)
-        {
-            if (!TryUseClickEvent(clickArea, 1))
+        private void CheckContextMenu(Rect clickArea, AnimancerGraph graph) {
+            if (!TryUseClickEvent(clickArea, 1)) {
                 return;
+            }
 
             var menu = new GenericMenu();
 
@@ -475,8 +457,7 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Adds functions for controlling the `graph`.</summary>
-        public static void AddRootFunctions(GenericMenu menu, AnimancerGraph graph)
-        {
+        public static void AddRootFunctions(GenericMenu menu, AnimancerGraph graph) {
             menu.AddFunction("Add Layer",
                 graph.Layers.Count < AnimancerLayerList.DefaultCapacity,
                 () => graph.Layers.Count++);
@@ -492,11 +473,9 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Adds menu functions to set the <see cref="DirectorUpdateMode"/>.</summary>
-        private void AddUpdateModeFunctions(GenericMenu menu, AnimancerGraph graph)
-        {
+        private void AddUpdateModeFunctions(GenericMenu menu, AnimancerGraph graph) {
             var modes = Enum.GetValues(typeof(DirectorUpdateMode));
-            for (int i = 0; i < modes.Length; i++)
-            {
+            for (var i = 0; i < modes.Length; i++) {
                 var mode = (DirectorUpdateMode)modes.GetValue(i);
                 menu.AddItem(new("Update Mode/" + mode), graph.UpdateMode == mode,
                     () => graph.UpdateMode = mode);
@@ -506,18 +485,13 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Adds disabled items for each disposable.</summary>
-        private void AddDisposablesFunctions(GenericMenu menu, List<IDisposable> disposables)
-        {
+        private void AddDisposablesFunctions(GenericMenu menu, List<IDisposable> disposables) {
             var prefix = $"{nameof(AnimancerGraph.Disposables)}: {disposables.Count}";
-            if (disposables.Count == 0)
-            {
+            if (disposables.Count == 0) {
                 menu.AddDisabledItem(new(prefix), false);
-            }
-            else
-            {
+            } else {
                 prefix += "/";
-                for (int i = 0; i < disposables.Count; i++)
-                {
+                for (var i = 0; i < disposables.Count; i++) {
                     menu.AddDisabledItem(new(prefix + disposables[i]), false);
                 }
             }
@@ -526,13 +500,11 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Adds a menu function to open the Playable Graph Visualiser if it exists in the project.</summary>
-        public static void AddPlayableGraphVisualizerFunction(GenericMenu menu, string prefix, PlayableGraph graph)
-        {
+        public static void AddPlayableGraphVisualizerFunction(GenericMenu menu, string prefix, PlayableGraph graph) {
             var type = Type.GetType(
                 "GraphVisualizer.PlayableGraphVisualizerWindow, Unity.PlayableGraphVisualizer.Editor");
 
-            menu.AddFunction(prefix + "Playable Graph Visualizer", type != null, () =>
-            {
+            menu.AddFunction(prefix + "Playable Graph Visualizer", type != null, () => {
                 var window = EditorWindow.GetWindow(type);
 
                 var field = type.GetField("m_CurrentGraph", AnimancerReflection.AnyAccessBindings);
@@ -568,8 +540,7 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Adds functions to the `menu` for each of the Display Options.</summary>
-        public static void AddDisplayOptions(GenericMenu menu)
-        {
+        public static void AddDisplayOptions(GenericMenu menu) {
             RepaintConstantly.AddToggleFunction(menu);
             SortStatesByName.AddToggleFunction(menu);
             SeparateActiveFromInactiveStates.AddToggleFunction(menu);
@@ -586,10 +557,10 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Sorts the `states` if <see cref="SortStatesByName"/> is enabled.</summary>
-        public static void ApplySortStatesByName(List<AnimancerState> states)
-        {
-            if (SortStatesByName)
+        public static void ApplySortStatesByName(List<AnimancerState> states) {
+            if (SortStatesByName) {
                 states.Sort((x, y) => x.ToString().CompareTo(y.ToString()));
+            }
         }
 
         /************************************************************************************************************************/

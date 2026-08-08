@@ -1,18 +1,15 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-using System;
-using System.IO;
-using System.Collections.Generic;
-using System.Text;
-using Antlr4.Runtime;
 using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Misc;
-using Antlr4.Runtime.Sharpen;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
 
-namespace Antlr4.Runtime
-{
+namespace Antlr4.Runtime {
     /// <summary>A lexer is recognizer that draws input symbols from a character stream.</summary>
     /// <remarks>
     /// A lexer is recognizer that draws input symbols from a character stream.
@@ -20,8 +17,7 @@ namespace Antlr4.Runtime
     /// uses simplified match() and error recovery mechanisms in the interest
     /// of speed.
     /// </remarks>
-    public abstract class Lexer : Recognizer<int, LexerATNSimulator>, ITokenSource
-    {
+    public abstract class Lexer : Recognizer<int, LexerATNSimulator>, ITokenSource {
         public const int DEFAULT_MODE = 0;
 
         public const int DefaultTokenChannel = TokenConstants.DefaultChannel;
@@ -38,7 +34,7 @@ namespace Antlr4.Runtime
 
         protected readonly TextWriter ErrorOutput;
 
-		private Tuple<ITokenSource, ICharStream> _tokenFactorySourcePair;
+        private Tuple<ITokenSource, ICharStream> _tokenFactorySourcePair;
 
         /// <summary>How to create token objects</summary>
 		private ITokenFactory _factory = CommonTokenFactory.Default;
@@ -87,7 +83,7 @@ namespace Antlr4.Runtime
 
         private readonly Stack<int> _modeStack = new Stack<int>();
 
-		private int _mode = Antlr4.Runtime.Lexer.DEFAULT_MODE;
+        private int _mode = Antlr4.Runtime.Lexer.DEFAULT_MODE;
 
         /// <summary>
         /// You can set the text for the current token to override what is in
@@ -101,21 +97,16 @@ namespace Antlr4.Runtime
 
         public Lexer(ICharStream input) : this(input, Console.Out, Console.Error) { }
 
-        public Lexer(ICharStream input, TextWriter output, TextWriter errorOutput)
-        {
-            this._input = input;
-            this.Output = output;
-            this.ErrorOutput = errorOutput;
-            this._tokenFactorySourcePair = Tuple.Create((ITokenSource)this, input);
+        public Lexer(ICharStream input, TextWriter output, TextWriter errorOutput) {
+            _input = input;
+            Output = output;
+            ErrorOutput = errorOutput;
+            _tokenFactorySourcePair = Tuple.Create((ITokenSource)this, input);
         }
 
-        public virtual void Reset()
-        {
+        public virtual void Reset() {
             // wack Lexer state variables
-            if (_input != null)
-            {
-                _input.Seek(0);
-            }
+            _input?.Seek(0);
             // rewind the input
             _token = null;
             _type = TokenConstants.InvalidType;
@@ -138,21 +129,16 @@ namespace Antlr4.Runtime
         /// Return a token from this source; i.e., match a token on the char
         /// stream.
         /// </remarks>
-        public virtual IToken NextToken()
-        {
-            if (_input == null)
-            {
+        public virtual IToken NextToken() {
+            if (_input == null) {
                 throw new InvalidOperationException("nextToken requires a non-null input stream.");
             }
             // Mark start location in char stream so unbuffered streams are
             // guaranteed at least have text of current token
-            int tokenStartMarker = _input.Mark();
-            try
-            {
-                while (true)
-                {
-                    if (_hitEOF)
-                    {
+            var tokenStartMarker = _input.Mark();
+            try {
+                while (true) {
+                    if (_hitEOF) {
                         EmitEOF();
                         return _token;
                     }
@@ -162,48 +148,38 @@ namespace Antlr4.Runtime
                     _tokenStartColumn = Interpreter.Column;
                     _tokenStartLine = Interpreter.Line;
                     _text = null;
-                    do
-                    {
+                    do {
                         _type = TokenConstants.InvalidType;
                         //				System.out.println("nextToken line "+tokenStartLine+" at "+((char)input.LA(1))+
                         //								   " in mode "+mode+
                         //								   " at index "+input.index());
                         int ttype;
-                        try
-                        {
+                        try {
                             ttype = Interpreter.Match(_input, _mode);
-                        }
-                        catch (LexerNoViableAltException e)
-                        {
+                        } catch (LexerNoViableAltException e) {
                             NotifyListeners(e);
                             // report error
                             Recover(e);
                             ttype = TokenTypes.Skip;
                         }
-                        if (_input.LA(1) == IntStreamConstants.EOF)
-                        {
+                        if (_input.LA(1) == IntStreamConstants.EOF) {
                             _hitEOF = true;
                         }
-                        if (_type == TokenConstants.InvalidType)
-                        {
+                        if (_type == TokenConstants.InvalidType) {
                             _type = ttype;
                         }
-                        if (_type == TokenTypes.Skip)
-                        {
+                        if (_type == TokenTypes.Skip) {
                             goto outer_continue;
                         }
                     }
                     while (_type == TokenTypes.More);
-                    if (_token == null)
-                    {
+                    if (_token == null) {
                         Emit();
                     }
                     return _token;
-outer_continue: ;
+                outer_continue:;
                 }
-            }
-            finally
-            {
+            } finally {
                 // make sure we release marker after match or
                 // unbuffered char stream will keep buffering
                 _input.Release(tokenStartMarker);
@@ -221,83 +197,67 @@ outer_continue: ;
         /// if token==null at end of any token rule, it creates one for you
         /// and emits it.
         /// </remarks>
-        public virtual void Skip()
-        {
+        public virtual void Skip() {
             _type = TokenTypes.Skip;
         }
 
-        public virtual void More()
-        {
+        public virtual void More() {
             _type = TokenTypes.More;
         }
 
-        public virtual void Mode(int m)
-        {
+        public virtual void Mode(int m) {
             _mode = m;
         }
 
-        public virtual void PushMode(int m)
-        {
+        public virtual void PushMode(int m) {
             _modeStack.Push(_mode);
             Mode(m);
         }
 
-        public virtual int PopMode()
-        {
-            if (_modeStack.Count == 0)
-            {
+        public virtual int PopMode() {
+            if (_modeStack.Count == 0) {
                 throw new InvalidOperationException();
             }
 
-            int mode = _modeStack.Pop();
+            var mode = _modeStack.Pop();
             Mode(mode);
             return _mode;
         }
 
-        public virtual ITokenFactory TokenFactory
-        {
-            get
-            {
+        public virtual ITokenFactory TokenFactory {
+            get {
                 return _factory;
             }
-            set
-            {
-                ITokenFactory factory = value;
-                this._factory = factory;
+            set {
+                var factory = value;
+                _factory = factory;
             }
         }
 
         /// <summary>Set the char stream and reset the lexer</summary>
-        public virtual void SetInputStream(ICharStream input)
-        {
-            this._input = null;
-            this._tokenFactorySourcePair = Tuple.Create((ITokenSource)this, _input);
+        public virtual void SetInputStream(ICharStream input) {
+            _input = null;
+            _tokenFactorySourcePair = Tuple.Create((ITokenSource)this, _input);
             Reset();
-            this._input = input;
-            this._tokenFactorySourcePair = Tuple.Create((ITokenSource)this, _input);
+            _input = input;
+            _tokenFactorySourcePair = Tuple.Create((ITokenSource)this, _input);
         }
 
-        public virtual string SourceName
-        {
-            get
-            {
+        public virtual string SourceName {
+            get {
                 return _input.SourceName;
             }
         }
 
-        public override IIntStream InputStream
-        {
-            get
-            {
+        public override IIntStream InputStream {
+            get {
                 return _input;
             }
         }
 
-        ICharStream ITokenSource.InputStream
-        {
-            get
-            {
-				return _input;
+        ICharStream ITokenSource.InputStream {
+            get {
+                return _input;
             }
         }
 
@@ -311,10 +271,9 @@ outer_continue: ;
         /// and getToken (to push tokens into a list and pull from that list
         /// rather than a single variable as this implementation does).
         /// </remarks>
-        public virtual void Emit(IToken token)
-        {
+        public virtual void Emit(IToken token) {
             //System.err.println("emit "+token);
-            this._token = token;
+            _token = token;
         }
 
         /// <summary>
@@ -328,80 +287,64 @@ outer_continue: ;
         /// use that to set the token's text.  Override this method to emit
         /// custom Token objects or provide a new factory.
         /// </remarks>
-        public virtual IToken Emit()
-        {
-            IToken t = _factory.Create(_tokenFactorySourcePair, _type, _text, _channel, _tokenStartCharIndex, CharIndex - 1, _tokenStartLine, _tokenStartColumn);
+        public virtual IToken Emit() {
+            var t = _factory.Create(_tokenFactorySourcePair, _type, _text, _channel, _tokenStartCharIndex, CharIndex - 1, _tokenStartLine, _tokenStartColumn);
             Emit(t);
             return t;
         }
 
-        public virtual IToken EmitEOF()
-        {
-            int cpos = Column;
-			int line = Line;
-            IToken eof = _factory.Create(_tokenFactorySourcePair, TokenConstants.EOF, null, TokenConstants.DefaultChannel, _input.Index, _input.Index - 1, line, cpos);
+        public virtual IToken EmitEOF() {
+            var cpos = Column;
+            var line = Line;
+            var eof = _factory.Create(_tokenFactorySourcePair, TokenConstants.EOF, null, TokenConstants.DefaultChannel, _input.Index, _input.Index - 1, line, cpos);
             Emit(eof);
             return eof;
         }
 
-        public virtual int Line
-        {
-            get
-            {
+        public virtual int Line {
+            get {
                 return Interpreter.Line;
             }
-            set
-            {
-                int line = value;
+            set {
+                var line = value;
                 Interpreter.Line = line;
             }
         }
 
-        public virtual int Column
-        {
-            get
-            {
+        public virtual int Column {
+            get {
                 return Interpreter.Column;
             }
-            set
-            {
-                int charPositionInLine = value;
+            set {
+                var charPositionInLine = value;
                 Interpreter.Column = charPositionInLine;
             }
         }
 
         /// <summary>What is the index of the current character of lookahead?</summary>
-        public virtual int CharIndex
-        {
-            get
-            {
+        public virtual int CharIndex {
+            get {
                 return _input.Index;
             }
         }
 
-		public virtual int TokenStartCharIndex
-		{
-			get
-			{
-				return _tokenStartCharIndex;
-			}
-		}
+        public virtual int TokenStartCharIndex {
+            get {
+                return _tokenStartCharIndex;
+            }
+        }
 
-		public virtual int TokenStartLine
-		{
-			get
-			{
-				return _tokenStartLine;
-			}
-		}
+        public virtual int TokenStartLine {
+            get {
+                return _tokenStartLine;
+            }
+        }
 
-		public virtual int TokenStartColumn
-		{
-			get
-			{
-				return _tokenStartColumn;
-			}
-		}
+        public virtual int TokenStartColumn {
+            get {
+                return _tokenStartColumn;
+            }
+        }
 
         /// <summary>
         /// Return the text matched so far for the current token or any text
@@ -419,110 +362,85 @@ outer_continue: ;
         /// Set the complete text of this token; it wipes any previous changes to the
         /// text.
         /// </remarks>
-        public virtual string Text
-        {
-            get
-            {
-                if (_text != null)
-                {
+        public virtual string Text {
+            get {
+                if (_text != null) {
                     return _text;
                 }
                 return Interpreter.GetText(_input);
             }
-            set
-            {
-                string text = value;
-                this._text = text;
+            set {
+                var text = value;
+                _text = text;
             }
         }
 
         /// <summary>Override if emitting multiple tokens.</summary>
         /// <remarks>Override if emitting multiple tokens.</remarks>
-        public virtual IToken Token
-        {
-            get
-            {
+        public virtual IToken Token {
+            get {
                 return _token;
             }
-            set
-            {
-                IToken _token = value;
+            set {
+                var _token = value;
                 this._token = _token;
             }
         }
 
-        public virtual int Type
-        {
-            get
-            {
+        public virtual int Type {
+            get {
                 return _type;
             }
-            set
-            {
-                int ttype = value;
+            set {
+                var ttype = value;
                 _type = ttype;
             }
         }
 
-        public virtual int Channel
-        {
-            get
-            {
+        public virtual int Channel {
+            get {
                 return _channel;
             }
-            set
-            {
-                int channel = value;
+            set {
+                var channel = value;
                 _channel = channel;
             }
         }
 
-        public virtual Stack<int> ModeStack
-        {
-            get
-            {
+        public virtual Stack<int> ModeStack {
+            get {
                 return _modeStack;
             }
         }
 
-        public virtual int CurrentMode
-        {
-            get
-            {
+        public virtual int CurrentMode {
+            get {
                 return _mode;
             }
-            set
-            {
-                int mode = value;
+            set {
+                var mode = value;
                 _mode = mode;
             }
         }
 
-        public virtual bool HitEOF
-        {
-            get
-            {
+        public virtual bool HitEOF {
+            get {
                 return _hitEOF;
             }
-            set
-            {
-                bool hitEOF = value;
+            set {
+                var hitEOF = value;
                 _hitEOF = hitEOF;
             }
         }
 
-        public virtual string[] ChannelNames
-        {
-            get
-            {
+        public virtual string[] ChannelNames {
+            get {
                 return null;
             }
         }
 
-        public virtual string[] ModeNames
-        {
-            get
-            {
+        public virtual string[] ModeNames {
+            get {
                 return null;
             }
         }
@@ -532,87 +450,73 @@ outer_continue: ;
         /// Return a list of all Token objects in input char stream.
         /// Forces load of all tokens. Does not include EOF token.
         /// </remarks>
-        public virtual IList<IToken> GetAllTokens()
-        {
+        public virtual IList<IToken> GetAllTokens() {
             IList<IToken> tokens = new List<IToken>();
-            IToken t = NextToken();
-            while (t.Type != TokenConstants.EOF)
-            {
+            var t = NextToken();
+            while (t.Type != TokenConstants.EOF) {
                 tokens.Add(t);
                 t = NextToken();
             }
             return tokens;
         }
 
-        public virtual void Recover(LexerNoViableAltException e)
-        {
-            if (_input.LA(1) != IntStreamConstants.EOF)
-            {
+        public virtual void Recover(LexerNoViableAltException e) {
+            if (_input.LA(1) != IntStreamConstants.EOF) {
                 // skip a char and try again
                 Interpreter.Consume(_input);
             }
         }
 
-        public virtual void NotifyListeners(LexerNoViableAltException e)
-        {
-            string text = _input.GetText(Interval.Of(_tokenStartCharIndex, _input.Index));
-            string msg = "token recognition error at: '" + GetErrorDisplay(text) + "'";
-            IAntlrErrorListener<int> listener = ErrorListenerDispatch;
+        public virtual void NotifyListeners(LexerNoViableAltException e) {
+            var text = _input.GetText(Interval.Of(_tokenStartCharIndex, _input.Index));
+            var msg = "token recognition error at: '" + GetErrorDisplay(text) + "'";
+            var listener = ErrorListenerDispatch;
             listener.SyntaxError(ErrorOutput, this, 0, _tokenStartLine, _tokenStartColumn, msg, e);
         }
 
-        public virtual string GetErrorDisplay(string s)
-        {
-            StringBuilder buf = new StringBuilder();
-            for (var i = 0; i < s.Length; ) {
-                var codePoint = Char.ConvertToUtf32(s, i);
+        public virtual string GetErrorDisplay(string s) {
+            var buf = new StringBuilder();
+            for (var i = 0; i < s.Length;) {
+                var codePoint = char.ConvertToUtf32(s, i);
                 buf.Append(GetErrorDisplay(codePoint));
                 i += (codePoint > 0xFFFF) ? 2 : 1;
             }
             return buf.ToString();
         }
 
-        public virtual string GetErrorDisplay(int c)
-        {
+        public virtual string GetErrorDisplay(int c) {
             string s;
-            switch (c)
-            {
-                case TokenConstants.EOF:
-                {
+            switch (c) {
+                case TokenConstants.EOF: {
                     s = "<EOF>";
                     break;
                 }
 
-                case '\n':
-                {
+                case '\n': {
                     s = "\\n";
                     break;
                 }
 
-                case '\t':
-                {
+                case '\t': {
                     s = "\\t";
                     break;
                 }
 
-                case '\r':
-                {
+                case '\r': {
                     s = "\\r";
                     break;
                 }
 
-                default:
-                {
-                    s = Char.ConvertFromUtf32(c);
+                default: {
+                    s = char.ConvertFromUtf32(c);
                     break;
                 }
             }
             return s;
         }
 
-        public virtual string GetCharErrorDisplay(int c)
-        {
-            string s = GetErrorDisplay(c);
+        public virtual string GetCharErrorDisplay(int c) {
+            var s = GetErrorDisplay(c);
             return "'" + s + "'";
         }
 
@@ -627,8 +531,7 @@ outer_continue: ;
         /// it all works out.  You can instead use the rule invocation stack
         /// to do sophisticated error recovery if you are in a fragment rule.
         /// </remarks>
-        public virtual void Recover(RecognitionException re)
-        {
+        public virtual void Recover(RecognitionException re) {
             //System.out.println("consuming char "+(char)input.LA(1)+" during recovery");
             //re.printStackTrace();
             // TODO: Do we lose character or line position information?

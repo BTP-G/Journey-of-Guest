@@ -15,7 +15,9 @@ namespace JoG.UI {
             }
         }
 
-        public void SetTargetSteamId(ulong steamId) => _transport.targetSteamId = steamId;
+        public void SetTargetSteamId(ulong steamId) {
+            _transport.targetSteamId = steamId;
+        }
 
         public void StartHost() {
             _networkManager.NetworkConfig.NetworkTransport = _transport;

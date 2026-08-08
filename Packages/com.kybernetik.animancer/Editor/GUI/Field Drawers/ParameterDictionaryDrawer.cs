@@ -3,15 +3,12 @@
 #if UNITY_EDITOR && UNITY_IMGUI
 
 using UnityEditor;
-using UnityEngine;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only] Draws the Inspector GUI for an <see cref="ParameterDictionary"/>.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/ParameterDictionaryDrawer
     /// 
-    public static class ParameterDictionaryDrawer
-    {
+    public static class ParameterDictionaryDrawer {
         /************************************************************************************************************************/
 
         private const string
@@ -23,10 +20,10 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Draws the <see cref="AnimancerGraph.Parameters"/>.</summary>
-        public static void DoParametersGUI(AnimancerGraph graph)
-        {
-            if (!graph.HasParameters)
+        public static void DoParametersGUI(AnimancerGraph graph) {
+            if (!graph.HasParameters) {
                 return;
+            }
 
             EditorGUI.indentLevel++;
 
@@ -37,16 +34,17 @@ namespace Animancer.Editor
                 parameters.Count.ToStringCached(),
                 AreParametersExpanded);
 
-            if (AreParametersExpanded)
-            {
+            if (AreParametersExpanded) {
                 EditorGUI.indentLevel++;
 
                 var sortedParameters = ListPool.Acquire<IParameter>();
                 sortedParameters.AddRange(parameters);
                 sortedParameters.Sort();
 
-                foreach (var item in sortedParameters)
+                foreach (var item in sortedParameters) {
                     DoParameterGUI(item);
+                }
+
                 ListPool.Release(sortedParameters);
 
                 EditorGUI.indentLevel--;
@@ -58,11 +56,9 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Draws the `parameter`.</summary>
-        private static void DoParameterGUI(IParameter parameter)
-        {
+        private static void DoParameterGUI(IParameter parameter) {
             var gui = CustomGUIFactory.GetOrCreateForObject(parameter);
-            if (gui == null)
-            {
+            if (gui == null) {
                 EditorGUILayout.LabelField(parameter.Key, parameter.Value.ToString());
                 return;
             }

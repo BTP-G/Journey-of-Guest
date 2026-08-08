@@ -2,11 +2,9 @@
 
 using System;
 
-namespace Animancer
-{
+namespace Animancer {
     /// https://kybernetik.com.au/animancer/api/Animancer/AnimancerEvent
-    partial struct AnimancerEvent
-    {
+    public partial struct AnimancerEvent {
         /************************************************************************************************************************/
         // Reference Types.
         /************************************************************************************************************************/

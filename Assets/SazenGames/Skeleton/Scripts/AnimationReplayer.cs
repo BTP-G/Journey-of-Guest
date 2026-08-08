@@ -1,14 +1,12 @@
-﻿using UnityEngine;
+using UnityEngine;
 
-namespace SazenGames.Skeleton
-{
+namespace SazenGames.Skeleton {
     /// <summary>
     /// This script replays a specified animation state on an Animator component at regular intervals.
     /// It also provides an option to reset the GameObject's Position before each replay.
     /// </summary>
     [RequireComponent(typeof(Animator))]
-    public class AnimationReplayer : MonoBehaviour
-    {
+    public class AnimationReplayer : MonoBehaviour {
         [Header("Animation Settings")]
         [SerializeField] private string animationStateName = "YourAnimationState"; // Replace with your actual animation state name
         [SerializeField] private float replayDelay = 2f; // Delay in seconds before replaying
@@ -19,11 +17,9 @@ namespace SazenGames.Skeleton
         private Animator animator;
         private Vector3 initialPosition;
 
-        void Start()
-        {
+        private void Start() {
             animator = GetComponent<Animator>();
-            if (animator == null)
-            {
+            if (animator == null) {
                 Debug.LogError("Animator component not found on this GameObject!");
                 return;
             }
@@ -34,11 +30,9 @@ namespace SazenGames.Skeleton
             PlayAnimation();
         }
 
-        private void PlayAnimation()
-        {
+        private void PlayAnimation() {
             // Reset Position to initial if enabled
-            if (resetPositionOnReplay)
-            {
+            if (resetPositionOnReplay) {
                 transform.position = initialPosition;
             }
 
@@ -48,8 +42,7 @@ namespace SazenGames.Skeleton
         }
 
         // Public method to manually reset Position (e.g., call from another script or UI button)
-        public void ResetPosition()
-        {
+        public void ResetPosition() {
             transform.position = initialPosition;
         }
     }

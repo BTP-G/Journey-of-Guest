@@ -1,9 +1,9 @@
-using Xoderony.Unity;
-using Unity.Netcode;
 using JoG.Core;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
 using VContainer;
+using Xoderony.Unity;
 
 namespace JoG.Projectiles {
 
@@ -54,7 +54,10 @@ namespace JoG.Projectiles {
         }
 
         private void OnPreFixedUpdate() {
-            if (Time.time < _lifeEndTime) return;
+            if (Time.time < _lifeEndTime) {
+                return;
+            }
+
             NetworkObject.DeferDespawn(4, true);
         }
     }

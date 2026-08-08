@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
 using ANU.IngameDebug.Utils;
+using System.Collections.Generic;
 
-namespace ANU.IngameDebug.Console
-{
-    public class CommandLineHistory
-    {
+namespace ANU.IngameDebug.Console {
+    public class CommandLineHistory {
         private readonly LinkedList<string> _commands = new LinkedList<string>();
         private LinkedListNode<string> _currentNode;
 
@@ -13,47 +10,48 @@ namespace ANU.IngameDebug.Console
 
         public IReadOnlyCollection<string> Commands => _commands;
 
-        public bool TryMoveUp(out string command)
-        {
+        public bool TryMoveUp(out string command) {
             command = null;
 
-            if (_currentNode == null)
-            {
-                if (_commands.Count == 0)
+            if (_currentNode == null) {
+                if (_commands.Count == 0) {
                     return false;
+                }
 
                 _currentNode = _commands.Last;
                 command = _currentNode.Value;
                 return true;
             }
 
-            if (_currentNode.Previous == null)
+            if (_currentNode.Previous == null) {
                 return false;
+            }
 
             _currentNode = _currentNode.Previous;
             command = _currentNode.Value;
             return true;
         }
 
-        public bool TryMoveDown(out string command)
-        {
+        public bool TryMoveDown(out string command) {
             command = null;
 
-            if (_currentNode == null)
+            if (_currentNode == null) {
                 return false;
+            }
 
-            if (_currentNode.Next == null)
+            if (_currentNode.Next == null) {
                 return false;
+            }
 
             _currentNode = _currentNode.Next;
             command = _currentNode.Value;
             return true;
         }
 
-        public bool Record(string command)
-        {
-            if (string.IsNullOrEmpty(command))
+        public bool Record(string command) {
+            if (string.IsNullOrEmpty(command)) {
                 return false;
+            }
 
             _commands.RemoveAll(v => v == command);
             _commands.AddLast(command);
@@ -61,16 +59,13 @@ namespace ANU.IngameDebug.Console
             return true;
         }
 
-        public void Reset()
-        {
+        public void Reset() {
             _currentNode = null;
         }
 
-        public void Clear()
-        {
+        public void Clear() {
             _commands.Clear();
             Reset();
         }
-        
     }
 }

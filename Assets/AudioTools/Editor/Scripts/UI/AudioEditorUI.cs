@@ -1,21 +1,18 @@
-﻿using ImpossibleRobert.Common;
+using ImpossibleRobert.Common;
 using System;
 using System.IO;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 #if !AUDIO_TOOL_NOAUDIO
-using JD.EditorAudioUtils;
 #endif
 
-namespace AudioTool
-{
+namespace AudioTool {
     /// <summary>
     /// Audio editor window for trimming, processing, and exporting audio files.
     /// Can work standalone (via context menu) or embedded (via IAudioSource).
     /// </summary>
-    public sealed class AudioEditorUI : CommonEditorUI
-    {
+    public sealed class AudioEditorUI : CommonEditorUI {
         private const int WAVEFORM_HEIGHT = 200;
         private const int HANDLE_WIDTH = 8;
 
@@ -106,37 +103,23 @@ namespace AudioTool
         private static GUIStyle _playheadStyle;
         private static GUIStyle _durationStyle;
 
-        private static void EnsureTimeStyles()
-        {
-            if (_selectionMarkerStyle == null)
-            {
-                _selectionMarkerStyle = new GUIStyle(EditorStyles.miniLabel)
-                {
-                    normal = { textColor = new Color(0.3f, 0.7f, 1f) },
-                    alignment = TextAnchor.MiddleCenter
-                };
-            }
-            if (_playheadStyle == null)
-            {
-                _playheadStyle = new GUIStyle(EditorStyles.miniLabel)
-                {
-                    normal = { textColor = new Color(1f, 0.4f, 0.4f) },
-                    alignment = TextAnchor.MiddleCenter
-                };
-            }
-            if (_durationStyle == null)
-            {
-                _durationStyle = new GUIStyle(EditorStyles.miniLabel)
-                {
-                    normal = { textColor = new Color(1f, 0.8f, 0.3f) },
-                    alignment = TextAnchor.MiddleCenter
-                };
-            }
+        private static void EnsureTimeStyles() {
+            _selectionMarkerStyle ??= new GUIStyle(EditorStyles.miniLabel) {
+                normal = { textColor = new Color(0.3f, 0.7f, 1f) },
+                alignment = TextAnchor.MiddleCenter
+            };
+            _playheadStyle ??= new GUIStyle(EditorStyles.miniLabel) {
+                normal = { textColor = new Color(1f, 0.4f, 0.4f) },
+                alignment = TextAnchor.MiddleCenter
+            };
+            _durationStyle ??= new GUIStyle(EditorStyles.miniLabel) {
+                normal = { textColor = new Color(1f, 0.8f, 0.3f) },
+                alignment = TextAnchor.MiddleCenter
+            };
         }
 
-        public static AudioEditorUI ShowWindow()
-        {
-            AudioEditorUI window = GetWindow<AudioEditorUI>("Audio Editor");
+        public static AudioEditorUI ShowWindow() {
+            var window = GetWindow<AudioEditorUI>("Audio Editor");
             window.minSize = new Vector2(430, 300);
             window.Show();
             return window;
@@ -147,8 +130,7 @@ namespace AudioTool
         /// </summary>
         /// <param name="audioSource">The audio source to edit</param>
         /// <param name="exportFolder">Target folder for export (defaults to same folder as source)</param>
-        public async void Init(IAudioSource audioSource, string exportFolder = null)
-        {
+        public async void Init(IAudioSource audioSource, string exportFolder = null) {
             _audioSource = audioSource;
             _audioFilePath = audioSource is FileAudioSource fas ? fas.FullPath : null;
             _isInProject = audioSource.IsInProject;
@@ -157,19 +139,13 @@ namespace AudioTool
             _waveformRenderer = new AudioWaveformRenderer();
 
             // Default export folder to same location as source
-            if (string.IsNullOrEmpty(exportFolder))
-            {
-                if (audioSource.IsInProject && !string.IsNullOrEmpty(audioSource.ProjectPath))
-                {
+            if (string.IsNullOrEmpty(exportFolder)) {
+                if (audioSource.IsInProject && !string.IsNullOrEmpty(audioSource.ProjectPath)) {
                     _exportFolder = Path.GetDirectoryName(IOUtils.PathCombine(Path.GetDirectoryName(Application.dataPath), audioSource.ProjectPath));
-                }
-                else if (_audioFilePath != null)
-                {
+                } else if (_audioFilePath != null) {
                     _exportFolder = Path.GetDirectoryName(_audioFilePath);
                 }
-            }
-            else
-            {
+            } else {
                 _exportFolder = exportFolder;
             }
 
@@ -185,18 +161,15 @@ namespace AudioTool
             await LoadAudioClip();
         }
 
-        private async Task LoadAudioClip()
-        {
+        private async Task LoadAudioClip() {
             _isLoading = true;
             _loadingMessage = "Loading audio file...";
             Repaint();
 
-            try
-            {
-                string targetPath = await _audioSource.GetMaterializedPathAsync();
+            try {
+                var targetPath = await _audioSource.GetMaterializedPathAsync();
 
-                if (string.IsNullOrEmpty(targetPath) || !File.Exists(targetPath))
-                {
+                if (string.IsNullOrEmpty(targetPath) || !File.Exists(targetPath)) {
                     _loadingMessage = "Failed to load audio file.";
                     return;
                 }
@@ -204,21 +177,18 @@ namespace AudioTool
                 // Load without streaming to access raw samples via GetData()
                 _audioClip = await AudioManager.LoadAudioFromFile(targetPath, false);
 
-                if (_audioClip == null)
-                {
+                if (_audioClip == null) {
                     _loadingMessage = "Failed to decode audio file.";
                     return;
                 }
 
-                if (!_audioClip.LoadAudioData())
-                {
+                if (!_audioClip.LoadAudioData()) {
                     _loadingMessage = "Failed to load audio data.";
                     return;
                 }
 
                 _samples = new float[_audioClip.samples * _audioClip.channels];
-                if (!_audioClip.GetData(_samples, 0))
-                {
+                if (!_audioClip.GetData(_samples, 0)) {
                     _loadingMessage = "Failed to read audio samples.";
                     return;
                 }
@@ -234,14 +204,11 @@ namespace AudioTool
                 _isLoading = false;
 
                 // Auto-play on initial window open (not after recompile)
-                if (_autoPlayOnLoad)
-                {
+                if (_autoPlayOnLoad) {
                     _autoPlayOnLoad = false;
                     StartPlayback();
                 }
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 _loadingMessage = $"Error: {e.Message}";
                 Debug.LogError($"AudioEditorUI: {e}");
             }
@@ -249,21 +216,23 @@ namespace AudioTool
             Repaint();
         }
 
-        private async System.Threading.Tasks.Task ApplyEffects()
-        {
-            if (_originalSamples == null || _samples == null || _audioClip == null) return;
-            if (_originalSamples.Length != _samples.Length) return;
+        private async System.Threading.Tasks.Task ApplyEffects() {
+            if (_originalSamples == null || _samples == null || _audioClip == null) {
+                return;
+            }
 
-            bool hasAnyEffect = _normalize || _fadeIn || _fadeOut || _adjustVolume;
+            if (_originalSamples.Length != _samples.Length) {
+                return;
+            }
 
-            if (!hasAnyEffect && !_hasSelection)
-            {
+            var hasAnyEffect = _normalize || _fadeIn || _fadeOut || _adjustVolume;
+
+            if (!hasAnyEffect && !_hasSelection) {
                 Array.Copy(_originalSamples, _samples, _originalSamples.Length);
                 _cachedPeakAmplitude = AudioProcessor.GetPeakAmplitude(_samples);
                 _cachedPeakDb = _cachedPeakAmplitude > 0 ? $"{20 * Mathf.Log10(_cachedPeakAmplitude):F1} dB" : "-∞ dB";
 
-                if (_processedClip != null)
-                {
+                if (_processedClip != null) {
                     DestroyImmediate(_processedClip);
                     _processedClip = null;
                 }
@@ -273,14 +242,12 @@ namespace AudioTool
                 return;
             }
 
-            if (!hasAnyEffect)
-            {
+            if (!hasAnyEffect) {
                 Array.Copy(_originalSamples, _samples, _originalSamples.Length);
                 _cachedPeakAmplitude = AudioProcessor.GetPeakAmplitude(_samples);
                 _cachedPeakDb = _cachedPeakAmplitude > 0 ? $"{20 * Mathf.Log10(_cachedPeakAmplitude):F1} dB" : "-∞ dB";
 
-                if (_processedClip != null)
-                {
+                if (_processedClip != null) {
                     DestroyImmediate(_processedClip);
                     _processedClip = null;
                 }
@@ -292,50 +259,48 @@ namespace AudioTool
 
             Array.Copy(_originalSamples, _samples, _originalSamples.Length);
 
-            float selStart = _hasSelection ? _selectionStartNormalized : 0f;
-            float selEnd = _hasSelection ? _selectionEndNormalized : 1f;
+            var selStart = _hasSelection ? _selectionStartNormalized : 0f;
+            var selEnd = _hasSelection ? _selectionEndNormalized : 1f;
 
-            int startSample = Mathf.RoundToInt(selStart * _audioClip.samples);
-            int endSample = Mathf.RoundToInt(selEnd * _audioClip.samples);
+            var startSample = Mathf.RoundToInt(selStart * _audioClip.samples);
+            var endSample = Mathf.RoundToInt(selEnd * _audioClip.samples);
 
-            if (startSample >= endSample) return;
+            if (startSample >= endSample) {
+                return;
+            }
 
-            float[] workingSamples = AudioProcessor.TrimAudio(_samples, _audioClip.channels, startSample, endSample);
-            if (workingSamples == null || workingSamples.Length == 0) return;
+            var workingSamples = AudioProcessor.TrimAudio(_samples, _audioClip.channels, startSample, endSample);
+            if (workingSamples == null || workingSamples.Length == 0) {
+                return;
+            }
 
-            if (_normalize)
-            {
+            if (_normalize) {
                 AudioProcessor.Normalize(workingSamples, _normalizeTarget);
             }
 
-            if (_fadeIn)
-            {
-                int fadeSamples = Mathf.RoundToInt(_fadeInDuration * _audioClip.frequency);
+            if (_fadeIn) {
+                var fadeSamples = Mathf.RoundToInt(_fadeInDuration * _audioClip.frequency);
                 AudioProcessor.ApplyFade(workingSamples, _audioClip.channels, fadeSamples, true, _fadeInCurve);
             }
 
-            if (_fadeOut)
-            {
-                int fadeSamples = Mathf.RoundToInt(_fadeOutDuration * _audioClip.frequency);
+            if (_fadeOut) {
+                var fadeSamples = Mathf.RoundToInt(_fadeOutDuration * _audioClip.frequency);
                 AudioProcessor.ApplyFade(workingSamples, _audioClip.channels, fadeSamples, false, _fadeOutCurve);
             }
 
-            if (_adjustVolume && !Mathf.Approximately(_volumeAdjustment, 1f))
-            {
+            if (_adjustVolume && !Mathf.Approximately(_volumeAdjustment, 1f)) {
                 AudioProcessor.AdjustVolume(workingSamples, _volumeAdjustment);
             }
 
-            int sourceOffset = startSample * _audioClip.channels;
-            for (int i = 0; i < workingSamples.Length && (sourceOffset + i) < _samples.Length; i++)
-            {
+            var sourceOffset = startSample * _audioClip.channels;
+            for (var i = 0; i < workingSamples.Length && (sourceOffset + i) < _samples.Length; i++) {
                 _samples[sourceOffset + i] = workingSamples[i];
             }
 
             _cachedPeakAmplitude = AudioProcessor.GetPeakAmplitude(workingSamples);
             _cachedPeakDb = _cachedPeakAmplitude > 0 ? $"{20 * Mathf.Log10(_cachedPeakAmplitude):F1} dB" : "-∞ dB";
 
-            if (_processedClip != null)
-            {
+            if (_processedClip != null) {
                 DestroyImmediate(_processedClip);
             }
 
@@ -345,64 +310,63 @@ namespace AudioTool
             _overlayNeedsUpdate = true;
 
             // Auto-restart playback if currently playing to hear changes
-            if (_isPlaying)
-            {
+            if (_isPlaying) {
                 StopPlayback();
                 StartPlayback();
             }
         }
 
-        private void RenderWaveform()
-        {
-            if (_audioClip == null || _samples == null) return;
-            if (_waveformRenderer == null)
-            {
-                _waveformRenderer = new AudioWaveformRenderer();
+        private void RenderWaveform() {
+            if (_audioClip == null || _samples == null) {
+                return;
             }
 
-            int width = (int)position.width;
+            _waveformRenderer ??= new AudioWaveformRenderer();
+
+            var width = (int)position.width;
             width = Mathf.Max(400, width - 40);
 
             _waveformRenderer.RenderWaveform(ref _waveformTexture, _samples, _audioClip.channels, width, WAVEFORM_HEIGHT);
         }
 
-        private void UpdateOverlay(bool forceUpdate = false)
-        {
-            if (_waveformTexture == null) return;
+        private void UpdateOverlay(bool forceUpdate = false) {
+            if (_waveformTexture == null) {
+                return;
+            }
 
-            float playhead = _isPlaying ? GetNormalizedPlayheadPosition() : _manualPlayheadPosition;
+            var playhead = _isPlaying ? GetNormalizedPlayheadPosition() : _manualPlayheadPosition;
 
-            bool selectionChanged = Mathf.Abs(_selectionStartNormalized - _lastSelectionStart) > 0.0001f ||
+            var selectionChanged = Mathf.Abs(_selectionStartNormalized - _lastSelectionStart) > 0.0001f ||
                 Mathf.Abs(_selectionEndNormalized - _lastSelectionEnd) > 0.0001f ||
                 _hasSelection != _lastHasSelection;
-            bool playheadChanged = Mathf.Abs(playhead - _lastPlayheadPosition) > 0.001f;
-            bool isDragging = _isDraggingStart || _isDraggingEnd || _isDraggingSelection;
+            var playheadChanged = Mathf.Abs(playhead - _lastPlayheadPosition) > 0.001f;
+            var isDragging = _isDraggingStart || _isDraggingEnd || _isDraggingSelection;
 
-            bool needsUpdate = forceUpdate || _overlayNeedsUpdate || selectionChanged || playheadChanged || isDragging;
+            var needsUpdate = forceUpdate || _overlayNeedsUpdate || selectionChanged || playheadChanged || isDragging;
 
-            if (!needsUpdate) return;
+            if (!needsUpdate) {
+                return;
+            }
 
             // Selection values for overlay - only pass actual selection, not the full clip
-            float selStart = _hasSelection ? _selectionStartNormalized : 0f;
-            float selEnd = _hasSelection ? _selectionEndNormalized : 0f;
-            
+            var selStart = _hasSelection ? _selectionStartNormalized : 0f;
+            var selEnd = _hasSelection ? _selectionEndNormalized : 0f;
+
             // Effect region - where fades apply (selection if exists, else full clip)
-            float effectStart = _hasSelection ? _selectionStartNormalized : 0f;
-            float effectEnd = _hasSelection ? _selectionEndNormalized : 1f;
+            var effectStart = _hasSelection ? _selectionStartNormalized : 0f;
+            var effectEnd = _hasSelection ? _selectionEndNormalized : 1f;
 
             // Calculate fade regions for overlay visualization
-            float fadeInEnd = -1f;
-            float fadeOutStart = -1f;
-            float effectDuration = (effectEnd - effectStart) * _audioClip.length;
-            
-            if (_fadeIn && _fadeInDuration > 0 && _audioClip != null && effectDuration > 0)
-            {
-                fadeInEnd = effectStart + (_fadeInDuration / effectDuration) * (effectEnd - effectStart);
+            var fadeInEnd = -1f;
+            var fadeOutStart = -1f;
+            var effectDuration = (effectEnd - effectStart) * _audioClip.length;
+
+            if (_fadeIn && _fadeInDuration > 0 && _audioClip != null && effectDuration > 0) {
+                fadeInEnd = effectStart + (_fadeInDuration / effectDuration * (effectEnd - effectStart));
                 fadeInEnd = Mathf.Min(fadeInEnd, effectEnd);
             }
-            if (_fadeOut && _fadeOutDuration > 0 && _audioClip != null && effectDuration > 0)
-            {
-                fadeOutStart = effectEnd - (_fadeOutDuration / effectDuration) * (effectEnd - effectStart);
+            if (_fadeOut && _fadeOutDuration > 0 && _audioClip != null && effectDuration > 0) {
+                fadeOutStart = effectEnd - (_fadeOutDuration / effectDuration * (effectEnd - effectStart));
                 fadeOutStart = Mathf.Max(fadeOutStart, effectStart);
             }
 
@@ -428,12 +392,13 @@ namespace AudioTool
             _overlayNeedsUpdate = false;
         }
 
-        private void DetectSilence()
-        {
-            if (_originalSamples == null || _audioClip == null) return;
+        private void DetectSilence() {
+            if (_originalSamples == null || _audioClip == null) {
+                return;
+            }
 
-            (int startSample, int endSample) = AudioProcessor.DetectSilence(_originalSamples, _audioClip.channels, _silenceThreshold);
-            int totalSamples = _audioClip.samples;
+            (var startSample, var endSample) = AudioProcessor.DetectSilence(_originalSamples, _audioClip.channels, _silenceThreshold);
+            var totalSamples = _audioClip.samples;
 
             _silenceStartNormalized = (float)startSample / totalSamples;
             _silenceEndNormalized = (float)endSample / totalSamples;
@@ -441,67 +406,66 @@ namespace AudioTool
             _overlayNeedsUpdate = true;
         }
 
-        private void DetectSilenceInRange(float rangeStartNormalized, float rangeEndNormalized, out float trimmedStartNormalized, out float trimmedEndNormalized)
-        {
+        private void DetectSilenceInRange(float rangeStartNormalized, float rangeEndNormalized, out float trimmedStartNormalized, out float trimmedEndNormalized) {
             trimmedStartNormalized = rangeStartNormalized;
             trimmedEndNormalized = rangeEndNormalized;
 
-            if (_originalSamples == null || _audioClip == null) return;
+            if (_originalSamples == null || _audioClip == null) {
+                return;
+            }
 
-            int totalSamples = _audioClip.samples;
-            int rangeStartSample = Mathf.RoundToInt(rangeStartNormalized * totalSamples);
-            int rangeEndSample = Mathf.RoundToInt(rangeEndNormalized * totalSamples);
+            var totalSamples = _audioClip.samples;
+            var rangeStartSample = Mathf.RoundToInt(rangeStartNormalized * totalSamples);
+            var rangeEndSample = Mathf.RoundToInt(rangeEndNormalized * totalSamples);
 
-            float[] rangeSamples = AudioProcessor.TrimAudio(_originalSamples, _audioClip.channels, rangeStartSample, rangeEndSample);
-            if (rangeSamples == null || rangeSamples.Length == 0) return;
+            var rangeSamples = AudioProcessor.TrimAudio(_originalSamples, _audioClip.channels, rangeStartSample, rangeEndSample);
+            if (rangeSamples == null || rangeSamples.Length == 0) {
+                return;
+            }
 
-            (int localStartSample, int localEndSample) = AudioProcessor.DetectSilence(rangeSamples, _audioClip.channels, _silenceThreshold);
+            (var localStartSample, var localEndSample) = AudioProcessor.DetectSilence(rangeSamples, _audioClip.channels, _silenceThreshold);
 
-            int rangeLength = rangeEndSample - rangeStartSample;
-            if (rangeLength <= 0) return;
+            var rangeLength = rangeEndSample - rangeStartSample;
+            if (rangeLength <= 0) {
+                return;
+            }
 
-            trimmedStartNormalized = rangeStartNormalized + (float)localStartSample / totalSamples;
-            trimmedEndNormalized = rangeStartNormalized + (float)localEndSample / totalSamples;
+            trimmedStartNormalized = rangeStartNormalized + ((float)localStartSample / totalSamples);
+            trimmedEndNormalized = rangeStartNormalized + ((float)localEndSample / totalSamples);
         }
 
-        private float GetNormalizedPlayheadPosition()
-        {
+        private float GetNormalizedPlayheadPosition() {
 #if !AUDIO_TOOL_NOAUDIO
-            AudioClip clipToUse = _processedClip != null ? _processedClip : _audioClip;
-            if (clipToUse == null || !AudioManager.IsPlaying()) return -1f;
+            var clipToUse = _processedClip != null ? _processedClip : _audioClip;
+            if (clipToUse == null || !AudioManager.IsPlaying()) {
+                return -1f;
+            }
 
-            float currentPos = AudioManager.GetCurrentPosition();
+            var currentPos = AudioManager.GetCurrentPosition();
             return currentPos / clipToUse.length;
 #else
             return -1f;
 #endif
         }
 
-        private void OnEnable()
-        {
+        private void OnEnable() {
             EditorApplication.update += OnEditorUpdate;
 
             // Only need to reload if we have a file path but lost the audio clip AND waveform
             // If waveform texture survived domain reload, we can continue working
-            if (!string.IsNullOrEmpty(_audioFilePath) && _audioClip == null && _waveformTexture == null && !_isLoading)
-            {
+            if (!string.IsNullOrEmpty(_audioFilePath) && _audioClip == null && _waveformTexture == null && !_isLoading) {
                 _needsReload = true;
             }
 
-            if (_waveformRenderer == null)
-            {
-                _waveformRenderer = new AudioWaveformRenderer();
-            }
+            _waveformRenderer ??= new AudioWaveformRenderer();
         }
 
-        private async void ReloadAfterRecompile()
-        {
+        private async void ReloadAfterRecompile() {
             _isLoading = true;
             _loadingMessage = "Restoring audio editor...";
             Repaint();
 
-            if (string.IsNullOrEmpty(_audioFilePath))
-            {
+            if (string.IsNullOrEmpty(_audioFilePath)) {
                 _loadingMessage = "No audio file to reload.";
                 _isLoading = false;
                 return;
@@ -509,76 +473,55 @@ namespace AudioTool
 
             _audioSource = new FileAudioSource(_audioFilePath);
 
-            if (_waveformRenderer == null)
-            {
-                _waveformRenderer = new AudioWaveformRenderer();
-            }
+            _waveformRenderer ??= new AudioWaveformRenderer();
 
             await LoadAudioClip();
         }
 
-        private void OnDisable()
-        {
+        private void OnDisable() {
             EditorApplication.update -= OnEditorUpdate;
             AudioManager.StopAudio();
             _waveformRenderer = null;
-            
+
             // Only destroy textures and processed clip when actually closing the window,
             // not during domain reload (script recompilation)
-            bool isDomainReload = EditorApplication.isCompiling || EditorApplication.isUpdating;
-            if (!isDomainReload)
-            {
-                if (_waveformTexture != null)
-                {
+            var isDomainReload = EditorApplication.isCompiling || EditorApplication.isUpdating;
+            if (!isDomainReload) {
+                if (_waveformTexture != null) {
                     DestroyImmediate(_waveformTexture);
                     _waveformTexture = null;
                 }
-                if (_overlayTexture != null)
-                {
+                if (_overlayTexture != null) {
                     DestroyImmediate(_overlayTexture);
                     _overlayTexture = null;
                 }
-                if (_processedClip != null)
-                {
+                if (_processedClip != null) {
                     DestroyImmediate(_processedClip);
                     _processedClip = null;
                 }
             }
         }
 
-        private void OnEditorUpdate()
-        {
+        private void OnEditorUpdate() {
             // Handle delayed apply for effect changes (debouncing)
-            if (_pendingEffectApply && EditorApplication.timeSinceStartup - _lastEffectChangeTime >= EFFECT_APPLY_DELAY)
-            {
+            if (_pendingEffectApply && EditorApplication.timeSinceStartup - _lastEffectChangeTime >= EFFECT_APPLY_DELAY) {
                 _pendingEffectApply = false;
                 _ = ApplyEffects();
             }
 
-            if (_isPlaying)
-            {
+            if (_isPlaying) {
 #if !AUDIO_TOOL_NOAUDIO
-                if (!AudioManager.IsPlaying())
-                {
-                    if (_loop && _playSelection && _hasSelection)
-                    {
+                if (!AudioManager.IsPlaying()) {
+                    if (_loop && _playSelection && _hasSelection) {
                         PlaySelection();
-                    }
-                    else
-                    {
+                    } else {
                         _isPlaying = false;
                     }
-                }
-                else if (_playSelection && _hasSelection && AudioManager.IsRangePlaying)
-                {
-                    if (AudioManager.HasReachedRangeEnd())
-                    {
-                        if (_loop)
-                        {
+                } else if (_playSelection && _hasSelection && AudioManager.IsRangePlaying) {
+                    if (AudioManager.HasReachedRangeEnd()) {
+                        if (_loop) {
                             PlaySelection();
-                        }
-                        else
-                        {
+                        } else {
                             AudioManager.StopAudio();
                             _isPlaying = false;
                         }
@@ -589,17 +532,14 @@ namespace AudioTool
             }
         }
 
-        private void OnGUI()
-        {
-            if (_needsReload && !_isLoading)
-            {
+        private void OnGUI() {
+            if (_needsReload && !_isLoading) {
                 _needsReload = false;
                 ReloadAfterRecompile();
                 return;
             }
 
-            if (_isLoading || _audioClip == null)
-            {
+            if (_isLoading || _audioClip == null) {
                 DrawLoadingState();
                 return;
             }
@@ -620,8 +560,7 @@ namespace AudioTool
             DrawExportSection();
         }
 
-        private void DrawLoadingState()
-        {
+        private void DrawLoadingState() {
             GUILayout.FlexibleSpace();
             EditorGUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
@@ -631,10 +570,9 @@ namespace AudioTool
             GUILayout.FlexibleSpace();
         }
 
-        private void DrawHeader()
-        {
+        private void DrawHeader() {
             EditorGUILayout.BeginVertical("box");
-            int labelWidth = 100;
+            var labelWidth = 100;
 
             GUILabelWithText("File", _fileName ?? "Unknown", labelWidth);
             GUILabelWithText("Duration", FormatTime(_audioClip.length), labelWidth);
@@ -645,11 +583,9 @@ namespace AudioTool
             EditorGUILayout.EndVertical();
         }
 
-        private void DrawWaveform()
-        {
-            int expectedWidth = Mathf.Max(400, (int)position.width - 40);
-            if (_waveformTexture != null && _waveformTexture.width != expectedWidth)
-            {
+        private void DrawWaveform() {
+            var expectedWidth = Mathf.Max(400, (int)position.width - 40);
+            if (_waveformTexture != null && _waveformTexture.width != expectedWidth) {
                 RenderWaveform();
                 _overlayNeedsUpdate = true;
             }
@@ -664,55 +600,50 @@ namespace AudioTool
 
             EditorGUI.DrawRect(_waveformRect, new Color(0.1f, 0.1f, 0.1f));
 
-            if (_waveformTexture != null)
-            {
+            if (_waveformTexture != null) {
                 GUI.DrawTexture(_waveformRect, _waveformTexture, ScaleMode.StretchToFill);
             }
 
-            if (_overlayTexture != null)
-            {
+            if (_overlayTexture != null) {
                 GUI.DrawTexture(_waveformRect, _overlayTexture, ScaleMode.StretchToFill);
             }
 
             DrawTimeLabels();
         }
 
-        private void DrawTimeLabels()
-        {
+        private void DrawTimeLabels() {
             EnsureTimeStyles();
 
-            double currentTime = EditorApplication.timeSinceStartup;
-            float deltaTime = (float)(currentTime - _lastAnimTime);
+            var currentTime = EditorApplication.timeSinceStartup;
+            var deltaTime = (float)(currentTime - _lastAnimTime);
             _lastAnimTime = currentTime;
 
             deltaTime = Mathf.Clamp(deltaTime, 0f, 0.1f);
 
-            Rect timeLabelRect = new Rect(_waveformRect.x, _waveformRect.yMax + LABEL_ROW1_Y, TIME_LABEL_WIDTH, LABEL_HEIGHT);
+            var timeLabelRect = new Rect(_waveformRect.x, _waveformRect.yMax + LABEL_ROW1_Y, TIME_LABEL_WIDTH, LABEL_HEIGHT);
             EditorGUI.LabelField(timeLabelRect, "0:00", EditorStyles.miniLabel);
 
-            string totalDurationText = FormatTime(_audioClip.length);
+            var totalDurationText = FormatTime(_audioClip.length);
             timeLabelRect = new Rect(_waveformRect.xMax - TIME_LABEL_WIDTH, _waveformRect.yMax + LABEL_ROW1_Y, TIME_LABEL_WIDTH, LABEL_HEIGHT);
             EditorGUI.LabelField(timeLabelRect, totalDurationText, EditorStyles.miniLabel);
 
-            if (_hasSelection)
-            {
-                float startX = _waveformRect.x + _selectionStartNormalized * _waveformRect.width;
-                float endX = _waveformRect.x + _selectionEndNormalized * _waveformRect.width;
+            if (_hasSelection) {
+                var startX = _waveformRect.x + (_selectionStartNormalized * _waveformRect.width);
+                var endX = _waveformRect.x + (_selectionEndNormalized * _waveformRect.width);
 
-                string startText = FormatTime(_selectionStartNormalized * _audioClip.length);
-                string endText = FormatTime(_selectionEndNormalized * _audioClip.length);
+                var startText = FormatTime(_selectionStartNormalized * _audioClip.length);
+                var endText = FormatTime(_selectionEndNormalized * _audioClip.length);
 
-                float startLabelX = startX - TIME_LABEL_WIDTH / 2;
-                float endLabelX = endX - TIME_LABEL_WIDTH / 2;
+                var startLabelX = startX - (TIME_LABEL_WIDTH / 2);
+                var endLabelX = endX - (TIME_LABEL_WIDTH / 2);
 
                 startLabelX = Mathf.Max(startLabelX, _waveformRect.x + TIME_LABEL_WIDTH + MIN_LABEL_GAP);
-                endLabelX = Mathf.Min(endLabelX, _waveformRect.xMax - TIME_LABEL_WIDTH * 2 - MIN_LABEL_GAP);
+                endLabelX = Mathf.Min(endLabelX, _waveformRect.xMax - (TIME_LABEL_WIDTH * 2) - MIN_LABEL_GAP);
 
-                if (startLabelX + TIME_LABEL_WIDTH + MIN_LABEL_GAP > endLabelX)
-                {
-                    float center = (startX + endX) / 2;
-                    startLabelX = center - TIME_LABEL_WIDTH - MIN_LABEL_GAP / 2;
-                    endLabelX = center + MIN_LABEL_GAP / 2;
+                if (startLabelX + TIME_LABEL_WIDTH + MIN_LABEL_GAP > endLabelX) {
+                    var center = (startX + endX) / 2;
+                    startLabelX = center - TIME_LABEL_WIDTH - (MIN_LABEL_GAP / 2);
+                    endLabelX = center + (MIN_LABEL_GAP / 2);
                 }
 
                 timeLabelRect = new Rect(startLabelX, _waveformRect.yMax + LABEL_ROW1_Y, TIME_LABEL_WIDTH, LABEL_HEIGHT);
@@ -722,165 +653,139 @@ namespace AudioTool
                 EditorGUI.LabelField(timeLabelRect, endText, _selectionMarkerStyle);
             }
 
-            float currentPlayhead = _isPlaying ? GetNormalizedPlayheadPosition() : _manualPlayheadPosition;
+            var currentPlayhead = _isPlaying ? GetNormalizedPlayheadPosition() : _manualPlayheadPosition;
 
-            Rect currentPosRect = Rect.zero;
-            Rect durationRect = Rect.zero;
-            string currentPosText = "";
-            string durationText = "";
-            float durationCenterX = 0f;
-            float playheadX = 0f;
+            var currentPosRect = Rect.zero;
+            var durationRect = Rect.zero;
+            var currentPosText = "";
+            var durationText = "";
+            var durationCenterX = 0f;
+            var playheadX = 0f;
 
-            bool showCurrentPos = currentPlayhead >= 0;
-            bool showDuration = _hasSelection;
+            var showCurrentPos = currentPlayhead >= 0;
+            var showDuration = _hasSelection;
 
-            if (showCurrentPos)
-            {
-                playheadX = _waveformRect.x + currentPlayhead * _waveformRect.width;
+            if (showCurrentPos) {
+                playheadX = _waveformRect.x + (currentPlayhead * _waveformRect.width);
                 currentPosText = FormatTime(currentPlayhead * _audioClip.length);
-                float currentPosX = Mathf.Clamp(playheadX - TIME_LABEL_WIDTH / 2, _waveformRect.x, _waveformRect.xMax - TIME_LABEL_WIDTH);
+                var currentPosX = Mathf.Clamp(playheadX - (TIME_LABEL_WIDTH / 2), _waveformRect.x, _waveformRect.xMax - TIME_LABEL_WIDTH);
                 currentPosRect = new Rect(currentPosX, _waveformRect.yMax + _currentPosLabelY, TIME_LABEL_WIDTH, LABEL_HEIGHT);
             }
 
-            if (showDuration)
-            {
-                float startX = _waveformRect.x + _selectionStartNormalized * _waveformRect.width;
-                float endX = _waveformRect.x + _selectionEndNormalized * _waveformRect.width;
-                float selectionDuration = (_selectionEndNormalized - _selectionStartNormalized) * _audioClip.length;
+            if (showDuration) {
+                var startX = _waveformRect.x + (_selectionStartNormalized * _waveformRect.width);
+                var endX = _waveformRect.x + (_selectionEndNormalized * _waveformRect.width);
+                var selectionDuration = (_selectionEndNormalized - _selectionStartNormalized) * _audioClip.length;
                 durationCenterX = (startX + endX) / 2;
                 durationText = FormatTime(selectionDuration);
-                durationRect = new Rect(durationCenterX - TIME_LABEL_WIDTH / 2, _waveformRect.yMax + _durationLabelY, TIME_LABEL_WIDTH, LABEL_HEIGHT);
+                durationRect = new Rect(durationCenterX - (TIME_LABEL_WIDTH / 2), _waveformRect.yMax + _durationLabelY, TIME_LABEL_WIDTH, LABEL_HEIGHT);
             }
 
-            float targetPosY = showDuration ? LABEL_ROW3_Y : LABEL_ROW2_Y;
+            var targetPosY = showDuration ? LABEL_ROW3_Y : LABEL_ROW2_Y;
 
-            bool needsRepaint = false;
-            if (Mathf.Abs(_currentPosLabelY - targetPosY) > 0.5f)
-            {
+            var needsRepaint = false;
+            if (Mathf.Abs(_currentPosLabelY - targetPosY) > 0.5f) {
                 _currentPosLabelY = Mathf.Lerp(_currentPosLabelY, targetPosY, deltaTime * LABEL_ANIM_SPEED);
                 needsRepaint = true;
-            }
-            else
-            {
+            } else {
                 _currentPosLabelY = targetPosY; // Snap to exact row value
             }
 
-            if (showCurrentPos)
-            {
+            if (showCurrentPos) {
                 currentPosRect.y = _waveformRect.yMax + _currentPosLabelY;
 
-                if (targetPosY > LABEL_ROW2_Y && _currentPosLabelY > LABEL_ROW2_Y + 1f)
-                {
-                    float lineX = playheadX;
-                    float lineTop = _waveformRect.yMax + LABEL_ROW2_Y;
-                    float lineBottom = currentPosRect.y;
+                if (targetPosY > LABEL_ROW2_Y && _currentPosLabelY > LABEL_ROW2_Y + 1f) {
+                    var lineX = playheadX;
+                    var lineTop = _waveformRect.yMax + LABEL_ROW2_Y;
+                    var lineBottom = currentPosRect.y;
 
-                    Color lineColor = new Color(1f, 0.4f, 0.4f, 0.5f);
+                    var lineColor = new Color(1f, 0.4f, 0.4f, 0.5f);
                     DrawDottedLine(lineX, lineTop, lineBottom, lineColor);
                 }
 
                 EditorGUI.LabelField(currentPosRect, currentPosText, _playheadStyle);
             }
 
-            if (showDuration)
-            {
+            if (showDuration) {
                 durationRect.y = _waveformRect.yMax + _durationLabelY;
 
-                if (_durationLabelY > LABEL_ROW2_Y + 1f)
-                {
-                    float lineX = durationCenterX;
-                    float lineTop = _waveformRect.yMax + LABEL_ROW2_Y;
-                    float lineBottom = durationRect.y;
+                if (_durationLabelY > LABEL_ROW2_Y + 1f) {
+                    var lineX = durationCenterX;
+                    var lineTop = _waveformRect.yMax + LABEL_ROW2_Y;
+                    var lineBottom = durationRect.y;
 
-                    Color lineColor = new Color(1f, 0.8f, 0.3f, 0.5f);
+                    var lineColor = new Color(1f, 0.8f, 0.3f, 0.5f);
                     DrawDottedLine(lineX, lineTop, lineBottom, lineColor);
                 }
 
                 EditorGUI.LabelField(durationRect, durationText, _durationStyle);
             }
 
-            if (needsRepaint || _isPlaying)
-            {
+            if (needsRepaint || _isPlaying) {
                 Repaint();
             }
         }
 
-        private void DrawDottedLine(float x, float top, float bottom, Color color)
-        {
+        private void DrawDottedLine(float x, float top, float bottom, Color color) {
             const float dotLength = 2f;
             const float gapLength = 2f;
 
-            float y = top;
-            while (y < bottom)
-            {
-                float segmentEnd = Mathf.Min(y + dotLength, bottom);
+            var y = top;
+            while (y < bottom) {
+                var segmentEnd = Mathf.Min(y + dotLength, bottom);
                 EditorGUI.DrawRect(new Rect(x - 0.5f, y, 1f, segmentEnd - y), color);
                 y = segmentEnd + gapLength;
             }
         }
 
-        private void HandleWaveformInput()
-        {
-            Event e = Event.current;
-            if (!_waveformRect.Contains(e.mousePosition) && !_isDraggingStart && !_isDraggingEnd && !_isDraggingSelection)
-            {
+        private void HandleWaveformInput() {
+            var e = Event.current;
+            if (!_waveformRect.Contains(e.mousePosition) && !_isDraggingStart && !_isDraggingEnd && !_isDraggingSelection) {
                 return;
             }
 
-            Rect startHandleRect = Rect.zero;
-            Rect endHandleRect = Rect.zero;
+            var startHandleRect = Rect.zero;
+            var endHandleRect = Rect.zero;
 
-            if (_hasSelection)
-            {
-                float startX = _waveformRect.x + _selectionStartNormalized * _waveformRect.width;
-                float endX = _waveformRect.x + _selectionEndNormalized * _waveformRect.width;
+            if (_hasSelection) {
+                var startX = _waveformRect.x + (_selectionStartNormalized * _waveformRect.width);
+                var endX = _waveformRect.x + (_selectionEndNormalized * _waveformRect.width);
 
-                startHandleRect = new Rect(startX - HANDLE_WIDTH / 2f, _waveformRect.y, HANDLE_WIDTH, _waveformRect.height);
-                endHandleRect = new Rect(endX - HANDLE_WIDTH / 2f, _waveformRect.y, HANDLE_WIDTH, _waveformRect.height);
+                startHandleRect = new Rect(startX - (HANDLE_WIDTH / 2f), _waveformRect.y, HANDLE_WIDTH, _waveformRect.height);
+                endHandleRect = new Rect(endX - (HANDLE_WIDTH / 2f), _waveformRect.y, HANDLE_WIDTH, _waveformRect.height);
 
-                if (startHandleRect.Contains(e.mousePosition) || endHandleRect.Contains(e.mousePosition))
-                {
+                if (startHandleRect.Contains(e.mousePosition) || endHandleRect.Contains(e.mousePosition)) {
                     EditorGUIUtility.AddCursorRect(startHandleRect, MouseCursor.ResizeHorizontal);
                     EditorGUIUtility.AddCursorRect(endHandleRect, MouseCursor.ResizeHorizontal);
                 }
             }
 
-            switch (e.type)
-            {
+            switch (e.type) {
                 case EventType.MouseDown:
-                    if (e.button == 0)
-                    {
-                        if (_hasSelection && startHandleRect.Contains(e.mousePosition))
-                        {
+                    if (e.button == 0) {
+                        if (_hasSelection && startHandleRect.Contains(e.mousePosition)) {
                             _isDraggingStart = true;
                             _isClickPending = false;
                             _overlayNeedsUpdate = true;
                             e.Use();
-                        }
-                        else if (_hasSelection && endHandleRect.Contains(e.mousePosition))
-                        {
+                        } else if (_hasSelection && endHandleRect.Contains(e.mousePosition)) {
                             _isDraggingEnd = true;
                             _isClickPending = false;
                             _overlayNeedsUpdate = true;
                             e.Use();
-                        }
-                        else if (_waveformRect.Contains(e.mousePosition))
-                        {
-                            float clickNorm = (e.mousePosition.x - _waveformRect.x) / _waveformRect.width;
+                        } else if (_waveformRect.Contains(e.mousePosition)) {
+                            var clickNorm = (e.mousePosition.x - _waveformRect.x) / _waveformRect.width;
                             _clickStartNormalized = clickNorm;
 
-                            bool clickInsideSelection = _hasSelection &&
+                            var clickInsideSelection = _hasSelection &&
                                 clickNorm >= _selectionStartNormalized &&
                                 clickNorm <= _selectionEndNormalized;
 
-                            if (clickInsideSelection)
-                            {
+                            if (clickInsideSelection) {
                                 _isDraggingSelection = true;
                                 _dragOffset = clickNorm - _selectionStartNormalized;
                                 _isClickPending = true;
-                            }
-                            else
-                            {
+                            } else {
                                 _isClickPending = true;
                             }
                             e.Use();
@@ -889,18 +794,15 @@ namespace AudioTool
                     break;
 
                 case EventType.MouseDrag:
-                    if (_waveformRect.width > 0)
-                    {
-                        float normalized = Mathf.Clamp01((e.mousePosition.x - _waveformRect.x) / _waveformRect.width);
-                        float dragDistance = Mathf.Abs(normalized - _clickStartNormalized);
+                    if (_waveformRect.width > 0) {
+                        var normalized = Mathf.Clamp01((e.mousePosition.x - _waveformRect.x) / _waveformRect.width);
+                        var dragDistance = Mathf.Abs(normalized - _clickStartNormalized);
 
-                        bool justStartedNewSelection = false;
-                        if (_isClickPending && dragDistance > 0.005f)
-                        {
+                        var justStartedNewSelection = false;
+                        if (_isClickPending && dragDistance > 0.005f) {
                             _isClickPending = false;
 
-                            if (!_isDraggingSelection)
-                            {
+                            if (!_isDraggingSelection) {
                                 _selectionStartNormalized = _clickStartNormalized;
                                 _selectionEndNormalized = _clickStartNormalized;
                                 _hasSelection = true;
@@ -909,34 +811,27 @@ namespace AudioTool
                             }
                         }
 
-                        if (_isDraggingStart || _isDraggingEnd || _isDraggingSelection)
-                        {
-                            float oldStart = _selectionStartNormalized;
-                            float oldEnd = _selectionEndNormalized;
+                        if (_isDraggingStart || _isDraggingEnd || _isDraggingSelection) {
+                            var oldStart = _selectionStartNormalized;
+                            var oldEnd = _selectionEndNormalized;
 
-                            if (_isDraggingStart)
-                            {
+                            if (_isDraggingStart) {
                                 _selectionStartNormalized = Mathf.Min(normalized, _selectionEndNormalized - 0.001f);
-                            }
-                            else if (_isDraggingEnd)
-                            {
+                            } else if (_isDraggingEnd) {
                                 _selectionEndNormalized = Mathf.Max(normalized, _selectionStartNormalized + 0.001f);
-                            }
-                            else if (_isDraggingSelection && !_isClickPending)
-                            {
-                                float selectionWidth = _selectionEndNormalized - _selectionStartNormalized;
-                                float newStart = Mathf.Clamp(normalized - _dragOffset, 0, 1 - selectionWidth);
+                            } else if (_isDraggingSelection && !_isClickPending) {
+                                var selectionWidth = _selectionEndNormalized - _selectionStartNormalized;
+                                var newStart = Mathf.Clamp(normalized - _dragOffset, 0, 1 - selectionWidth);
                                 _selectionStartNormalized = newStart;
                                 _selectionEndNormalized = newStart + selectionWidth;
                             }
 
-                            bool selectionChanged = Mathf.Abs(_selectionStartNormalized - oldStart) > 0.001f ||
+                            var selectionChanged = Mathf.Abs(_selectionStartNormalized - oldStart) > 0.001f ||
                                 Mathf.Abs(_selectionEndNormalized - oldEnd) > 0.001f;
                             if (_isPlaying && _playSelection && _hasSelection &&
-                                (justStartedNewSelection || selectionChanged))
-                            {
-                                int startSample = Mathf.RoundToInt(_selectionStartNormalized * _audioClip.samples);
-                                int endSample = Mathf.RoundToInt(_selectionEndNormalized * _audioClip.samples);
+                                (justStartedNewSelection || selectionChanged)) {
+                                var startSample = Mathf.RoundToInt(_selectionStartNormalized * _audioClip.samples);
+                                var endSample = Mathf.RoundToInt(_selectionEndNormalized * _audioClip.samples);
                                 AudioManager.PlayClipRange(_audioClip, startSample, endSample, _loop);
                             }
 
@@ -948,14 +843,12 @@ namespace AudioTool
                     break;
 
                 case EventType.MouseUp:
-                    if (_isClickPending)
-                    {
-                        bool hadSelection = _hasSelection;
+                    if (_isClickPending) {
+                        var hadSelection = _hasSelection;
                         _manualPlayheadPosition = _clickStartNormalized;
                         _hasSelection = false;
 
-                        if (hadSelection)
-                        {
+                        if (hadSelection) {
                             _ = ApplyEffects();
                         }
                         _overlayNeedsUpdate = true;
@@ -963,14 +856,9 @@ namespace AudioTool
                         _isDraggingSelection = false;
                         e.Use();
                         Repaint();
-                    }
-                    else if (_isDraggingStart || _isDraggingEnd || _isDraggingSelection)
-                    {
-                        if (_selectionStartNormalized > _selectionEndNormalized)
-                        {
-                            float temp = _selectionStartNormalized;
-                            _selectionStartNormalized = _selectionEndNormalized;
-                            _selectionEndNormalized = temp;
+                    } else if (_isDraggingStart || _isDraggingEnd || _isDraggingSelection) {
+                        if (_selectionStartNormalized > _selectionEndNormalized) {
+                            (_selectionEndNormalized, _selectionStartNormalized) = (_selectionStartNormalized, _selectionEndNormalized);
                         }
 
                         _manualPlayheadPosition = _selectionStartNormalized;
@@ -986,14 +874,10 @@ namespace AudioTool
                     break;
 
                 case EventType.KeyDown:
-                    if (e.keyCode == KeyCode.Space)
-                    {
-                        if (_isPlaying)
-                        {
+                    if (e.keyCode == KeyCode.Space) {
+                        if (_isPlaying) {
                             StopPlayback();
-                        }
-                        else
-                        {
+                        } else {
                             StartPlayback();
                         }
                         e.Use();
@@ -1002,43 +886,31 @@ namespace AudioTool
             }
         }
 
-        private void DrawTransportControls()
-        {
+        private void DrawTransportControls() {
             EditorGUILayout.LabelField("Playback", EditorStyles.boldLabel);
 
             EditorGUILayout.BeginHorizontal(CommonUIStyles.sectionBox);
 
-            float currentPlayhead = _isPlaying ? GetNormalizedPlayheadPosition() : _manualPlayheadPosition;
-            bool showRewind = false;
-            if (!_isPlaying)
-            {
-                if (_playSelection && _hasSelection)
-                {
+            var currentPlayhead = _isPlaying ? GetNormalizedPlayheadPosition() : _manualPlayheadPosition;
+            var showRewind = false;
+            if (!_isPlaying) {
+                if (_playSelection && _hasSelection) {
                     showRewind = Mathf.Abs(currentPlayhead - _selectionStartNormalized) > 0.0001f;
-                }
-                else
-                {
+                } else {
                     showRewind = currentPlayhead > 0.0001f;
                 }
             }
 
-            if (GUILayout.Button(EditorGUIUtility.IconContent(_isPlaying ? "d_PreMatQuad" : "d_PlayButton", _isPlaying ? "|Stop" : "|Play"), GUILayout.Width(40)))
-            {
-                if (_isPlaying)
-                {
+            if (GUILayout.Button(EditorGUIUtility.IconContent(_isPlaying ? "d_PreMatQuad" : "d_PlayButton", _isPlaying ? "|Stop" : "|Play"), GUILayout.Width(40))) {
+                if (_isPlaying) {
                     StopPlayback();
-                }
-                else
-                {
+                } else {
                     StartPlayback();
                 }
             }
-            if (showRewind)
-            {
-                if (GUILayout.Button(EditorGUIUtility.IconContent("d_Animation.PrevKey", "|Rewind to Start"), GUILayout.Width(40)))
-                {
-                    if (_isPlaying)
-                    {
+            if (showRewind) {
+                if (GUILayout.Button(EditorGUIUtility.IconContent("d_Animation.PrevKey", "|Rewind to Start"), GUILayout.Width(40))) {
+                    if (_isPlaying) {
                         StopPlayback();
                     }
                     _manualPlayheadPosition = 0f;
@@ -1047,53 +919,43 @@ namespace AudioTool
                 }
             }
 
-            if (GUILayout.Button("Select Trimmed", GUILayout.Height(20)))
-            {
-                bool wasPlaying = _isPlaying;
-                if (wasPlaying)
-                {
+            if (GUILayout.Button("Select Trimmed", GUILayout.Height(20))) {
+                var wasPlaying = _isPlaying;
+                if (wasPlaying) {
                     StopPlayback();
                 }
 
-                float oldPlayhead = _manualPlayheadPosition;
+                var oldPlayhead = _manualPlayheadPosition;
 
-                if (_hasSelection)
-                {
-                    DetectSilenceInRange(_selectionStartNormalized, _selectionEndNormalized, out float trimmedStart, out float trimmedEnd);
+                if (_hasSelection) {
+                    DetectSilenceInRange(_selectionStartNormalized, _selectionEndNormalized, out var trimmedStart, out var trimmedEnd);
                     _selectionStartNormalized = trimmedStart;
                     _selectionEndNormalized = trimmedEnd;
 
-                    if (oldPlayhead < trimmedStart || oldPlayhead > trimmedEnd)
-                    {
+                    if (oldPlayhead < trimmedStart || oldPlayhead > trimmedEnd) {
                         _manualPlayheadPosition = trimmedStart;
                     }
-                }
-                else
-                {
-                    if (!_silenceDetected)
-                    {
+                } else {
+                    if (!_silenceDetected) {
                         DetectSilence();
                     }
                     _selectionStartNormalized = _silenceStartNormalized;
                     _selectionEndNormalized = _silenceEndNormalized;
                     _hasSelection = true;
 
-                    if (oldPlayhead < _silenceStartNormalized || oldPlayhead > _silenceEndNormalized)
-                    {
+                    if (oldPlayhead < _silenceStartNormalized || oldPlayhead > _silenceEndNormalized) {
                         _manualPlayheadPosition = _silenceStartNormalized;
                     }
                 }
 
-                if (wasPlaying)
-                {
+                if (wasPlaying) {
                     StartPlayback();
                 }
 
                 _ = ApplyEffects();
                 _overlayNeedsUpdate = true;
             }
-            if (_hasSelection && GUILayout.Button("Clear Selection", GUILayout.Height(20)))
-            {
+            if (_hasSelection && GUILayout.Button("Clear Selection", GUILayout.Height(20))) {
                 _hasSelection = false;
                 _ = ApplyEffects();
                 _overlayNeedsUpdate = true;
@@ -1102,8 +964,7 @@ namespace AudioTool
             EditorGUILayout.Space(10);
 
             _loop = GUILayout.Toggle(_loop, "Loop", GUILayout.Width(60));
-            if (_hasSelection)
-            {
+            if (_hasSelection) {
                 _playSelection = GUILayout.Toggle(_playSelection, "Selection Only", GUILayout.Width(130));
             }
 
@@ -1111,10 +972,11 @@ namespace AudioTool
             EditorGUILayout.EndHorizontal();
         }
 
-        private void DrawProcessingOptions()
-        {
+        private void DrawProcessingOptions() {
             _showProcessingOptions = EditorGUILayout.Foldout(_showProcessingOptions, "Processing Options", true);
-            if (!_showProcessingOptions) return;
+            if (!_showProcessingOptions) {
+                return;
+            }
 
             EditorGUILayout.BeginVertical("box");
 
@@ -1127,8 +989,7 @@ namespace AudioTool
             _normalizeTarget = EditorGUILayout.Slider(_normalizeTarget, 0.5f, 1f);
             EditorGUI.EndDisabledGroup();
             EditorGUILayout.EndHorizontal();
-            if (EditorGUI.EndChangeCheck())
-            {
+            if (EditorGUI.EndChangeCheck()) {
                 _lastEffectChangeTime = EditorApplication.timeSinceStartup;
                 _pendingEffectApply = true;
             }
@@ -1145,21 +1006,18 @@ namespace AudioTool
             _fadeInDuration = EditorGUILayout.Slider(_fadeInDuration, 0.01f, 5f);
             EditorGUI.EndDisabledGroup();
             EditorGUILayout.EndHorizontal();
-            if (EditorGUI.EndChangeCheck())
-            {
+            if (EditorGUI.EndChangeCheck()) {
                 _lastEffectChangeTime = EditorApplication.timeSinceStartup;
                 _pendingEffectApply = true;
             }
 
-            if (_fadeIn)
-            {
+            if (_fadeIn) {
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.Space(20);
                 EditorGUILayout.LabelField("Curve:", GUILayout.Width(100));
                 EditorGUI.BeginChangeCheck();
                 _fadeInCurve = EditorGUILayout.CurveField(_fadeInCurve, GUILayout.Height(30));
-                if (EditorGUI.EndChangeCheck())
-                {
+                if (EditorGUI.EndChangeCheck()) {
                     _lastEffectChangeTime = EditorApplication.timeSinceStartup;
                     _pendingEffectApply = true;
                 }
@@ -1176,21 +1034,18 @@ namespace AudioTool
             _fadeOutDuration = EditorGUILayout.Slider(_fadeOutDuration, 0.01f, 5f);
             EditorGUI.EndDisabledGroup();
             EditorGUILayout.EndHorizontal();
-            if (EditorGUI.EndChangeCheck())
-            {
+            if (EditorGUI.EndChangeCheck()) {
                 _lastEffectChangeTime = EditorApplication.timeSinceStartup;
                 _pendingEffectApply = true;
             }
 
-            if (_fadeOut)
-            {
+            if (_fadeOut) {
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.Space(20);
                 EditorGUILayout.LabelField("Curve:", GUILayout.Width(100));
                 EditorGUI.BeginChangeCheck();
                 _fadeOutCurve = EditorGUILayout.CurveField(_fadeOutCurve, GUILayout.Height(30));
-                if (EditorGUI.EndChangeCheck())
-                {
+                if (EditorGUI.EndChangeCheck()) {
                     _lastEffectChangeTime = EditorApplication.timeSinceStartup;
                     _pendingEffectApply = true;
                 }
@@ -1206,62 +1061,52 @@ namespace AudioTool
 
             EditorGUI.BeginDisabledGroup(!_adjustVolume);
             _volumeAdjustment = EditorGUILayout.Slider(_volumeAdjustment, 0f, 2f);
-            EditorGUILayout.LabelField($"{(_volumeAdjustment * 100):F0}%", GUILayout.Width(45));
+            EditorGUILayout.LabelField($"{_volumeAdjustment * 100:F0}%", GUILayout.Width(45));
             EditorGUI.EndDisabledGroup();
             EditorGUILayout.EndHorizontal();
-            if (EditorGUI.EndChangeCheck())
-            {
+            if (EditorGUI.EndChangeCheck()) {
                 _lastEffectChangeTime = EditorApplication.timeSinceStartup;
                 _pendingEffectApply = true;
             }
 
             EditorGUILayout.Space(5);
 
-            if (GUILayout.Button("Reset All", GUILayout.ExpandWidth(false)))
-            {
+            if (GUILayout.Button("Reset All", GUILayout.ExpandWidth(false))) {
                 ResetToInitialState();
             }
 
             EditorGUILayout.EndVertical();
         }
 
-        private void DrawExportSection()
-        {
+        private void DrawExportSection() {
             // Use cached _isInProject since _audioSource may be null after domain reload
-            bool isInProject = _isInProject;
+            var isInProject = _isInProject;
 
-            if (isInProject)
-            {
-                bool isWavFile = !string.IsNullOrEmpty(_fileName) && 
+            if (isInProject) {
+                var isWavFile = !string.IsNullOrEmpty(_fileName) &&
                     _fileName.EndsWith(".wav", StringComparison.OrdinalIgnoreCase);
 
                 EditorGUILayout.BeginHorizontal();
                 EditorGUI.BeginDisabledGroup(!isWavFile);
-                GUIContent overrideContent = isWavFile 
-                    ? new GUIContent("Override Existing") 
+                var overrideContent = isWavFile
+                    ? new GUIContent("Override Existing")
                     : new GUIContent("Override Existing", "For now only available for WAV files. Use 'Save As Copy' to export as WAV.");
-                if (GUILayout.Button(overrideContent, CommonUIStyles.mainButton, GUILayout.Height(CommonUIStyles.BIG_BUTTON_HEIGHT)))
-                {
+                if (GUILayout.Button(overrideContent, CommonUIStyles.mainButton, GUILayout.Height(CommonUIStyles.BIG_BUTTON_HEIGHT))) {
                     PerformExport(true);
                 }
                 EditorGUI.EndDisabledGroup();
-                if (GUILayout.Button("Save As Copy", CommonUIStyles.mainButton, GUILayout.Height(CommonUIStyles.BIG_BUTTON_HEIGHT)))
-                {
+                if (GUILayout.Button("Save As Copy", CommonUIStyles.mainButton, GUILayout.Height(CommonUIStyles.BIG_BUTTON_HEIGHT))) {
                     PerformExport(false);
                 }
                 EditorGUILayout.EndHorizontal();
-            }
-            else
-            {
-                if (GUILayout.Button("Import", CommonUIStyles.mainButton, GUILayout.Height(CommonUIStyles.BIG_BUTTON_HEIGHT)))
-                {
+            } else {
+                if (GUILayout.Button("Import", CommonUIStyles.mainButton, GUILayout.Height(CommonUIStyles.BIG_BUTTON_HEIGHT))) {
                     PerformExport(false);
                 }
             }
         }
 
-        private void ResetToInitialState()
-        {
+        private void ResetToInitialState() {
             _selectionStartNormalized = 0f;
             _selectionEndNormalized = 1f;
             _hasSelection = false;
@@ -1282,8 +1127,7 @@ namespace AudioTool
 
             _ = ApplyEffects();
 
-            if (_isPlaying)
-            {
+            if (_isPlaying) {
                 StopPlayback();
             }
 
@@ -1291,31 +1135,32 @@ namespace AudioTool
             Repaint();
         }
 
-        private void StartPlayback()
-        {
-            if (_audioClip == null) return;
+        private void StartPlayback() {
+            if (_audioClip == null) {
+                return;
+            }
 
-            AudioClip clipToPlay = _processedClip != null ? _processedClip : _audioClip;
+            var clipToPlay = _processedClip != null ? _processedClip : _audioClip;
 
-            if (clipToPlay == null)
-            {
+            if (clipToPlay == null) {
                 Debug.LogError("StartPlayback: No valid clip to play, falling back to original");
                 clipToPlay = _audioClip;
-                if (clipToPlay == null) return;
+                if (clipToPlay == null) {
+                    return;
+                }
             }
 
-            if (clipToPlay.samples <= 0)
-            {
+            if (clipToPlay.samples <= 0) {
                 Debug.LogError($"StartPlayback: Clip has no samples. ProcessedClip null: {_processedClip == null}, falling back to original");
                 clipToPlay = _audioClip;
-                if (clipToPlay == null || clipToPlay.samples <= 0) return;
+                if (clipToPlay == null || clipToPlay.samples <= 0) {
+                    return;
+                }
             }
 
-            if (clipToPlay.loadState != AudioDataLoadState.Loaded)
-            {
+            if (clipToPlay.loadState != AudioDataLoadState.Loaded) {
                 Debug.LogWarning($"StartPlayback: Clip loadState is {clipToPlay.loadState}, attempting to load...");
-                if (!clipToPlay.LoadAudioData())
-                {
+                if (!clipToPlay.LoadAudioData()) {
                     Debug.LogError("StartPlayback: Failed to load audio data, falling back to original");
                     clipToPlay = _audioClip;
                 }
@@ -1323,65 +1168,55 @@ namespace AudioTool
 
             _isPlaying = true;
 
-            if (_playSelection && _hasSelection)
-            {
-                int startSample = Mathf.RoundToInt(_selectionStartNormalized * clipToPlay.samples);
-                int endSample = Mathf.RoundToInt(_selectionEndNormalized * clipToPlay.samples);
+            if (_playSelection && _hasSelection) {
+                var startSample = Mathf.RoundToInt(_selectionStartNormalized * clipToPlay.samples);
+                var endSample = Mathf.RoundToInt(_selectionEndNormalized * clipToPlay.samples);
                 AudioManager.PlayClipRange(clipToPlay, startSample, endSample, _loop);
-            }
-            else
-            {
-                int startSample = Mathf.RoundToInt(_manualPlayheadPosition * clipToPlay.samples);
+            } else {
+                var startSample = Mathf.RoundToInt(_manualPlayheadPosition * clipToPlay.samples);
                 AudioManager.PlayClip(clipToPlay, startSample, _loop);
             }
         }
 
-        private void PlaySelection()
-        {
-            int startSample = Mathf.RoundToInt(_selectionStartNormalized * _audioClip.samples);
-            int endSample = Mathf.RoundToInt(_selectionEndNormalized * _audioClip.samples);
+        private void PlaySelection() {
+            var startSample = Mathf.RoundToInt(_selectionStartNormalized * _audioClip.samples);
+            var endSample = Mathf.RoundToInt(_selectionEndNormalized * _audioClip.samples);
             AudioManager.PlayClipRange(_audioClip, startSample, endSample, false);
         }
 
-        private void StopPlayback()
-        {
+        private void StopPlayback() {
             _isPlaying = false;
             AudioManager.StopAudio();
         }
 
-        private void PerformExport(bool overrideOriginal)
-        {
-            if (_audioClip == null || _samples == null) return;
+        private void PerformExport(bool overrideOriginal) {
+            if (_audioClip == null || _samples == null) {
+                return;
+            }
 
-            try
-            {
-                float selStart = _hasSelection ? _selectionStartNormalized : 0f;
-                float selEnd = _hasSelection ? _selectionEndNormalized : 1f;
+            try {
+                var selStart = _hasSelection ? _selectionStartNormalized : 0f;
+                var selEnd = _hasSelection ? _selectionEndNormalized : 1f;
 
-                int startSample = Mathf.RoundToInt(selStart * _audioClip.samples);
-                int endSample = Mathf.RoundToInt(selEnd * _audioClip.samples);
+                var startSample = Mathf.RoundToInt(selStart * _audioClip.samples);
+                var endSample = Mathf.RoundToInt(selEnd * _audioClip.samples);
 
-                float[] processedSamples = AudioProcessor.TrimAudio(_samples, _audioClip.channels, startSample, endSample);
+                var processedSamples = AudioProcessor.TrimAudio(_samples, _audioClip.channels, startSample, endSample);
 
-                if (processedSamples == null || processedSamples.Length == 0)
-                {
+                if (processedSamples == null || processedSamples.Length == 0) {
                     EditorUtility.DisplayDialog("Error", "No audio data to export. Please adjust your selection.", "OK");
                     return;
                 }
 
                 string outputPath;
 
-                if (overrideOriginal && _isInProject)
-                {
+                if (overrideOriginal && _isInProject) {
                     outputPath = IOUtils.PathCombine(Path.GetDirectoryName(Application.dataPath), _projectPath);
 
-                    if (!outputPath.EndsWith(".wav", StringComparison.OrdinalIgnoreCase))
-                    {
+                    if (!outputPath.EndsWith(".wav", StringComparison.OrdinalIgnoreCase)) {
                         outputPath = Path.ChangeExtension(outputPath, ".wav");
                     }
-                }
-                else
-                {
+                } else {
                     outputPath = AudioProcessor.GenerateUniqueFilename(_exportFolder, _fileName ?? "audio.wav");
                 }
 
@@ -1389,40 +1224,36 @@ namespace AudioTool
 
                 AssetDatabase.Refresh();
 
-                string normalizedOutput = outputPath.Replace('\\', '/');
-                string normalizedDataPath = Application.dataPath.Replace('\\', '/');
-                
+                var normalizedOutput = outputPath.Replace('\\', '/');
+                var normalizedDataPath = Application.dataPath.Replace('\\', '/');
+
                 string relativePath;
-                if (normalizedOutput.StartsWith(normalizedDataPath, StringComparison.OrdinalIgnoreCase))
-                {
-                    relativePath = "Assets" + normalizedOutput.Substring(normalizedDataPath.Length);
-                }
-                else
-                {
+                if (normalizedOutput.StartsWith(normalizedDataPath, StringComparison.OrdinalIgnoreCase)) {
+                    relativePath = "Assets" + normalizedOutput[normalizedDataPath.Length..];
+                } else {
                     relativePath = normalizedOutput;
                 }
 
-                UnityEngine.Object asset = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(relativePath);
-                if (asset != null)
-                {
+                var asset = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(relativePath);
+                if (asset != null) {
                     EditorGUIUtility.PingObject(asset);
                     Selection.activeObject = asset;
                 }
 
                 Close();
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 EditorUtility.DisplayDialog("Error", $"Failed to export audio:\n{e.Message}", "OK");
                 Debug.LogError($"AudioEditorUI export error: {e}");
             }
         }
 
-        private string FormatTime(float seconds)
-        {
-            if (seconds < 0) seconds = 0;
-            int minutes = (int)(seconds / 60);
-            float secs = seconds % 60;
+        private string FormatTime(float seconds) {
+            if (seconds < 0) {
+                seconds = 0;
+            }
+
+            var minutes = (int)(seconds / 60);
+            var secs = seconds % 60;
             return $"{minutes}:{secs:00.00}";
         }
     }

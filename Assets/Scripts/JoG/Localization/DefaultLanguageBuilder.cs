@@ -1,10 +1,10 @@
-using Xoderony.Localization;
 using JoG.Utilities;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using VContainer.Unity;
+using Xoderony.Localization;
 
 namespace JoG.Localization {
 

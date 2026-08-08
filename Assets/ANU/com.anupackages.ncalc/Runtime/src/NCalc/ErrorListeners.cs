@@ -1,28 +1,23 @@
-﻿using System.Collections.Generic;
-using System.IO;
 using Antlr4.Runtime;
+using System.Collections.Generic;
+using System.IO;
 
-namespace NCalc
-{
-    public class ErrorListenerParser : IAntlrErrorListener<IToken>
-    {
+namespace NCalc {
+    public class ErrorListenerParser : IAntlrErrorListener<IToken> {
         public readonly List<string> Errors = new List<string>();
 
         public void SyntaxError(TextWriter output, IRecognizer recognizer, IToken offendingSymbol, int line, int charPositionInLine, string msg,
-            RecognitionException e)
-        {
-            string errorMessage = $"{msg} at {line}:{charPositionInLine + 1}";
+            RecognitionException e) {
+            var errorMessage = $"{msg} at {line}:{charPositionInLine + 1}";
             Errors.Add(errorMessage);
         }
     }
 
-    public class ErrorListenerLexer : IAntlrErrorListener<int>
-    {
+    public class ErrorListenerLexer : IAntlrErrorListener<int> {
         public readonly List<string> Errors = new List<string>();
 
-        public void SyntaxError(TextWriter output, IRecognizer recognizer, int offendingSymbol, int line, int charPositionInLine, string msg, RecognitionException e)
-        {
-            string errorMessage = $"{msg} at {line}:{charPositionInLine + 1}";
+        public void SyntaxError(TextWriter output, IRecognizer recognizer, int offendingSymbol, int line, int charPositionInLine, string msg, RecognitionException e) {
+            var errorMessage = $"{msg} at {line}:{charPositionInLine + 1}";
             Errors.Add(errorMessage);
         }
     }

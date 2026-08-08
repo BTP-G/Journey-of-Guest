@@ -1,23 +1,19 @@
-﻿#if UNITY_EDITOR
+#if UNITY_EDITOR
 
 using System;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
-namespace RRS.Converter
-{
+namespace RRS.Converter {
     [ExecuteInEditMode]
-    public class ObjectToIconConverter : MonoBehaviour
-    {
-        public enum FileTypes
-        {
+    public class ObjectToIconConverter : MonoBehaviour {
+        public enum FileTypes {
             PNG,
             JPG,
         }
 
-        public enum FileSize
-        {
+        public enum FileSize {
             _1x1 = 1,
             _2x2 = 2,
             _4x4 = 4,
@@ -34,16 +30,14 @@ namespace RRS.Converter
             _8192x8192 = 8192,
         }
 
-        public enum AutoCenteringTypes
-        {
+        public enum AutoCenteringTypes {
             Pivot,
             Center,
             FOV_Manipulation
         }
 
         [Flags]
-        public enum GizmoSettings
-        {
+        public enum GizmoSettings {
             Camera_To_Corners = 1,
             Camera_To_Middle_Points = 2,
             Corners_To_Corners = 4,
@@ -52,8 +46,7 @@ namespace RRS.Converter
             End_Corners_To_End_Corners = 32,
         }
 
-        public enum ClaritySettings
-        {
+        public enum ClaritySettings {
             _1x = 1,
             _2x = 2,
             _4x = 4,
@@ -61,8 +54,7 @@ namespace RRS.Converter
             _16x = 16,
         }
 
-        public enum OrientationDirection
-        {
+        public enum OrientationDirection {
             Forward,
             Back,
             Up,
@@ -72,8 +64,7 @@ namespace RRS.Converter
         }
 
         [Serializable]
-        public class AutoOrientationSettings
-        {
+        public class AutoOrientationSettings {
             public OrientationDirection Direction = OrientationDirection.Forward;
             public Vector3 DesiredOrientationOffset = new Vector3(-15f, 145f, 0f);
         }
@@ -145,42 +136,35 @@ namespace RRS.Converter
         private const string SCENE_NAME = "Object Converter";
 
         [MenuItem(COMPLETE_TAB_TITLE + "Load Converter Scene", priority = 1)]
-        private static void LoadSceneAndSelect()
-        {
-            string[] guids = AssetDatabase.FindAssets(SCENE_NAME + " t:scene");
-            if (guids.Length == 0)
-            {
+        [Obsolete]
+        private static void LoadSceneAndSelect() {
+            var guids = AssetDatabase.FindAssets(SCENE_NAME + " t:scene");
+            if (guids.Length == 0) {
                 Debug.LogError("No scene found with name: " + SCENE_NAME);
                 return;
             }
 
-            string scenePath = AssetDatabase.GUIDToAssetPath(guids[0]);
+            var scenePath = AssetDatabase.GUIDToAssetPath(guids[0]);
 
-            if (EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Single).IsValid())
-            {
+            if (EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Single).IsValid()) {
                 Debug.Log("Scene loaded successfully.");
 
-                ObjectToIconConverter objectToSelect = FindObjectOfType(typeof(ObjectToIconConverter)) as ObjectToIconConverter;
+                var objectToSelect = FindObjectOfType(typeof(ObjectToIconConverter)) as ObjectToIconConverter;
 
-                if (objectToSelect != null)
-                {
+                if (objectToSelect != null) {
                     Selection.activeGameObject = objectToSelect.gameObject;
                     EditorGUIUtility.PingObject(objectToSelect);
-                }
-                else
-                {
+                } else {
                     Debug.LogError("Object not found in the scene.");
                 }
-            }
-            else
-            {
+            } else {
                 Debug.LogError("Failed to load the scene at path: " + scenePath);
             }
         }
 
         [MenuItem(COMPLETE_TAB_TITLE + "Create Converter", priority = 2)]
-        private static void CreateConverterGameObject()
-        {
+        [Obsolete]
+        private static void CreateConverterGameObject() {
             DestroyConverter();
 
             var converter = new GameObject("Converter").AddComponent<ObjectToIconConverter>();
@@ -190,14 +174,14 @@ namespace RRS.Converter
         }
 
         [MenuItem(COMPLETE_TAB_TITLE + "Destroy Converter", priority = 3)]
-        private static void DestroyConverter()
-        {
+        [Obsolete]
+        private static void DestroyConverter() {
             var converter = FindObjectOfType<ObjectToIconConverter>();
             DestroyImmediate(converter?.gameObject);
         }
 
-        public void Update()
-        {
+        [Obsolete]
+        public void Update() {
             if (Camera == null || PreviewCamera == null) { FindOrCreateCameras(); }
             if (CaptureTarget == null) { FindOrCreateCaptureTarget(); }
             if (PreviewRenderTexture == null) { CreatePreviewTexture(); }
@@ -210,40 +194,35 @@ namespace RRS.Converter
             if (AutoOrientate) { ApplyAutoOrientation(); }
         }
 
-        private void OnDestroy()
-        {
+        private void OnDestroy() {
             Destroy();
         }
 
-        private void Destroy()
-        {
+        private void Destroy() {
             DestroyImmediate(CaptureTarget?.gameObject);
             DestroyImmediate(PreviewCamera?.gameObject);
             DestroyImmediate(Camera?.gameObject);
             ClearPreviewTexture();
         }
 
-        private void FindOrCreateCaptureTarget()
-        {
+        [Obsolete]
+        private void FindOrCreateCaptureTarget() {
             CaptureTarget = FindObjectOfType<CaptureTarget>();
-            if(CaptureTarget != null) { return; }
+            if (CaptureTarget != null) { return; }
             CaptureTarget = new GameObject().AddComponent<CaptureTarget>();
             CaptureTarget.name = "Capture Target";
 
             CaptureTarget.transform.parent = transform;
         }
 
-        private void FindOrCreateCameras()
-        {
+        [Obsolete]
+        private void FindOrCreateCameras() {
             var converterCam = FindObjectOfType<ConverterCamera>();
 
-            if (converterCam != null && converterCam.TryGetComponent(out Camera camera))
-            {
+            if (converterCam != null && converterCam.TryGetComponent(out Camera camera)) {
                 Camera = camera;
                 SetupCamera(Camera, transform);
-            }
-            else
-            {
+            } else {
                 DestroyImmediate(converterCam);
                 Camera = new GameObject("Converter Camera").AddComponent<Camera>();
                 Camera.gameObject.AddComponent<ConverterCamera>();
@@ -251,19 +230,17 @@ namespace RRS.Converter
                 SetupCamera(Camera, transform);
             }
 
-            for (int i = Camera.transform.childCount - 1; i >= 0; i--)
-            {
+            for (var i = Camera.transform.childCount - 1; i >= 0; i--) {
                 DestroyImmediate(Camera.transform.GetChild(i).gameObject);
             }
 
-            if(PreviewCamera == null) { PreviewCamera = new GameObject("Preview Camera").AddComponent<Camera>(); }
+            if (PreviewCamera == null) { PreviewCamera = new GameObject("Preview Camera").AddComponent<Camera>(); }
             SetupCamera(PreviewCamera, Camera.transform);
 
             CreatePreviewTexture();
         }
 
-        private void SetupCamera(Camera camera, Transform parent)
-        {
+        private void SetupCamera(Camera camera, Transform parent) {
             camera.transform.parent = parent;
             camera.clearFlags = CameraClearFlags.SolidColor;
             camera.depth = -1;
@@ -271,14 +248,12 @@ namespace RRS.Converter
             camera.nearClipPlane = 0.01f;
         }
 
-        private void SetCamerasFOV(float fov)
-        {
+        private void SetCamerasFOV(float fov) {
             Camera.fieldOfView = fov;
             PreviewCamera.fieldOfView = fov;
         }
 
-        private void UpdateCamerasBackgroundAlpha()
-        {
+        private void UpdateCamerasBackgroundAlpha() {
             var color = new Color(Camera.backgroundColor.r, Camera.backgroundColor.g, Camera.backgroundColor.b, BackgroundAlpha);
 
             Camera.backgroundColor = color;
@@ -286,49 +261,47 @@ namespace RRS.Converter
         }
 
         [ExecuteInEditMode]
-        private void OnDrawGizmos()
-        {
+        private void OnDrawGizmos() {
             if (Camera == null || Camera.orthographic) { return; }
 
-            Transform camTransform = Camera.transform;
-            float fov = Camera.fieldOfView;
-            float aspect = 1f;
-            float fovManipulationMultiplier = (DefaultFOV / Camera.fieldOfView);
+            var camTransform = Camera.transform;
+            var fov = Camera.fieldOfView;
+            var aspect = 1f;
+            var fovManipulationMultiplier = DefaultFOV / Camera.fieldOfView;
 
-            float heightAtDepth = (2f * Mathf.Tan(fov * 0.5f * Mathf.Deg2Rad) * CaptureDepth) * fovManipulationMultiplier;
-            float widthAtDepth = heightAtDepth * aspect;
+            var heightAtDepth = 2f * Mathf.Tan(fov * 0.5f * Mathf.Deg2Rad) * CaptureDepth * fovManipulationMultiplier;
+            var widthAtDepth = heightAtDepth * aspect;
 
             UnityEngine.Gizmos.color = Color.cyan;
 
-            Vector3 forward = (camTransform.forward * CaptureDepth * fovManipulationMultiplier) * CenteringDepthBufferMultiplier;
-            Vector3 center = camTransform.position + forward;
-            Vector3 up = camTransform.up * (heightAtDepth * 0.5f);
-            Vector3 right = camTransform.right * (widthAtDepth * 0.5f);
+            var forward = camTransform.forward * CaptureDepth * fovManipulationMultiplier * CenteringDepthBufferMultiplier;
+            var center = camTransform.position + forward;
+            var up = camTransform.up * (heightAtDepth * 0.5f);
+            var right = camTransform.right * (widthAtDepth * 0.5f);
 
-            Vector3 topLeft = (center + up - right) * GizmoLineLengthMultiplier;
-            Vector3 topRight = (center + up + right) * GizmoLineLengthMultiplier;
-            Vector3 bottomLeft = (center - up - right) * GizmoLineLengthMultiplier;
-            Vector3 bottomRight = (center - up + right) * GizmoLineLengthMultiplier;
+            var topLeft = (center + up - right) * GizmoLineLengthMultiplier;
+            var topRight = (center + up + right) * GizmoLineLengthMultiplier;
+            var bottomLeft = (center - up - right) * GizmoLineLengthMultiplier;
+            var bottomRight = (center - up + right) * GizmoLineLengthMultiplier;
 
-            Vector3 middleLeft = (topLeft + bottomLeft) / 2f;
-            Vector3 middleRight = (topRight + bottomRight) / 2f;
-            Vector3 middleTop = (topLeft + topRight) / 2f;
-            Vector3 middleBottom = (bottomLeft + bottomRight) / 2f;
+            var middleLeft = (topLeft + bottomLeft) / 2f;
+            var middleRight = (topRight + bottomRight) / 2f;
+            var middleTop = (topLeft + topRight) / 2f;
+            var middleBottom = (bottomLeft + bottomRight) / 2f;
 
-            var realLineDepth = ((forward * (GizmoFrontToEndDepth + 1)).z * GizmoLineLengthMultiplier);
+            var realLineDepth = (forward * (GizmoFrontToEndDepth + 1)).z * GizmoLineLengthMultiplier;
 
-            Vector3 topBackLeft = new Vector3(topLeft.x, topLeft.y, realLineDepth);
-            Vector3 topBackRight = new Vector3(topRight.x, topRight.y, realLineDepth);
-            Vector3 bottomBackLeft = new Vector3(bottomLeft.x, bottomLeft.y, realLineDepth);
-            Vector3 bottomBackRight = new Vector3(bottomRight.x, bottomRight.y, realLineDepth);
+            var topBackLeft = new Vector3(topLeft.x, topLeft.y, realLineDepth);
+            var topBackRight = new Vector3(topRight.x, topRight.y, realLineDepth);
+            var bottomBackLeft = new Vector3(bottomLeft.x, bottomLeft.y, realLineDepth);
+            var bottomBackRight = new Vector3(bottomRight.x, bottomRight.y, realLineDepth);
 
-            Vector3 middleBackLeft = new Vector3(middleLeft.x, middleLeft.y, realLineDepth);
-            Vector3 middleBackRight = new Vector3(middleRight.x, middleRight.y, realLineDepth);
-            Vector3 middleBackTop = new Vector3(middleTop.x, middleTop.y, realLineDepth);
-            Vector3 middleBackBottom = new Vector3(middleBottom.x, middleBottom.y, realLineDepth);
+            var middleBackLeft = new Vector3(middleLeft.x, middleLeft.y, realLineDepth);
+            var middleBackRight = new Vector3(middleRight.x, middleRight.y, realLineDepth);
+            var middleBackTop = new Vector3(middleTop.x, middleTop.y, realLineDepth);
+            var middleBackBottom = new Vector3(middleBottom.x, middleBottom.y, realLineDepth);
 
-            if (Gizmos.HasFlag(GizmoSettings.Camera_To_Corners))
-            {
+            if (Gizmos.HasFlag(GizmoSettings.Camera_To_Corners)) {
                 //Optional, draw lines connecting the camera Position to the corners
                 UnityEngine.Gizmos.DrawLine(camTransform.position, topLeft);
                 UnityEngine.Gizmos.DrawLine(camTransform.position, topRight);
@@ -336,8 +309,7 @@ namespace RRS.Converter
                 UnityEngine.Gizmos.DrawLine(camTransform.position, bottomRight);
             }
 
-            if (Gizmos.HasFlag(GizmoSettings.Camera_To_Middle_Points))
-            {
+            if (Gizmos.HasFlag(GizmoSettings.Camera_To_Middle_Points)) {
                 //Optional, draw lines connecting the camera Position to middle points between the corners
                 UnityEngine.Gizmos.DrawLine(camTransform.position, middleLeft);
                 UnityEngine.Gizmos.DrawLine(camTransform.position, middleRight);
@@ -345,8 +317,7 @@ namespace RRS.Converter
                 UnityEngine.Gizmos.DrawLine(camTransform.position, middleBottom);
             }
 
-            if (Gizmos.HasFlag(GizmoSettings.Corners_To_Corners))
-            {
+            if (Gizmos.HasFlag(GizmoSettings.Corners_To_Corners)) {
                 //Optional, draw lines connecting the corner points to form a cube
                 UnityEngine.Gizmos.DrawLine(topLeft, topRight);
                 UnityEngine.Gizmos.DrawLine(topLeft, bottomLeft);
@@ -354,8 +325,7 @@ namespace RRS.Converter
                 UnityEngine.Gizmos.DrawLine(bottomLeft, bottomRight);
             }
 
-            if (Gizmos.HasFlag(GizmoSettings.Corners_To_End_Corners))
-            {
+            if (Gizmos.HasFlag(GizmoSettings.Corners_To_End_Corners)) {
                 //Optional, draw lines connecting the corner points to the corner points on the other end of the wire cube
                 UnityEngine.Gizmos.DrawLine(topLeft, topBackLeft);
                 UnityEngine.Gizmos.DrawLine(topRight, topBackRight);
@@ -363,8 +333,7 @@ namespace RRS.Converter
                 UnityEngine.Gizmos.DrawLine(bottomRight, bottomBackRight);
             }
 
-            if (Gizmos.HasFlag(GizmoSettings.Middle_Points_To_End_Middle_Points))
-            {
+            if (Gizmos.HasFlag(GizmoSettings.Middle_Points_To_End_Middle_Points)) {
                 //Optional, draw lines connecting the middle points to the middle points on the other end of the wire cube
                 UnityEngine.Gizmos.DrawLine(middleLeft, middleBackLeft);
                 UnityEngine.Gizmos.DrawLine(middleRight, middleBackRight);
@@ -372,8 +341,7 @@ namespace RRS.Converter
                 UnityEngine.Gizmos.DrawLine(middleBottom, middleBackBottom);
             }
 
-            if (Gizmos.HasFlag(GizmoSettings.End_Corners_To_End_Corners))
-            {
+            if (Gizmos.HasFlag(GizmoSettings.End_Corners_To_End_Corners)) {
                 //Optional, draw lines connecting the end corner points to form a cube
                 UnityEngine.Gizmos.DrawLine(topBackLeft, topBackRight);
                 UnityEngine.Gizmos.DrawLine(topBackLeft, bottomBackLeft);
@@ -381,8 +349,7 @@ namespace RRS.Converter
                 UnityEngine.Gizmos.DrawLine(bottomBackLeft, bottomBackRight);
             }
 
-            if (CaptureTarget == null)
-            {
+            if (CaptureTarget == null) {
                 Debug.LogError("Capture Target is null");
                 return;
             }
@@ -390,9 +357,8 @@ namespace RRS.Converter
             CaptureTarget.transform.position = center;
         }
 
-        public Texture2D GenerateTexture2DFrom3D()
-        {
-            RenderTexture renderTexture = CreateRenderTexture();
+        public Texture2D GenerateTexture2DFrom3D() {
+            var renderTexture = CreateRenderTexture();
             Camera.targetTexture = renderTexture;
             Camera.Render();
             var texture2D = RenderTextureToTexture2D(renderTexture);
@@ -402,9 +368,8 @@ namespace RRS.Converter
             return texture2D;
         }
 
-        private Texture2D RenderTextureToTexture2D(RenderTexture renderTexture)
-        {
-            Texture2D texture2D = new Texture2D(renderTexture.width, renderTexture.height, Texture_Format, false);
+        private Texture2D RenderTextureToTexture2D(RenderTexture renderTexture) {
+            var texture2D = new Texture2D(renderTexture.width, renderTexture.height, Texture_Format, false);
             RenderTexture.active = renderTexture;
             texture2D.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), 0, 0);
             texture2D.Apply();
@@ -412,40 +377,37 @@ namespace RRS.Converter
             return texture2D;
         }
 
-        public void ClearPreviewTexture()
-        {
+        public void ClearPreviewTexture() {
             if (PreviewCamera != null) { PreviewCamera.targetTexture = null; }
             DestroyImmediate(PreviewRenderTexture);
             PreviewRenderTexture = null;
         }
 
-        public void CreatePreviewTexture()
-        {
+        public void CreatePreviewTexture() {
             ClearPreviewTexture();
             PreviewRenderTexture = CreateRenderTexture(true);
             PreviewCamera.targetTexture = PreviewRenderTexture;
         }
 
-        public RenderTexture CreateRenderTexture(bool createTexture = false)
-        {
-            var renderTexture = new RenderTexture((int)BakingSize, (int)BakingSize, TextureDepthBuffer);
-            renderTexture.filterMode = Filter_Mode;
-            renderTexture.antiAliasing = (int)AntiAliasing;
-            renderTexture.anisoLevel = (int)AnisotropicFiltering;
-            renderTexture.format = PreviewRenderTextureFormat;
+        public RenderTexture CreateRenderTexture(bool createTexture = false) {
+            var renderTexture = new RenderTexture((int)BakingSize, (int)BakingSize, TextureDepthBuffer) {
+                filterMode = Filter_Mode,
+                antiAliasing = (int)AntiAliasing,
+                anisoLevel = (int)AnisotropicFiltering,
+                format = PreviewRenderTextureFormat
+            };
 
             if (createTexture) { renderTexture.Create(); }
             return renderTexture;
         }
 
-        public void SaveTexture()
-        {
+        public void SaveTexture() {
             var textureToSave = GenerateTexture2DFrom3D();
 
             var assetName = TextureName + GetFileTypeAsString(FileType);
             var fullPath = SelectedSavePath + "/" + assetName;
 
-            byte[] data = textureToSave.EncodeToPNG();
+            var data = textureToSave.EncodeToPNG();
             System.IO.File.WriteAllBytes(fullPath, data);
             AssetDatabase.Refresh();
 
@@ -456,17 +418,14 @@ namespace RRS.Converter
             TextureName = "";
         }
 
-        public void SetSelectedPath(string path)
-        {
+        public void SetSelectedPath(string path) {
             SelectedSavePath = path;
         }
 
-        private string GetFileTypeAsString(FileTypes fileType)
-        {
-            string fileTypeString = "";
+        private string GetFileTypeAsString(FileTypes fileType) {
+            var fileTypeString = "";
 
-            switch (fileType)
-            {
+            switch (fileType) {
                 case FileTypes.PNG:
                     fileTypeString = ".png";
                     break;
@@ -478,11 +437,9 @@ namespace RRS.Converter
             return fileTypeString;
         }
 
-        public void ModifyTextureImportSettings(string assetPath)
-        {
+        public void ModifyTextureImportSettings(string assetPath) {
             var textureImporter = AssetImporter.GetAtPath(assetPath) as TextureImporter;
-            if (textureImporter == null)
-            {
+            if (textureImporter == null) {
                 Debug.LogError($"Failed to find the texture at: {assetPath}");
                 return;
             }
@@ -500,32 +457,27 @@ namespace RRS.Converter
             AssetDatabase.SaveAssets();
         }
 
-        private bool IsPathValid(string path)
-        {
+        private bool IsPathValid(string path) {
             if (string.IsNullOrEmpty(path)) { return false; }
 
-            string relativePath = AbsoluteToRelativePath(path);
+            var relativePath = AbsoluteToRelativePath(path);
 
-            if (relativePath == null)
-            {
+            if (relativePath == null) {
                 Debug.LogError("The provided path is outside the Assets folder.");
                 return false;
             }
 
-            if (string.IsNullOrEmpty(relativePath))
-            {
+            if (string.IsNullOrEmpty(relativePath)) {
                 Debug.LogError("The provided path is null or empty.");
                 return false;
             }
 
-            if (!relativePath.StartsWith("Assets"))
-            {
+            if (!relativePath.StartsWith("Assets")) {
                 Debug.LogError("The path must start with 'Assets'.");
                 return false;
             }
 
-            if (!System.IO.Directory.Exists(relativePath) && !System.IO.File.Exists(relativePath))
-            {
+            if (!System.IO.Directory.Exists(relativePath) && !System.IO.File.Exists(relativePath)) {
                 Debug.LogError("The specified path does not exist.");
                 return false;
             }
@@ -533,43 +485,41 @@ namespace RRS.Converter
             return true;
         }
 
-        private string AbsoluteToRelativePath(string absolutePath)
-        {
+        private string AbsoluteToRelativePath(string absolutePath) {
             if (string.IsNullOrEmpty(absolutePath)) { return null; }
 
-            string projectPath = System.IO.Path.GetFullPath(Application.dataPath);
+            var projectPath = System.IO.Path.GetFullPath(Application.dataPath);
 
-            if (absolutePath.StartsWith(projectPath.Replace('\\', '/')))
-            {
-                return "Assets" + absolutePath.Substring(projectPath.Length).Replace('\\', '/');
+            if (absolutePath.StartsWith(projectPath.Replace('\\', '/'))) {
+                return "Assets" + absolutePath[projectPath.Length..].Replace('\\', '/');
             }
 
             return null;
         }
 
-        public void CenterObjectInCaptureBounds()
-        {
-            if (CaptureTarget == null || CaptureTarget.transform.childCount == 0) return;
+        public void CenterObjectInCaptureBounds() {
+            if (CaptureTarget == null || CaptureTarget.transform.childCount == 0) {
+                return;
+            }
 
             SetCamerasFOV((CenteringType == AutoCenteringTypes.FOV_Manipulation) ? FovManipulationValue : DefaultFOV);
 
-            Vector3 forward = Camera.transform.forward * CaptureDepth;
-            Vector3 desiredCenter = Camera.transform.position + forward * CenteringDepthBufferMultiplier;
-            Transform captureTargetChild = TryGetActiveCaptureTargetChild();
+            var forward = Camera.transform.forward * CaptureDepth;
+            var desiredCenter = Camera.transform.position + (forward * CenteringDepthBufferMultiplier);
+            var captureTargetChild = TryGetActiveCaptureTargetChild();
 
-            Bounds combinedBounds = CalculateObjectBounds(captureTargetChild.gameObject, CenterIncludesChildrenBounds);
+            var combinedBounds = CalculateObjectBounds(captureTargetChild.gameObject, CenterIncludesChildrenBounds);
 
-            switch (CenteringType)
-            {
+            switch (CenteringType) {
                 case AutoCenteringTypes.Pivot:
                     captureTargetChild.transform.position = desiredCenter;
                     break;
                 case AutoCenteringTypes.Center:
-                    Vector3 centerOffset = desiredCenter - combinedBounds.center;
+                    var centerOffset = desiredCenter - combinedBounds.center;
                     captureTargetChild.transform.position += centerOffset;
                     break;
                 case AutoCenteringTypes.FOV_Manipulation:
-                    float requiredDistance = CalculateRequiredDistance(Camera, combinedBounds);
+                    var requiredDistance = CalculateRequiredDistance(Camera, combinedBounds);
                     CenterAndFitObject(Camera, captureTargetChild.transform, combinedBounds, requiredDistance);
                     break;
             }
@@ -580,28 +530,24 @@ namespace RRS.Converter
             UnityEditor.SceneView.RepaintAll();
         }
 
-        private Transform TryGetActiveCaptureTargetChild()
-        {
-            if(CaptureTarget.transform.childCount == 0) 
-            { 
+        private Transform TryGetActiveCaptureTargetChild() {
+            if (CaptureTarget.transform.childCount == 0) {
                 CurrentChild = null;
                 LastChild = null;
                 return null;
             }
 
-            if(CurrentChild != null && CurrentChild.gameObject.activeInHierarchy && CurrentChild.transform.parent == CaptureTarget.transform) { return CurrentChild; }
+            if (CurrentChild != null && CurrentChild.gameObject.activeInHierarchy && CurrentChild.transform.parent == CaptureTarget.transform) { return CurrentChild; }
 
             CurrentChild = CaptureTarget.transform.GetChild(0);
 
-            for (int i = 0; i < CaptureTarget.transform.childCount; i++)
-            {
+            for (var i = 0; i < CaptureTarget.transform.childCount; i++) {
                 if (!CaptureTarget.transform.GetChild(i).gameObject.activeInHierarchy) { continue; }
                 CurrentChild = CaptureTarget.transform.GetChild(i);
                 break;
             }
 
-            if(CurrentChild != LastChild)
-            {
+            if (CurrentChild != LastChild) {
                 TextureName = CurrentChild.name;
                 LastChild = CurrentChild;
             }
@@ -609,19 +555,14 @@ namespace RRS.Converter
             return CurrentChild;
         }
 
-        private Bounds CalculateObjectBounds(GameObject obj, bool includeChildren)
-        {
-            Bounds bounds = new Bounds(obj.transform.position, Vector3.zero);
-            Renderer[] renderers = includeChildren ? obj.GetComponentsInChildren<Renderer>() : obj.GetComponents<Renderer>();
+        private Bounds CalculateObjectBounds(GameObject obj, bool includeChildren) {
+            var bounds = new Bounds(obj.transform.position, Vector3.zero);
+            var renderers = includeChildren ? obj.GetComponentsInChildren<Renderer>() : obj.GetComponents<Renderer>();
 
-            foreach (Renderer renderer in renderers)
-            {
-                if (bounds.extents == Vector3.zero)
-                {
+            foreach (var renderer in renderers) {
+                if (bounds.extents == Vector3.zero) {
                     bounds = renderer.bounds;
-                }
-                else
-                {
+                } else {
                     bounds.Encapsulate(renderer.bounds);
                 }
             }
@@ -629,56 +570,46 @@ namespace RRS.Converter
             return bounds;
         }
 
-        public void ApplyAutoOrientation()
-        {
-            if (CaptureTarget.transform.childCount == 0) return;
+        public void ApplyAutoOrientation() {
+            if (CaptureTarget.transform.childCount == 0) {
+                return;
+            }
 
             var childObject = TryGetActiveCaptureTargetChild();
 
-            Vector3 baseDirection = GetDirectionVector(AutoOrientationSetting.Direction);
-            Quaternion baseRotation = Quaternion.LookRotation(baseDirection, Vector3.up);
-            Quaternion offsetRotation = Quaternion.Euler(AutoOrientationSetting.DesiredOrientationOffset);
+            var baseDirection = GetDirectionVector(AutoOrientationSetting.Direction);
+            var baseRotation = Quaternion.LookRotation(baseDirection, Vector3.up);
+            var offsetRotation = Quaternion.Euler(AutoOrientationSetting.DesiredOrientationOffset);
 
             childObject.transform.rotation = offsetRotation * baseRotation;
         }
 
-        private Vector3 GetDirectionVector(OrientationDirection direction)
-        {
-            switch (direction)
-            {
-                case OrientationDirection.Forward:
-                    return Vector3.forward;
-                case OrientationDirection.Back:
-                    return Vector3.back;
-                case OrientationDirection.Up:
-                    return Vector3.up;
-                case OrientationDirection.Down:
-                    return Vector3.down;
-                case OrientationDirection.Left:
-                    return Vector3.left;
-                case OrientationDirection.Right:
-                    return Vector3.right;
-                default:
-                    return Vector3.forward;
-            }
+        private Vector3 GetDirectionVector(OrientationDirection direction) {
+            return direction switch {
+                OrientationDirection.Forward => Vector3.forward,
+                OrientationDirection.Back => Vector3.back,
+                OrientationDirection.Up => Vector3.up,
+                OrientationDirection.Down => Vector3.down,
+                OrientationDirection.Left => Vector3.left,
+                OrientationDirection.Right => Vector3.right,
+                _ => Vector3.forward,
+            };
         }
 
-        private float CalculateRequiredDistance(Camera camera, Bounds bounds)
-        {
-            float objectSize = Mathf.Max(bounds.size.x, bounds.size.y, bounds.size.z);
-            float halfAngle = (camera.fieldOfView * 0.5f) * Mathf.Deg2Rad;
-            float distance = objectSize / (2f * Mathf.Tan(halfAngle));
+        private float CalculateRequiredDistance(Camera camera, Bounds bounds) {
+            var objectSize = Mathf.Max(bounds.size.x, bounds.size.y, bounds.size.z);
+            var halfAngle = camera.fieldOfView * 0.5f * Mathf.Deg2Rad;
+            var distance = objectSize / (2f * Mathf.Tan(halfAngle));
 
             return distance * CenteringDepthBufferMultiplier;
         }
 
-        private void CenterAndFitObject(Camera camera, Transform objectTransform, Bounds bounds, float distance)
-        {
-            Vector3 direction = camera.transform.forward;
-            Vector3 targetPosition = (camera.transform.position + direction * distance);
+        private void CenterAndFitObject(Camera camera, Transform objectTransform, Bounds bounds, float distance) {
+            var direction = camera.transform.forward;
+            var targetPosition = camera.transform.position + (direction * distance);
 
-            Vector3 offsetToCenter = bounds.center - objectTransform.position;
-            objectTransform.position = (targetPosition - offsetToCenter);
+            var offsetToCenter = bounds.center - objectTransform.position;
+            objectTransform.position = targetPosition - offsetToCenter;
 
             UnityEditor.SceneView.RepaintAll();
         }

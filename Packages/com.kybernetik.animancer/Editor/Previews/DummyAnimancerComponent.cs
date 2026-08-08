@@ -4,19 +4,16 @@
 
 using UnityEngine;
 
-namespace Animancer.Editor.Previews
-{
+namespace Animancer.Editor.Previews {
     /// <summary>[Editor-Only]
     /// An <see cref="IAnimancerComponent"/> which isn't actually a <see cref="Component"/>.
     /// </summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor.Previews/DummyAnimancerComponent
-    public class DummyAnimancerComponent : IAnimancerComponent
-    {
+    public class DummyAnimancerComponent : IAnimancerComponent {
         /************************************************************************************************************************/
 
         /// <summary>Creates a new <see cref="DummyAnimancerComponent"/>.</summary>
-        public DummyAnimancerComponent(Animator animator, AnimancerGraph playable)
-        {
+        public DummyAnimancerComponent(Animator animator, AnimancerGraph playable) {
             Animator = animator;
             Graph = playable;
             InitialUpdateMode = animator.updateMode;
@@ -43,8 +40,7 @@ namespace Animancer.Editor.Previews
         public bool ResetOnDisable => false;
 
         /// <inheritdoc/>
-        public AnimatorUpdateMode UpdateMode
-        {
+        public AnimatorUpdateMode UpdateMode {
             get => Animator.updateMode;
             set => Animator.updateMode = value;
         }
@@ -52,7 +48,9 @@ namespace Animancer.Editor.Previews
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public object GetKey(AnimationClip clip) => clip;
+        public object GetKey(AnimationClip clip) {
+            return clip;
+        }
 
         /************************************************************************************************************************/
 
@@ -68,8 +66,9 @@ namespace Animancer.Editor.Previews
         /************************************************************************************************************************/
 
         /// <summary>Describes this and the <see cref="Animator"/>.</summary>
-        public override string ToString()
-            => $"{nameof(DummyAnimancerComponent)}({(Animator != null ? Animator.name : "Destroyed")})";
+        public override string ToString() {
+            return $"{nameof(DummyAnimancerComponent)}({(Animator != null ? Animator.name : "Destroyed")})";
+        }
 
         /************************************************************************************************************************/
     }

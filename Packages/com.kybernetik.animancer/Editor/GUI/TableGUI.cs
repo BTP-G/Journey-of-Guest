@@ -7,13 +7,11 @@ using UnityEditor;
 using UnityEngine;
 using static Animancer.Editor.AnimancerGUI;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only] Utility for drawing tables.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/TableGUI
     [Serializable]
-    public class TableGUI
-    {
+    public class TableGUI {
         /************************************************************************************************************************/
 
         /// <summary>The pixel spacing between cells.</summary>
@@ -66,8 +64,7 @@ namespace Animancer.Editor
         public void DoTableGUI(
             Rect area,
             int columns,
-            int rows)
-        {
+            int rows) {
             HandleInput(area);
 
             var scrollBarSize = new Vector2(
@@ -110,13 +107,11 @@ namespace Animancer.Editor
 
             GUI.BeginClip(area);
 
-            for (int x = indexBounds.xMin; x < indexBounds.xMax; x++)
-            {
-                for (int y = indexBounds.yMin; y < indexBounds.yMax; y++)
-                {
+            for (var x = indexBounds.xMin; x < indexBounds.xMax; x++) {
+                for (var y = indexBounds.yMin; y < indexBounds.yMax; y++) {
                     var cellArea = new Rect(
-                        (cellSize.x + Padding) * x - _ScrollPosition.x,
-                        (cellSize.y + Padding) * y - _ScrollPosition.y,
+                        ((cellSize.x + Padding) * x) - _ScrollPosition.x,
+                        ((cellSize.y + Padding) * y) - _ScrollPosition.y,
                         cellSize.x,
                         cellSize.y);
 
@@ -138,18 +133,14 @@ namespace Animancer.Editor
 
         private void DoLabelResizerGUI(
             Rect resizerArea,
-            Rect tableArea)
-        {
+            Rect tableArea) {
             var control = new GUIControl(resizerArea, LabelResizerHint);
 
-            switch (control.EventType)
-            {
+            switch (control.EventType) {
                 case EventType.MouseDown:
                     if (control.Event.button == 0 &&
-                        control.TryUseMouseDown())
-                    {
-                        if (control.Event.clickCount == 2)
-                        {
+                        control.TryUseMouseDown()) {
+                        if (control.Event.clickCount == 2) {
                             AutoSizeLabels(tableArea);
                             GUIUtility.hotControl = 0;
                         }
@@ -162,8 +153,7 @@ namespace Animancer.Editor
                     break;
 
                 case EventType.MouseDrag:
-                    if (control.TryUseHotControl())
-                    {
+                    if (control.TryUseHotControl()) {
                         var offset = control.Event.mousePosition - tableArea.position;
                         LabelSize = new(
                             offset.x / tableArea.width,
@@ -173,16 +163,20 @@ namespace Animancer.Editor
                     break;
 
                 case EventType.KeyDown:
-                    if (control.TryUseKey(KeyCode.Escape))
+                    if (control.TryUseKey(KeyCode.Escape)) {
                         Deselect();
+                    }
+
                     break;
 
                 case EventType.Repaint:
                     EditorGUIUtility.AddCursorRect(resizerArea, MouseCursor.ResizeUpLeft);
 
                     AnimancerIcons.IconContent(ref _LabelResizerIcon, "MoveTool");
-                    if (_LabelResizerIcon != null)
+                    if (_LabelResizerIcon != null) {
                         GUI.DrawTexture(resizerArea, _LabelResizerIcon.image);
+                    }
+
                     break;
             }
         }
@@ -192,14 +186,13 @@ namespace Animancer.Editor
         private static readonly Matrix4x4
             Rotate90LeftMatrix = Matrix4x4.Rotate(Quaternion.Euler(0, 0, -90));
 
-        private void DrawColumnLabels(Rect area, int count, float availableSize, float scrollSize)
-        {
+        private void DrawColumnLabels(Rect area, int count, float availableSize, float scrollSize) {
             var previousClip = GetGUIClipRect();
             GUI.EndClip();
 
             var totalSize =
-                area.width * count +
-                Padding * (count - 1);
+                (area.width * count) +
+                (Padding * (count - 1));
 
             var totalArea = new Rect(
                 area.x,
@@ -222,8 +215,7 @@ namespace Animancer.Editor
                 Rotate90LeftMatrix *
                 Matrix4x4.Translate(translation);
 
-            for (int i = 0; i < count; i++)
-            {
+            for (var i = 0; i < count; i++) {
                 DoCellGUI(area, i, -1);
 
                 area.y += area.height + Padding;
@@ -249,8 +241,7 @@ namespace Animancer.Editor
 
         /************************************************************************************************************************/
 
-        private void DrawRowLabels(Rect area, int count, float availableSize, float scrollSize)
-        {
+        private void DrawRowLabels(Rect area, int count, float availableSize, float scrollSize) {
             var totalArea = area;
             totalArea.height = availableSize;
 
@@ -259,8 +250,7 @@ namespace Animancer.Editor
             area.x = 0;
             area.y = -_ScrollPosition.y;
 
-            for (int i = 0; i < count; i++)
-            {
+            for (var i = 0; i < count; i++) {
                 DoCellGUI(area, -1, i);
 
                 area.y += area.height + Padding;
@@ -269,8 +259,8 @@ namespace Animancer.Editor
             GUI.EndClip();
 
             var totalSize =
-                area.height * count +
-                Padding * (count - 1);
+                (area.height * count) +
+                (Padding * (count - 1));
 
             totalArea.x += totalArea.width + Padding;
             totalArea.width = scrollSize;
@@ -292,18 +282,16 @@ namespace Animancer.Editor
 
         private static readonly int ControlHint = nameof(TableGUI).GetHashCode();
 
-        private void HandleInput(Rect area)
-        {
+        private void HandleInput(Rect area) {
             var control = new GUIControl(area, ControlHint);
 
-            switch (control.EventType)
-            {
+            switch (control.EventType) {
                 case EventType.ScrollWheel:
-                    if (control.ContainsMousePosition)
-                    {
+                    if (control.ContainsMousePosition) {
                         var delta = control.Event.delta * 5;
-                        if (control.Event.shift)
+                        if (control.Event.shift) {
                             delta = delta.GetPerpendicular();
+                        }
 
                         _ScrollPosition += delta;
 
@@ -312,8 +300,10 @@ namespace Animancer.Editor
                     break;
 
                 case EventType.MouseDrag:
-                    if (control.TryUseHotControl())
+                    if (control.TryUseHotControl()) {
                         _ScrollPosition -= control.Event.delta;
+                    }
+
                     break;
             }
         }
@@ -328,22 +318,25 @@ namespace Animancer.Editor
             int columns,
             int rows,
             out Vector2 labelSize,
-            out Vector2 cellSize)
-        {
+            out Vector2 cellSize) {
             // Min cell size.
             cellSize = _MinCellSize;
-            if (cellSize.x < 1)
+            if (cellSize.x < 1) {
                 cellSize.x = LineHeight;
-            if (cellSize.y < 1)
+            }
+
+            if (cellSize.y < 1) {
                 cellSize.y = LineHeight;
+            }
 
             // Min label size.
             labelSize.x = Mathf.Clamp(_LabelSize.x, 0, 0.9f);
             labelSize.y = Mathf.Clamp(_LabelSize.y, 0, 0.9f);
 
             labelSize = Vector2.Scale(area.size, labelSize);
-            if (labelSize == default)
+            if (labelSize == default) {
                 labelSize = cellSize;
+            }
 
             // Expand cells if there is more area available, up to the max.
             var availableSize = area.size - labelSize;
@@ -361,13 +354,12 @@ namespace Animancer.Editor
             float availableSize,
             float cellSize,
             float maxCellSize,
-            int cellCount)
-        {
-            if (cellSize < maxCellSize)
-            {
+            int cellCount) {
+            if (cellSize < maxCellSize) {
                 availableSize -= Padding * (cellCount - 1);
-                if (availableSize > cellSize * cellCount)
+                if (availableSize > cellSize * cellCount) {
                     cellSize = Math.Min(availableSize / cellCount, maxCellSize);
+                }
             }
 
             return cellSize;
@@ -379,9 +371,8 @@ namespace Animancer.Editor
             float availableSize,
             float labelSize,
             float cellSize,
-            int cellCount)
-        {
-            labelSize = Math.Max(labelSize, availableSize - (cellSize + Padding) * cellCount);
+            int cellCount) {
+            labelSize = Math.Max(labelSize, availableSize - ((cellSize + Padding) * cellCount));
             labelSize = Math.Max(labelSize, cellSize);
             return labelSize;
         }
@@ -391,10 +382,10 @@ namespace Animancer.Editor
         /// <summary>A delegate to calculate the largest pixel width of the header labels.</summary>
         public Func<float> CalculateWidestLabel { get; set; }
 
-        private void AutoSizeLabels(Rect tableArea)
-        {
-            if (CalculateWidestLabel == null)
+        private void AutoSizeLabels(Rect tableArea) {
+            if (CalculateWidestLabel == null) {
                 return;
+            }
 
             var targetLabelSize = CalculateWidestLabel();
 

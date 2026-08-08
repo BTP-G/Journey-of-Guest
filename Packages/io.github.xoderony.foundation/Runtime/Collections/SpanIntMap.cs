@@ -206,9 +206,6 @@ namespace Xoderony.Collections {
                 }
                 return false;
             }
-
         }
-
     }
-
 }

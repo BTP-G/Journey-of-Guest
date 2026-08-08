@@ -1,10 +1,9 @@
-﻿using Xoderony.Extensions;
-using Xoderony.Unity;
 using System;
 using System.Buffers;
 using UnityEngine;
-using UnityEngine.Assertions;
 using UnityEngine.PlayerLoop;
+using Xoderony.Extensions;
+using Xoderony.Unity;
 
 namespace Xoderony.Movement {
 
@@ -142,7 +141,7 @@ namespace Xoderony.Movement {
             _radius = _capsule.radius;
             var height = _capsule.height;
             var center = _capsule.center;
-            var halfCylinderHeight = Mathf.Max(0, height * 0.5f - _radius);
+            var halfCylinderHeight = Mathf.Max(0, (height * 0.5f) - _radius);
             var rotation = _rigidbody.rotation;
             _toLowerCenter = rotation * new Vector3(center.x, center.y - halfCylinderHeight, center.z);
             _toUpperCenter = rotation * new Vector3(center.x, center.y + halfCylinderHeight, center.z);
@@ -172,7 +171,7 @@ namespace Xoderony.Movement {
                     }
                 }
             }
-            _rigidbody.position = positionA + direction * distance;
+            _rigidbody.position = positionA + (direction * distance);
             ArrayPool<Collider>.Shared.Return(overlaps, false);
         }
 
@@ -210,7 +209,7 @@ namespace Xoderony.Movement {
             var isHit = Physics.CapsuleCast(lowerCenter, upperCenter, _radius, direction, out var hit, distance + _contactOffset, _collisionMask, QueryTriggerInteraction.Ignore);
             if (isHit) {
                 var dot = direction.Dot(hit.normal);
-                hit.distance = Mathf.Max(0, hit.distance + _contactOffset / dot);
+                hit.distance = Mathf.Max(0, hit.distance + (_contactOffset / dot));
                 result = new SweepResult(hit.collider, hit.point, hit.normal, hit.distance);
             } else {
                 result = new SweepResult(distance);
@@ -222,8 +221,8 @@ namespace Xoderony.Movement {
             var upperCenter = _rigidbody.position + _toUpperCenter;
             var direction = _rigidbody.rotation * Vector3.down;
             var up = -direction;
-            var cylinderHeight = _capsule.height - 2 * _radius;
-            var maxDistance = _isStableGrounded ? (cylinderHeight + _maxStepHeight) : cylinderHeight + _radius * 0.1f;
+            var cylinderHeight = _capsule.height - (2 * _radius);
+            var maxDistance = _isStableGrounded ? (cylinderHeight + _maxStepHeight) : cylinderHeight + (_radius * 0.1f);
             var radius = _radius * 0.99f;
             if (Physics.SphereCast(upperCenter, radius, direction, out var hit0, maxDistance, _collisionMask, QueryTriggerInteraction.Ignore)) {
                 result = new() {

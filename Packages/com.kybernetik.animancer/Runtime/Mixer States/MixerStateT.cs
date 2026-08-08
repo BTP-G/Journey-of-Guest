@@ -5,8 +5,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.Playables;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>[Pro-Only]
     /// Base class for mixers which blend an array of child states together based on a <see cref="Parameter"/>.
     /// </summary>
@@ -18,8 +17,7 @@ namespace Animancer
     /// https://kybernetik.com.au/animancer/api/Animancer/MixerState_1
     /// 
     public abstract class MixerState<TParameter> : ManualMixerState,
-        ICopyable<MixerState<TParameter>>
-    {
+        ICopyable<MixerState<TParameter>> {
         /************************************************************************************************************************/
         #region Thresholds
         /************************************************************************************************************************/
@@ -39,14 +37,14 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Returns the value of the threshold associated with the specified `index`.</summary>
-        public TParameter GetThreshold(int index)
-            => _Thresholds[index];
+        public TParameter GetThreshold(int index) {
+            return _Thresholds[index];
+        }
 
         /************************************************************************************************************************/
 
         /// <summary>Sets the value of the threshold associated with the specified `index`.</summary>
-        public void SetThreshold(int index, TParameter threshold)
-        {
+        public void SetThreshold(int index, TParameter threshold) {
             _Thresholds[index] = threshold;
             OnThresholdsChanged();
         }
@@ -59,10 +57,8 @@ namespace Animancer
         /// WARNING: if you keep a reference to the `thresholds` array you must call <see cref="OnThresholdsChanged"/>
         /// whenever any changes are made to it, otherwise this mixer may not blend correctly.
         /// </summary>
-        public void SetThresholds(params TParameter[] thresholds)
-        {
-            if (thresholds.Length < ChildCount)
-            {
+        public void SetThresholds(params TParameter[] thresholds) {
+            if (thresholds.Length < ChildCount) {
                 MarkAsUsed(this);
                 throw new ArgumentOutOfRangeException(nameof(thresholds),
                     $"Threshold count ({thresholds.Length}) must not be less than child count ({ChildCount}).");
@@ -79,10 +75,10 @@ namespace Animancer
         /// <see cref="AnimancerNodeBase.ChildCount"/>, this method assigns a new array with size equal to the
         /// <see cref="ParentState.ChildCapacity"/> and returns true.
         /// </summary>
-        public bool ValidateThresholdCount()
-        {
-            if (_Thresholds.Length >= ChildCount)
+        public bool ValidateThresholdCount() {
+            if (_Thresholds.Length >= ChildCount) {
                 return false;
+            }
 
             _Thresholds = new TParameter[ChildCapacity];
             return true;
@@ -94,16 +90,14 @@ namespace Animancer
         /// Called whenever the thresholds are changed. By default this method simply indicates that the blend weights
         /// need recalculating but it can be overridden by child classes to perform validation checks or optimisations.
         /// </summary>
-        public virtual void OnThresholdsChanged()
-        {
+        public virtual void OnThresholdsChanged() {
             SetWeightsDirty();
         }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected internal override void OnAddChild(AnimancerState child)
-        {
+        protected internal override void OnAddChild(AnimancerState child) {
             base.OnAddChild(child);
             SetWeightsDirty();
         }
@@ -114,12 +108,12 @@ namespace Animancer
         /// Calls `calculate` for each of the <see cref="ParentState.ChildStates"/>
         /// and stores the returned value as the threshold for that state.
         /// </summary>
-        public void CalculateThresholds(Func<AnimancerState, TParameter> calculate)
-        {
+        public void CalculateThresholds(Func<AnimancerState, TParameter> calculate) {
             ValidateThresholdCount();
 
-            for (int i = ChildCount - 1; i >= 0; i--)
+            for (var i = ChildCount - 1; i >= 0; i--) {
                 _Thresholds[i] = calculate(GetChild(i));
+            }
 
             OnThresholdsChanged();
         }
@@ -130,8 +124,7 @@ namespace Animancer
         /// Stores the values of all parameters, calls <see cref="AnimancerNode.DestroyPlayable"/>, then restores the
         /// parameter values.
         /// </summary>
-        public override void RecreatePlayable()
-        {
+        public override void RecreatePlayable() {
             base.RecreatePlayable();
             SetWeightsDirty();
         }
@@ -150,18 +143,16 @@ namespace Animancer
         /// <see href="https://kybernetik.com.au/animancer/docs/manual/parameters/#smoothing">Smoothing</see>.
         /// </remarks>
         /// <exception cref="ArgumentOutOfRangeException">The value is NaN or Infinity.</exception>
-        public TParameter Parameter
-        {
+        public TParameter Parameter {
             get => _Parameter;
-            set
-            {
+            set {
 #if UNITY_ASSERTIONS
-                if (Graph != null)
+                if (Graph != null) {
                     Validate.AssertPlayable(this);
+                }
 
                 var error = GetParameterError(value);
-                if (error != null)
-                {
+                if (error != null) {
                     MarkAsUsed(this);
                     throw new ArgumentOutOfRangeException(nameof(value), error);
                 }
@@ -197,10 +188,8 @@ namespace Animancer
         public bool WeightsAreDirty { get; private set; }
 
         /// <summary>Registers this mixer to recalculate its weights during the next animation update.</summary>
-        public void SetWeightsDirty()
-        {
-            if (!WeightsAreDirty)
-            {
+        public void SetWeightsDirty() {
+            if (!WeightsAreDirty) {
                 WeightsAreDirty = true;
                 Graph?.RequirePreUpdate(this);
             }
@@ -212,10 +201,10 @@ namespace Animancer
         /// If <see cref="WeightsAreDirty"/> this method
         /// recalculates the weights of all child states and returns true.
         /// </summary>
-        public bool RecalculateWeights()
-        {
-            if (!WeightsAreDirty)
+        public bool RecalculateWeights() {
+            if (!WeightsAreDirty) {
                 return false;
+            }
 
             ForceRecalculateWeights();
             WeightsAreDirty = false;
@@ -233,23 +222,22 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override void OnSetIsPlaying()
-        {
+        protected override void OnSetIsPlaying() {
             base.OnSetIsPlaying();
 
-            if (WeightsAreDirty || SynchronizedChildCount > 0)
+            if (WeightsAreDirty || SynchronizedChildCount > 0) {
                 Graph?.RequirePreUpdate(this);
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override double RawTime
-        {
-            get
-            {
-                if (_Playable.IsValid())
+        public override double RawTime {
+            get {
+                if (_Playable.IsValid()) {
                     RecalculateWeights();
+                }
 
                 return base.RawTime;
             }
@@ -258,12 +246,11 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override float Length
-        {
-            get
-            {
-                if (_Playable.IsValid())
+        public override float Length {
+            get {
+                if (_Playable.IsValid()) {
                     RecalculateWeights();
+                }
 
                 return base.Length;
             }
@@ -272,12 +259,11 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override Vector3 AverageVelocity
-        {
-            get
-            {
-                if (_Playable.IsValid())
+        public override Vector3 AverageVelocity {
+            get {
+                if (_Playable.IsValid()) {
                     RecalculateWeights();
+                }
 
                 return base.AverageVelocity;
             }
@@ -286,8 +272,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override void CreatePlayable(out Playable playable)
-        {
+        protected override void CreatePlayable(out Playable playable) {
             base.CreatePlayable(out playable);
             RecalculateWeights();
         }
@@ -295,8 +280,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void Update()
-        {
+        public override void Update() {
             RecalculateWeights();
             base.Update();
         }
@@ -308,8 +292,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override void OnChildCapacityChanged()
-        {
+        protected override void OnChildCapacityChanged() {
             Array.Resize(ref _Thresholds, ChildCapacity);
             OnThresholdsChanged();
         }
@@ -317,8 +300,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Assigns the `state` as a child of this mixer and assigns the `threshold` for it.</summary>
-        public void Add(AnimancerState state, TParameter threshold)
-        {
+        public void Add(AnimancerState state, TParameter threshold) {
             Add(state);
             SetThreshold(state.Index, threshold);
         }
@@ -327,8 +309,7 @@ namespace Animancer
         /// Creates and returns a new <see cref="ClipState"/> to play the `clip` as a child of this mixer, and assigns
         /// the `threshold` for it.
         /// </summary>
-        public ClipState Add(AnimationClip clip, TParameter threshold)
-        {
+        public ClipState Add(AnimationClip clip, TParameter threshold) {
             var state = Add(clip);
             SetThreshold(state.Index, threshold);
             return state;
@@ -338,24 +319,23 @@ namespace Animancer
         /// Calls <see cref="AnimancerUtilities.CreateStateAndApply"/> then 
         /// <see cref="Add(AnimancerState, TParameter)"/>.
         /// </summary>
-        public AnimancerState Add(ITransition transition, TParameter threshold)
-        {
+        public AnimancerState Add(ITransition transition, TParameter threshold) {
             var state = Add(transition);
             SetThreshold(state.Index, threshold);
             return state;
         }
 
         /// <summary>Calls one of the other <see cref="Add(object, TParameter)"/> overloads as appropriate.</summary>
-        public AnimancerState Add(object child, TParameter threshold)
-        {
-            if (child is AnimationClip clip)
+        public AnimancerState Add(object child, TParameter threshold) {
+            if (child is AnimationClip clip) {
                 return Add(clip, threshold);
+            }
 
-            if (child is ITransition transition)
+            if (child is ITransition transition) {
                 return Add(transition, threshold);
+            }
 
-            if (child is AnimancerState state)
-            {
+            if (child is AnimancerState state) {
                 Add(state, threshold);
                 return state;
             }
@@ -368,19 +348,19 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public sealed override void CopyFrom(ManualMixerState copyFrom, CloneContext context)
-            => this.CopyFromBase(copyFrom, context);
+        public sealed override void CopyFrom(ManualMixerState copyFrom, CloneContext context) {
+            this.CopyFromBase(copyFrom, context);
+        }
 
         /// <inheritdoc/>
-        public virtual void CopyFrom(MixerState<TParameter> copyFrom, CloneContext context)
-        {
+        public virtual void CopyFrom(MixerState<TParameter> copyFrom, CloneContext context) {
             base.CopyFrom(copyFrom, context);
 
             var childCount = copyFrom.ChildCount;
-            if (copyFrom._Thresholds != null)
-            {
-                if (_Thresholds == null || _Thresholds.Length != childCount)
+            if (copyFrom._Thresholds != null) {
+                if (_Thresholds == null || _Thresholds.Length != childCount) {
                     _Thresholds = new TParameter[childCount];
+                }
 
                 var count = Math.Min(childCount, copyFrom._Thresholds.Length);
                 Array.Copy(copyFrom._Thresholds, _Thresholds, count);
@@ -396,14 +376,14 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override string GetDisplayKey(AnimancerState state)
-            => $"[{state.Index}] {_Thresholds[state.Index]}";
+        public override string GetDisplayKey(AnimancerState state) {
+            return $"[{state.Index}] {_Thresholds[state.Index]}";
+        }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override void AppendDetails(StringBuilder text, string separator)
-        {
+        protected override void AppendDetails(StringBuilder text, string separator) {
             text.Append(separator)
                 .Append($"{nameof(Parameter)}: ");
             AppendParameter(text, Parameter);
@@ -412,10 +392,10 @@ namespace Animancer
                 .Append("Thresholds: ");
 
             var thresholdCount = Math.Min(ChildCapacity, _Thresholds.Length);
-            for (int i = 0; i < thresholdCount; i++)
-            {
-                if (i > 0)
+            for (var i = 0; i < thresholdCount; i++) {
+                if (i > 0) {
                     text.Append(", ");
+                }
 
                 AppendParameter(text, _Thresholds[i]);
             }
@@ -426,8 +406,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Appends the `parameter` in a viewer-friendly format.</summary>
-        public virtual void AppendParameter(StringBuilder description, TParameter parameter)
-        {
+        public virtual void AppendParameter(StringBuilder description, TParameter parameter) {
             description.Append(parameter);
         }
 

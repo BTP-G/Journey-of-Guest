@@ -1,12 +1,12 @@
-using JoG.Health;
-using Xoderony.Extensions;
 using JoG.Character.Components;
 using JoG.Character.InputBanks;
+using JoG.Health;
 using System.Buffers;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using VContainer;
+using Xoderony.Extensions;
 
 namespace JoG.Character.States.Golem {
 

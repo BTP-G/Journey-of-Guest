@@ -10,8 +10,7 @@ using UnityEditorInternal;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Animancer.Editor.Tools
-{
+namespace Animancer.Editor.Tools {
     /// <summary>[Editor-Only] [Pro-Only] 
     /// A <see cref="AnimancerToolsWindow.Tool"/> for packing multiple <see cref="Texture2D"/>s into a single image.
     /// </summary>
@@ -23,8 +22,7 @@ namespace Animancer.Editor.Tools
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor.Tools/PackTexturesTool
     /// 
     [Serializable]
-    public class PackTexturesTool : AnimancerToolsWindow.Tool
-    {
+    public class PackTexturesTool : AnimancerToolsWindow.Tool {
         /************************************************************************************************************************/
 
         [SerializeField] private List<Object> _AssetsToPack;
@@ -45,12 +43,11 @@ namespace Animancer.Editor.Tools
         public override string HelpURL => Strings.DocsURLs.PackTextures;
 
         /// <inheritdoc/>
-        public override string Instructions
-        {
-            get
-            {
-                if (_AssetsToPack.Count == 0)
+        public override string Instructions {
+            get {
+                if (_AssetsToPack.Count == 0) {
                     return "Add the texture, sprites, and folders you want to pack to the list.";
+                }
 
                 return "Set the other details then click Pack and it will ask where you want to save the combined texture.";
             }
@@ -59,8 +56,7 @@ namespace Animancer.Editor.Tools
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void OnEnable(int index)
-        {
+        public override void OnEnable(int index) {
             base.OnEnable(index);
             _AssetsToPack ??= new();
             _TexturesDisplay = AnimancerToolsWindow.CreateReorderableObjectList(_AssetsToPack, "Textures", true);
@@ -69,8 +65,7 @@ namespace Animancer.Editor.Tools
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void DoBodyGUI()
-        {
+        public override void DoBodyGUI() {
             GUILayout.BeginVertical();
             _TexturesDisplay.DoLayoutList();
             GUILayout.EndVertical();
@@ -103,8 +98,7 @@ namespace Animancer.Editor.Tools
 
                 GUI.enabled = _AssetsToPack.Count > 0;
 
-                if (GUILayout.Button("Clear"))
-                {
+                if (GUILayout.Button("Clear")) {
                     AnimancerGUI.Deselect();
                     AnimancerToolsWindow.RecordUndo();
                     _AssetsToPack.Clear();
@@ -115,8 +109,7 @@ namespace Animancer.Editor.Tools
                 GUI.enabled = false;
 #endif
 
-                if (GUILayout.Button("Pack"))
-                {
+                if (GUILayout.Button("Pack")) {
 #if UNITY_IMAGE_CONVERSION
                     AnimancerGUI.Deselect();
                     Pack();
@@ -133,18 +126,15 @@ namespace Animancer.Editor.Tools
         /************************************************************************************************************************/
 
         /// <summary>Removes any items from the `list` that are the same as earlier items.</summary>
-        private static void RemoveDuplicates<T>(IList<T> list)
-        {
-            for (int i = list.Count - 1; i >= 0; i--)
-            {
+        private static void RemoveDuplicates<T>(IList<T> list) {
+            for (var i = list.Count - 1; i >= 0; i--) {
                 var item = list[i];
-                if (item == null)
+                if (item == null) {
                     continue;
+                }
 
-                for (int j = 0; j < i; j++)
-                {
-                    if (item.Equals(list[j]))
-                    {
+                for (var j = 0; j < i; j++) {
+                    if (item.Equals(list[j])) {
                         list.RemoveAt(i);
                         break;
                     }
@@ -157,23 +147,23 @@ namespace Animancer.Editor.Tools
         /************************************************************************************************************************/
 
         /// <summary>Combines the <see cref="_AssetsToPack"/> into a new texture and saves it.</summary>
-        private void Pack()
-        {
+        private void Pack() {
             var textures = GatherTextures();
             if (textures.Count == 0 ||
-                !MakeTexturesReadable(textures))
+                !MakeTexturesReadable(textures)) {
                 return;
+            }
 
             var path = GetCommonDirectory(_AssetsToPack);
 
             path = EditorUtility.SaveFilePanelInProject("Save Packed Texture", "PackedTexture", "png",
                 "Where would you like to save the packed texture?", path);
 
-            if (string.IsNullOrEmpty(path))
+            if (string.IsNullOrEmpty(path)) {
                 return;
+            }
 
-            try
-            {
+            try {
                 const string ProgressTitle = "Packing Textures";
                 EditorUtility.DisplayProgressBar(ProgressTitle, "Gathering", 0);
 
@@ -185,15 +175,17 @@ namespace Animancer.Editor.Tools
 
                 var tightTextures = new Texture2D[tightSprites.Count];
                 var index = 0;
-                foreach (var sprite in tightSprites)
+                foreach (var sprite in tightSprites) {
                     tightTextures[index++] = sprite.texture;
+                }
 
                 var packedUVs = packedTexture.PackTextures(tightTextures, _Padding, _MaximumSize);
 
                 EditorUtility.DisplayProgressBar(ProgressTitle, "Encoding", 0.4f);
                 var bytes = packedTexture.EncodeToPNG();
-                if (bytes == null)
+                if (bytes == null) {
                     return;
+                }
 
                 EditorUtility.DisplayProgressBar(ProgressTitle, "Writing", 0.5f);
                 File.WriteAllBytes(path, bytes);
@@ -204,8 +196,7 @@ namespace Animancer.Editor.Tools
                 importer.textureType = TextureImporterType.Sprite;
                 importer.spriteImportMode = SpriteImportMode.Multiple;
 
-                var data = new SpriteDataEditor(importer)
-                {
+                var data = new SpriteDataEditor(importer) {
                     SpriteCount = 0
                 };
 
@@ -218,8 +209,7 @@ namespace Animancer.Editor.Tools
 
                 data.SpriteCount = tightSprites.Count;
                 index = 0;
-                foreach (var sprite in tightSprites)
-                {
+                foreach (var sprite in tightSprites) {
                     var rect = packedUVs[index];
                     rect.x *= packedTexture.width;
                     rect.y *= packedTexture.height;
@@ -252,32 +242,30 @@ namespace Animancer.Editor.Tools
                 importer.SaveAndReimport();
 
                 Selection.activeObject = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
-            }
-            finally
-            {
+            } finally {
                 EditorUtility.ClearProgressBar();
             }
         }
 
         /************************************************************************************************************************/
 
-        private HashSet<Texture2D> GatherTextures()
-        {
+        private HashSet<Texture2D> GatherTextures() {
             var textures = new HashSet<Texture2D>();
 
-            for (int i = 0; i < _AssetsToPack.Count; i++)
-            {
+            for (var i = 0; i < _AssetsToPack.Count; i++) {
                 var obj = _AssetsToPack[i];
                 var path = AssetDatabase.GetAssetPath(obj);
-                if (string.IsNullOrEmpty(path))
+                if (string.IsNullOrEmpty(path)) {
                     continue;
+                }
 
-                if (obj is Texture2D texture)
+                if (obj is Texture2D texture) {
                     textures.Add(texture);
-                else if (obj is Sprite sprite)
+                } else if (obj is Sprite sprite) {
                     textures.Add(sprite.texture);
-                else if (obj is DefaultAsset)
+                } else if (obj is DefaultAsset) {
                     ForEachTextureInFolder(path, tex => textures.Add(tex));
+                }
             }
 
             return textures;
@@ -285,23 +273,23 @@ namespace Animancer.Editor.Tools
 
         /************************************************************************************************************************/
 
-        private HashSet<Sprite> GatherTightSprites()
-        {
+        private HashSet<Sprite> GatherTightSprites() {
             var sprites = new HashSet<Sprite>();
 
-            for (int i = 0; i < _AssetsToPack.Count; i++)
-            {
+            for (var i = 0; i < _AssetsToPack.Count; i++) {
                 var obj = _AssetsToPack[i];
                 var path = AssetDatabase.GetAssetPath(obj);
-                if (string.IsNullOrEmpty(path))
+                if (string.IsNullOrEmpty(path)) {
                     continue;
+                }
 
-                if (obj is Texture2D texture)
+                if (obj is Texture2D texture) {
                     GatherTightSprites(sprites, texture);
-                else if (obj is Sprite sprite)
+                } else if (obj is Sprite sprite) {
                     sprites.Add(CreateTightSprite(sprite));
-                else if (obj is DefaultAsset)
+                } else if (obj is DefaultAsset) {
                     ForEachTextureInFolder(path, tex => GatherTightSprites(sprites, tex));
+                }
             }
 
             return sprites;
@@ -309,23 +297,19 @@ namespace Animancer.Editor.Tools
 
         /************************************************************************************************************************/
 
-        private static void GatherTightSprites(ICollection<Sprite> sprites, Texture2D texture)
-        {
+        private static void GatherTightSprites(ICollection<Sprite> sprites, Texture2D texture) {
             var path = AssetDatabase.GetAssetPath(texture);
             var assets = AssetDatabase.LoadAllAssetsAtPath(path);
             var foundSprite = false;
-            for (int i = 0; i < assets.Length; i++)
-            {
-                if (assets[i] is Sprite sprite)
-                {
+            for (var i = 0; i < assets.Length; i++) {
+                if (assets[i] is Sprite sprite) {
                     sprite = CreateTightSprite(sprite);
                     sprites.Add(sprite);
                     foundSprite = true;
                 }
             }
 
-            if (!foundSprite)
-            {
+            if (!foundSprite) {
                 var sprite = Sprite.Create(texture,
                     new(0, 0, texture.width, texture.height),
                     new(0.5f, 0.5f));
@@ -336,14 +320,14 @@ namespace Animancer.Editor.Tools
 
         /************************************************************************************************************************/
 
-        private static Sprite CreateTightSprite(Sprite sprite)
-        {
+        private static Sprite CreateTightSprite(Sprite sprite) {
             var rect = sprite.rect;
             var width = Mathf.CeilToInt(rect.width);
             var height = Mathf.CeilToInt(rect.height);
             if (width == sprite.texture.width &&
-                height == sprite.texture.height)
+                height == sprite.texture.height) {
                 return sprite;
+            }
 
             var pixels = sprite.texture.GetPixels(
                 Mathf.FloorToInt(rect.x),
@@ -371,26 +355,27 @@ namespace Animancer.Editor.Tools
 
         /************************************************************************************************************************/
 
-        private static bool MakeTexturesReadable(HashSet<Texture2D> textures)
-        {
+        private static bool MakeTexturesReadable(HashSet<Texture2D> textures) {
             var hasAsked = false;
 
-            foreach (var texture in textures)
-            {
+            foreach (var texture in textures) {
                 var importer = GetTextureImporter(texture);
-                if (importer == null)
+                if (importer == null) {
                     continue;
+                }
 
                 if (importer.isReadable &&
-                    importer.textureCompression == TextureImporterCompression.Uncompressed)
+                    importer.textureCompression == TextureImporterCompression.Uncompressed) {
                     continue;
+                }
 
-                if (!hasAsked)
-                {
+                if (!hasAsked) {
                     if (!EditorUtility.DisplayDialog("Make Textures Readable and Uncompressed?",
                         "This tool requires the source textures to be marked as readable and uncompressed in their import settings.",
-                        "Make Textures Readable and Uncompressed", "Cancel"))
+                        "Make Textures Readable and Uncompressed", "Cancel")) {
                         return false;
+                    }
+
                     hasAsked = true;
                 }
 
@@ -404,68 +389,65 @@ namespace Animancer.Editor.Tools
 
         /************************************************************************************************************************/
 
-        private static void ForEachTextureInFolder(string path, Action<Texture2D> action)
-        {
+        private static void ForEachTextureInFolder(string path, Action<Texture2D> action) {
             var guids = AssetDatabase.FindAssets($"t:{nameof(Texture2D)}", new string[] { path });
-            for (int i = 0; i < guids.Length; i++)
-            {
+            for (var i = 0; i < guids.Length; i++) {
                 path = AssetDatabase.GUIDToAssetPath(guids[i]);
                 var texture = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
-                if (texture != null)
+                if (texture != null) {
                     action(texture);
+                }
             }
         }
 
         /************************************************************************************************************************/
 
-        private static void CopyCompressionSettings(TextureImporter copyTo, IEnumerable<Texture2D> copyFrom)
-        {
+        private static void CopyCompressionSettings(TextureImporter copyTo, IEnumerable<Texture2D> copyFrom) {
             var first = true;
-            foreach (var texture in copyFrom)
-            {
+            foreach (var texture in copyFrom) {
                 var copyFromImporter = GetTextureImporter(texture);
-                if (copyFromImporter == null)
+                if (copyFromImporter == null) {
                     continue;
+                }
 
-                if (first)
-                {
+                if (first) {
                     first = false;
 
                     copyTo.textureCompression = copyFromImporter.textureCompression;
                     copyTo.crunchedCompression = copyFromImporter.crunchedCompression;
                     copyTo.compressionQuality = copyFromImporter.compressionQuality;
                     copyTo.filterMode = copyFromImporter.filterMode;
-                }
-                else
-                {
-                    if (IsHigherQuality(copyFromImporter.textureCompression, copyTo.textureCompression))
+                } else {
+                    if (IsHigherQuality(copyFromImporter.textureCompression, copyTo.textureCompression)) {
                         copyTo.textureCompression = copyFromImporter.textureCompression;
+                    }
 
-                    if (copyFromImporter.crunchedCompression)
+                    if (copyFromImporter.crunchedCompression) {
                         copyTo.crunchedCompression = true;
+                    }
 
-                    if (copyTo.compressionQuality < copyFromImporter.compressionQuality)
+                    if (copyTo.compressionQuality < copyFromImporter.compressionQuality) {
                         copyTo.compressionQuality = copyFromImporter.compressionQuality;
+                    }
 
-                    if (copyTo.filterMode > copyFromImporter.filterMode)
+                    if (copyTo.filterMode > copyFromImporter.filterMode) {
                         copyTo.filterMode = copyFromImporter.filterMode;
+                    }
                 }
             }
         }
 
         /************************************************************************************************************************/
 
-        private static bool IsHigherQuality(TextureImporterCompression higher, TextureImporterCompression lower)
-        {
-            return higher switch
-            {
+        private static bool IsHigherQuality(TextureImporterCompression higher, TextureImporterCompression lower) {
+            return higher switch {
                 TextureImporterCompression.Uncompressed
                     => lower != TextureImporterCompression.Uncompressed,
                 TextureImporterCompression.Compressed
                     => lower == TextureImporterCompression.CompressedLQ,
                 TextureImporterCompression.CompressedHQ
-                    => lower == TextureImporterCompression.Compressed
-                    || lower == TextureImporterCompression.CompressedLQ,
+                    => lower is TextureImporterCompression.Compressed
+                    or TextureImporterCompression.CompressedLQ,
                 TextureImporterCompression.CompressedLQ
                     => false,
                 _
@@ -475,35 +457,32 @@ namespace Animancer.Editor.Tools
 
         /************************************************************************************************************************/
 
-        private static string GetCommonDirectory<T>(IList<T> objects) where T : Object
-        {
-            if (objects == null)
+        private static string GetCommonDirectory<T>(IList<T> objects) where T : Object {
+            if (objects == null) {
                 return null;
+            }
 
             var count = objects.Count;
 
-            for (int i = count - 1; i >= 0; i--)
-            {
-                if (objects[i] == null)
-                {
+            for (var i = count - 1; i >= 0; i--) {
+                if (objects[i] == null) {
                     objects.RemoveAt(i);
                     count--;
                 }
             }
 
-            if (count == 0)
+            if (count == 0) {
                 return null;
+            }
 
             var path = AssetDatabase.GetAssetPath(objects[0]);
             path = Path.GetDirectoryName(path);
 
-            for (int i = 1; i < count; i++)
-            {
+            for (var i = 1; i < count; i++) {
                 var otherPath = AssetDatabase.GetAssetPath(objects[i]);
                 otherPath = Path.GetDirectoryName(otherPath);
 
-                while (string.Compare(path, 0, otherPath, 0, path.Length) != 0)
-                {
+                while (string.Compare(path, 0, otherPath, 0, path.Length) != 0) {
                     path = Path.GetDirectoryName(path);
                 }
             }
@@ -513,17 +492,18 @@ namespace Animancer.Editor.Tools
 
         /************************************************************************************************************************/
 
-        private static TextureImporter GetTextureImporter(Object asset)
-        {
+        private static TextureImporter GetTextureImporter(Object asset) {
             var path = AssetDatabase.GetAssetPath(asset);
-            if (string.IsNullOrEmpty(path))
+            if (string.IsNullOrEmpty(path)) {
                 return null;
+            }
 
             return GetTextureImporter(path);
         }
 
-        private static TextureImporter GetTextureImporter(string path)
-            => AssetImporter.GetAtPath(path) as TextureImporter;
+        private static TextureImporter GetTextureImporter(string path) {
+            return AssetImporter.GetAtPath(path) as TextureImporter;
+        }
 
         /************************************************************************************************************************/
 #endif

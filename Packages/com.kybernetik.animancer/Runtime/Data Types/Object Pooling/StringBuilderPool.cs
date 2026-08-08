@@ -2,12 +2,10 @@
 
 using System.Text;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>An <see cref="ObjectPool{T}"/> for <see cref="StringBuilder"/>.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer/StringBuilderPool
-    public class StringBuilderPool : ObjectPool<StringBuilder>
-    {
+    public class StringBuilderPool : ObjectPool<StringBuilder> {
         /************************************************************************************************************************/
 
         /// <summary>Singleton.</summary>
@@ -16,14 +14,14 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override StringBuilder New()
-            => new();
+        protected override StringBuilder New() {
+            return new();
+        }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override StringBuilder Acquire()
-        {
+        public override StringBuilder Acquire() {
             var text = base.Acquire();
             AnimancerUtilities.Assert(
                 text.Length == 0,
@@ -34,8 +32,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void Release(StringBuilder text)
-        {
+        public override void Release(StringBuilder text) {
             text.Length = 0;
             base.Release(text);
         }
@@ -44,15 +41,13 @@ namespace Animancer
     }
 
     /// https://kybernetik.com.au/animancer/api/Animancer/AnimancerUtilities
-    public static partial class AnimancerUtilities
-    {
+    public static partial class AnimancerUtilities {
         /************************************************************************************************************************/
 
         /// <summary>[Animancer Extension]
         /// Calls <see cref="StringBuilder.ToString()"/> and <see cref="StringBuilderPool.Release(StringBuilder)"/>.
         /// </summary>
-        public static string ReleaseToString(this StringBuilder text)
-        {
+        public static string ReleaseToString(this StringBuilder text) {
             var result = text.ToString();
             StringBuilderPool.Instance.Release(text);
             return result;

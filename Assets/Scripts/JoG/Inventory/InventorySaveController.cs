@@ -1,5 +1,4 @@
 using EditorAttributes;
-using Xoderony.Logging;
 using JoG.Item;
 using JoG.Networking;
 using Newtonsoft.Json;
@@ -8,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using VContainer;
+using Xoderony.Logging;
 
 namespace JoG.Inventory {
 

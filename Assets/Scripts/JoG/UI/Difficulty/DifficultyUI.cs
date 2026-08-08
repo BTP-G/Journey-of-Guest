@@ -1,7 +1,3 @@
-using TMPro;
-using UnityEngine;
-using VContainer;
-
 namespace JoG.UI {
 
     //public class DifficultyUI : MonoBehaviour {

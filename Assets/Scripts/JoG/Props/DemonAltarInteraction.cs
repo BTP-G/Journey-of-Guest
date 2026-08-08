@@ -1,8 +1,5 @@
 using EditorAttributes;
-using Xoderony.Localization;
-using Xoderony.YooAsset;
 using JoG.Character;
-using Xoderony.GameplayEffects;
 using JoG.Interaction;
 using JoG.UI;
 using System;
@@ -10,6 +7,9 @@ using System.Text;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Events;
+using Xoderony.GameplayEffects;
+using Xoderony.Localization;
+using Xoderony.YooAsset;
 
 namespace JoG.Props {
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Unity.Netcode;
@@ -51,7 +51,10 @@ namespace Xoderony.Netcode.Editor {
             var iterator = serializedObject.GetIterator();
             var expanded = true;
             while (iterator.NextVisible(expanded)) {
-                if (iterator.propertyPath == "m_Script") continue;
+                if (iterator.propertyPath == "m_Script") {
+                    continue;
+                }
+
                 if (!iterator.type.StartsWith("NetworkVariable")) {
                     var child = new PropertyField(iterator) {
                         name = "PropertyField:" + iterator.propertyPath
@@ -322,7 +325,10 @@ namespace Xoderony.Netcode.Editor {
         #endregion 其它
 
         private void OnEnable() {
-            if (_target == target) return;
+            if (_target == target) {
+                return;
+            }
+
             _target = target as NetworkBehaviour;
             _networkListFields.Clear();
             foreach (var field in _target.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy).AsSpan()) {

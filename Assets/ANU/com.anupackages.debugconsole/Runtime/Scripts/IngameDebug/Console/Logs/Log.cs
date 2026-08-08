@@ -1,11 +1,9 @@
-﻿using System;
+using System;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
-namespace ANU.IngameDebug.Console
-{
-    public class Log
-    {
+namespace ANU.IngameDebug.Console {
+    public class Log {
         public readonly ConsoleLogType ConsoleLogtype;
         public readonly LogType MessageType;
         public readonly string Message;
@@ -25,8 +23,7 @@ namespace ANU.IngameDebug.Console
         public Log(ConsoleLogType consoleLogType, LogType messageType, string message, string stackTrace)
             : this(consoleLogType, messageType, message, stackTrace, DateTime.Now) { }
 
-        public Log(ConsoleLogType consoleLogType, LogType messageType, string message, string stackTrace, DateTime receivedTime)
-        {
+        public Log(ConsoleLogType consoleLogType, LogType messageType, string message, string stackTrace, DateTime receivedTime) {
             ConsoleLogtype = consoleLogType;
             MessageType = messageType;
 
@@ -39,15 +36,17 @@ namespace ANU.IngameDebug.Console
 
         public string DisplayString => _selectedMessage;
 
-        public void Select(string substring)
-        {
+        public void Select(string substring) {
             _selectionSubstring = substring;
-            if (string.IsNullOrEmpty(_selectionSubstring))
+            if (string.IsNullOrEmpty(_selectionSubstring)) {
                 _selectedMessage = Message;
-            else
+            } else {
                 _selectedMessage = Regex.Replace(Message, $"(?<g>{_selectionSubstring})", "<mark=#ffff00aa>${g}</mark>");
+            }
         }
 
-        public void Deselect() => _selectedMessage = Message;
+        public void Deselect() {
+            _selectedMessage = Message;
+        }
     }
 }

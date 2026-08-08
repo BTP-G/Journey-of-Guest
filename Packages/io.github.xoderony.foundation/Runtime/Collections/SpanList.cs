@@ -201,7 +201,6 @@ namespace Xoderony.Collections {
         public static implicit operator Span<T>(SpanList<T> spanList) {
             return spanList._fullSpan[..spanList._count];
         }
-
     }
 
     public delegate bool ComparerDelegate<T>(in T a, in T b);

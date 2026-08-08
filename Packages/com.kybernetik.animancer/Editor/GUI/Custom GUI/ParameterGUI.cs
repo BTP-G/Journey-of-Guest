@@ -7,15 +7,13 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only] A custom GUI for <see cref="IParameter"/>.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/ParameterGUI_1
     /// 
     [CustomGUI(typeof(IParameter))]
     public class ParameterGUI<TParameter> : CustomGUI<TParameter>
-        where TParameter : IParameter
-    {
+        where TParameter : IParameter {
         /************************************************************************************************************************/
 
         private static readonly HashSet<string>
@@ -29,16 +27,14 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void DoGUI()
-        {
+        public override void DoGUI() {
             ParameterDictionary.IsDrawingInspector = true;
 
             var isExpanded = DoFoldoutGUI(out var startArea);
 
             DoValueGUI();
 
-            if (isExpanded)
-            {
+            if (isExpanded) {
                 EditorGUI.indentLevel++;
 
                 DoDetailsGUI();
@@ -53,15 +49,15 @@ namespace Animancer.Editor
             var totalArea = startArea;
             totalArea.yMax = endArea.yMax;
 
-            if (AnimancerGUI.TryUseClickEvent(totalArea, 1))
+            if (AnimancerGUI.TryUseClickEvent(totalArea, 1)) {
                 ShowContextMenu();
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <summary>Draws the <see cref="CustomGUI{T}.Value"/> and returns the area used.</summary>
-        private Rect DoValueGUI()
-        {
+        private Rect DoValueGUI() {
             _ValueGUI ??= CustomGUIFactory.GetOrCreateForType(Value.ValueType);
 
             _ValueGUI.Label = Label;
@@ -75,8 +71,7 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Draws a foldout for the parameter details and returns true if expanded.</summary>
-        private bool DoFoldoutGUI(out Rect totalArea)
-        {
+        private bool DoFoldoutGUI(out Rect totalArea) {
             var area = AnimancerGUI.LayoutSingleLineRect();
             totalArea = area;
 
@@ -93,8 +88,7 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Draws the details of the parameter.</summary>
-        private void DoDetailsGUI()
-        {
+        private void DoDetailsGUI() {
             EditorGUILayout.LabelField("Type", Value.ValueType.GetNameCS(false));
 
             _DelegateGUI ??= CustomGUIFactory.GetOrCreateForType(typeof(MulticastDelegate));
@@ -107,19 +101,16 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Shows a context menu for the parameter.</summary>
-        private void ShowContextMenu()
-        {
+        private void ShowContextMenu() {
             var menu = new GenericMenu();
 
-            menu.AddItem(new("Log Interactions"), Value.LogContext != null, () =>
-            {
+            menu.AddItem(new("Log Interactions"), Value.LogContext != null, () => {
                 Value.LogContext = Value.LogContext is null
                     ? ""
                     : null;
             });
 
-            menu.AddItem(new("Inspector Control Only"), Value.InspectorControlOnly, () =>
-            {
+            menu.AddItem(new("Inspector Control Only"), Value.InspectorControlOnly, () => {
                 Value.InspectorControlOnly = !Value.InspectorControlOnly;
             });
 

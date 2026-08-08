@@ -1,4 +1,4 @@
-namespace JoG .Chat{
+namespace JoG.Chat {
 
     public static class ChatMessageTypes {
         public const byte System = 0;

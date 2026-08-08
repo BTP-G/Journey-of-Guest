@@ -9,8 +9,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace Animancer.Editor.Previews
-{
+namespace Animancer.Editor.Previews {
     /// <summary>[Editor-Only] A minimal <see cref="ITransition"/> to preview an <see cref="AnimationClip"/>.</summary>
     /// <remarks>
     /// <strong>Documentation:</strong>
@@ -20,8 +19,7 @@ namespace Animancer.Editor.Previews
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor.Previews/AnimationClipPreview
     /// 
     [AnimancerHelpUrl(typeof(AnimationClipPreview))]
-    internal class AnimationClipPreview : ScriptableObject
-    {
+    internal class AnimationClipPreview : ScriptableObject {
         /************************************************************************************************************************/
 
         [SerializeField]
@@ -31,8 +29,7 @@ namespace Animancer.Editor.Previews
 
         [Serializable]
         [Obsolete("Only intended for internal use.")]// Prevent this type from showing up in [SerializeReference] fields.
-        private class Transition : ITransition, IAnimationClipCollection
-        {
+        private class Transition : ITransition, IAnimationClipCollection {
             /************************************************************************************************************************/
 
             [SerializeField]
@@ -44,7 +41,10 @@ namespace Animancer.Editor.Previews
             public object Key => _Clip;
             public float FadeDuration => 0;
             public FadeMode FadeMode => default;
-            public AnimancerState CreateState() => new ClipState(_Clip);
+            public AnimancerState CreateState() {
+                return new ClipState(_Clip);
+            }
+
             public void Apply(AnimancerState state) { }
 
             public bool IsValid => _Clip != null;
@@ -54,15 +54,16 @@ namespace Animancer.Editor.Previews
             public float Speed { get => 1; set => throw new NotSupportedException(); }
 
             AnimancerEvent.Sequence IHasEvents.Events => null;
-            AnimancerEvent.Sequence.Serializable IHasEvents.SerializedEvents
-            {
+            AnimancerEvent.Sequence.Serializable IHasEvents.SerializedEvents {
                 get => throw new NotSupportedException();
                 set => throw new NotSupportedException();
             }
 
             /************************************************************************************************************************/
 
-            public void GatherAnimationClips(ICollection<AnimationClip> clips) => clips.Add(_Clip);
+            public void GatherAnimationClips(ICollection<AnimationClip> clips) {
+                clips.Add(_Clip);
+            }
 
             /************************************************************************************************************************/
         }
@@ -70,17 +71,14 @@ namespace Animancer.Editor.Previews
         /************************************************************************************************************************/
 
         [MenuItem("CONTEXT/" + nameof(AnimationClip) + "/Preview")]
-        private static void Preview(MenuCommand command)
-        {
+        private static void Preview(MenuCommand command) {
             var preview = FindObjectOfType<AnimationClipPreview>();
-            if (preview == null)
-            {
+            if (preview == null) {
                 preview = CreateInstance<AnimationClipPreview>();
                 preview.hideFlags = HideFlags.HideInHierarchy | HideFlags.DontSave;
             }
 
-            preview._Transition = new Transition
-            {
+            preview._Transition = new Transition {
                 Clip = (AnimationClip)command.context
             };
 

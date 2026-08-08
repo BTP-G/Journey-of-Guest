@@ -1,63 +1,57 @@
-﻿#if DOTWEEN_ENABLED
-using System;
+#if DOTWEEN_ENABLED
 using DG.Tweening;
+using System;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace BrunoMikoski.AnimationSequencer
-{
+namespace BrunoMikoski.AnimationSequencer {
     // Modified by Pablo Huaxteco
     [Serializable]
-    public sealed class InvokeCallbackStep : AnimationStepBase
-    {
+    public sealed class InvokeCallbackStep : AnimationStepBase {
         public override string DisplayName => "Invoke Callback";
 
         [SerializeField]
         private UnityEvent callback = new UnityEvent();
-        public UnityEvent Callback
-        {
+        public UnityEvent Callback {
             get => callback;
             set => callback = value;
         }
 
-        public override Sequence GenerateTweenSequence()
-        {
-            Sequence sequence = DOTween.Sequence();
+        public override Sequence GenerateTweenSequence() {
+            var sequence = DOTween.Sequence();
             sequence.SetDelay(delay);
             sequence.AppendInterval(extraInterval);    //Interval added for a bug when this tween runs in "Backwards" direction.
             sequence.AppendCallback(callback.Invoke);
-            
+
             return sequence;
         }
 
         protected override void ResetToInitialState_Internal() { }
 
-        public override string GetDisplayNameForEditor(int index)
-        {
-            string[] persistentTargetNamesArray = new string[callback.GetPersistentEventCount()];
-            for (int i = 0; i < callback.GetPersistentEventCount(); i++)
-            {
-                if (callback.GetPersistentTarget(i) == null)
+        public override string GetDisplayNameForEditor(int index) {
+            var persistentTargetNamesArray = new string[callback.GetPersistentEventCount()];
+            for (var i = 0; i < callback.GetPersistentEventCount(); i++) {
+                if (callback.GetPersistentTarget(i) == null) {
                     continue;
-                
-                if (string.IsNullOrWhiteSpace(callback.GetPersistentMethodName(i)))
+                }
+
+                if (string.IsNullOrWhiteSpace(callback.GetPersistentMethodName(i))) {
                     continue;
-                
+                }
+
                 persistentTargetNamesArray[i] = $"{callback.GetPersistentTarget(i).name}.{callback.GetPersistentMethodName(i)}()";
             }
 
             var persistentTargetNames = $"{string.Join(", ", persistentTargetNamesArray)}";
-            
+
             return $"{index}. {DisplayName}: {persistentTargetNames}";
         }
 
-        public override float GetDuration()
-        {
+        public override float GetDuration() {
             return createdSequence == null ? -1 : createdSequence.Duration() - extraInterval;
         }
 
-        public override float GetExtraIntervalAdded()
-        {
+        public override float GetExtraIntervalAdded() {
             return createdSequence == null ? 0 : extraInterval;
         }
     }

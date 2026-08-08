@@ -1,21 +1,17 @@
-﻿using TinyScript;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.UIElements;
-using UnityEditor.UIElements;
 
-namespace TinyScript
-{
+namespace TinyScript {
     [CustomEditor(typeof(LootDrop))]
-    public class LootDropEditor : Editor
-    {
-        ReorderableList _guaranteedList;
-        ReorderableList _oneFromList;
-        LootDrop ld;
+    public class LootDropEditor : Editor {
+        private ReorderableList _guaranteedList;
+        private ReorderableList _oneFromList;
+        private LootDrop ld;
 
-        public override VisualElement CreateInspectorGUI()
-        {
+        public override VisualElement CreateInspectorGUI() {
             var containerColor = EditorGUIUtility.isProSkin ? new Color(65 / 255f, 65 / 255f, 65 / 255f) : new Color(200 / 255f, 200 / 255f, 200 / 255f);
             var borderColor = EditorGUIUtility.isProSkin ? new Color(36f / 255f, 36f / 255f, 36f / 255f) : new Color(161 / 255f, 161 / 255f, 161 / 255f);
             ld = target as LootDrop;
@@ -31,7 +27,6 @@ namespace TinyScript
             var defMinProp = serializedObject.FindProperty("DefualtMinDropRange");
             var defMaxProp = serializedObject.FindProperty("DefualtMaxDropRange");
 
-
             // Reorderable Lists
             root.Add(CreateReorderableSection("Guaranteed Loot", guaranteedProp, ref _guaranteedList));
             root.Add(CreateReorderableSection("Random Loot", oneFromListProp, ref _oneFromList));
@@ -40,8 +35,6 @@ namespace TinyScript
             noDropField.Bind(serializedObject);
             noDropField.style.marginRight = 3;
             root.Add(noDropField);
-
-
 
             // Drop Settings
             var dropSettingsHeader = CreateHeader("Defualt Drop Settings");
@@ -82,8 +75,6 @@ namespace TinyScript
 
             root.Add(defaultsBox);
 
-
-
             // Drop Change Graph
             var dropInfoHeader = CreateHeader("Drop Change Visualization");
             dropInfoHeader.style.marginTop = 8;
@@ -106,23 +97,18 @@ namespace TinyScript
 
             root.Add(dropInfoContainer);
 
-            float totalWeight = ld.WeightToNoDrop;
-            float guaranteedHeight = 0;
+            var totalWeight = ld.WeightToNoDrop;
 
-            if (ld.OneItemFromList != null)
-            {
-                for (int j = 0; j < ld.OneItemFromList.Length; j++)
-                {
+            if (ld.OneItemFromList != null) {
+                for (var j = 0; j < ld.OneItemFromList.Length; j++) {
                     totalWeight += ld.OneItemFromList[j].Weight;
                 }
             }
 
-            for (int i = 0; i < ld.GuaranteedLootTable.Length; i++)
-            {
+            for (var i = 0; i < ld.GuaranteedLootTable.Length; i++) {
                 dropInfoContainer.Add(DrawDropItemChange(ld.GuaranteedLootTable[i].Weight, ld.GuaranteedLootTable[i]));
             }
-            for (int i = 0; i < ld.OneItemFromList.Length; i++)
-            {
+            for (var i = 0; i < ld.OneItemFromList.Length; i++) {
                 dropInfoContainer.Add(DrawDropItemChange(totalWeight, ld.OneItemFromList[i]));
             }
             dropInfoContainer.Add(DrawDropItemChange(totalWeight, noDropChange: ld.WeightToNoDrop));
@@ -130,27 +116,26 @@ namespace TinyScript
             return root;
         }
 
-        static VisualElement CreateReorderableSection(string headerText, SerializedProperty arrayProp, ref ReorderableList list)
-        {
+        private static VisualElement CreateReorderableSection(string headerText, SerializedProperty arrayProp, ref ReorderableList list) {
             var headerColor = EditorGUIUtility.isProSkin ? new Color(53f / 255f, 53f / 255f, 53f / 255f) : new Color(182 / 255f, 182 / 255f, 182 / 255f);
             var borderColor = EditorGUIUtility.isProSkin ? new Color(36f / 255f, 36f / 255f, 36f / 255f) : new Color(161 / 255f, 161 / 255f, 161 / 255f);
 
-            if (list == null)
-            {
-                list = new ReorderableList(arrayProp.serializedObject, arrayProp, true, false, false, false);
-                list.drawHeaderCallback = rect => EditorGUI.LabelField(rect, headerText);
-                list.elementHeightCallback = index =>
-                {
-                    if (index < 0 || index >= arrayProp.arraySize)
-                        return EditorGUIUtility.singleLineHeight;
-                    return EditorGUI.GetPropertyHeight(arrayProp.GetArrayElementAtIndex(index), true) + 4;
-                };
-                list.drawElementCallback = (rect, index, isActive, isFocused) =>
-                {
-                    var element = arrayProp.GetArrayElementAtIndex(index);
-                    rect.y += 2;
-                    rect.height = EditorGUI.GetPropertyHeight(element, true);
-                    EditorGUI.PropertyField(rect, element, GUIContent.none, true);
+            if (list == null) {
+                list = new ReorderableList(arrayProp.serializedObject, arrayProp, true, false, false, false) {
+                    drawHeaderCallback = rect => EditorGUI.LabelField(rect, headerText),
+                    elementHeightCallback = index => {
+                        if (index < 0 || index >= arrayProp.arraySize) {
+                            return EditorGUIUtility.singleLineHeight;
+                        }
+
+                        return EditorGUI.GetPropertyHeight(arrayProp.GetArrayElementAtIndex(index), true) + 4;
+                    },
+                    drawElementCallback = (rect, index, isActive, isFocused) => {
+                        var element = arrayProp.GetArrayElementAtIndex(index);
+                        rect.y += 2;
+                        rect.height = EditorGUI.GetPropertyHeight(element, true);
+                        EditorGUI.PropertyField(rect, element, GUIContent.none, true);
+                    }
                 };
 
                 list.onAddCallback ??= l => ReorderableList.defaultBehaviours.DoAddButton(l);
@@ -165,13 +150,11 @@ namespace TinyScript
 
             var localList = list;
 
-            var addButton = new Button(() =>
-            {
+            var addButton = new Button(() => {
                 localList.serializedProperty.serializedObject.Update();
                 localList.onAddCallback?.Invoke(localList);
                 localList.serializedProperty.serializedObject.ApplyModifiedProperties();
-            })
-            {
+            }) {
                 text = "+",
                 style =
             {
@@ -195,13 +178,11 @@ namespace TinyScript
 
             boxHeader.Add(addButton);
 
-            var removeButton = new Button(() =>
-            {
+            var removeButton = new Button(() => {
                 localList.serializedProperty.serializedObject.Update();
                 localList.onRemoveCallback?.Invoke(localList);
                 localList.serializedProperty.serializedObject.ApplyModifiedProperties();
-            })
-            {
+            }) {
                 text = "-",
                 style =
             {
@@ -225,8 +206,7 @@ namespace TinyScript
 
             boxHeader.Add(removeButton);
 
-            var imgui = new IMGUIContainer(() =>
-            {
+            var imgui = new IMGUIContainer(() => {
                 localList.serializedProperty.serializedObject.Update();
                 localList.DoLayoutList();
                 localList.serializedProperty.serializedObject.ApplyModifiedProperties();
@@ -236,8 +216,7 @@ namespace TinyScript
             return box;
         }
 
-        static VisualElement CreateHeader(string text)
-        {
+        private static VisualElement CreateHeader(string text) {
             var headerColor = EditorGUIUtility.isProSkin ? new Color(53f / 255f, 53f / 255f, 53f / 255f) : new Color(182 / 255f, 182 / 255f, 182 / 255f);
             var borderColor = EditorGUIUtility.isProSkin ? new Color(36f / 255f, 36f / 255f, 36f / 255f) : new Color(161 / 255f, 161 / 255f, 161 / 255f);
 
@@ -266,8 +245,7 @@ namespace TinyScript
             return boxHeader;
         }
 
-        static VisualElement DrawDropItemChange(float TotalWidth, DropChangeItem change = null, float noDropChange = 0)
-        {
+        private static VisualElement DrawDropItemChange(float TotalWidth, DropChangeItem change = null, float noDropChange = 0) {
             Debug.Log(change == null);
 
             var containerColor = EditorGUIUtility.isProSkin ? new Color(65 / 255f, 65 / 255f, 65 / 255f) : new Color(200 / 255f, 200 / 255f, 200 / 255f);
@@ -300,14 +278,18 @@ namespace TinyScript
             containerLabels.style.alignItems = Align.Center;
             container.Add(containerLabels);
 
-            var itemLabel = new Label();
-            itemLabel.text = change != null && change.Drop != null ? change.Drop.name : "No Drop";
+            var itemLabel = new Label {
+                text = change != null && change.Drop != null ? change.Drop.name : "No Drop"
+            };
             itemLabel.style.flexGrow = 1;
             itemLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
             containerLabels.Add(itemLabel);
 
             var countLabel = new Label();
-            if (change != null) countLabel.text = $"Can Drop: [{change.MinCountItem}-{change.MaxCountItem}]";
+            if (change != null) {
+                countLabel.text = $"Can Drop: [{change.MinCountItem}-{change.MaxCountItem}]";
+            }
+
             countLabel.style.fontSize = 10;
             countLabel.style.opacity = 0.7f;
             containerLabels.Add(countLabel);
@@ -342,9 +324,13 @@ namespace TinyScript
             progressBarFill.style.borderBottomLeftRadius = 3;
             progressBarFill.style.borderBottomRightRadius = 3;
 
-            var dropChangeText = new Label();
-            dropChangeText.text = change != null ? $"{((change.Weight / TotalWidth) * 100).ToString("0.00")}%" : $"{((noDropChange / TotalWidth) * 100).ToString("0.00")}%";
-            if (change != null && change.Weight == TotalWidth) dropChangeText.text = "100.00% [Guaranteed Drop]";
+            var dropChangeText = new Label {
+                text = change != null ? $"{change.Weight / TotalWidth * 100:0.00}%" : $"{noDropChange / TotalWidth * 100:0.00}%"
+            };
+            if (change != null && change.Weight == TotalWidth) {
+                dropChangeText.text = "100.00% [Guaranteed Drop]";
+            }
+
             dropChangeText.style.position = Position.Absolute;
             dropChangeText.style.left = 2;
             dropChangeText.style.right = 2;
@@ -356,8 +342,7 @@ namespace TinyScript
 
             progressBar.Add(progressBarFill);
             progressBar.Add(dropChangeText);
-            if (change != null)
-            {
+            if (change != null) {
                 var weightStats = new Label($"[{change.Weight}/{TotalWidth}]");
                 weightStats.style.position = Position.Absolute;
                 weightStats.style.left = 2;
@@ -367,7 +352,9 @@ namespace TinyScript
                 weightStats.style.unityTextAlign = TextAnchor.MiddleRight;
                 weightStats.style.opacity = 0.7f;
                 weightStats.style.fontSize = 10;
-                if (TotalWidth != change.Weight) progressBar.Add(weightStats);
+                if (TotalWidth != change.Weight) {
+                    progressBar.Add(weightStats);
+                }
             }
             container.Add(progressBar);
 

@@ -1,14 +1,12 @@
-﻿#if DOTWEEN_ENABLED
-using System;
+#if DOTWEEN_ENABLED
 using DG.Tweening;
+using System;
 using UnityEngine;
 
-namespace BrunoMikoski.AnimationSequencer
-{
+namespace BrunoMikoski.AnimationSequencer {
     // Modified by Pablo Huaxteco
     [Serializable]
-    public abstract class AnimationStepBase
-    {
+    public abstract class AnimationStepBase {
         [SerializeField, Min(0)]
         protected float delay;
         public float Delay { get { return delay; } set { delay = value; } }
@@ -31,41 +29,39 @@ namespace BrunoMikoski.AnimationSequencer
 
         public abstract Sequence GenerateTweenSequence();
 
-        public void AddTweenToSequence(Sequence mainSequence)
-        {
+        public void AddTweenToSequence(Sequence mainSequence) {
             SetMainSequence(mainSequence);
             createdSequence = GenerateTweenSequence();
-            if (createdSequence == null)
+            if (createdSequence == null) {
                 return;
+            }
 
-            if (flowType == FlowType.Join)
+            if (flowType == FlowType.Join) {
                 mainSequence.Join(createdSequence);
-            else
+            } else {
                 mainSequence.Append(createdSequence);
+            }
         }
 
         protected abstract void ResetToInitialState_Internal();
 
-        public void ResetToInitialState()
-        {
-            if (createdSequence == null)
+        public void ResetToInitialState() {
+            if (createdSequence == null) {
                 return;
+            }
 
             ResetToInitialState_Internal();
         }
 
-        public virtual string GetDisplayNameForEditor(int index)
-        {
+        public virtual string GetDisplayNameForEditor(int index) {
             return $"{index}. {this}";
         }
 
-        public virtual float GetDuration()
-        {
+        public virtual float GetDuration() {
             return createdSequence == null ? -1 : createdSequence.Duration();
         }
 
-        public virtual float GetExtraIntervalAdded()
-        {
+        public virtual float GetExtraIntervalAdded() {
             return 0;
         }
     }

@@ -1,10 +1,8 @@
 // Animancer // https://kybernetik.com.au/animancer // Copyright 2018-2026 Kybernetik //
 
-namespace Animancer
-{
+namespace Animancer {
     /// https://kybernetik.com.au/animancer/api/Animancer/AnimancerState
-    public abstract partial class AnimancerState
-    {
+    public abstract partial class AnimancerState {
         /************************************************************************************************************************/
 
 #if UNITY_ASSERTIONS
@@ -17,8 +15,7 @@ namespace Animancer
 
         /// <summary>[Internal] Sets a flag for <see cref="OptionalWarning.ExpectFade"/>.</summary>
         [System.Diagnostics.Conditional(Strings.Assertions)]
-        public static void SetExpectFade(AnimancerState state, float fadeDuration)
-        {
+        public static void SetExpectFade(AnimancerState state, float fadeDuration) {
 #if UNITY_ASSERTIONS
             state._ExpectFade = fadeDuration > 0;
 #endif
@@ -28,8 +25,7 @@ namespace Animancer
 
         /// <summary>[Internal] Sets the next <see cref="AssertNotExpectingFade"/> call to be skipped.</summary>
         [System.Diagnostics.Conditional(Strings.Assertions)]
-        internal static void SkipNextExpectFade()
-        {
+        internal static void SkipNextExpectFade() {
 #if UNITY_ASSERTIONS
             _SkipNextExpectFade = true;
 #endif
@@ -39,17 +35,14 @@ namespace Animancer
 
         /// <summary>[Internal] Call when playing a `state` without a fade to check <see cref="OptionalWarning.ExpectFade"/>.</summary>
         [System.Diagnostics.Conditional(Strings.Assertions)]
-        internal static void AssertNotExpectingFade(AnimancerState state)
-        {
+        internal static void AssertNotExpectingFade(AnimancerState state) {
 #if UNITY_ASSERTIONS
-            if (_SkipNextExpectFade)
-            {
+            if (_SkipNextExpectFade) {
                 _SkipNextExpectFade = false;
                 return;
             }
 
-            if (state._ExpectFade)
-            {
+            if (state._ExpectFade) {
                 state._ExpectFade = false;// Don't log again for the same state.
                 OptionalWarning.ExpectFade.Log(
                     "A state was created by a transition with a non-zero Fade Duration" +

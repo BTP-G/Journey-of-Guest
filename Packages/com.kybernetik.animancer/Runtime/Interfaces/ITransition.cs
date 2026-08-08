@@ -2,8 +2,7 @@
 
 using UnityEngine;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>An object which can create an <see cref="AnimancerState"/> and set its details.</summary>
     /// <remarks>
     /// Transitions are generally used as arguments for <see cref="AnimancerLayer.Play(ITransition)"/>.
@@ -89,8 +88,7 @@ namespace Animancer
     /// </remarks>
     /// https://kybernetik.com.au/animancer/api/Animancer/ITransition_1
     public interface ITransition<out TState> : ITransition
-        where TState : AnimancerState
-    {
+        where TState : AnimancerState {
         /************************************************************************************************************************/
 
         /// <summary>

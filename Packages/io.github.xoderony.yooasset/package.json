@@ -6,7 +6,7 @@
   "unity": "6000.0",
   "dependencies": {
     "com.cysharp.unitask": "2.5.3",
-    "com.tuyoogame.yooasset": "2.3.17"
+    "com.tuyoogame.yooasset": "3.0.5"
   },
   "author": {
     "name": "Xoderony",

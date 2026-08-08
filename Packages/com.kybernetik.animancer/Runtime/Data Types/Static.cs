@@ -4,8 +4,7 @@ using System;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>
     /// Holds an instance of <typeparamref name="T"/> which is automatically created
     /// using its parameterless constructor when first accessed.
@@ -18,8 +17,7 @@ namespace Animancer
     /// </remarks>
     /// https://kybernetik.com.au/animancer/api/Animancer/Static_1
     public static class Static<T>
-        where T : class, new()
-    {
+        where T : class, new() {
         /************************************************************************************************************************/
 
         /// <summary>
@@ -36,10 +34,8 @@ namespace Animancer
         /************************************************************************************************************************/
 
 #if UNITY_ASSERTIONS
-        static Static()
-        {
-            if (Instance is Object)
-            {
+        static Static() {
+            if (Instance is Object) {
                 Debug.LogError(
                     $"{typeof(Static<T>).GetNameCS()} type is invalid:" +
                     $" {nameof(UnityEngine)}.{nameof(Object)} types require special memory management by Unity" +
@@ -55,12 +51,10 @@ namespace Animancer
         /// Call this in the constructor of <typeparamref name="T"/> to make sure there is only one instance.
         /// </summary>
         [System.Diagnostics.Conditional(Strings.Assertions)]
-        public static void AssertSingularity()
-        {
+        public static void AssertSingularity() {
 #if UNITY_ASSERTIONS
             // If the static instance has already been set, then this is not the first one to be created.
-            if (Instance != null)
-            {
+            if (Instance != null) {
                 var name = typeof(T).GetNameCS();
                 throw new InvalidOperationException(
                     $"Multiple {name} objects have been created." +

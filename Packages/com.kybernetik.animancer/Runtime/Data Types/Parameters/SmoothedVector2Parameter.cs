@@ -7,8 +7,7 @@
 using System;
 using UnityEngine;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>Manages two <see cref="SmoothedFloatParameter"/>s as a <see cref="Vector2"/>.</summary>
     /// 
     /// <remarks>
@@ -47,8 +46,7 @@ namespace Animancer
     /// </remarks>
     /// 
     /// https://kybernetik.com.au/animancer/api/Animancer/SmoothedVector2Parameter
-    public class SmoothedVector2Parameter : IDisposable
-    {
+    public class SmoothedVector2Parameter : IDisposable {
         /************************************************************************************************************************/
 
         /// <summary>The <see cref="Vector2.x"/> parameter.</summary>
@@ -61,11 +59,9 @@ namespace Animancer
 
         /// <summary>The amount of time allowed to smooth out a value change.</summary>
         /// <remarks>The getter returns the value from <see cref="X"/> but the setter sets both parameters.</remarks>
-        public float SmoothTime
-        {
+        public float SmoothTime {
             get => X.SmoothTime;
-            set
-            {
+            set {
                 X.CurrentValue = value;
                 Y.CurrentValue = value;
             }
@@ -73,11 +69,9 @@ namespace Animancer
 
         /// <summary>The maximum speed that the current value can move towards the target.</summary>
         /// <remarks>The getter returns the value from <see cref="X"/> but the setter sets both parameters.</remarks>
-        public float MaxSpeed
-        {
+        public float MaxSpeed {
             get => X.MaxSpeed;
-            set
-            {
+            set {
                 X.MaxSpeed = value;
                 Y.MaxSpeed = value;
             }
@@ -86,33 +80,27 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>The value that the parameters are moving towards.</summary>
-        public Vector2 CurrentValue
-        {
+        public Vector2 CurrentValue {
             get => new(X.CurrentValue, Y.CurrentValue);
-            set
-            {
+            set {
                 X.CurrentValue = value.x;
                 Y.CurrentValue = value.y;
             }
         }
 
         /// <summary>The value that the parameters are moving towards.</summary>
-        public Vector2 TargetValue
-        {
+        public Vector2 TargetValue {
             get => new(X.TargetValue, Y.TargetValue);
-            set
-            {
+            set {
                 X.TargetValue = value.x;
                 Y.TargetValue = value.y;
             }
         }
 
         /// <summary>The speed at which the parameters are currently moving.</summary>
-        public Vector2 Velocity
-        {
+        public Vector2 Velocity {
             get => new(X.Velocity, Y.Velocity);
-            set
-            {
+            set {
                 X.Velocity = value.x;
                 Y.Velocity = value.y;
             }
@@ -123,8 +111,7 @@ namespace Animancer
         /// <summary>Creates a new <see cref="SmoothedVector2Parameter"/>.</summary>
         public SmoothedVector2Parameter(
             SmoothedFloatParameter x,
-            SmoothedFloatParameter y)
-        {
+            SmoothedFloatParameter y) {
 #if UNITY_ASSERTIONS
             AnimancerUtilities.Assert(x != null, $"{nameof(x)} is null.");
             AnimancerUtilities.Assert(y != null, $"{nameof(y)} is null.");
@@ -140,8 +127,7 @@ namespace Animancer
             StringReference keyX,
             StringReference keyY,
             float smoothTime,
-            float maxSpeed = float.PositiveInfinity)
-        {
+            float maxSpeed = float.PositiveInfinity) {
             X = new(graph, keyX, smoothTime, maxSpeed);
             Y = new(graph, keyY, smoothTime, maxSpeed);
         }
@@ -149,8 +135,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Disposes the <see cref="X"/> and <see cref="Y"/>.</summary>
-        public void Dispose()
-        {
+        public void Dispose() {
             X.Dispose();
             Y.Dispose();
         }

@@ -1,19 +1,16 @@
-﻿using UnityEngine.UI;
+using UnityEngine.UI;
 
-namespace UnityEditor.UI
-{
+namespace UnityEditor.UI {
     [CustomEditor(typeof(Toggle2), true)]
     [CanEditMultipleObjects]
-    public class Toggle2Editor : SelectableEditor
-    {
-        SerializedProperty m_OnValueChangedProperty;
-        SerializedProperty m_TransitionProperty;
-        SerializedProperty m_GraphicProperty;
-        SerializedProperty m_GroupProperty;
-        SerializedProperty m_IsOnProperty;
+    public class Toggle2Editor : SelectableEditor {
+        private SerializedProperty m_OnValueChangedProperty;
+        private SerializedProperty m_TransitionProperty;
+        private SerializedProperty m_GraphicProperty;
+        private SerializedProperty m_GroupProperty;
+        private SerializedProperty m_IsOnProperty;
 
-        protected override void OnEnable()
-        {
+        protected override void OnEnable() {
             base.OnEnable();
 
             m_TransitionProperty = serializedObject.FindProperty("toggleTransition");
@@ -23,12 +20,11 @@ namespace UnityEditor.UI
             m_OnValueChangedProperty = serializedObject.FindProperty("onValueChanged");
         }
 
-        public override void OnInspectorGUI()
-        {
+        public override void OnInspectorGUI() {
             base.OnInspectorGUI();
-            
+
             serializedObject.Update();
-            
+
             EditorGUILayout.Space();
 
             EditorGUILayout.PropertyField(m_IsOnProperty);

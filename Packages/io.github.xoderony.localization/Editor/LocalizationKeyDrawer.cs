@@ -1,5 +1,3 @@
-﻿using Xoderony.Localization;
-using Xoderony.UIElements;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,6 +5,8 @@ using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Xoderony.Localization;
+using Xoderony.UIElements;
 
 [CustomPropertyDrawer(typeof(LocalizationKeyAttribute))]
 public class LocalizationKeyDrawer : PropertyDrawer {
@@ -71,8 +71,8 @@ public class LocalizationKeyDrawer : PropertyDrawer {
         var scopes = new List<string>();
         string pendingScope = null;
 
-        foreach (string rawLine in File.ReadLines(fullPath)) {
-            string line = rawLine.Trim();
+        foreach (var rawLine in File.ReadLines(fullPath)) {
+            var line = rawLine.Trim();
 
             if (string.IsNullOrWhiteSpace(line)) {
                 continue;
@@ -107,7 +107,7 @@ public class LocalizationKeyDrawer : PropertyDrawer {
                 continue;
             }
 
-            Match match = keyValueRegex.Match(line);
+            var match = keyValueRegex.Match(line);
 
             if (!match.Success) {
                 continue;

@@ -1,14 +1,13 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-using System;
-using System.Collections.ObjectModel;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
+using System;
+using System.Collections.ObjectModel;
 
-namespace Antlr4.Runtime.Atn
-{
+namespace Antlr4.Runtime.Atn {
     /// <summary>An ATN transition between any two ATN states.</summary>
     /// <remarks>
     /// An ATN transition between any two ATN states.  Subclasses define
@@ -21,8 +20,7 @@ namespace Antlr4.Runtime.Atn
     /// the states. We'll use the term Edge for the DFA to distinguish them from
     /// ATN transitions.</p>
     /// </remarks>
-    public abstract class Transition
-    {
+    public abstract class Transition {
         public static readonly ReadOnlyCollection<string> serializationNames = new ReadOnlyCollection<string>(Arrays.AsList("INVALID", "EPSILON", "RANGE", "RULE", "PREDICATE", "ATOM", "ACTION", "SET", "NOT_SET", "WILDCARD", "PRECEDENCE"));
 
         /// <summary>The target of this transition.</summary>
@@ -30,17 +28,14 @@ namespace Antlr4.Runtime.Atn
         [NotNull]
         public ATNState target;
 
-        protected internal Transition(ATNState target)
-        {
-            if (target == null)
-            {
+        protected internal Transition(ATNState target) {
+            if (target == null) {
                 throw new ArgumentNullException("target cannot be null.");
             }
             this.target = target;
         }
 
-        public abstract TransitionType TransitionType
-        {
+        public abstract TransitionType TransitionType {
             get;
         }
 
@@ -60,18 +55,14 @@ namespace Antlr4.Runtime.Atn
         /// if traversing this
         /// transition consumes (matches) an input symbol.
         /// </returns>
-        public virtual bool IsEpsilon
-        {
-            get
-            {
+        public virtual bool IsEpsilon {
+            get {
                 return false;
             }
         }
 
-        public virtual IntervalSet Label
-        {
-            get
-            {
+        public virtual IntervalSet Label {
+            get {
                 return null;
             }
         }

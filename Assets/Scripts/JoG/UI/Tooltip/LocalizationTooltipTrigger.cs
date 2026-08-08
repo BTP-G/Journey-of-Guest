@@ -1,6 +1,5 @@
-using Xoderony.Localization;
-using JoG.Localization;
 using System.Text;
+using Xoderony.Localization;
 
 namespace JoG.UI {
 

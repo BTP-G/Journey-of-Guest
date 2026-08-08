@@ -7,13 +7,11 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only] An <see cref="ICustomGUI"/> for <see cref="MulticastDelegate"/>.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/DelegateGUI
     [CustomGUI(typeof(MulticastDelegate))]
-    public class DelegateGUI : CustomGUI<MulticastDelegate>
-    {
+    public class DelegateGUI : CustomGUI<MulticastDelegate> {
         /************************************************************************************************************************/
 
         private static readonly HashSet<MulticastDelegate>
@@ -22,26 +20,28 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Calculates the number of vertical pixels required to draw the specified <see cref="MulticastDelegate"/>.</summary>
-        public static float CalculateHeight(MulticastDelegate del)
-            => AnimancerGUI.CalculateHeight(CalculateLineCount(del));
+        public static float CalculateHeight(MulticastDelegate del) {
+            return AnimancerGUI.CalculateHeight(CalculateLineCount(del));
+        }
 
         /// <summary>Calculates the number of lines required to draw the specified <see cref="MulticastDelegate"/>.</summary>
-        public static int CalculateLineCount(MulticastDelegate del)
-            => del == null || !ExpandedItems.Contains(del)
-            ? 1
-            : 1 + CalculateLineCount(AnimancerReflection.GetInvocationList(del));
+        public static int CalculateLineCount(MulticastDelegate del) {
+            return del == null || !ExpandedItems.Contains(del)
+                                                                                ? 1
+                                                                                : 1 + CalculateLineCount(AnimancerReflection.GetInvocationList(del));
+        }
 
         /// <summary>Calculates the number of lines required to draw the specified `invocationList`.</summary>
-        public static int CalculateLineCount(Delegate[] invocationList)
-            => invocationList == null
-            ? 3
-            : invocationList.Length * 3;
+        public static int CalculateLineCount(Delegate[] invocationList) {
+            return invocationList == null
+                                                                                    ? 3
+                                                                                    : invocationList.Length * 3;
+        }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void DoGUI()
-        {
+        public override void DoGUI() {
             var area = AnimancerGUI.LayoutRect(CalculateHeight(Value));
             DoGUI(ref area, Label, Value);
         }
@@ -51,40 +51,36 @@ namespace Animancer.Editor
             ref Rect area,
             GUIContent label,
             MulticastDelegate del,
-            GUIContent valueLabel = null)
-        {
+            GUIContent valueLabel = null) {
             area.height = AnimancerGUI.LineHeight;
 
             var delegates = AnimancerReflection.GetInvocationList(del);
 
             var isExpanded = del != null && AnimancerGUI.DoHashedFoldoutGUI(area, ExpandedItems, del);
 
-            if (valueLabel != null)
-            {
+            if (valueLabel != null) {
                 EditorGUI.LabelField(area, label, valueLabel);
-            }
-            else
-            {
+            } else {
                 var count = delegates == null ? 0 : delegates.Length;
-                using (var countLabel = PooledGUIContent.Acquire(count.ToStringCached()))
+                using (var countLabel = PooledGUIContent.Acquire(count.ToStringCached())) {
                     EditorGUI.LabelField(area, label, countLabel);
+                }
             }
 
             AnimancerGUI.NextVerticalArea(ref area);
 
-            if (!isExpanded)
+            if (!isExpanded) {
                 return;
+            }
 
             EditorGUI.indentLevel++;
 
-            if (delegates == null)
-            {
+            if (delegates == null) {
                 DoSingleGUI(ref area, del);
-            }
-            else
-            {
-                for (int i = 0; i < delegates.Length; i++)
+            } else {
+                for (var i = 0; i < delegates.Length; i++) {
                     DoSingleGUI(ref area, delegates[i]);
+                }
             }
 
             EditorGUI.indentLevel--;
@@ -98,12 +94,10 @@ namespace Animancer.Editor
             TargetFieldCache = new(TargetFieldCacheCapacity);
 
         /// <summary>Draws the target and name of the specified <see cref="Delegate"/>.</summary>
-        public static void DoSingleGUI(ref Rect area, Delegate del)
-        {
+        public static void DoSingleGUI(ref Rect area, Delegate del) {
             area.height = AnimancerGUI.LineHeight;
 
-            if (del == null)
-            {
+            if (del == null) {
                 EditorGUI.LabelField(area, "Delegate", "Null");
                 AnimancerGUI.NextVerticalArea(ref area);
                 return;
@@ -122,17 +116,18 @@ namespace Animancer.Editor
 
             FastObjectField field;
 
-            if (target is not null)
+            if (target is not null) {
                 TargetFieldCache.TryGetValue(target, out field);
-            else
+            } else {
                 field = FastObjectField.Null;
+            }
 
             field.Draw(area, "Target", target);
 
-            if (target is not null)
-            {
-                if (TargetFieldCache.Count == TargetFieldCacheCapacity)
+            if (target is not null) {
+                if (TargetFieldCache.Count == TargetFieldCacheCapacity) {
                     TargetFieldCache.Clear();
+                }
 
                 TargetFieldCache[target] = field;
             }

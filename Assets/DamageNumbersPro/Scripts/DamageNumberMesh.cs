@@ -1,15 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
-using DamageNumbersPro.Internal;
-using TMPro;
 
-namespace DamageNumbersPro
-{
+namespace DamageNumbersPro {
     [DisallowMultipleComponent]
-    public class DamageNumberMesh : DamageNumber
-    {
+    public class DamageNumberMesh : DamageNumber {
         /* 
          * Contact me if you need any support.
          * Email: ekincantascontact@gmail.com

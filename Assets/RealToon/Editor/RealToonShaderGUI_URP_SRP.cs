@@ -1,265 +1,262 @@
-﻿//RealToonGUI URP
+//RealToonGUI URP
 //MJQStudioWorks
 //©2025
 
 #if UNITY_EDITOR
 
-using UnityEngine;
-using UnityEditor;
 using System;
+using UnityEditor;
+using UnityEngine;
 
-namespace RealToon.GUIInspector
-{
+namespace RealToon.GUIInspector {
 
-    public class RealToonShaderGUI_URP_SRP : ShaderGUI
-    {
+    public class RealToonShaderGUI_URP_SRP : ShaderGUI {
 
         #region foldout bools variable
 
-        static bool ShowTextureColor;
-        static bool ShowNormalMap;
-        static bool ShowTransparency;
-        static bool ShowMatCap;
-        static bool ShowCutout;
-        static bool ShowColorAdjustment;
-        static bool ShowOutline;
-        static bool ShowSelfLit;
-        static bool ShowGloss;
-        static bool ShowShadow;
-        static bool ShowLighting;
-        static bool ShowReflection;
-        static bool ShowRimLight;
-        static bool ShowSeeThrough;
-        static bool NearFadeDithering;
-        static bool Triplanar;
-        static bool ShowPerspecAdju;
-        static bool ShowSmeEff;
+        private static bool ShowTextureColor;
+        private static bool ShowNormalMap;
+        private static bool ShowTransparency;
+        private static bool ShowMatCap;
+        private static bool ShowCutout;
+        private static bool ShowColorAdjustment;
+        private static bool ShowOutline;
+        private static bool ShowSelfLit;
+        private static bool ShowGloss;
+        private static bool ShowShadow;
+        private static bool ShowLighting;
+        private static bool ShowReflection;
+        private static bool ShowRimLight;
+        private static bool ShowSeeThrough;
+        private static bool NearFadeDithering;
+        private static bool Triplanar;
+        private static bool ShowPerspecAdju;
+        private static bool ShowSmeEff;
         //static bool ShowTessellation; In Progress
-        static bool ShowDisableEnable;
-        static bool ShowSettings;
+        private static bool ShowDisableEnable;
+        private static bool ShowSettings;
         //static bool ShowFReflection; //remove later
         //static bool ShowLightmapping; //remove later
         //static bool ShowDepth; //remove later
 
-        static bool ShowUI = true;
+        private static bool ShowUI = true;
 
-        string LightBlendString = "Anime/Cartoon";
-        static string ShowUIString = "Hide Settings";
-
+        private string LightBlendString = "Anime/Cartoon";
+        private static string ShowUIString = "Hide Settings";
 
         #endregion
 
         #region Variables
 
-string realtoon_version = "5.0.13";
-string shader_type = "Default";
-string srp_mode = "URP";
-bool del_skw = false;
-static bool aruskw = false;
+        private string realtoon_version = "5.0.13";
+        private string shader_type = "Default";
+        private string srp_mode = "URP";
+        private bool del_skw = false;
+        private static bool aruskw = false;
 
-static bool UseSSOL = true;
-static string UseSSOLStat = "Use Screen Space Outline";
-static string OLType = "Traditional";
+        private static bool UseSSOL = true;
+        private static string UseSSOLStat = "Use Screen Space Outline";
+        private static string OLType = "Traditional";
 
-static bool remoout = false;
-static string remooutstat = "Add Outline";
+        private static bool remoout = false;
+        private static string remooutstat = "Add Outline";
 
-static bool twofourfive_target = false;
-static string twofourfive_target_string = "Change shader compilation target to 4.5";
+        private static bool twofourfive_target = false;
+        private static string twofourfive_target_string = "Change shader compilation target to 4.5";
 
-static bool dots_lbs_cd = false;
-static string dots_lbs_cd_string = "DOTS|HR - Use Compute Deformation";
+        private static bool dots_lbs_cd = false;
+        private static string dots_lbs_cd_string = "DOTS|HR - Use Compute Deformation";
 
-static bool add_st = true;
-static string add_st_string = "Add 'See Through' feature";
+        private static bool add_st = true;
+        private static string add_st_string = "Add 'See Through' feature";
 
-        Texture2D t = (Texture2D)AssetDatabase.LoadAssetAtPath("Assets/RealToon/Editor/RT_GUI_Img.png", typeof(Texture2D));
+        private Texture2D t = (Texture2D)AssetDatabase.LoadAssetAtPath("Assets/RealToon/Editor/RT_GUI_Img.png", typeof(Texture2D));
 
         #endregion
 
         #region Material Properties Variables
 
-        MaterialProperty _Culling = null;
-        MaterialProperty _TRANSMODE = null;
+        private MaterialProperty _Culling = null;
+        private MaterialProperty _TRANSMODE = null;
 
-        MaterialProperty _MainTex = null;
-        MaterialProperty _TexturePatternStyle = null;
-        MaterialProperty _MainColor = null;
-        MaterialProperty _MaiColPo = null;
-        MaterialProperty _MVCOL = null;
-        MaterialProperty _MCIALO = null;
+        private MaterialProperty _MainTex = null;
+        private MaterialProperty _TexturePatternStyle = null;
+        private MaterialProperty _MainColor = null;
+        private MaterialProperty _MaiColPo = null;
+        private MaterialProperty _MVCOL = null;
+        private MaterialProperty _MCIALO = null;
 
-        MaterialProperty _MCapIntensity = null;
-        MaterialProperty _MCap = null;
-        MaterialProperty _SPECMODE = null;
-        MaterialProperty _SPECIN = null;
-        MaterialProperty _MCapMask = null;
+        private MaterialProperty _MCapIntensity = null;
+        private MaterialProperty _MCap = null;
+        private MaterialProperty _SPECMODE = null;
+        private MaterialProperty _SPECIN = null;
+        private MaterialProperty _MCapMask = null;
 
-        MaterialProperty _Cutout = null;
-        MaterialProperty _UseSecondaryCutout = null;
-        MaterialProperty _SecondaryCutout = null;
-        MaterialProperty _AlphaBaseCutout = null;
-        MaterialProperty _N_F_SCO = null;
-        MaterialProperty _AlpToCov = null;
-        MaterialProperty _AAS = null;
-        MaterialProperty _N_F_COEDGL = null;
-        MaterialProperty _Glow_Color = null;
-        MaterialProperty _Glow_Edge_Width = null;
+        private MaterialProperty _Cutout = null;
+        private MaterialProperty _UseSecondaryCutout = null;
+        private MaterialProperty _SecondaryCutout = null;
+        private MaterialProperty _AlphaBaseCutout = null;
+        private MaterialProperty _N_F_SCO = null;
+        private MaterialProperty _AlpToCov = null;
+        private MaterialProperty _AAS = null;
+        private MaterialProperty _N_F_COEDGL = null;
+        private MaterialProperty _Glow_Color = null;
+        private MaterialProperty _Glow_Edge_Width = null;
 
-        MaterialProperty _Opacity = null;
-        MaterialProperty _TransparentThreshold = null;
-        MaterialProperty _MaskTransparency = null;
-        MaterialProperty _BleModSour = null;
-        MaterialProperty _BleModDest = null;
+        private MaterialProperty _Opacity = null;
+        private MaterialProperty _TransparentThreshold = null;
+        private MaterialProperty _MaskTransparency = null;
+        private MaterialProperty _BleModSour = null;
+        private MaterialProperty _BleModDest = null;
 
-        MaterialProperty _SimTrans = null;
-        MaterialProperty _TransAffSha = null;
+        private MaterialProperty _SimTrans = null;
+        private MaterialProperty _TransAffSha = null;
 
-        MaterialProperty _NormalMap = null;
-        MaterialProperty _NormalMapIntensity = null;
+        private MaterialProperty _NormalMap = null;
+        private MaterialProperty _NormalMapIntensity = null;
 
-        MaterialProperty _Saturation = null;
+        private MaterialProperty _Saturation = null;
 
-        MaterialProperty _OutlineWidth = null;
-        MaterialProperty _OutlineWidthControl = null;
-        MaterialProperty _OutlineExtrudeMethod = null;
-        MaterialProperty _OutlineOffset = null;
-        MaterialProperty _OutlineZPostionInCamera = null;
-        MaterialProperty _DoubleSidedOutline = null;
-        MaterialProperty _OutlineColor = null;
-        MaterialProperty _MixMainTexToOutline = null;
-        MaterialProperty _NoisyOutlineIntensity = null;
-        MaterialProperty _DynamicNoisyOutline = null;
-        MaterialProperty _LightAffectOutlineColor = null;
-        MaterialProperty _OutlineWidthAffectedByViewDistance = null;
-        MaterialProperty _FarDistanceMaxWidth = null;
-        MaterialProperty _VertexColorBlueAffectOutlineWitdh = null;
-        MaterialProperty _OutStenPass = null;
+        private MaterialProperty _OutlineWidth = null;
+        private MaterialProperty _OutlineWidthControl = null;
+        private MaterialProperty _OutlineExtrudeMethod = null;
+        private MaterialProperty _OutlineOffset = null;
+        private MaterialProperty _OutlineZPostionInCamera = null;
+        private MaterialProperty _DoubleSidedOutline = null;
+        private MaterialProperty _OutlineColor = null;
+        private MaterialProperty _MixMainTexToOutline = null;
+        private MaterialProperty _NoisyOutlineIntensity = null;
+        private MaterialProperty _DynamicNoisyOutline = null;
+        private MaterialProperty _LightAffectOutlineColor = null;
+        private MaterialProperty _OutlineWidthAffectedByViewDistance = null;
+        private MaterialProperty _FarDistanceMaxWidth = null;
+        private MaterialProperty _VertexColorBlueAffectOutlineWitdh = null;
+        private MaterialProperty _OutStenPass = null;
 
-        MaterialProperty _N_F_MSSOLTFO = null;
-        MaterialProperty _DepthThreshold = null;
+        private MaterialProperty _N_F_MSSOLTFO = null;
+        private MaterialProperty _DepthThreshold = null;
 
-        MaterialProperty _SelfLitIntensity = null;
-        MaterialProperty _SelfLitColor = null;
-        MaterialProperty _SelfLitPower = null;
-        MaterialProperty _TEXMCOLINT = null;
-        MaterialProperty _SelfLitHighContrast = null;
-        MaterialProperty _N_F_SLMM = null;
-        MaterialProperty _MaskSelfLit = null;
+        private MaterialProperty _SelfLitIntensity = null;
+        private MaterialProperty _SelfLitColor = null;
+        private MaterialProperty _SelfLitPower = null;
+        private MaterialProperty _TEXMCOLINT = null;
+        private MaterialProperty _SelfLitHighContrast = null;
+        private MaterialProperty _N_F_SLMM = null;
+        private MaterialProperty _MaskSelfLit = null;
 
-        MaterialProperty _GlossIntensity = null;
-        MaterialProperty _Glossiness = null;
-        MaterialProperty _GlossSoftness = null;
-        MaterialProperty _GlossColor = null;
-        MaterialProperty _GlossColorPower = null;
-        MaterialProperty _MaskGloss = null;
+        private MaterialProperty _GlossIntensity = null;
+        private MaterialProperty _Glossiness = null;
+        private MaterialProperty _GlossSoftness = null;
+        private MaterialProperty _GlossColor = null;
+        private MaterialProperty _GlossColorPower = null;
+        private MaterialProperty _MaskGloss = null;
 
-        MaterialProperty _GlossTexture = null;
-        MaterialProperty _GlossTextureSoftness = null;
-        MaterialProperty _PSGLOTEX = null;
-        MaterialProperty _GlossTextureRotate = null;
-        MaterialProperty _GlossTextureFollowObjectRotation = null;
-        MaterialProperty _N_F_ANIS = null;
-        MaterialProperty _NoisTexInten = null;
-        MaterialProperty _StraWidt = null;
-        MaterialProperty _NoiTexAffStraWidt;
-        MaterialProperty _ShifAnis = null;
-        MaterialProperty _GlossTextureFollowLight = null;
+        private MaterialProperty _GlossTexture = null;
+        private MaterialProperty _GlossTextureSoftness = null;
+        private MaterialProperty _PSGLOTEX = null;
+        private MaterialProperty _GlossTextureRotate = null;
+        private MaterialProperty _GlossTextureFollowObjectRotation = null;
+        private MaterialProperty _N_F_ANIS = null;
+        private MaterialProperty _NoisTexInten = null;
+        private MaterialProperty _StraWidt = null;
+        private MaterialProperty _NoiTexAffStraWidt;
+        private MaterialProperty _ShifAnis = null;
+        private MaterialProperty _GlossTextureFollowLight = null;
 
-        MaterialProperty _OverallShadowColor = null;
-        MaterialProperty _OverallShadowColorPower = null;
-        MaterialProperty _SelfShadowShadowTAtViewDirection = null;
+        private MaterialProperty _OverallShadowColor = null;
+        private MaterialProperty _OverallShadowColorPower = null;
+        private MaterialProperty _SelfShadowShadowTAtViewDirection = null;
 
-        MaterialProperty _ReduSha = null;
-        MaterialProperty _ShadowHardness = null;
+        private MaterialProperty _ReduSha = null;
+        private MaterialProperty _ShadowHardness = null;
 
-        MaterialProperty _HighlightColor = null;
-        MaterialProperty _HighlightColorPower = null;
+        private MaterialProperty _HighlightColor = null;
+        private MaterialProperty _HighlightColorPower = null;
 
-        MaterialProperty _SelfShadowRealtimeShadowIntensity = null;
-        MaterialProperty _SelfShadowThreshold = null;
-        MaterialProperty _VertexColorGreenControlSelfShadowThreshold = null;
-        MaterialProperty _SelfShadowHardness = null;
-        MaterialProperty _SelfShadowRealTimeShadowColor = null;
-        MaterialProperty _SelfShadowRealTimeShadowColorPower = null;
-        MaterialProperty _LigIgnoYNorDir = null;
-        MaterialProperty _SelfShadowAffectedByLightShadowStrength = null;
+        private MaterialProperty _SelfShadowRealtimeShadowIntensity = null;
+        private MaterialProperty _SelfShadowThreshold = null;
+        private MaterialProperty _VertexColorGreenControlSelfShadowThreshold = null;
+        private MaterialProperty _SelfShadowHardness = null;
+        private MaterialProperty _SelfShadowRealTimeShadowColor = null;
+        private MaterialProperty _SelfShadowRealTimeShadowColorPower = null;
+        private MaterialProperty _LigIgnoYNorDir = null;
+        private MaterialProperty _SelfShadowAffectedByLightShadowStrength = null;
 
-        MaterialProperty _SmoothObjectNormal = null;
-        MaterialProperty _VertexColorRedControlSmoothObjectNormal = null;
+        private MaterialProperty _SmoothObjectNormal = null;
+        private MaterialProperty _VertexColorRedControlSmoothObjectNormal = null;
         //MaterialProperty _XYZPosition = null;
-        MaterialProperty _ShowNormal = null;
+        private MaterialProperty _ShowNormal = null;
 
-        MaterialProperty _ShadowColorTexture = null;
-        MaterialProperty _ShadowColorTexturePower = null;
+        private MaterialProperty _ShadowColorTexture = null;
+        private MaterialProperty _ShadowColorTexturePower = null;
 
-        MaterialProperty _ShadowTIntensity = null;
-        MaterialProperty _ShadowT = null;
-        MaterialProperty _ShadowTLightThreshold = null;
-        MaterialProperty _ShadowTShadowThreshold = null;
-        MaterialProperty _ShadowTColor = null;
-        MaterialProperty _ShadowTColorPower = null;
-        MaterialProperty _ShadowTHardness = null;
-        MaterialProperty _STIL = null;
-        MaterialProperty _N_F_STIS = null;
-        MaterialProperty _N_F_STIAL = null;
-        MaterialProperty _ShowInAmbientLightShadowIntensity = null;
-        MaterialProperty _ShowInAmbientLightShadowThreshold = null;
-        MaterialProperty _LightFalloffAffectShadowT = null;
-        MaterialProperty _N_F_STSDFM = null;
+        private MaterialProperty _ShadowTIntensity = null;
+        private MaterialProperty _ShadowT = null;
+        private MaterialProperty _ShadowTLightThreshold = null;
+        private MaterialProperty _ShadowTShadowThreshold = null;
+        private MaterialProperty _ShadowTColor = null;
+        private MaterialProperty _ShadowTColorPower = null;
+        private MaterialProperty _ShadowTHardness = null;
+        private MaterialProperty _STIL = null;
+        private MaterialProperty _N_F_STIS = null;
+        private MaterialProperty _N_F_STIAL = null;
+        private MaterialProperty _ShowInAmbientLightShadowIntensity = null;
+        private MaterialProperty _ShowInAmbientLightShadowThreshold = null;
+        private MaterialProperty _LightFalloffAffectShadowT = null;
+        private MaterialProperty _N_F_STSDFM = null;
 
-        MaterialProperty _PTexture = null;
-        MaterialProperty _PTCol = null;
-        MaterialProperty _PTexturePower = null;
+        private MaterialProperty _PTexture = null;
+        private MaterialProperty _PTCol = null;
+        private MaterialProperty _PTexturePower = null;
 
-        MaterialProperty _RELG = null;
-        MaterialProperty _EnvironmentalLightingIntensity = null;
+        private MaterialProperty _RELG = null;
+        private MaterialProperty _EnvironmentalLightingIntensity = null;
 
-        MaterialProperty _GIFlatShade = null;
-        MaterialProperty _GIShadeThreshold = null;
-        MaterialProperty _LightAffectShadow = null;
-        MaterialProperty _LightIntensity = null;
+        private MaterialProperty _GIFlatShade = null;
+        private MaterialProperty _GIShadeThreshold = null;
+        private MaterialProperty _LightAffectShadow = null;
+        private MaterialProperty _LightIntensity = null;
 
-        MaterialProperty _N_F_LLI = null;
-        MaterialProperty _LLI_Min = null;
-        MaterialProperty _LLI_Max = null;
+        private MaterialProperty _N_F_LLI = null;
+        private MaterialProperty _LLI_Min = null;
+        private MaterialProperty _LLI_Max = null;
 
-        MaterialProperty _UseTLB = null;
-        MaterialProperty _N_F_EAL = null;
+        private MaterialProperty _UseTLB = null;
+        private MaterialProperty _N_F_EAL = null;
 
-        MaterialProperty _DirectionalLightIntensity = null;
-        MaterialProperty _PointSpotlightIntensity = null;
-        MaterialProperty _LightFalloffSoftness = null;
+        private MaterialProperty _DirectionalLightIntensity = null;
+        private MaterialProperty _PointSpotlightIntensity = null;
+        private MaterialProperty _LightFalloffSoftness = null;
 
-        MaterialProperty _CustomLightDirectionIntensity = null;
-        MaterialProperty _CustomLightDirectionFollowObjectRotation = null;
-        MaterialProperty _CustomLightDirection = null;
+        private MaterialProperty _CustomLightDirectionIntensity = null;
+        private MaterialProperty _CustomLightDirectionFollowObjectRotation = null;
+        private MaterialProperty _CustomLightDirection = null;
 
-        MaterialProperty _ReflectionIntensity = null;
-        MaterialProperty _Smoothness = null;
-        MaterialProperty _RefMetallic = null;
-        MaterialProperty _MaskReflection = null;
-        MaterialProperty _FReflection = null;
+        private MaterialProperty _ReflectionIntensity = null;
+        private MaterialProperty _Smoothness = null;
+        private MaterialProperty _RefMetallic = null;
+        private MaterialProperty _MaskReflection = null;
+        private MaterialProperty _FReflection = null;
 
-        MaterialProperty _RimLigInt = null;
-        MaterialProperty _RimLightUnfill = null;
-        MaterialProperty _RimLightColor = null;
-        MaterialProperty _RimLightColorPower = null;
-        MaterialProperty _RimLightSoftness = null;
-        MaterialProperty _RimLightInLight = null;
-        MaterialProperty _LightAffectRimLightColor = null;
+        private MaterialProperty _RimLigInt = null;
+        private MaterialProperty _RimLightUnfill = null;
+        private MaterialProperty _RimLightColor = null;
+        private MaterialProperty _RimLightColorPower = null;
+        private MaterialProperty _RimLightSoftness = null;
+        private MaterialProperty _RimLightInLight = null;
+        private MaterialProperty _LightAffectRimLightColor = null;
 
-        MaterialProperty _MinFadDistance = null;
-        MaterialProperty _MaxFadDistance = null;
+        private MaterialProperty _MinFadDistance = null;
+        private MaterialProperty _MaxFadDistance = null;
 
-        MaterialProperty _TriPlaTile = null;
-        MaterialProperty _TriPlaBlend = null;
+        private MaterialProperty _TriPlaTile = null;
+        private MaterialProperty _TriPlaBlend = null;
 
-        MaterialProperty _PresAdju = null;
-        MaterialProperty _ClipAdju = null;
-        MaterialProperty _PASize = null;
-        MaterialProperty _PASmooTrans = null;
-        MaterialProperty _PADist = null;
+        private MaterialProperty _PresAdju = null;
+        private MaterialProperty _ClipAdju = null;
+        private MaterialProperty _PASize = null;
+        private MaterialProperty _PASmooTrans = null;
+        private MaterialProperty _PADist = null;
 
         //MaterialProperty _NoiseSize = null;
         //MaterialProperty _TrailSize = null;
@@ -269,50 +266,49 @@ static string add_st_string = "Add 'See Through' feature";
         //MaterialProperty _TessellationNear = null;
         //MaterialProperty _TessellationFar = null;
 
-        MaterialProperty _RefVal = null;
-        MaterialProperty _Oper = null;
-        MaterialProperty _Compa = null;
+        private MaterialProperty _RefVal = null;
+        private MaterialProperty _Oper = null;
+        private MaterialProperty _Compa = null;
 
-        MaterialProperty _N_F_ESSAO = null;
-        MaterialProperty _SSAOColor = null;
+        private MaterialProperty _N_F_ESSAO = null;
+        private MaterialProperty _SSAOColor = null;
 
-        MaterialProperty _N_F_MC = null;
-        MaterialProperty _N_F_NM = null;
-        MaterialProperty _N_F_CO = null;
-        MaterialProperty _N_F_O = null;
-        MaterialProperty _N_F_CA = null;
-        MaterialProperty _N_F_SL = null;
-        MaterialProperty _N_F_GLO = null;
-        MaterialProperty _N_F_GLOT = null;
-        MaterialProperty _N_F_SS = null;
-        MaterialProperty _N_F_SON = null;
-        MaterialProperty _N_F_SCT = null;
-        MaterialProperty _N_F_ST = null;
-        MaterialProperty _N_F_PT = null;
-        MaterialProperty _N_F_CLD = null;
-        MaterialProperty _N_F_R = null;
-        MaterialProperty _N_F_FR = null;
-        MaterialProperty _N_F_RL = null;
-        MaterialProperty _N_F_HDLS = null;
-        MaterialProperty _N_F_HPSS = null;
-        MaterialProperty _ZWrite = null;
-        MaterialProperty _N_F_DCS = null;
-        MaterialProperty _N_F_NLASOBF = null;
-        MaterialProperty _N_F_RDC = null;
-        MaterialProperty _N_F_DDMD = null;
-        MaterialProperty _N_F_NFD = null;
-        MaterialProperty _N_F_TP = null;
-        MaterialProperty _N_F_PA = null;
-        MaterialProperty _N_F_SE = null;
+        private MaterialProperty _N_F_MC = null;
+        private MaterialProperty _N_F_NM = null;
+        private MaterialProperty _N_F_CO = null;
+        private MaterialProperty _N_F_O = null;
+        private MaterialProperty _N_F_CA = null;
+        private MaterialProperty _N_F_SL = null;
+        private MaterialProperty _N_F_GLO = null;
+        private MaterialProperty _N_F_GLOT = null;
+        private MaterialProperty _N_F_SS = null;
+        private MaterialProperty _N_F_SON = null;
+        private MaterialProperty _N_F_SCT = null;
+        private MaterialProperty _N_F_ST = null;
+        private MaterialProperty _N_F_PT = null;
+        private MaterialProperty _N_F_CLD = null;
+        private MaterialProperty _N_F_R = null;
+        private MaterialProperty _N_F_FR = null;
+        private MaterialProperty _N_F_RL = null;
+        private MaterialProperty _N_F_HDLS = null;
+        private MaterialProperty _N_F_HPSS = null;
+        private MaterialProperty _ZWrite = null;
+        private MaterialProperty _N_F_DCS = null;
+        private MaterialProperty _N_F_NLASOBF = null;
+        private MaterialProperty _N_F_RDC = null;
+        private MaterialProperty _N_F_DDMD = null;
+        private MaterialProperty _N_F_NFD = null;
+        private MaterialProperty _N_F_TP = null;
+        private MaterialProperty _N_F_PA = null;
+        private MaterialProperty _N_F_SE = null;
 
-        MaterialProperty _N_F_OFLMB = null;
+        private MaterialProperty _N_F_OFLMB = null;
 
         #endregion
 
         #region List of Toggle Keywords
 
-        enum SFKW
-        {
+        private enum SFKW {
             N_F_USETLB_ON,
             N_F_STIS_ON,
             N_F_STIAL_ON,
@@ -364,7 +360,7 @@ static string add_st_string = "Add 'See Through' feature";
 
         #region TOTIPS
 
-        string[] TOTIPS =
+        private string[] TOTIPS =
         {
 
         //Culling [0]
@@ -904,7 +900,7 @@ static string add_st_string = "Add 'See Through' feature";
 
         #region TOTIPS for EnDisFeatures
 
-        string[] TOTIPSEDF =
+        private string[] TOTIPSEDF =
         {
         //MatCap [0]
         "MatCap or Material Capture.",
@@ -973,10 +969,9 @@ static string add_st_string = "Add 'See Through' feature";
 
         #endregion
 
-        public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] properties)
-        {
+        public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] properties) {
             //This Material
-            Material targetMat = materialEditor.target as Material;
+            var targetMat = materialEditor.target as Material;
 
             //Settings
             materialEditor.SetDefaultGUIWidths();
@@ -1017,7 +1012,6 @@ static string add_st_string = "Add 'See Through' feature";
             //    shader_type = string.Empty;
             //    break;
             //}
-
 
             #endregion
 
@@ -1282,15 +1276,14 @@ static string add_st_string = "Add 'See Through' feature";
 
             #endregion
 
-
             //UI
 
             #region UI
 
             //HeaderText
-            Rect r_header = EditorGUILayout.BeginVertical("HelpBox");
-           
-            Rect rect = new Rect(36, 11, t.width, t.height);
+            var r_header = EditorGUILayout.BeginVertical("HelpBox");
+
+            var rect = new Rect(36, 11, t.width, t.height);
             GUI.DrawTexture(rect, t, ScaleMode.ScaleToFit);
             GUILayout.Space(32);
 
@@ -1298,9 +1291,7 @@ static string add_st_string = "Add 'See Through' feature";
 
             EditorGUILayout.EndVertical();
 
-
-            if (ShowUI == true)
-            {
+            if (ShowUI == true) {
 
                 GUILayout.Space(20);
 
@@ -1310,12 +1301,11 @@ static string add_st_string = "Add 'See Through' feature";
 
                 #region Light Blend
 
-                Rect r_lightblend = EditorGUILayout.BeginVertical("HelpBox");
+                var r_lightblend = EditorGUILayout.BeginVertical("HelpBox");
                 EditorGUILayout.LabelField("Light Blend Style: " + LightBlendString);
                 EditorGUILayout.EndVertical();
 
-                switch ((int)_UseTLB.floatValue)
-                {
+                switch ((int)_UseTLB.floatValue) {
                     case 0:
                         LightBlendString = "Anime/Cartoon";
                         break;
@@ -1332,7 +1322,7 @@ static string add_st_string = "Add 'See Through' feature";
 
                 #region Culling
 
-                Rect r_culling = EditorGUILayout.BeginVertical("HelpBox");
+                var r_culling = EditorGUILayout.BeginVertical("HelpBox");
                 materialEditor.ShaderProperty(_Culling, new GUIContent(_Culling.displayName, TOTIPS[0]));
                 EditorGUILayout.EndVertical();
 
@@ -1346,18 +1336,15 @@ static string add_st_string = "Add 'See Through' feature";
 
                 #region Transparent Mode
 
-                Rect r_renderqueue = EditorGUILayout.BeginVertical("HelpBox");
+                var r_renderqueue = EditorGUILayout.BeginVertical("HelpBox");
 
                 EditorGUI.BeginChangeCheck();
 
                 materialEditor.ShaderProperty(_TRANSMODE, new GUIContent(_TRANSMODE.displayName, TOTIPS[11]));
 
-                if (EditorGUI.EndChangeCheck())
-                {
-                    foreach (Material m in materialEditor.targets)
-                    {
-                        switch (_TRANSMODE.floatValue)
-                        {
+                if (EditorGUI.EndChangeCheck()) {
+                    foreach (Material m in materialEditor.targets) {
+                        switch (_TRANSMODE.floatValue) {
                             case 0:
 
                                 m.renderQueue = -1;
@@ -1372,13 +1359,10 @@ static string add_st_string = "Add 'See Through' feature";
                                 m.SetInt("_BleModSour", 5);
                                 m.SetInt("_BleModDest", 10);
 
-                                if (m.IsKeywordEnabled("N_F_CO_ON") || m.GetFloat("_N_F_CO") == 1.0f)
-                                {
+                                if (m.IsKeywordEnabled("N_F_CO_ON") || m.GetFloat("_N_F_CO") == 1.0f) {
                                     m.renderQueue = 2450;
                                     m.SetOverrideTag("RenderType", "TransparentCutout");
-                                }
-                                else
-                                {
+                                } else {
                                     m.renderQueue = 3000;
                                     m.SetOverrideTag("RenderType", "Transparent");
                                 }
@@ -1389,7 +1373,6 @@ static string add_st_string = "Add 'See Through' feature";
                             default:
                                 break;
                         }
-
                     }
 
                     materialEditor.PropertiesChanged();
@@ -1408,12 +1391,11 @@ static string add_st_string = "Add 'See Through' feature";
 
                 #region Texture - Color
 
-                Rect r_texturecolor = EditorGUILayout.BeginVertical("Button");
+                var r_texturecolor = EditorGUILayout.BeginVertical("Button");
 
                 ShowTextureColor = EditorGUILayout.Foldout(ShowTextureColor, "(Texture - Color)", true, EditorStyles.foldout);
 
-                if (ShowTextureColor)
-                {
+                if (ShowTextureColor) {
 
                     GUILayout.Space(10);
 
@@ -1451,15 +1433,13 @@ static string add_st_string = "Add 'See Through' feature";
 
                 #region MatCap
 
-                if (_N_F_MC.floatValue == 1)
-                {
+                if (_N_F_MC.floatValue == 1) {
                     EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
-                    Rect r_matcap = EditorGUILayout.BeginVertical("Button");
+                    var r_matcap = EditorGUILayout.BeginVertical("Button");
                     ShowMatCap = EditorGUILayout.Foldout(ShowMatCap, "(MatCap)", true, EditorStyles.foldout);
 
-                    if (ShowMatCap)
-                    {
+                    if (ShowMatCap) {
 
                         GUILayout.Space(10);
 
@@ -1490,19 +1470,16 @@ static string add_st_string = "Add 'See Through' feature";
 
                 #region Cutout
 
-                if (_TRANSMODE.floatValue == 1)
-                {
-                    if (_N_F_CO.floatValue == 1)
-                    {
+                if (_TRANSMODE.floatValue == 1) {
+                    if (_N_F_CO.floatValue == 1) {
                         EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
                         EditorGUI.BeginDisabledGroup(_N_F_CO.floatValue == 0);
 
-                        Rect r_cutout = EditorGUILayout.BeginVertical("Button");
+                        var r_cutout = EditorGUILayout.BeginVertical("Button");
                         ShowCutout = EditorGUILayout.Foldout(ShowCutout, "(Cutout)", true, EditorStyles.foldout);
 
-                        if (ShowCutout)
-                        {
+                        if (ShowCutout) {
 
                             GUILayout.Space(10);
 
@@ -1547,17 +1524,15 @@ static string add_st_string = "Add 'See Through' feature";
 
                 #region Transperancy
 
-                if (_TRANSMODE.floatValue == 1)
-                {
+                if (_TRANSMODE.floatValue == 1) {
                     EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
                     EditorGUI.BeginDisabledGroup(_N_F_CO.floatValue == 1);
 
-                    Rect r_transparency = EditorGUILayout.BeginVertical("Button");
+                    var r_transparency = EditorGUILayout.BeginVertical("Button");
                     ShowTransparency = EditorGUILayout.Foldout(ShowTransparency, "(Transparency)", true, EditorStyles.foldout);
 
-                    if (ShowTransparency)
-                    {
+                    if (ShowTransparency) {
 
                         GUILayout.Space(10);
                         materialEditor.ShaderProperty(_SimTrans, new GUIContent(_SimTrans.displayName, TOTIPS[150]));
@@ -1600,16 +1575,14 @@ static string add_st_string = "Add 'See Through' feature";
 
                 #region Normal Map
 
-                if (_N_F_NM.floatValue == 1)
-                {
+                if (_N_F_NM.floatValue == 1) {
 
                     EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
-                    Rect r_normalmap = EditorGUILayout.BeginVertical("Button");
+                    var r_normalmap = EditorGUILayout.BeginVertical("Button");
                     ShowNormalMap = EditorGUILayout.Foldout(ShowNormalMap, "(Normal Map)", true, EditorStyles.foldout);
 
-                    if (ShowNormalMap)
-                    {
+                    if (ShowNormalMap) {
                         GUILayout.Space(10);
 
                         materialEditor.ShaderProperty(_NormalMap, new GUIContent(_NormalMap.displayName, TOTIPS[24]));
@@ -1631,15 +1604,13 @@ static string add_st_string = "Add 'See Through' feature";
 
                 #region Color Adjustment
 
-                if (_N_F_CA.floatValue == 1)
-                {
+                if (_N_F_CA.floatValue == 1) {
                     EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
-                    Rect r_cadjustment = EditorGUILayout.BeginVertical("Button");
+                    var r_cadjustment = EditorGUILayout.BeginVertical("Button");
                     ShowColorAdjustment = EditorGUILayout.Foldout(ShowColorAdjustment, "Color Adjustment", true, EditorStyles.foldout);
 
-                    if (ShowColorAdjustment)
-                    {
+                    if (ShowColorAdjustment) {
 
                         GUILayout.Space(10);
 
@@ -1659,20 +1630,16 @@ static string add_st_string = "Add 'See Through' feature";
 
                 #region Outline
 
-                if (remoout == true)
-                {
+                if (remoout == true) {
 
-                    if (_N_F_O.floatValue == 1)
-                    {
+                    if (_N_F_O.floatValue == 1) {
 
                         EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
-                        Rect r_outline = EditorGUILayout.BeginVertical("Button");
+                        var r_outline = EditorGUILayout.BeginVertical("Button");
                         ShowOutline = EditorGUILayout.Foldout(ShowOutline, "(Outline - " + OLType + ")", true, EditorStyles.foldout);
 
-
-                        if (ShowOutline)
-                        {
+                        if (ShowOutline) {
 
                             GUILayout.Space(10);
 
@@ -1680,8 +1647,7 @@ static string add_st_string = "Add 'See Through' feature";
                             materialEditor.ShaderProperty(_OutlineWidth, new GUIContent(_OutlineWidth.displayName, TOTIPS[8]));
                             EditorGUI.EndDisabledGroup();
 
-                            if (UseSSOL == true)
-                            {
+                            if (UseSSOL == true) {
 
                                 materialEditor.ShaderProperty(_OutlineWidthControl, new GUIContent(_OutlineWidthControl.displayName, TOTIPS[28]));
 
@@ -1721,9 +1687,7 @@ static string add_st_string = "Add 'See Through' feature";
 
                                 materialEditor.ShaderProperty(_VertexColorBlueAffectOutlineWitdh, new GUIContent(_VertexColorBlueAffectOutlineWitdh.displayName, TOTIPS[39]));
 
-                            }
-                            else
-                            {
+                            } else {
                                 EditorGUI.BeginDisabledGroup(_TRANSMODE.floatValue == 1 && _N_F_CO.floatValue == 0);
                                 materialEditor.ShaderProperty(_OutlineColor, new GUIContent(_OutlineColor.displayName, TOTIPS[28]));
 
@@ -1738,16 +1702,14 @@ static string add_st_string = "Add 'See Through' feature";
 
                             }
 
-                            if (add_st == true)
-                            {
+                            if (add_st == true) {
                                 EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
                                 materialEditor.ShaderProperty(_OutStenPass, new GUIContent(_OutStenPass.displayName, TOTIPS[170]));
                             }
 
                             EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
-                            if (GUILayout.Button(new GUIContent(UseSSOLStat, TOTIPS[142]), "Button"))
-                            {
+                            if (GUILayout.Button(new GUIContent(UseSSOLStat, TOTIPS[142]), "Button")) {
                                 USSOL_OR_TOL();
                             }
 
@@ -1758,7 +1720,6 @@ static string add_st_string = "Add 'See Through' feature";
                         EditorGUILayout.EndVertical();
 
                     }
-
                 }
 
                 #endregion
@@ -1767,16 +1728,14 @@ static string add_st_string = "Add 'See Through' feature";
 
                 #region SelfLit
 
-                if (_N_F_SL.floatValue == 1)
-                {
+                if (_N_F_SL.floatValue == 1) {
 
                     EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
-                    Rect r_selflit = EditorGUILayout.BeginVertical("Button");
+                    var r_selflit = EditorGUILayout.BeginVertical("Button");
                     ShowSelfLit = EditorGUILayout.Foldout(ShowSelfLit, "(Self Lit)", true, EditorStyles.foldout);
 
-                    if (ShowSelfLit)
-                    {
+                    if (ShowSelfLit) {
 
                         GUILayout.Space(10);
 
@@ -1794,7 +1753,7 @@ static string add_st_string = "Add 'See Through' feature";
                         EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
                         EditorGUI.BeginDisabledGroup(_N_F_SLMM.floatValue == 1);
-                            materialEditor.ShaderProperty(_SelfLitHighContrast, new GUIContent(_SelfLitHighContrast.displayName, TOTIPS[44]));
+                        materialEditor.ShaderProperty(_SelfLitHighContrast, new GUIContent(_SelfLitHighContrast.displayName, TOTIPS[44]));
                         EditorGUI.EndDisabledGroup();
 
                         EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
@@ -1803,12 +1762,9 @@ static string add_st_string = "Add 'See Through' feature";
 
                         GUILayout.Space(1);
 
-                        if (_N_F_SLMM.floatValue == 1)
-                        {
+                        if (_N_F_SLMM.floatValue == 1) {
                             materialEditor.ShaderProperty(_MaskSelfLit, new GUIContent("Self Lit Map", TOTIPS[176]));
-                        }
-                        else
-                        {
+                        } else {
                             materialEditor.ShaderProperty(_MaskSelfLit, new GUIContent(_MaskSelfLit.displayName, TOTIPS[45]));
                         }
 
@@ -1825,18 +1781,15 @@ static string add_st_string = "Add 'See Through' feature";
 
                 #region Gloss
 
-                if (_N_F_OFLMB.floatValue == 0)
-                {
+                if (_N_F_OFLMB.floatValue == 0) {
 
-                    if (_N_F_GLO.floatValue == 1)
-                    {
+                    if (_N_F_GLO.floatValue == 1) {
                         EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
-                        Rect r_gloss = EditorGUILayout.BeginVertical("Button");
+                        var r_gloss = EditorGUILayout.BeginVertical("Button");
                         ShowGloss = EditorGUILayout.Foldout(ShowGloss, "(Gloss)", true, EditorStyles.foldout);
 
-                        if (ShowGloss)
-                        {
+                        if (ShowGloss) {
 
                             GUILayout.Space(10);
 
@@ -1863,17 +1816,15 @@ static string add_st_string = "Add 'See Through' feature";
 
                             #region Gloss Texture
 
-                            if (_N_F_GLOT.floatValue == 1)
-                            {
+                            if (_N_F_GLOT.floatValue == 1) {
 
                                 EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
-                                Rect r_glosstexture = EditorGUILayout.BeginVertical("Button");
+                                var r_glosstexture = EditorGUILayout.BeginVertical("Button");
                                 GUILayout.Label("Gloss Texture", EditorStyles.boldLabel);
                                 EditorGUILayout.EndVertical();
 
-                                if (_N_F_GLOT.floatValue == 1)
-                                {
+                                if (_N_F_GLOT.floatValue == 1) {
 
                                     GUILayout.Space(10);
 
@@ -1885,9 +1836,7 @@ static string add_st_string = "Add 'See Through' feature";
 
                                     EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
-
-                                    if (_N_F_ANIS.floatValue == 1)
-                                    {
+                                    if (_N_F_ANIS.floatValue == 1) {
 
                                         materialEditor.ShaderProperty(_NoisTexInten, new GUIContent(_NoisTexInten.displayName, TOTIPS[166]));
 
@@ -1901,9 +1850,7 @@ static string add_st_string = "Add 'See Through' feature";
                                         materialEditor.ShaderProperty(_ShifAnis, new GUIContent(_ShifAnis.displayName, TOTIPS[168]));
                                         materialEditor.ShaderProperty(_GlossTextureFollowLight, new GUIContent(_GlossTextureFollowLight.displayName, TOTIPS[57]));
 
-                                    }
-                                    else if (_N_F_ANIS.floatValue == 0)
-                                    {
+                                    } else if (_N_F_ANIS.floatValue == 0) {
 
                                         EditorGUI.BeginDisabledGroup(_GlossTexture.textureValue == null);
                                         materialEditor.ShaderProperty(_GlossTextureSoftness, new GUIContent(_GlossTextureSoftness.displayName, TOTIPS[53]));
@@ -1922,7 +1869,6 @@ static string add_st_string = "Add 'See Through' feature";
 
                                         EditorGUI.EndDisabledGroup();
                                     }
-
                                 }
 
                                 GUILayout.Space(10);
@@ -1935,7 +1881,6 @@ static string add_st_string = "Add 'See Through' feature";
                         EditorGUILayout.EndVertical();
 
                     }
-
                 }
 
                 #endregion
@@ -1944,16 +1889,14 @@ static string add_st_string = "Add 'See Through' feature";
 
                 #region Shadow
 
-                if (_N_F_OFLMB.floatValue == 0)
-                {
+                if (_N_F_OFLMB.floatValue == 0) {
 
                     EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
-                    Rect r_shadow = EditorGUILayout.BeginVertical("Button");
+                    var r_shadow = EditorGUILayout.BeginVertical("Button");
                     ShowShadow = EditorGUILayout.Foldout(ShowShadow, "(Shadow)", true, EditorStyles.foldout);
 
-                    if (ShowShadow)
-                    {
+                    if (ShowShadow) {
 
                         GUILayout.Space(10);
 
@@ -1969,14 +1912,12 @@ static string add_st_string = "Add 'See Through' feature";
 
                         materialEditor.ShaderProperty(_ReduSha, new GUIContent(_ReduSha.displayName, TOTIPS[63]));
 
-                        if (_N_F_HDLS.floatValue == 0 || _N_F_HPSS.floatValue == 0)
-                        {
+                        if (_N_F_HDLS.floatValue == 0 || _N_F_HPSS.floatValue == 0) {
                             GUILayout.Space(10);
                             materialEditor.ShaderProperty(_ShadowHardness, new GUIContent(_ShadowHardness.displayName, TOTIPS[64]));
                         }
 
-                        switch ((int)_N_F_SS.floatValue)
-                        {
+                        switch ((int)_N_F_SS.floatValue) {
                             case 0:
                                 materialEditor.ShaderProperty(_SelfShadowRealtimeShadowIntensity, new GUIContent("Realtime Shadow Intensity", TOTIPS[124]));
                                 break;
@@ -1994,22 +1935,19 @@ static string add_st_string = "Add 'See Through' feature";
                         materialEditor.ShaderProperty(_SSAOColor, new GUIContent(_SSAOColor.displayName, TOTIPS[146]));
                         EditorGUI.EndDisabledGroup();
 
-
                         //Self Shadow
 
                         #region Self Shadow
 
-                        if (_N_F_SS.floatValue == 1)
-                        {
+                        if (_N_F_SS.floatValue == 1) {
 
                             EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
-                            Rect r_selfshadow = EditorGUILayout.BeginVertical("Button");
+                            var r_selfshadow = EditorGUILayout.BeginVertical("Button");
                             GUILayout.Label("Self Shadow", EditorStyles.boldLabel);
                             EditorGUILayout.EndVertical();
 
-                            if (_N_F_SS.floatValue == 1)
-                            {
+                            if (_N_F_SS.floatValue == 1) {
 
                                 GUILayout.Space(10);
 
@@ -2038,17 +1976,15 @@ static string add_st_string = "Add 'See Through' feature";
 
                         #region Smooth Object Normal
 
-                        if (_N_F_SON.floatValue == 1)
-                        {
+                        if (_N_F_SON.floatValue == 1) {
 
                             EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
-                            Rect r_smoothobjectnormal = EditorGUILayout.BeginVertical("Button");
+                            var r_smoothobjectnormal = EditorGUILayout.BeginVertical("Button");
                             GUILayout.Label("Smooth Object Normal", EditorStyles.boldLabel);
                             EditorGUILayout.EndVertical();
 
-                            if (_N_F_SON.floatValue == 1)
-                            {
+                            if (_N_F_SON.floatValue == 1) {
 
                                 GUILayout.Space(10);
 
@@ -2079,16 +2015,14 @@ static string add_st_string = "Add 'See Through' feature";
 
                         #region Shadow Color Texture
 
-                        if (_N_F_SCT.floatValue == 1)
-                        {
+                        if (_N_F_SCT.floatValue == 1) {
                             EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
-                            Rect r_shadowcolortexture = EditorGUILayout.BeginVertical("Button");
+                            var r_shadowcolortexture = EditorGUILayout.BeginVertical("Button");
                             GUILayout.Label("Shadow Color Texture", EditorStyles.boldLabel);
                             EditorGUILayout.EndVertical();
 
-                            if (_N_F_SCT.floatValue == 1)
-                            {
+                            if (_N_F_SCT.floatValue == 1) {
 
                                 GUILayout.Space(10);
 
@@ -2106,24 +2040,21 @@ static string add_st_string = "Add 'See Through' feature";
 
                         #region ShadowT
 
-                        if (_N_F_ST.floatValue == 1)
-                        {
+                        if (_N_F_ST.floatValue == 1) {
                             EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
-                            Rect r_shadowt = EditorGUILayout.BeginVertical("Button");
+                            var r_shadowt = EditorGUILayout.BeginVertical("Button");
                             GUILayout.Label("ShadowT", EditorStyles.boldLabel);
                             EditorGUILayout.EndVertical();
 
-                            if (_N_F_ST.floatValue == 1)
-                            {
+                            if (_N_F_ST.floatValue == 1) {
                                 GUILayout.Space(10);
 
                                 materialEditor.ShaderProperty(_ShadowTIntensity, new GUIContent(_ShadowTIntensity.displayName, TOTIPS[78]));
                                 materialEditor.ShaderProperty(_ShadowT, new GUIContent(_ShadowT.displayName, TOTIPS[79]));
                                 materialEditor.ShaderProperty(_ShadowTLightThreshold, new GUIContent(_ShadowTLightThreshold.displayName, TOTIPS[80]));
 
-                                if (_N_F_STSDFM.floatValue == 0)
-                                {
+                                if (_N_F_STSDFM.floatValue == 0) {
                                     materialEditor.ShaderProperty(_ShadowTShadowThreshold, new GUIContent(_ShadowTShadowThreshold.displayName, TOTIPS[81]));
                                 }
 
@@ -2133,8 +2064,7 @@ static string add_st_string = "Add 'See Through' feature";
                                 materialEditor.ShaderProperty(_ShadowTColor, new GUIContent(_ShadowTColor.displayName, TOTIPS[129]));
                                 materialEditor.ShaderProperty(_ShadowTColorPower, new GUIContent(_ShadowTColorPower.displayName, TOTIPS[130]));
 
-                                if (_N_F_STSDFM.floatValue == 0)
-                                {
+                                if (_N_F_STSDFM.floatValue == 0) {
                                     EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
                                     materialEditor.ShaderProperty(_STIL, new GUIContent(_STIL.displayName, TOTIPS[131]));
 
@@ -2156,15 +2086,13 @@ static string add_st_string = "Add 'See Through' feature";
                                 EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
                                 materialEditor.ShaderProperty(_N_F_STSDFM, new GUIContent(_N_F_STSDFM.displayName, TOTIPS[162]));
 
-                                if (_N_F_STSDFM.floatValue == 1)
-                                {
+                                if (_N_F_STSDFM.floatValue == 1) {
                                     GUILayout.Space(10);
 
                                     EditorGUI.BeginDisabledGroup(true);
                                     EditorGUILayout.TextArea("Add the 'ShadowT SDF Mode - Helper' component to your object for this to work.\n\nTo Add:\nClick your object then click 'Add Component'\nthen 'RealToon>Tool>ShadowT SDF Mode - Helper.", EditorStyles.label, GUILayout.ExpandWidth(true));
                                     EditorGUI.EndDisabledGroup();
                                 }
-
                             }
 
                             GUILayout.Space(10);
@@ -2177,18 +2105,16 @@ static string add_st_string = "Add 'See Through' feature";
 
                         #region PTexture
 
-                        if (_N_F_PT.floatValue == 1)
-                        {
+                        if (_N_F_PT.floatValue == 1) {
                             EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
-                            Rect r_ptexture = EditorGUILayout.BeginVertical("Button");
+                            var r_ptexture = EditorGUILayout.BeginVertical("Button");
                             GUILayout.Label("PTexture", EditorStyles.boldLabel);
                             EditorGUILayout.EndVertical();
 
                             GUILayout.Space(10);
 
-                            if (_N_F_PT.floatValue == 1)
-                            {
+                            if (_N_F_PT.floatValue == 1) {
                                 materialEditor.ShaderProperty(_PTexture, new GUIContent(_PTexture.displayName, TOTIPS[88]));
                                 materialEditor.ShaderProperty(_PTexturePower, new GUIContent(_PTexturePower.displayName, TOTIPS[89]));
 
@@ -2217,11 +2143,10 @@ static string add_st_string = "Add 'See Through' feature";
 
                 EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
-                Rect r_lighting = EditorGUILayout.BeginVertical("Button");
+                var r_lighting = EditorGUILayout.BeginVertical("Button");
                 ShowLighting = EditorGUILayout.Foldout(ShowLighting, "(Lighting)", true, EditorStyles.foldout);
 
-                if (ShowLighting)
-                {
+                if (ShowLighting) {
 
                     GUILayout.Space(10);
 
@@ -2235,8 +2160,7 @@ static string add_st_string = "Add 'See Through' feature";
                     materialEditor.ShaderProperty(_GIShadeThreshold, new GUIContent(_GIShadeThreshold.displayName, TOTIPS[93]));
                     EditorGUI.EndDisabledGroup();
 
-                    if (_N_F_OFLMB.floatValue == 0)
-                    {
+                    if (_N_F_OFLMB.floatValue == 0) {
 
                         EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
@@ -2272,19 +2196,17 @@ static string add_st_string = "Add 'See Through' feature";
 
                         #region Custom Light Direction
 
-                        if (_N_F_CLD.floatValue == 1)
-                        {
+                        if (_N_F_CLD.floatValue == 1) {
 
                             EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
                             EditorGUI.BeginDisabledGroup(_N_F_CLD.floatValue == 0);
 
-                            Rect r_customlightdirection = EditorGUILayout.BeginVertical("Button");
+                            var r_customlightdirection = EditorGUILayout.BeginVertical("Button");
                             GUILayout.Label("Custom Light Direction", EditorStyles.boldLabel);
                             EditorGUILayout.EndVertical();
 
-                            if (_N_F_CLD.floatValue == 1)
-                            {
+                            if (_N_F_CLD.floatValue == 1) {
 
                                 GUILayout.Space(10);
 
@@ -2315,15 +2237,13 @@ static string add_st_string = "Add 'See Through' feature";
 
                 #region Reflection
 
-                if (_N_F_R.floatValue == 1)
-                {
+                if (_N_F_R.floatValue == 1) {
                     EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
-                    Rect r_reflection = EditorGUILayout.BeginVertical("Button");
+                    var r_reflection = EditorGUILayout.BeginVertical("Button");
                     ShowReflection = EditorGUILayout.Foldout(ShowReflection, "(Reflection)", true, EditorStyles.foldout);
 
-                    if (ShowReflection)
-                    {
+                    if (ShowReflection) {
 
                         GUILayout.Space(10);
 
@@ -2341,14 +2261,13 @@ static string add_st_string = "Add 'See Through' feature";
 
                         #region FReflection
 
-                        if (_N_F_FR.floatValue == 1)
-                        {
+                        if (_N_F_FR.floatValue == 1) {
 
                             EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
                             EditorGUI.BeginDisabledGroup(_N_F_FR.floatValue == 0);
 
-                            Rect r_freflection = EditorGUILayout.BeginVertical("Button");
+                            var r_freflection = EditorGUILayout.BeginVertical("Button");
                             GUILayout.Label("FReflection", EditorStyles.boldLabel);
                             EditorGUILayout.EndVertical();
 
@@ -2358,7 +2277,6 @@ static string add_st_string = "Add 'See Through' feature";
 
                             GUILayout.Space(10);
                         }
-
                     }
 
                     #endregion
@@ -2372,16 +2290,14 @@ static string add_st_string = "Add 'See Through' feature";
 
                 #region Rim Light
 
-                if (_N_F_RL.floatValue == 1)
-                {
+                if (_N_F_RL.floatValue == 1) {
 
                     EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
-                    Rect r_rimlight = EditorGUILayout.BeginVertical("Button");
+                    var r_rimlight = EditorGUILayout.BeginVertical("Button");
                     ShowRimLight = EditorGUILayout.Foldout(ShowRimLight, "(Rim Light)", true, EditorStyles.foldout);
 
-                    if (ShowRimLight)
-                    {
+                    if (ShowRimLight) {
 
                         GUILayout.Space(10);
 
@@ -2401,8 +2317,7 @@ static string add_st_string = "Add 'See Through' feature";
                         materialEditor.ShaderProperty(_RimLightColor, new GUIContent(_RimLightColor.displayName, TOTIPS[109]));
                         materialEditor.ShaderProperty(_RimLightColorPower, new GUIContent(_RimLightColorPower.displayName, TOTIPS[110]));
 
-                        if (_N_F_OFLMB.floatValue == 0)
-                        {
+                        if (_N_F_OFLMB.floatValue == 0) {
                             EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
                             materialEditor.ShaderProperty(_RimLightInLight, new GUIContent(_RimLightInLight.displayName, TOTIPS[111]));
                         }
@@ -2421,15 +2336,13 @@ static string add_st_string = "Add 'See Through' feature";
 
                 #region Near Fade Dithering
 
-                if (_N_F_NFD.floatValue == 1)
-                {
+                if (_N_F_NFD.floatValue == 1) {
                     EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
-                    Rect r_nerfaddithe = EditorGUILayout.BeginVertical("Button");
+                    var r_nerfaddithe = EditorGUILayout.BeginVertical("Button");
                     NearFadeDithering = EditorGUILayout.Foldout(NearFadeDithering, "(Near Fade Dithering)", true, EditorStyles.foldout);
 
-                    if (NearFadeDithering)
-                    {
+                    if (NearFadeDithering) {
 
                         GUILayout.Space(10);
 
@@ -2450,16 +2363,14 @@ static string add_st_string = "Add 'See Through' feature";
 
                 #region Triplanar
 
-                if (_N_F_TP.floatValue == 1)
-                {
+                if (_N_F_TP.floatValue == 1) {
 
                     EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
-                    Rect r_tripla = EditorGUILayout.BeginVertical("Button");
+                    var r_tripla = EditorGUILayout.BeginVertical("Button");
                     Triplanar = EditorGUILayout.Foldout(Triplanar, "(Triplanar)", true, EditorStyles.foldout);
 
-                    if (Triplanar)
-                    {
+                    if (Triplanar) {
 
                         GUILayout.Space(10);
 
@@ -2480,16 +2391,14 @@ static string add_st_string = "Add 'See Through' feature";
 
                 #region Perspective Adjustment
 
-                if (_N_F_PA.floatValue == 1)
-                {
+                if (_N_F_PA.floatValue == 1) {
 
                     EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
-                    Rect r_perspecadju = EditorGUILayout.BeginVertical("Button");
+                    var r_perspecadju = EditorGUILayout.BeginVertical("Button");
                     ShowPerspecAdju = EditorGUILayout.Foldout(ShowPerspecAdju, "(Perspective Adjustment)", true, EditorStyles.foldout);
 
-                    if (ShowPerspecAdju)
-                    {
+                    if (ShowPerspecAdju) {
 
                         GUILayout.Space(10);
 
@@ -2516,19 +2425,17 @@ static string add_st_string = "Add 'See Through' feature";
 
                 #region Smear Effect
 
-                if (_N_F_SE.floatValue == 1)
-                {
+                if (_N_F_SE.floatValue == 1) {
 
                     EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
-                    Rect r_perspecadju = EditorGUILayout.BeginVertical("Button");
+                    var r_perspecadju = EditorGUILayout.BeginVertical("Button");
                     ShowSmeEff = EditorGUILayout.Foldout(ShowSmeEff, "(Smear Effect)", true, EditorStyles.foldout);
 
-                    if (ShowSmeEff)
-                    {
+                    if (ShowSmeEff) {
 
                         EditorGUI.BeginDisabledGroup(true);
-                            EditorGUILayout.TextArea("Add the 'Smear Effect [Helper]' component to your object for this to work.\nAdjustable options are on the 'Smear Effect [Helper]' component.\n\nTo Add:\nClick your object then click 'Add Component'\nthen 'RealToon>Tool>Smear Effect [Helper].", EditorStyles.label, GUILayout.ExpandWidth(true));
+                        EditorGUILayout.TextArea("Add the 'Smear Effect [Helper]' component to your object for this to work.\nAdjustable options are on the 'Smear Effect [Helper]' component.\n\nTo Add:\nClick your object then click 'Add Component'\nthen 'RealToon>Tool>Smear Effect [Helper].", EditorStyles.label, GUILayout.ExpandWidth(true));
                         EditorGUI.EndDisabledGroup();
 
                         GUILayout.Space(10);
@@ -2545,28 +2452,28 @@ static string add_st_string = "Add 'See Through' feature";
 
                 #region Tessellation
 
-//if (shader_name == "tessellation_d" || shader_name == "tessellation_ft" || shader_name == "tessellation_ref")
-//{
+                //if (shader_name == "tessellation_d" || shader_name == "tessellation_ft" || shader_name == "tessellation_ref")
+                //{
 
-//    EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
+                //    EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
-//    Rect r_tessellation = EditorGUILayout.BeginVertical("Button");
-//    ShowTessellation = EditorGUILayout.Foldout(ShowTessellation, "(Tessellation)", true, EditorStyles.foldout);
+                //    Rect r_tessellation = EditorGUILayout.BeginVertical("Button");
+                //    ShowTessellation = EditorGUILayout.Foldout(ShowTessellation, "(Tessellation)", true, EditorStyles.foldout);
 
-//    if (ShowTessellation)
-//    {
+                //    if (ShowTessellation)
+                //    {
 
-//        GUILayout.Space(10);
+                //        GUILayout.Space(10);
 
-//        materialEditor.ShaderProperty(_TessellationSmoothness, _TessellationSmoothness.displayName);
-//        materialEditor.ShaderProperty(_TessellationTransition, _TessellationTransition.displayName);
-//        materialEditor.ShaderProperty(_TessellationNear, _TessellationNear.displayName);
-//        materialEditor.ShaderProperty(_TessellationFar, _TessellationFar.displayName);
+                //        materialEditor.ShaderProperty(_TessellationSmoothness, _TessellationSmoothness.displayName);
+                //        materialEditor.ShaderProperty(_TessellationTransition, _TessellationTransition.displayName);
+                //        materialEditor.ShaderProperty(_TessellationNear, _TessellationNear.displayName);
+                //        materialEditor.ShaderProperty(_TessellationFar, _TessellationFar.displayName);
 
-//    }
+                //    }
 
-//    EditorGUILayout.EndVertical();
-//}
+                //    EditorGUILayout.EndVertical();
+                //}
 
                 #endregion
 
@@ -2574,15 +2481,13 @@ static string add_st_string = "Add 'See Through' feature";
 
                 #region See Through
 
-                if(add_st == false)
-                {
+                if (add_st == false) {
                     EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
-                    Rect r_seethrough = EditorGUILayout.BeginVertical("Button");
+                    var r_seethrough = EditorGUILayout.BeginVertical("Button");
                     ShowSeeThrough = EditorGUILayout.Foldout(ShowSeeThrough, "(See Through)", true, EditorStyles.foldout);
 
-                    if (ShowSeeThrough)
-                    {
+                    if (ShowSeeThrough) {
 
                         GUILayout.Space(10);
 
@@ -2603,40 +2508,34 @@ static string add_st_string = "Add 'See Through' feature";
 
                 #endregion
 
-
                 //Disable/Enable Features
 
                 #region Disable/Enable Features
 
-                Rect r_disableenablefeature = EditorGUILayout.BeginVertical("Button");
+                var r_disableenablefeature = EditorGUILayout.BeginVertical("Button");
                 ShowDisableEnable = EditorGUILayout.Foldout(ShowDisableEnable, "(Disable/Enable Features)", true, EditorStyles.foldout);
 
-                if (ShowDisableEnable)
-                {
+                if (ShowDisableEnable) {
 
-                    Rect r_mc = EditorGUILayout.BeginVertical("HelpBox");
+                    var r_mc = EditorGUILayout.BeginVertical("HelpBox");
                     materialEditor.ShaderProperty(_N_F_MC, new GUIContent(_N_F_MC.displayName, TOTIPSEDF[0]));
                     EditorGUILayout.EndVertical();
 
-                    Rect r_nm = EditorGUILayout.BeginVertical("HelpBox");
+                    var r_nm = EditorGUILayout.BeginVertical("HelpBox");
                     materialEditor.ShaderProperty(_N_F_NM, new GUIContent(_N_F_NM.displayName, TOTIPSEDF[1]));
                     EditorGUILayout.EndVertical();
 
-                    if (remoout == true)
-                    {
-                        Rect r_ou = EditorGUILayout.BeginVertical("HelpBox");
+                    if (remoout == true) {
+                        var r_ou = EditorGUILayout.BeginVertical("HelpBox");
 
                         EditorGUI.BeginChangeCheck();
 
                         materialEditor.ShaderProperty(_N_F_O, new GUIContent(_N_F_O.displayName, TOTIPSEDF[2]));
 
-                        if (EditorGUI.EndChangeCheck())
-                        {
-                            int f_deo_int = (int)_N_F_O.floatValue;
-                            foreach (Material m in materialEditor.targets)
-                            {
-                                switch (f_deo_int)
-                                {
+                        if (EditorGUI.EndChangeCheck()) {
+                            var f_deo_int = (int)_N_F_O.floatValue;
+                            foreach (Material m in materialEditor.targets) {
+                                switch (f_deo_int) {
                                     case 0:
                                         m.SetShaderPassEnabled("SRPDefaultUnlit", false);
                                         break;
@@ -2647,7 +2546,6 @@ static string add_st_string = "Add 'See Through' feature";
                                         break;
                                 }
                             }
-
                         }
 
                         EditorGUILayout.EndVertical();
@@ -2655,19 +2553,16 @@ static string add_st_string = "Add 'See Through' feature";
 
                     EditorGUI.BeginDisabledGroup(_TRANSMODE.floatValue == 0);
 
-                    Rect r_co = EditorGUILayout.BeginVertical("HelpBox");
+                    var r_co = EditorGUILayout.BeginVertical("HelpBox");
 
                     EditorGUI.BeginChangeCheck();
 
                     materialEditor.ShaderProperty(_N_F_CO, new GUIContent(_N_F_CO.displayName, TOTIPSEDF[3]));
 
-                    if (EditorGUI.EndChangeCheck())
-                    {
-                        int f_co_int = (int)_N_F_CO.floatValue;
-                        foreach (Material m in materialEditor.targets)
-                        {
-                            switch (f_co_int)
-                            {
+                    if (EditorGUI.EndChangeCheck()) {
+                        var f_co_int = (int)_N_F_CO.floatValue;
+                        foreach (Material m in materialEditor.targets) {
+                            switch (f_co_int) {
                                 case 0:
 
                                     m.renderQueue = 3000;
@@ -2694,24 +2589,20 @@ static string add_st_string = "Add 'See Through' feature";
 
                     EditorGUI.EndDisabledGroup();
 
-                    Rect r_ca = EditorGUILayout.BeginVertical("HelpBox");
+                    var r_ca = EditorGUILayout.BeginVertical("HelpBox");
                     materialEditor.ShaderProperty(_N_F_CA, new GUIContent(_N_F_CA.displayName, TOTIPSEDF[4]));
                     EditorGUILayout.EndVertical();
 
-
                     EditorGUI.BeginChangeCheck();
 
-                    Rect r_sl = EditorGUILayout.BeginVertical("HelpBox");
+                    var r_sl = EditorGUILayout.BeginVertical("HelpBox");
                     materialEditor.ShaderProperty(_N_F_SL, new GUIContent(_N_F_SL.displayName, TOTIPSEDF[5]));
                     EditorGUILayout.EndVertical();
 
-                    if (EditorGUI.EndChangeCheck())
-                    {
-                        int f_sl_int = (int)_N_F_SL.floatValue;
-                        foreach (Material m in materialEditor.targets)
-                        {
-                            switch (f_sl_int)
-                            {
+                    if (EditorGUI.EndChangeCheck()) {
+                        var f_sl_int = (int)_N_F_SL.floatValue;
+                        foreach (Material m in materialEditor.targets) {
+                            switch (f_sl_int) {
                                 case 0:
                                     m.globalIlluminationFlags = MaterialGlobalIlluminationFlags.None;
                                     break;
@@ -2722,95 +2613,79 @@ static string add_st_string = "Add 'See Through' feature";
                                     break;
                             }
                         }
-
                     }
 
-
-                    if (_N_F_OFLMB.floatValue == 0)
-                    {
-                        Rect r_o = EditorGUILayout.BeginVertical("HelpBox");
+                    if (_N_F_OFLMB.floatValue == 0) {
+                        var r_o = EditorGUILayout.BeginVertical("HelpBox");
                         materialEditor.ShaderProperty(_N_F_GLO, new GUIContent(_N_F_GLO.displayName, TOTIPSEDF[6]));
                         EditorGUILayout.EndVertical();
 
-                        Rect r_glot = EditorGUILayout.BeginVertical("HelpBox");
+                        var r_glot = EditorGUILayout.BeginVertical("HelpBox");
                         materialEditor.ShaderProperty(_N_F_GLOT, new GUIContent(_N_F_GLOT.displayName, TOTIPSEDF[7]));
                         EditorGUILayout.EndVertical();
                     }
 
-
-                    if (_N_F_OFLMB.floatValue == 0)
-                    {
-                        Rect r_ss = EditorGUILayout.BeginVertical("HelpBox");
+                    if (_N_F_OFLMB.floatValue == 0) {
+                        var r_ss = EditorGUILayout.BeginVertical("HelpBox");
                         materialEditor.ShaderProperty(_N_F_SS, new GUIContent(_N_F_SS.displayName, TOTIPSEDF[8]));
                         EditorGUILayout.EndVertical();
                     }
 
-
-                    if (_N_F_OFLMB.floatValue == 0)
-                    {
-                        Rect r_son = EditorGUILayout.BeginVertical("HelpBox");
+                    if (_N_F_OFLMB.floatValue == 0) {
+                        var r_son = EditorGUILayout.BeginVertical("HelpBox");
                         materialEditor.ShaderProperty(_N_F_SON, new GUIContent(_N_F_SON.displayName, TOTIPSEDF[9]));
                         EditorGUILayout.EndVertical();
                     }
 
-
-                    if (_N_F_OFLMB.floatValue == 0)
-                    {
-                        Rect r_sct = EditorGUILayout.BeginVertical("HelpBox");
+                    if (_N_F_OFLMB.floatValue == 0) {
+                        var r_sct = EditorGUILayout.BeginVertical("HelpBox");
                         materialEditor.ShaderProperty(_N_F_SCT, new GUIContent(_N_F_SCT.displayName, TOTIPSEDF[10]));
                         EditorGUILayout.EndVertical();
                     }
 
-
-                    if (_N_F_OFLMB.floatValue == 0)
-                    {
-                        Rect r_st = EditorGUILayout.BeginVertical("HelpBox");
+                    if (_N_F_OFLMB.floatValue == 0) {
+                        var r_st = EditorGUILayout.BeginVertical("HelpBox");
                         materialEditor.ShaderProperty(_N_F_ST, new GUIContent(_N_F_ST.displayName, TOTIPSEDF[11]));
                         EditorGUILayout.EndVertical();
                     }
 
-
-                    if (_N_F_OFLMB.floatValue == 0)
-                    {
-                        Rect r_pt = EditorGUILayout.BeginVertical("HelpBox");
+                    if (_N_F_OFLMB.floatValue == 0) {
+                        var r_pt = EditorGUILayout.BeginVertical("HelpBox");
                         materialEditor.ShaderProperty(_N_F_PT, new GUIContent(_N_F_PT.displayName, TOTIPSEDF[12]));
                         EditorGUILayout.EndVertical();
                     }
 
-
-                    if (_N_F_OFLMB.floatValue == 0)
-                    {
-                        Rect r_cld = EditorGUILayout.BeginVertical("HelpBox");
+                    if (_N_F_OFLMB.floatValue == 0) {
+                        var r_cld = EditorGUILayout.BeginVertical("HelpBox");
                         materialEditor.ShaderProperty(_N_F_CLD, new GUIContent(_N_F_CLD.displayName, TOTIPSEDF[13]));
                         EditorGUILayout.EndVertical();
                     }
 
-
-                    Rect r_r = EditorGUILayout.BeginVertical("HelpBox");
+                    var r_r = EditorGUILayout.BeginVertical("HelpBox");
                     materialEditor.ShaderProperty(_N_F_R, new GUIContent(_N_F_R.displayName, TOTIPSEDF[14]));
                     EditorGUILayout.EndVertical();
 
-                    Rect r_fr = EditorGUILayout.BeginVertical("HelpBox");
+                    var r_fr = EditorGUILayout.BeginVertical("HelpBox");
                     materialEditor.ShaderProperty(_N_F_FR, new GUIContent(_N_F_FR.displayName, TOTIPSEDF[15]));
                     EditorGUILayout.EndVertical();
 
-                    Rect r_rl = EditorGUILayout.BeginVertical("HelpBox");
+                    var r_rl = EditorGUILayout.BeginVertical("HelpBox");
                     materialEditor.ShaderProperty(_N_F_RL, new GUIContent(_N_F_RL.displayName, TOTIPSEDF[16]));
                     EditorGUILayout.EndVertical();
 
-                    Rect r_nfd = EditorGUILayout.BeginVertical("HelpBox");
+                    var r_nfd = EditorGUILayout.BeginVertical("HelpBox");
                     materialEditor.ShaderProperty(_N_F_NFD, new GUIContent(_N_F_NFD.displayName, TOTIPSEDF[17]));
                     EditorGUILayout.EndVertical();
 
-                    Rect r_tp = EditorGUILayout.BeginVertical("HelpBox");
+                    var r_tp = EditorGUILayout.BeginVertical("HelpBox");
                     materialEditor.ShaderProperty(_N_F_TP, new GUIContent(_N_F_TP.displayName, TOTIPSEDF[18]));
                     EditorGUILayout.EndVertical();
 
-                    Rect r_pa = EditorGUILayout.BeginVertical("HelpBox");
+                    var r_pa = EditorGUILayout.BeginVertical("HelpBox");
                     materialEditor.ShaderProperty(_N_F_PA, new GUIContent(_N_F_PA.displayName, TOTIPSEDF[19]));
                     EditorGUILayout.EndVertical();
 
-                    Rect r_se = EditorGUILayout.BeginVertical("HelpBox");
+                    var r_se = EditorGUILayout.BeginVertical("HelpBox");
                     materialEditor.ShaderProperty(_N_F_SE, new GUIContent(_N_F_SE.displayName, TOTIPSEDF[20]));
                     EditorGUILayout.EndVertical();
 
@@ -2826,31 +2701,26 @@ static string add_st_string = "Add 'See Through' feature";
 
                 GUILayout.Space(5);
 
-                Rect r_showsettings = EditorGUILayout.BeginVertical("Button");
+                var r_showsettings = EditorGUILayout.BeginVertical("Button");
                 ShowSettings = EditorGUILayout.Foldout(ShowSettings, "(Settings)", true, EditorStyles.foldout);
 
-                if (ShowSettings)
-                {
+                if (ShowSettings) {
 
                     GUILayout.Space(10);
 
-                    if (GUILayout.Button(new GUIContent(twofourfive_target_string, TOTIPS[116]), "Button"))
-                    {
+                    if (GUILayout.Button(new GUIContent(twofourfive_target_string, TOTIPS[116]), "Button")) {
                         TWOFORFIVE();
                     }
 
-                    if (twofourfive_target == true)
-                    {
-                        if (GUILayout.Button(new GUIContent(dots_lbs_cd_string, TOTIPS[143]), "Button"))
-                        {
+                    if (twofourfive_target == true) {
+                        if (GUILayout.Button(new GUIContent(dots_lbs_cd_string, TOTIPS[143]), "Button")) {
                             DOTSLBSCD();
                         }
                     }
 
                     EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
-                    if (GUILayout.Button(new GUIContent(add_st_string, TOTIPS[163]), "Button"))
-                    {
+                    if (GUILayout.Button(new GUIContent(add_st_string, TOTIPS[163]), "Button")) {
                         ADD_ST();
                     }
 
@@ -2864,8 +2734,7 @@ static string add_st_string = "Add 'See Through' feature";
 
                 EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
-                if (_N_F_OFLMB.floatValue == 0)
-                {
+                if (_N_F_OFLMB.floatValue == 0) {
                     GUILayout.Space(10);
 
                     materialEditor.ShaderProperty(_N_F_HDLS, new GUIContent(_N_F_HDLS.displayName, TOTIPS[117]));
@@ -2875,13 +2744,10 @@ static string add_st_string = "Add 'See Through' feature";
 
                     materialEditor.ShaderProperty(_N_F_DCS, new GUIContent(_N_F_DCS.displayName, TOTIPS[119]));
 
-                    if (EditorGUI.EndChangeCheck())
-                    {
-                        int f_hcs_int = (int)_N_F_DCS.floatValue;
-                        foreach (Material m in materialEditor.targets)
-                        {
-                            switch (f_hcs_int)
-                            {
+                    if (EditorGUI.EndChangeCheck()) {
+                        var f_hcs_int = (int)_N_F_DCS.floatValue;
+                        foreach (Material m in materialEditor.targets) {
+                            switch (f_hcs_int) {
                                 case 0:
                                     m.SetShaderPassEnabled("ShadowCaster", true);
                                     break;
@@ -2892,7 +2758,6 @@ static string add_st_string = "Add 'See Through' feature";
                                     break;
                             }
                         }
-
                     }
 
                     materialEditor.ShaderProperty(_N_F_NLASOBF, new GUIContent(_N_F_NLASOBF.displayName, TOTIPS[115]));
@@ -2926,36 +2791,24 @@ static string add_st_string = "Add 'See Through' feature";
             }
 
             #region Automatic Remove UorOSKW
-            if (aruskw == true)
-            {
-                foreach (Material m1 in materialEditor.targets)
-                {
-                    for (int x = 0; x < m1.shaderKeywords.Length; x++)
-                    {
-                        if (m1.shaderKeywords[x] != String.Empty)
-                        {
-                            for (int y = 0; y < Enum.GetValues(typeof(SFKW)).Length; y++)
-                            {
-                                if (m1.shaderKeywords[x] == Enum.GetValues(typeof(SFKW)).GetValue(y).ToString())
-                                {
+            if (aruskw == true) {
+                foreach (Material m1 in materialEditor.targets) {
+                    for (var x = 0; x < m1.shaderKeywords.Length; x++) {
+                        if (m1.shaderKeywords[x] != string.Empty) {
+                            for (var y = 0; y < Enum.GetValues(typeof(SFKW)).Length; y++) {
+                                if (m1.shaderKeywords[x] == Enum.GetValues(typeof(SFKW)).GetValue(y).ToString()) {
                                     del_skw = false;
                                     break;
-                                }
-                                else
-                                {
+                                } else {
                                     del_skw = true;
                                 }
                             }
 
-                            if (del_skw == true)
-                            {
+                            if (del_skw == true) {
                                 m1.DisableKeyword(m1.shaderKeywords[x]);
                                 del_skw = false;
                             }
-
-                        }
-                        else
-                        {
+                        } else {
                             break;
                         }
                     }
@@ -2968,19 +2821,16 @@ static string add_st_string = "Add 'See Through' feature";
 
             EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
-            Rect r_footbar = EditorGUILayout.BeginHorizontal();
+            var r_footbar = EditorGUILayout.BeginHorizontal();
 
-            if (GUILayout.Button(new GUIContent("[" + remooutstat + " (On Shader)]", TOTIPS[135]), "Toolbar"))
-            {
+            if (GUILayout.Button(new GUIContent("[" + remooutstat + " (On Shader)]", TOTIPS[135]), "Toolbar")) {
                 REMO_OUTL();
             }
 
             GUILayout.Space(5);
 
-            if (GUILayout.Button(new GUIContent("[Refresh Settings]", TOTIPS[62]), "Toolbar"))
-            {
-                foreach (Material m in materialEditor.targets)
-                {
+            if (GUILayout.Button(new GUIContent("[Refresh Settings]", TOTIPS[62]), "Toolbar")) {
+                foreach (Material m in materialEditor.targets) {
                     CheckingPropKeyWord(m);
                 }
 
@@ -2992,29 +2842,23 @@ static string add_st_string = "Add 'See Through' feature";
 
             GUILayout.Space(5);
 
-            if (GUILayout.Button(new GUIContent("[Video Tutorials]", TOTIPS[136]), "Toolbar"))
-            {
+            if (GUILayout.Button(new GUIContent("[Video Tutorials]", TOTIPS[136]), "Toolbar")) {
                 Application.OpenURL("www.youtube.com/playlist?list=PL0M1m9smMVPJ4qEkJnZObqJE5mU9uz6SY");
             }
 
             GUILayout.Space(5);
 
-            if (GUILayout.Button(new GUIContent("[RealToon (User Guide).pdf]", TOTIPS[137]), "Toolbar"))
-            {
+            if (GUILayout.Button(new GUIContent("[RealToon (User Guide).pdf]", TOTIPS[137]), "Toolbar")) {
                 Application.OpenURL(Application.dataPath + "/RealToon/RealToon (User Guide).pdf");
             }
 
             GUILayout.Space(5);
 
-            if (GUILayout.Button(new GUIContent("[" + ShowUIString + "(Global)]", TOTIPS[138]), "Toolbar"))
-            {
-                if (ShowUI == false)
-                {
+            if (GUILayout.Button(new GUIContent("[" + ShowUIString + "(Global)]", TOTIPS[138]), "Toolbar")) {
+                if (ShowUI == false) {
                     ShowUI = true;
                     ShowUIString = "Hide UI";
-                }
-                else
-                {
+                } else {
                     ShowUI = false;
                     ShowUIString = "Show UI";
                 }
@@ -3031,18 +2875,14 @@ static string add_st_string = "Add 'See Through' feature";
         //
         #region Checking
 
-        public override void AssignNewShaderToMaterial(Material material, Shader oldShader, Shader newShader)
-        {
+        public override void AssignNewShaderToMaterial(Material material, Shader oldShader, Shader newShader) {
             base.AssignNewShaderToMaterial(material, oldShader, newShader);
 
-            if (oldShader.name != "Universal Render Pipeline/RealToon/Version 5/Default/Default")
-            {
+            if (oldShader.name != "Universal Render Pipeline/RealToon/Version 5/Default/Default") {
 
-                if (oldShader.name == "HDRP/RealToon/Version 5/Default")
-                {
+                if (oldShader.name == "HDRP/RealToon/Version 5/Default") {
                     material.SetFloat("_MaiColPo", material.GetFloat("_MaiColPo") + 0.65f);
                 }
-
             }
 
             CheckingPropKeyWord(material);
@@ -3050,21 +2890,16 @@ static string add_st_string = "Add 'See Through' feature";
 
         #region CheckingPropKeyWord
 
-        void CheckingPropKeyWord(Material material)
-        {
+        private void CheckingPropKeyWord(Material material) {
 
-            if (material.IsKeywordEnabled("N_F_TRANS_ON") || material.GetFloat("_TRANSMODE") == 1.0f)
-            {
+            if (material.IsKeywordEnabled("N_F_TRANS_ON") || material.GetFloat("_TRANSMODE") == 1.0f) {
 
-                if (material.IsKeywordEnabled("N_F_CO_ON") || material.GetFloat("_N_F_CO") == 1.0f)
-                {
+                if (material.IsKeywordEnabled("N_F_CO_ON") || material.GetFloat("_N_F_CO") == 1.0f) {
 
                     material.renderQueue = 2450;
                     material.SetOverrideTag("RenderType", "TransparentCutout");
 
-                }
-                else if (material.IsKeywordEnabled("N_F_TRANS_ON") || material.GetFloat("_TRANSMODE") == 1.0f)
-                {
+                } else if (material.IsKeywordEnabled("N_F_TRANS_ON") || material.GetFloat("_TRANSMODE") == 1.0f) {
                     material.renderQueue = 3000;
 
                     material.EnableKeyword("N_F_TRANS_ON");
@@ -3073,463 +2908,341 @@ static string add_st_string = "Add 'See Through' feature";
                 }
 
                 shader_type = "Transparency";
-            }
-            else if (!material.IsKeywordEnabled("N_F_TRANS_ON") || material.GetFloat("_TRANSMODE") == 0.0f)
-            {
+            } else if (!material.IsKeywordEnabled("N_F_TRANS_ON") || material.GetFloat("_TRANSMODE") == 0.0f) {
                 material.DisableKeyword("N_F_TRANS_ON");
                 material.SetFloat("_TRANSMODE", 0.0f);
 
                 shader_type = "Default";
             }
 
-            if ((material.IsKeywordEnabled("N_F_TRANSAFFSHA") || material.GetFloat("_TransAffSha") == 1.0f))
-            {
+            if (material.IsKeywordEnabled("N_F_TRANSAFFSHA") || material.GetFloat("_TransAffSha") == 1.0f) {
                 material.EnableKeyword("N_F_TRANSAFFSHA");
                 material.SetFloat("_TransAffSha", 1.0f);
-            }
-            else if ((!material.IsKeywordEnabled("N_F_TRANSAFFSHA") || material.GetFloat("_TransAffSha") == 0.0f))
-            {
+            } else if (!material.IsKeywordEnabled("N_F_TRANSAFFSHA") || material.GetFloat("_TransAffSha") == 0.0f) {
                 material.DisableKeyword("N_F_TRANSAFFSHA");
                 material.SetFloat("_TransAffSha", 0.0f);
             }
 
-            if ((material.IsKeywordEnabled("N_F_ATC_ON") || material.GetFloat("_AlpToCov") == 1.0f))
-            {
+            if (material.IsKeywordEnabled("N_F_ATC_ON") || material.GetFloat("_AlpToCov") == 1.0f) {
                 material.EnableKeyword("N_F_ATC_ON");
                 material.SetFloat("_AlpToCov", 1.0f);
-            }
-            else if ((!material.IsKeywordEnabled("N_F_ATC_ON") || material.GetFloat("_AlpToCov") == 0.0f))
-            {
+            } else if (!material.IsKeywordEnabled("N_F_ATC_ON") || material.GetFloat("_AlpToCov") == 0.0f) {
                 material.DisableKeyword("N_F_ATC_ON");
                 material.SetFloat("_AlpToCov", 0.0f);
             }
 
-            if ((material.IsKeywordEnabled("N_F_OFLMB_ON") || material.GetFloat("_N_F_OFLMB") == 1.0f))
-            {
+            if (material.IsKeywordEnabled("N_F_OFLMB_ON") || material.GetFloat("_N_F_OFLMB") == 1.0f) {
                 material.EnableKeyword("N_F_OFLMB_ON");
                 material.SetFloat("_N_F_OFLMB", 1.0f);
-            }
-            else if ((!material.IsKeywordEnabled("N_F_OFLMB_ON") || material.GetFloat("_N_F_OFLMB") == 0.0f))
-            {
+            } else if (!material.IsKeywordEnabled("N_F_OFLMB_ON") || material.GetFloat("_N_F_OFLMB") == 0.0f) {
                 material.DisableKeyword("N_F_OFLMB_ON");
                 material.SetFloat("_N_F_OFLMB", 0.0f);
             }
 
-            if ((material.IsKeywordEnabled("N_F_SIMTRANS_ON") || material.GetFloat("_SimTrans") == 1.0f))
-            {
+            if (material.IsKeywordEnabled("N_F_SIMTRANS_ON") || material.GetFloat("_SimTrans") == 1.0f) {
                 material.EnableKeyword("N_F_SIMTRANS_ON");
                 material.SetFloat("_SimTrans", 1.0f);
-            }
-            else if ((!material.IsKeywordEnabled("N_F_SIMTRANS_ON") || material.GetFloat("_SimTrans") == 0.0f))
-            {
+            } else if (!material.IsKeywordEnabled("N_F_SIMTRANS_ON") || material.GetFloat("_SimTrans") == 0.0f) {
                 material.DisableKeyword("N_F_SIMTRANS_ON");
                 material.SetFloat("_SimTrans", 0.0f);
             }
 
-            if ((material.IsKeywordEnabled("N_F_DDMD_ON") || material.GetFloat("_N_F_DDMD") == 1.0f))
-            {
+            if (material.IsKeywordEnabled("N_F_DDMD_ON") || material.GetFloat("_N_F_DDMD") == 1.0f) {
                 material.EnableKeyword("N_F_DDMD_ON");
                 material.SetFloat("_N_F_DDMD", 1.0f);
-            }
-            else if ((!material.IsKeywordEnabled("N_F_DDMD_ON") || material.GetFloat("_N_F_DDMD") == 0.0f))
-            {
+            } else if (!material.IsKeywordEnabled("N_F_DDMD_ON") || material.GetFloat("_N_F_DDMD") == 0.0f) {
                 material.DisableKeyword("N_F_DDMD_ON");
                 material.SetFloat("_N_F_DDMD", 0.0f);
             }
 
             //======================================================================================================
 
-            if ((material.IsKeywordEnabled("N_F_DNO_ON") || material.GetFloat("_DynamicNoisyOutline") == 1.0f))
-            {
+            if (material.IsKeywordEnabled("N_F_DNO_ON") || material.GetFloat("_DynamicNoisyOutline") == 1.0f) {
                 material.EnableKeyword("N_F_DNO_ON");
                 material.SetFloat("_DynamicNoisyOutline", 1.0f);
-            }
-            else if ((!material.IsKeywordEnabled("N_F_DNO_ON") || material.GetFloat("_DynamicNoisyOutline") == 0.0f))
-            {
+            } else if (!material.IsKeywordEnabled("N_F_DNO_ON") || material.GetFloat("_DynamicNoisyOutline") == 0.0f) {
                 material.DisableKeyword("N_F_DNO_ON");
                 material.SetFloat("_DynamicNoisyOutline", 0.0f);
             }
 
             //======================================================================================================
 
-            if ((material.IsKeywordEnabled("N_F_COEDGL_ON") || material.GetFloat("_N_F_COEDGL") == 1.0f))
-            {
+            if (material.IsKeywordEnabled("N_F_COEDGL_ON") || material.GetFloat("_N_F_COEDGL") == 1.0f) {
                 material.EnableKeyword("N_F_COEDGL_ON");
                 material.SetFloat("_N_F_COEDGL", 1.0f);
-            }
-            else if ((!material.IsKeywordEnabled("N_F_COEDGL_ON") || material.GetFloat("_N_F_COEDGL") == 0.0f))
-            {
+            } else if (!material.IsKeywordEnabled("N_F_COEDGL_ON") || material.GetFloat("_N_F_COEDGL") == 0.0f) {
                 material.DisableKeyword("N_F_COEDGL_ON");
                 material.SetFloat("_N_F_COEDGL", 0.0f);
             }
 
-            if ((material.IsKeywordEnabled("N_F_MC_ON") || material.GetFloat("_N_F_MC") == 1.0f))
-            {
+            if (material.IsKeywordEnabled("N_F_MC_ON") || material.GetFloat("_N_F_MC") == 1.0f) {
                 material.EnableKeyword("N_F_MC_ON");
                 material.SetFloat("_N_F_MC", 1.0f);
-            }
-            else if ((!material.IsKeywordEnabled("N_F_MC_ON") || material.GetFloat("_N_F_MC") == 0.0f))
-            {
+            } else if (!material.IsKeywordEnabled("N_F_MC_ON") || material.GetFloat("_N_F_MC") == 0.0f) {
                 material.DisableKeyword("N_F_MC_ON");
                 material.SetFloat("_N_F_MC", 0.0f);
             }
 
-            if ((material.IsKeywordEnabled("N_F_NM_ON") || material.GetFloat("_N_F_NM") == 1.0f))
-            {
+            if (material.IsKeywordEnabled("N_F_NM_ON") || material.GetFloat("_N_F_NM") == 1.0f) {
                 material.EnableKeyword("N_F_NM_ON");
                 material.SetFloat("_N_F_NM", 1.0f);
-            }
-            else if ((!material.IsKeywordEnabled("N_F_NM_ON") || material.GetFloat("_N_F_NM") == 0.0f))
-            {
+            } else if (!material.IsKeywordEnabled("N_F_NM_ON") || material.GetFloat("_N_F_NM") == 0.0f) {
                 material.DisableKeyword("N_F_NM_ON");
                 material.SetFloat("_N_F_NM", 0.0f);
             }
 
-            if ((material.IsKeywordEnabled("N_F_CO_ON") || material.GetFloat("_N_F_CO") == 1.0f))
-            {
+            if (material.IsKeywordEnabled("N_F_CO_ON") || material.GetFloat("_N_F_CO") == 1.0f) {
                 material.EnableKeyword("N_F_CO_ON");
                 material.SetFloat("_N_F_CO", 1.0f);
-            }
-            else if ((!material.IsKeywordEnabled("N_F_CO_ON") || material.GetFloat("_N_F_CO") == 0.0f))
-            {
+            } else if (!material.IsKeywordEnabled("N_F_CO_ON") || material.GetFloat("_N_F_CO") == 0.0f) {
                 material.DisableKeyword("N_F_CO_ON");
                 material.SetFloat("_N_F_CO", 0.0f);
             }
 
-            if ((material.IsKeywordEnabled("N_F_SCO_ON") || material.GetFloat("_N_F_SCO") == 1.0f))
-            {
+            if (material.IsKeywordEnabled("N_F_SCO_ON") || material.GetFloat("_N_F_SCO") == 1.0f) {
                 material.EnableKeyword("N_F_SCO_ON");
                 material.SetFloat("_N_F_SCO", 1.0f);
-            }
-            else if ((!material.IsKeywordEnabled("N_F_SCO_ON") || material.GetFloat("_N_F_SCO") == 0.0f))
-            {
+            } else if (!material.IsKeywordEnabled("N_F_SCO_ON") || material.GetFloat("_N_F_SCO") == 0.0f) {
                 material.DisableKeyword("N_F_SCO_ON");
                 material.SetFloat("_N_F_SCO", 0.0f);
             }
 
-            if ((material.IsKeywordEnabled("N_F_O_ON") || material.GetFloat("_N_F_O") == 1.0f))
-            {
+            if (material.IsKeywordEnabled("N_F_O_ON") || material.GetFloat("_N_F_O") == 1.0f) {
                 material.EnableKeyword("N_F_O_ON");
                 material.SetShaderPassEnabled("SRPDefaultUnlit", true);
                 material.SetFloat("_N_F_O", 1.0f);
-            }
-            else if ((!material.IsKeywordEnabled("N_F_O_ON") || material.GetFloat("_N_F_O") == 0.0f))
-            {
+            } else if (!material.IsKeywordEnabled("N_F_O_ON") || material.GetFloat("_N_F_O") == 0.0f) {
                 material.DisableKeyword("N_F_O_ON");
                 material.SetShaderPassEnabled("SRPDefaultUnlit", false);
                 material.SetFloat("_N_F_O", 0.0f);
             }
 
-            if ((material.IsKeywordEnabled("N_F_CA_ON") || material.GetFloat("_N_F_CA") == 1.0f))
-            {
+            if (material.IsKeywordEnabled("N_F_CA_ON") || material.GetFloat("_N_F_CA") == 1.0f) {
                 material.EnableKeyword("N_F_CA_ON");
                 material.SetFloat("_N_F_CA", 1.0f);
-            }
-            else if ((!material.IsKeywordEnabled("N_F_CA_ON") || material.GetFloat("_N_F_CA") == 0.0f))
-            {
+            } else if (!material.IsKeywordEnabled("N_F_CA_ON") || material.GetFloat("_N_F_CA") == 0.0f) {
                 material.DisableKeyword("N_F_CA_ON");
                 material.SetFloat("_N_F_CA", 0.0f);
             }
 
-            if ((material.IsKeywordEnabled("N_F_SL_ON") || material.GetFloat("_N_F_SL") == 1.0f))
-            {
+            if (material.IsKeywordEnabled("N_F_SL_ON") || material.GetFloat("_N_F_SL") == 1.0f) {
                 material.EnableKeyword("N_F_SL_ON");
                 material.SetFloat("_N_F_SL", 1.0f);
                 material.globalIlluminationFlags = MaterialGlobalIlluminationFlags.BakedEmissive;
-            }
-            else if ((!material.IsKeywordEnabled("N_F_SL_ON") || material.GetFloat("_N_F_SL") == 0.0f))
-            {
+            } else if (!material.IsKeywordEnabled("N_F_SL_ON") || material.GetFloat("_N_F_SL") == 0.0f) {
                 material.DisableKeyword("N_F_SL_ON");
                 material.SetFloat("_N_F_SL", 0.0f);
                 material.globalIlluminationFlags = MaterialGlobalIlluminationFlags.None;
             }
 
-            if ((material.IsKeywordEnabled("N_F_SLMM_ON") || material.GetFloat("_N_F_SLMM") == 1.0f))
-            {
+            if (material.IsKeywordEnabled("N_F_SLMM_ON") || material.GetFloat("_N_F_SLMM") == 1.0f) {
                 material.EnableKeyword("N_F_SLMM_ON");
                 material.SetFloat("_N_F_SLMM", 1.0f);
-            }
-            else if ((!material.IsKeywordEnabled("N_F_SLMM_ON") || material.GetFloat("_N_F_SLMM") == 0.0f))
-            {
+            } else if (!material.IsKeywordEnabled("N_F_SLMM_ON") || material.GetFloat("_N_F_SLMM") == 0.0f) {
                 material.DisableKeyword("N_F_SLMM_ON");
                 material.SetFloat("_N_F_SLMM", 0.0f);
             }
 
-            if ((material.IsKeywordEnabled("N_F_GLO_ON") || material.GetFloat("_N_F_GLO") == 1.0f))
-            {
+            if (material.IsKeywordEnabled("N_F_GLO_ON") || material.GetFloat("_N_F_GLO") == 1.0f) {
                 material.EnableKeyword("N_F_GLO_ON");
                 material.SetFloat("_N_F_GLO", 1.0f);
-            }
-            else if ((!material.IsKeywordEnabled("N_F_GLO_ON") || material.GetFloat("_N_F_GLO") == 0.0f))
-            {
+            } else if (!material.IsKeywordEnabled("N_F_GLO_ON") || material.GetFloat("_N_F_GLO") == 0.0f) {
                 material.DisableKeyword("N_F_GLO_ON");
                 material.SetFloat("_N_F_GLO", 0.0f);
             }
 
-            if ((material.IsKeywordEnabled("N_F_GLOT_ON") || material.GetFloat("_N_F_GLOT") == 1.0f))
-            {
+            if (material.IsKeywordEnabled("N_F_GLOT_ON") || material.GetFloat("_N_F_GLOT") == 1.0f) {
                 material.EnableKeyword("N_F_GLOT_ON");
                 material.SetFloat("_N_F_GLOT", 1.0f);
-            }
-            else if ((!material.IsKeywordEnabled("N_F_GLOT_ON") || material.GetFloat("_N_F_GLOT") == 0.0f))
-            {
+            } else if (!material.IsKeywordEnabled("N_F_GLOT_ON") || material.GetFloat("_N_F_GLOT") == 0.0f) {
                 material.DisableKeyword("N_F_GLOT_ON");
                 material.SetFloat("_N_F_GLOT", 0.0f);
             }
 
-            if ((material.IsKeywordEnabled("N_F_SS_ON") || material.GetFloat("_N_F_SS") == 1.0f))
-            {
+            if (material.IsKeywordEnabled("N_F_SS_ON") || material.GetFloat("_N_F_SS") == 1.0f) {
                 material.EnableKeyword("N_F_SS_ON");
                 material.SetFloat("_N_F_SS", 1.0f);
-            }
-            else if ((!material.IsKeywordEnabled("N_F_SS_ON") || material.GetFloat("_N_F_SS") == 0.0f))
-            {
+            } else if (!material.IsKeywordEnabled("N_F_SS_ON") || material.GetFloat("_N_F_SS") == 0.0f) {
                 material.DisableKeyword("N_F_SS_ON");
                 material.SetFloat("_N_F_SS", 0.0f);
             }
 
-            if ((material.IsKeywordEnabled("N_F_SON_ON") || material.GetFloat("_N_F_SON") == 1.0f))
-            {
+            if (material.IsKeywordEnabled("N_F_SON_ON") || material.GetFloat("_N_F_SON") == 1.0f) {
                 material.EnableKeyword("N_F_SON_ON");
                 material.SetFloat("_N_F_SON", 1.0f);
-            }
-            else if ((!material.IsKeywordEnabled("N_F_SON_ON") || material.GetFloat("_N_F_SON") == 0.0f))
-            {
+            } else if (!material.IsKeywordEnabled("N_F_SON_ON") || material.GetFloat("_N_F_SON") == 0.0f) {
                 material.DisableKeyword("N_F_SON_ON");
                 material.SetFloat("_N_F_SON", 0.0f);
             }
 
-            if ((material.IsKeywordEnabled("N_F_SCT_ON") || material.GetFloat("_N_F_SCT") == 1.0f))
-            {
+            if (material.IsKeywordEnabled("N_F_SCT_ON") || material.GetFloat("_N_F_SCT") == 1.0f) {
                 material.EnableKeyword("N_F_SCT_ON");
                 material.SetFloat("_N_F_SCT", 1.0f);
-            }
-            else if ((!material.IsKeywordEnabled("N_F_SCT_ON") || material.GetFloat("_N_F_SCT") == 0.0f))
-            {
+            } else if (!material.IsKeywordEnabled("N_F_SCT_ON") || material.GetFloat("_N_F_SCT") == 0.0f) {
                 material.DisableKeyword("N_F_SCT_ON");
                 material.SetFloat("_N_F_SCT", 0.0f);
             }
 
-            if ((material.IsKeywordEnabled("N_F_ST_ON") || material.GetFloat("_N_F_ST") == 1.0f))
-            {
+            if (material.IsKeywordEnabled("N_F_ST_ON") || material.GetFloat("_N_F_ST") == 1.0f) {
                 material.EnableKeyword("N_F_ST_ON");
                 material.SetFloat("_N_F_ST", 1.0f);
-            }
-            else if ((!material.IsKeywordEnabled("N_F_ST_ON") || material.GetFloat("_N_F_ST") == 0.0f))
-            {
+            } else if (!material.IsKeywordEnabled("N_F_ST_ON") || material.GetFloat("_N_F_ST") == 0.0f) {
                 material.DisableKeyword("N_F_ST_ON");
                 material.SetFloat("_N_F_ST", 0.0f);
             }
 
-            if ((material.IsKeywordEnabled("N_F_PT_ON") || material.GetFloat("_N_F_PT") == 1.0f))
-            {
+            if (material.IsKeywordEnabled("N_F_PT_ON") || material.GetFloat("_N_F_PT") == 1.0f) {
                 material.EnableKeyword("N_F_PT_ON");
                 material.SetFloat("_N_F_PT", 1.0f);
-            }
-            else if ((!material.IsKeywordEnabled("N_F_PT_ON") || material.GetFloat("_N_F_PT") == 0.0f))
-            {
+            } else if (!material.IsKeywordEnabled("N_F_PT_ON") || material.GetFloat("_N_F_PT") == 0.0f) {
                 material.DisableKeyword("N_F_PT_ON");
                 material.SetFloat("_N_F_PT", 0.0f);
             }
 
-            if ((material.IsKeywordEnabled("N_F_CLD_ON") || material.GetFloat("_N_F_CLD") == 1.0f))
-            {
+            if (material.IsKeywordEnabled("N_F_CLD_ON") || material.GetFloat("_N_F_CLD") == 1.0f) {
                 material.EnableKeyword("N_F_CLD_ON");
                 material.SetFloat("_N_F_CLD", 1.0f);
-            }
-            else if ((!material.IsKeywordEnabled("N_F_CLD_ON") || material.GetFloat("_N_F_CLD") == 0.0f))
-            {
+            } else if (!material.IsKeywordEnabled("N_F_CLD_ON") || material.GetFloat("_N_F_CLD") == 0.0f) {
                 material.DisableKeyword("N_F_CLD_ON");
                 material.SetFloat("_N_F_CLD", 0.0f);
             }
 
-            if ((material.IsKeywordEnabled("N_F_R_ON") || material.GetFloat("_N_F_R") == 1.0f))
-            {
+            if (material.IsKeywordEnabled("N_F_R_ON") || material.GetFloat("_N_F_R") == 1.0f) {
                 material.EnableKeyword("N_F_R_ON");
                 material.SetFloat("_N_F_R", 1.0f);
-            }
-            else if ((!material.IsKeywordEnabled("N_F_R_ON") || material.GetFloat("_N_F_R") == 0.0f))
-            {
+            } else if (!material.IsKeywordEnabled("N_F_R_ON") || material.GetFloat("_N_F_R") == 0.0f) {
                 material.DisableKeyword("N_F_R_ON");
                 material.SetFloat("_N_F_R", 0.0f);
             }
 
-            if ((material.IsKeywordEnabled("N_F_FR_ON") || material.GetFloat("_N_F_FR") == 1.0f))
-            {
+            if (material.IsKeywordEnabled("N_F_FR_ON") || material.GetFloat("_N_F_FR") == 1.0f) {
                 material.EnableKeyword("N_F_FR_ON");
                 material.SetFloat("_N_F_FR", 1.0f);
-            }
-            else if ((!material.IsKeywordEnabled("N_F_FR_ON") || material.GetFloat("_N_F_FR") == 0.0f))
-            {
+            } else if (!material.IsKeywordEnabled("N_F_FR_ON") || material.GetFloat("_N_F_FR") == 0.0f) {
                 material.DisableKeyword("N_F_FR_ON");
                 material.SetFloat("_N_F_FR", 0.0f);
             }
 
-            if ((material.IsKeywordEnabled("N_F_RL_ON") || material.GetFloat("_N_F_RL") == 1.0f))
-            {
+            if (material.IsKeywordEnabled("N_F_RL_ON") || material.GetFloat("_N_F_RL") == 1.0f) {
                 material.EnableKeyword("N_F_RL_ON");
                 material.SetFloat("_N_F_RL", 1.0f);
-            }
-            else if ((!material.IsKeywordEnabled("N_F_RL_ON") || material.GetFloat("_N_F_RL") == 0.0f))
-            {
+            } else if (!material.IsKeywordEnabled("N_F_RL_ON") || material.GetFloat("_N_F_RL") == 0.0f) {
                 material.DisableKeyword("N_F_RL_ON");
                 material.SetFloat("_N_F_RL", 0.0f);
             }
 
-            if ((material.IsKeywordEnabled("N_F_NFD_ON") || material.GetFloat("_N_F_NFD") == 1.0f))
-            {
+            if (material.IsKeywordEnabled("N_F_NFD_ON") || material.GetFloat("_N_F_NFD") == 1.0f) {
                 material.EnableKeyword("N_F_NFD_ON");
                 material.SetFloat("_N_F_NFD", 1.0f);
-            }
-            else if ((!material.IsKeywordEnabled("N_F_NFD_ON") || material.GetFloat("_N_F_NFD") == 0.0f))
-            {
+            } else if (!material.IsKeywordEnabled("N_F_NFD_ON") || material.GetFloat("_N_F_NFD") == 0.0f) {
                 material.DisableKeyword("N_F_NFD_ON");
                 material.SetFloat("_N_F_NFD", 0.0f);
             }
 
-            if ((material.IsKeywordEnabled("N_F_TP_ON") || material.GetFloat("_N_F_TP") == 1.0f))
-            {
+            if (material.IsKeywordEnabled("N_F_TP_ON") || material.GetFloat("_N_F_TP") == 1.0f) {
                 material.EnableKeyword("N_F_TP_ON");
                 material.SetFloat("_N_F_TP", 1.0f);
-            }
-            else if ((!material.IsKeywordEnabled("N_F_TP_ON") || material.GetFloat("_N_F_TP") == 0.0f))
-            {
+            } else if (!material.IsKeywordEnabled("N_F_TP_ON") || material.GetFloat("_N_F_TP") == 0.0f) {
                 material.DisableKeyword("N_F_TP_ON");
                 material.SetFloat("_N_F_TP", 0.0f);
             }
 
-            if ((material.IsKeywordEnabled("N_F_STSDFM_ON") || material.GetFloat("_N_F_STSDFM") == 1.0f))
-            {
+            if (material.IsKeywordEnabled("N_F_STSDFM_ON") || material.GetFloat("_N_F_STSDFM") == 1.0f) {
                 material.EnableKeyword("N_F_STSDFM_ON");
                 material.SetFloat("_N_F_STSDFM", 1.0f);
-            }
-            else if ((!material.IsKeywordEnabled("N_F_STSDFM_ON") || material.GetFloat("_N_F_STSDFM") == 0.0f))
-            {
+            } else if (!material.IsKeywordEnabled("N_F_STSDFM_ON") || material.GetFloat("_N_F_STSDFM") == 0.0f) {
                 material.DisableKeyword("N_F_STSDFM_ON");
                 material.SetFloat("_N_F_STSDFM", 0.0f);
             }
 
             //======================================================================================================
 
-            if ((material.IsKeywordEnabled("N_F_ANIS_ON") || material.GetFloat("_N_F_ANIS") == 1.0f))
-            {
+            if (material.IsKeywordEnabled("N_F_ANIS_ON") || material.GetFloat("_N_F_ANIS") == 1.0f) {
                 material.EnableKeyword("N_F_ANIS_ON");
                 material.SetFloat("_N_F_ANIS", 1.0f);
-            }
-            else if ((!material.IsKeywordEnabled("N_F_ANIS_ON") || material.GetFloat("_N_F_ANIS") == 0.0f))
-            {
+            } else if (!material.IsKeywordEnabled("N_F_ANIS_ON") || material.GetFloat("_N_F_ANIS") == 0.0f) {
                 material.DisableKeyword("N_F_ANIS_ON");
                 material.SetFloat("_N_F_ANIS", 0.0f);
             }
 
-            if ((material.IsKeywordEnabled("N_F_ESSAO_ON") || material.GetFloat("_N_F_ESSAO") == 1.0f))
-            {
+            if (material.IsKeywordEnabled("N_F_ESSAO_ON") || material.GetFloat("_N_F_ESSAO") == 1.0f) {
                 material.EnableKeyword("N_F_ESSAO_ON");
                 material.SetFloat("_N_F_ESSAO", 1.0f);
-            }
-            else if ((!material.IsKeywordEnabled("N_F_ESSAO_ON") || material.GetFloat("_N_F_ESSAO") == 0.0f))
-            {
+            } else if (!material.IsKeywordEnabled("N_F_ESSAO_ON") || material.GetFloat("_N_F_ESSAO") == 0.0f) {
                 material.DisableKeyword("N_F_ESSAO_ON");
                 material.SetFloat("_N_F_ESSAO", 0.0f);
             }
 
-            if ((material.IsKeywordEnabled("N_F_RELGI_ON") || material.GetFloat("_RELG") == 1.0f))
-            {
+            if (material.IsKeywordEnabled("N_F_RELGI_ON") || material.GetFloat("_RELG") == 1.0f) {
                 material.EnableKeyword("N_F_RELGI_ON");
                 material.SetFloat("_RELG", 1.0f);
-            }
-            else if ((!material.IsKeywordEnabled("N_F_RELGI_ON") || material.GetFloat("_RELG") == 0.0f))
-            {
+            } else if (!material.IsKeywordEnabled("N_F_RELGI_ON") || material.GetFloat("_RELG") == 0.0f) {
                 material.DisableKeyword("N_F_RELGI_ON");
                 material.SetFloat("_RELG", 0.0f);
             }
 
-            if ((material.IsKeywordEnabled("N_F_USETLB_ON") || material.GetFloat("_UseTLB") == 1.0f))
-            {
+            if (material.IsKeywordEnabled("N_F_USETLB_ON") || material.GetFloat("_UseTLB") == 1.0f) {
                 material.EnableKeyword("N_F_USETLB_ON");
                 material.SetFloat("_UseTLB", 1.0f);
-            }
-            else if ((!material.IsKeywordEnabled("N_F_USETLB_ON") || material.GetFloat("_UseTLB") == 0.0f))
-            {
+            } else if (!material.IsKeywordEnabled("N_F_USETLB_ON") || material.GetFloat("_UseTLB") == 0.0f) {
                 material.DisableKeyword("N_F_USETLB_ON");
                 material.SetFloat("_UseTLB", 0.0f);
             }
 
-            if ((material.IsKeywordEnabled("N_F_EAL_ON") || material.GetFloat("_N_F_EAL") == 1.0f))
-            {
+            if (material.IsKeywordEnabled("N_F_EAL_ON") || material.GetFloat("_N_F_EAL") == 1.0f) {
                 material.EnableKeyword("N_F_EAL_ON");
                 material.SetFloat("_N_F_EAL", 1.0f);
-            }
-            else if ((!material.IsKeywordEnabled("N_F_EAL_ON") || material.GetFloat("_N_F_EAL") == 0.0f))
-            {
+            } else if (!material.IsKeywordEnabled("N_F_EAL_ON") || material.GetFloat("_N_F_EAL") == 0.0f) {
                 material.DisableKeyword("N_F_EAL_ON");
                 material.SetFloat("_N_F_EAL", 0.0f);
             }
 
-            if ((material.IsKeywordEnabled("N_F_LLI_ON") || material.GetFloat("_N_F_LLI") == 1.0f))
-            {
+            if (material.IsKeywordEnabled("N_F_LLI_ON") || material.GetFloat("_N_F_LLI") == 1.0f) {
                 material.EnableKeyword("N_F_LLI_ON");
                 material.SetFloat("_N_F_LLI", 1.0f);
-            }
-            else if ((!material.IsKeywordEnabled("N_F_LLI_ON") || material.GetFloat("_N_F_LLI") == 0.0f))
-            {
+            } else if (!material.IsKeywordEnabled("N_F_LLI_ON") || material.GetFloat("_N_F_LLI") == 0.0f) {
                 material.DisableKeyword("N_F_LLI_ON");
                 material.SetFloat("_N_F_LLI", 0.0f);
             }
 
-            if ((material.IsKeywordEnabled("N_F_HDLS_ON") || material.GetFloat("_N_F_HDLS") == 1.0f))
-            {
+            if (material.IsKeywordEnabled("N_F_HDLS_ON") || material.GetFloat("_N_F_HDLS") == 1.0f) {
                 material.EnableKeyword("N_F_HDLS_ON");
                 material.SetFloat("_N_F_HDLS", 1.0f);
-            }
-            else if ((!material.IsKeywordEnabled("N_F_HDLS_ON") || material.GetFloat("_N_F_HDLS") == 0.0f))
-            {
+            } else if (!material.IsKeywordEnabled("N_F_HDLS_ON") || material.GetFloat("_N_F_HDLS") == 0.0f) {
                 material.DisableKeyword("N_F_HDLS_ON");
                 material.SetFloat("_N_F_HDLS", 0.0f);
             }
 
-            if ((material.IsKeywordEnabled("N_F_HPSS_ON") || material.GetFloat("_N_F_HPSS") == 1.0f))
-            {
+            if (material.IsKeywordEnabled("N_F_HPSS_ON") || material.GetFloat("_N_F_HPSS") == 1.0f) {
                 material.EnableKeyword("N_F_HPSS_ON");
                 material.SetFloat("_N_F_HPSS", 1.0f);
-            }
-            else if ((!material.IsKeywordEnabled("N_F_HPSS_ON") || material.GetFloat("_N_F_HPSS") == 0.0f))
-            {
+            } else if (!material.IsKeywordEnabled("N_F_HPSS_ON") || material.GetFloat("_N_F_HPSS") == 0.0f) {
                 material.DisableKeyword("N_F_HPSS_ON");
                 material.SetFloat("_N_F_HPSS", 0.0f);
             }
 
-            if ((material.IsKeywordEnabled("N_F_DCS_ON") || material.GetFloat("_N_F_DCS") == 1.0f))
-            {
+            if (material.IsKeywordEnabled("N_F_DCS_ON") || material.GetFloat("_N_F_DCS") == 1.0f) {
                 material.EnableKeyword("N_F_DCS_ON");
                 material.SetShaderPassEnabled("ShadowCaster", false);
                 material.SetFloat("_N_F_DCS", 1.0f);
-            }
-            else if ((!material.IsKeywordEnabled("N_F_DCS_ON") || material.GetFloat("_N_F_DCS") == 0.0f))
-            {
+            } else if (!material.IsKeywordEnabled("N_F_DCS_ON") || material.GetFloat("_N_F_DCS") == 0.0f) {
                 material.DisableKeyword("N_F_DCS_ON");
                 material.SetShaderPassEnabled("ShadowCaster", true);
                 material.SetFloat("_N_F_DCS", 0.0f);
             }
 
-            if ((material.IsKeywordEnabled("N_F_RDC_ON") || material.GetFloat("_N_F_RDC") == 1.0f))
-            {
+            if (material.IsKeywordEnabled("N_F_RDC_ON") || material.GetFloat("_N_F_RDC") == 1.0f) {
                 material.EnableKeyword("N_F_RDC_ON");
                 material.SetFloat("_N_F_RDC", 1.0f);
-            }
-            else if ((!material.IsKeywordEnabled("N_F_RDC_ON") || material.GetFloat("_N_F_RDC") == 0.0f))
-            {
+            } else if (!material.IsKeywordEnabled("N_F_RDC_ON") || material.GetFloat("_N_F_RDC") == 0.0f) {
                 material.DisableKeyword("N_F_RDC_ON");
                 material.SetFloat("_N_F_RDC", 0.0f);
             }
 
-            if ((material.IsKeywordEnabled("N_F_NLASOBF_ON") || material.GetFloat("_N_F_NLASOBF") == 1.0f))
-            {
+            if (material.IsKeywordEnabled("N_F_NLASOBF_ON") || material.GetFloat("_N_F_NLASOBF") == 1.0f) {
                 material.EnableKeyword("_N_F_NLASOBF");
                 material.SetFloat("_N_F_NLASOBF", 1.0f);
-            }
-            else if ((!material.IsKeywordEnabled("N_F_NLASOBF_ON") || material.GetFloat("_N_F_NLASOBF") == 0.0f))
-            {
+            } else if (!material.IsKeywordEnabled("N_F_NLASOBF_ON") || material.GetFloat("_N_F_NLASOBF") == 0.0f) {
                 material.DisableKeyword("N_F_NLASOBF_ON");
                 material.SetFloat("_N_F_NLASOBF", 0.0f);
             }
@@ -3541,51 +3254,36 @@ static string add_st_string = "Add 'See Through' feature";
         #endregion
 
         #region ChanLi
-        static void ChanLi(string searchTXT, string TXTChange, string fileName)
-        {
+        private static void ChanLi(string searchTXT, string TXTChange, string fileName) {
 
-            if (System.IO.File.Exists(fileName))
-            {
-                string[] arrLine = System.IO.File.ReadAllLines(fileName);
+            if (System.IO.File.Exists(fileName)) {
+                var arrLine = System.IO.File.ReadAllLines(fileName);
 
-                for (int i = 0; i < arrLine.Length; ++i)
-                {
-                    if (arrLine[i] == searchTXT)
-                    {
+                for (var i = 0; i < arrLine.Length; ++i) {
+                    if (arrLine[i] == searchTXT) {
                         arrLine[i] = TXTChange;
                         System.IO.File.WriteAllLines(fileName, arrLine);
                         break;
                     }
                 }
-
-            }
-            else
-            {
+            } else {
                 Debug.Log("Can't enable do 'Use Screen Space Outline' or 'Use Traditional Outline' because '" + fileName + "' Does not exist or file not found.");
             }
-
         }
         #endregion
 
         #region ReaLi
-        static bool ReaLi(string searchTXT, string fileName)
-        {
+        private static bool ReaLi(string searchTXT, string fileName) {
 
-            if (System.IO.File.Exists(fileName))
-            {
-                string[] arrLine = System.IO.File.ReadAllLines(fileName);
+            if (System.IO.File.Exists(fileName)) {
+                var arrLine = System.IO.File.ReadAllLines(fileName);
 
-                for (int i = 0; i < arrLine.Length; ++i)
-                {
-                    if (arrLine[i] == searchTXT)
-                    {
+                for (var i = 0; i < arrLine.Length; ++i) {
+                    if (arrLine[i] == searchTXT) {
                         return true;
                     }
                 }
-
-            }
-            else
-            {
+            } else {
                 Debug.Log("Can't read a line because '" + fileName + "' Does not exist or file not found.");
             }
 
@@ -3596,15 +3294,11 @@ static string add_st_string = "Add 'See Through' feature";
         #endregion
 
         #region Check_RE_OL
-        void Check_RE_OL()
-        {
-            if (ReaLi("//OL_RE", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader"))
-            {
+        private void Check_RE_OL() {
+            if (ReaLi("//OL_RE", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader")) {
                 remoout = true;
                 REMO_OUTL();
-            }
-            else
-            {
+            } else {
                 remoout = false;
                 REMO_OUTL();
             }
@@ -3612,10 +3306,8 @@ static string add_st_string = "Add 'See Through' feature";
         #endregion
 
         #region REMO_OUTL
-        void REMO_OUTL()
-        {
-            if (remoout == true)
-            {
+        private void REMO_OUTL() {
+            if (remoout == true) {
                 ChanLi("Tags{" + (char)34 + "LightMode" + (char)34 + "=" + (char)34 + "SRPDefaultUnlit" + (char)34 + "}", "Tags{" + (char)34 + "LightMode" + (char)34 + "=" + (char)34 + "remove" + (char)34 + "}", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
                 ChanLi("Cull [_DoubleSidedOutline]//OL_RCUL", "//Cull [_DoubleSidedOutline]//OL_RCUL", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
 
@@ -3647,9 +3339,7 @@ static string add_st_string = "Add 'See Through' feature";
                 AssetDatabase.ImportAsset("Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
                 AssetDatabase.ImportAsset("Assets/RealToon/Editor/RealToonShaderGUI_URP_SRP.cs");
                 Debug.Log("Outline feature removed on RealToon URP shader.");
-            }
-            else if (remoout == false)
-            {
+            } else if (remoout == false) {
                 ChanLi("Tags{" + (char)34 + "LightMode" + (char)34 + "=" + (char)34 + "remove" + (char)34 + "}", "Tags{" + (char)34 + "LightMode" + (char)34 + "=" + (char)34 + "SRPDefaultUnlit" + (char)34 + "}", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
                 ChanLi("//Cull [_DoubleSidedOutline]//OL_RCUL", "Cull [_DoubleSidedOutline]//OL_RCUL", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
 
@@ -3671,15 +3361,11 @@ static string add_st_string = "Add 'See Through' feature";
         #endregion
 
         #region Check_SSOL_TOL
-        void Check_SSOL_TOL()
-        {
-            if (ReaLi("//SSOL_U", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader"))
-            {
+        private void Check_SSOL_TOL() {
+            if (ReaLi("//SSOL_U", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader")) {
                 UseSSOL = true;
                 USSOL_OR_TOL();
-            }
-            else
-            {
+            } else {
                 UseSSOL = false;
                 USSOL_OR_TOL();
             }
@@ -3687,10 +3373,8 @@ static string add_st_string = "Add 'See Through' feature";
         #endregion
 
         #region USSOL_OR_TOL
-        void USSOL_OR_TOL()
-        {
-            if (UseSSOL == true)
-            {
+        private void USSOL_OR_TOL() {
+            if (UseSSOL == true) {
                 ChanLi("Tags{" + (char)34 + "LightMode" + (char)34 + "=" + (char)34 + "SRPDefaultUnlit" + (char)34 + "}", "Tags{" + (char)34 + "LightMode" + (char)34 + "=" + (char)34 + "remove" + (char)34 + "}", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
                 ChanLi("Cull [_DoubleSidedOutline]//OL_RCUL", "//Cull [_DoubleSidedOutline]//OL_RCUL", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
 
@@ -3721,9 +3405,7 @@ static string add_st_string = "Add 'See Through' feature";
                 AssetDatabase.ImportAsset("Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
                 AssetDatabase.ImportAsset("Assets/RealToon/Editor/RealToonShaderGUI_URP_SRP.cs");
                 Debug.Log("Screen Space Outline is now use.");
-            }
-            else if (UseSSOL == false)
-            {
+            } else if (UseSSOL == false) {
                 ChanLi("Tags{" + (char)34 + "LightMode" + (char)34 + "=" + (char)34 + "remove" + (char)34 + "}", "Tags{" + (char)34 + "LightMode" + (char)34 + "=" + (char)34 + "SRPDefaultUnlit" + (char)34 + "}", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
                 ChanLi("//Cull [_DoubleSidedOutline]//OL_RCUL", "Cull [_DoubleSidedOutline]//OL_RCUL", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
 
@@ -3759,10 +3441,8 @@ static string add_st_string = "Add 'See Through' feature";
         #endregion
 
         #region TWOFORFIVE
-        void TWOFORFIVE()
-        {
-            if (twofourfive_target == false)
-            {
+        private void TWOFORFIVE() {
+            if (twofourfive_target == false) {
                 ChanLi("static bool twofourfive_target = false;", "static bool twofourfive_target = true;", "Assets/RealToon/Editor/RealToonShaderGUI_URP_SRP.cs");
                 ChanLi("static string twofourfive_target_string = " + (char)34 + "Change shader compilation target to 4.5" + (char)34 + ";", "static string twofourfive_target_string = " + (char)34 + "Change shader compilation target to 2.0" + (char)34 + ";", "Assets/RealToon/Editor/RealToonShaderGUI_URP_SRP.cs");
 
@@ -3776,9 +3456,7 @@ static string add_st_string = "Add 'See Through' feature";
                 AssetDatabase.ImportAsset("Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
                 AssetDatabase.ImportAsset("Assets/RealToon/Editor/RealToonShaderGUI_URP_SRP.cs");
                 Debug.LogWarning("RealToon shader compilation target has been changed to 4.5, added support for DOTS and Tessellation.");
-            }
-            else if (twofourfive_target == true)
-            {
+            } else if (twofourfive_target == true) {
                 ChanLi("static bool twofourfive_target = true;", "static bool twofourfive_target = false;", "Assets/RealToon/Editor/RealToonShaderGUI_URP_SRP.cs");
                 ChanLi("static string twofourfive_target_string = " + (char)34 + "Change shader compilation target to 2.0" + (char)34 + ";", "static string twofourfive_target_string = " + (char)34 + "Change shader compilation target to 4.5" + (char)34 + ";", "Assets/RealToon/Editor/RealToonShaderGUI_URP_SRP.cs");
 
@@ -3798,75 +3476,62 @@ static string add_st_string = "Add 'See Through' feature";
 
         #region  DOTSLBSCD
 
-        void DOTSLBSCD()
-        {
-            if (dots_lbs_cd == false)
-            {
+        private void DOTSLBSCD() {
+            if (dots_lbs_cd == false) {
 
-            ChanLi("static bool dots_lbs_cd = false;", "static bool dots_lbs_cd = true;", "Assets/RealToon/Editor/RealToonShaderGUI_URP_SRP.cs");
-            ChanLi("static string dots_lbs_cd_string = " + (char)34 + "DOTS|HR - Use Compute Deformation" + (char)34 + ";", "static string dots_lbs_cd_string = " + (char)34 + "DOTS|HR - Use Linear Blend Skinning" + (char)34 + ";", "Assets/RealToon/Editor/RealToonShaderGUI_URP_SRP.cs");
+                ChanLi("static bool dots_lbs_cd = false;", "static bool dots_lbs_cd = true;", "Assets/RealToon/Editor/RealToonShaderGUI_URP_SRP.cs");
+                ChanLi("static string dots_lbs_cd_string = " + (char)34 + "DOTS|HR - Use Compute Deformation" + (char)34 + ";", "static string dots_lbs_cd_string = " + (char)34 + "DOTS|HR - Use Linear Blend Skinning" + (char)34 + ";", "Assets/RealToon/Editor/RealToonShaderGUI_URP_SRP.cs");
 
+                ChanLi("float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_OL", "//float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_OL", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
+                ChanLi("uint4 indices : BLENDINDICES;//DOTS_LiBleSki_OL", "//uint4 indices : BLENDINDICES;//DOTS_LiBleSki_OL", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
+                ChanLi("//uint vertexID : SV_VertexID;//DOTS_CompDef_OL", "uint vertexID : SV_VertexID;//DOTS_CompDef_OL", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
+                ChanLi("//DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_OL", "DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_OL", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
+                ChanLi("DOTS_LiBleSki(input.indices, input.weights, input.positionOS.xyz, input.normalOS.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_OL", "//DOTS_LiBleSki(input.indices, input.weights, input.positionOS.xyz, input.normalOS.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_OL", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
 
-            ChanLi("float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_OL", "//float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_OL", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
-            ChanLi("uint4 indices : BLENDINDICES;//DOTS_LiBleSki_OL", "//uint4 indices : BLENDINDICES;//DOTS_LiBleSki_OL", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
-            ChanLi("//uint vertexID : SV_VertexID;//DOTS_CompDef_OL", "uint vertexID : SV_VertexID;//DOTS_CompDef_OL", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
-            ChanLi("//DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_OL", "DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_OL", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
-            ChanLi("DOTS_LiBleSki(input.indices, input.weights, input.positionOS.xyz, input.normalOS.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_OL", "//DOTS_LiBleSki(input.indices, input.weights, input.positionOS.xyz, input.normalOS.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_OL", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
+                ChanLi("float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_FL", "//float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_FL", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
+                ChanLi("uint4 indices : BLENDINDICES;//DOTS_LiBleSki_FL", "//uint4 indices : BLENDINDICES;//DOTS_LiBleSki_FL", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
+                ChanLi("//uint vertexID : SV_VertexID;//DOTS_CompDef_FL", "uint vertexID : SV_VertexID;//DOTS_CompDef_FL", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
+                ChanLi("//DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_FL", "DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_FL", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
+                ChanLi("DOTS_LiBleSki(input.indices, input.weights, input.positionOS.xyz, input.normalOS.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_FL", "//DOTS_LiBleSki(input.indices, input.weights, input.positionOS.xyz, input.normalOS.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_FL", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
 
+                ChanLi("float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_GB", "//float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_GB", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
+                ChanLi("uint4 indices : BLENDINDICES;//DOTS_LiBleSki_GB", "//uint4 indices : BLENDINDICES;//DOTS_LiBleSki_GB", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
+                ChanLi("//uint vertexID : SV_VertexID;//DOTS_CompDef_GB", "uint vertexID : SV_VertexID;//DOTS_CompDef_GB", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
+                ChanLi("//DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_GB", "DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_GB", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
+                ChanLi("DOTS_LiBleSki(input.indices, input.weights, input.positionOS.xyz, input.normalOS.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_GB", "//DOTS_LiBleSki(input.indices, input.weights, input.positionOS.xyz, input.normalOS.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_GB", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
 
-            ChanLi("float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_FL", "//float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_FL", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
-            ChanLi("uint4 indices : BLENDINDICES;//DOTS_LiBleSki_FL", "//uint4 indices : BLENDINDICES;//DOTS_LiBleSki_FL", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
-            ChanLi("//uint vertexID : SV_VertexID;//DOTS_CompDef_FL", "uint vertexID : SV_VertexID;//DOTS_CompDef_FL", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
-            ChanLi("//DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_FL", "DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_FL", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
-            ChanLi("DOTS_LiBleSki(input.indices, input.weights, input.positionOS.xyz, input.normalOS.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_FL", "//DOTS_LiBleSki(input.indices, input.weights, input.positionOS.xyz, input.normalOS.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_FL", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
+                ChanLi("float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_SC", "//float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_SC", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
+                ChanLi("uint4 indices : BLENDINDICES;//DOTS_LiBleSki_SC", "//uint4 indices : BLENDINDICES;//DOTS_LiBleSki_SC", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
+                ChanLi("//uint vertexID : SV_VertexID;//DOTS_CompDef_SC", "uint vertexID : SV_VertexID;//DOTS_CompDef_SC", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
+                ChanLi("//DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_SC", "DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_SC", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
+                ChanLi("DOTS_LiBleSki(input.indices, input.weights, input.positionOS.xyz, input.normalOS.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_SC", "//DOTS_LiBleSki(input.indices, input.weights, input.positionOS.xyz, input.normalOS.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_SC", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
 
+                ChanLi("float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_DO", "//float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_DO", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
+                ChanLi("uint4 indices : BLENDINDICES;//DOTS_LiBleSki_DO", "//uint4 indices : BLENDINDICES;//DOTS_LiBleSki_DO", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
+                ChanLi("//uint vertexID : SV_VertexID;//DOTS_CompDef_DO", "uint vertexID : SV_VertexID;//DOTS_CompDef_DO", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
+                ChanLi("//DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_DO", "DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_DO", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
+                ChanLi("DOTS_LiBleSki(input.indices, input.weights, input.position.xyz, input.normalOS.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_DO", "//DOTS_LiBleSki(input.indices, input.weights, input.position.xyz, input.normalOS.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_DO", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
 
-            ChanLi("float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_GB", "//float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_GB", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
-            ChanLi("uint4 indices : BLENDINDICES;//DOTS_LiBleSki_GB", "//uint4 indices : BLENDINDICES;//DOTS_LiBleSki_GB", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
-            ChanLi("//uint vertexID : SV_VertexID;//DOTS_CompDef_GB", "uint vertexID : SV_VertexID;//DOTS_CompDef_GB", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
-            ChanLi("//DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_GB", "DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_GB", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
-            ChanLi("DOTS_LiBleSki(input.indices, input.weights, input.positionOS.xyz, input.normalOS.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_GB", "//DOTS_LiBleSki(input.indices, input.weights, input.positionOS.xyz, input.normalOS.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_GB", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
+                ChanLi("float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_DN", "//float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_DN", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
+                ChanLi("uint4 indices : BLENDINDICES;//DOTS_LiBleSki_DN", "//uint4 indices : BLENDINDICES;//DOTS_LiBleSki_DN", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
+                ChanLi("//uint vertexID : SV_VertexID;//DOTS_CompDef_DN", "uint vertexID : SV_VertexID;//DOTS_CompDef_DN", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
+                ChanLi("//DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_DN", "DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_DN", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
+                ChanLi("DOTS_LiBleSki(input.indices, input.weights, input.positionOS.xyz, input.normal.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_DN", "//DOTS_LiBleSki(input.indices, input.weights, input.positionOS.xyz, input.normal.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_DN", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
 
+                ChanLi("float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_MV", "//float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_MV", "Assets/RealToon/RealToon Shaders/RealToon Core/URP/Pass/RT_URP_MoVecPas.hlsl");
+                ChanLi("uint4 indices : BLENDINDICES;//DOTS_LiBleSki_MV", "//uint4 indices : BLENDINDICES;//DOTS_LiBleSki_MV", "Assets/RealToon/RealToon Shaders/RealToon Core/URP/Pass/RT_URP_MoVecPas.hlsl");
+                ChanLi("//uint vertexID : SV_VertexID;//DOTS_CompDef_MV", "uint vertexID : SV_VertexID;//DOTS_CompDef_MV", "Assets/RealToon/RealToon Shaders/RealToon Core/URP/Pass/RT_URP_MoVecPas.hlsl");
+                ChanLi("//DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_MV", "DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_MV", "Assets/RealToon/RealToon Shaders/RealToon Core/URP/Pass/RT_URP_MoVecPas.hlsl");
+                ChanLi("DOTS_LiBleSki(input.indices, input.weights, input.position.xyz, input.normalOS.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_MV", "//DOTS_LiBleSki(input.indices, input.weights, input.position.xyz, input.normalOS.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_MV", "Assets/RealToon/RealToon Shaders/RealToon Core/URP/Pass/RT_URP_MoVecPas.hlsl");
 
-            ChanLi("float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_SC", "//float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_SC", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
-            ChanLi("uint4 indices : BLENDINDICES;//DOTS_LiBleSki_SC", "//uint4 indices : BLENDINDICES;//DOTS_LiBleSki_SC", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
-            ChanLi("//uint vertexID : SV_VertexID;//DOTS_CompDef_SC", "uint vertexID : SV_VertexID;//DOTS_CompDef_SC", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
-            ChanLi("//DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_SC", "DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_SC", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
-            ChanLi("DOTS_LiBleSki(input.indices, input.weights, input.positionOS.xyz, input.normalOS.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_SC", "//DOTS_LiBleSki(input.indices, input.weights, input.positionOS.xyz, input.normalOS.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_SC", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
+                AssetDatabase.ImportAsset("Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
+                AssetDatabase.ImportAsset("Assets/RealToon/RealToon Shaders/RealToon Core/URP/Pass/RT_URP_MoVecPas.hlsl");
+                AssetDatabase.ImportAsset("Assets/RealToon/Editor/RealToonShaderGUI_URP_SRP.cs");
+                Debug.LogWarning("DOTS|HR - Compute Deformation is now use, This will enable you to use BlendShapes and other deformation.");
 
-
-            ChanLi("float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_DO", "//float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_DO", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
-            ChanLi("uint4 indices : BLENDINDICES;//DOTS_LiBleSki_DO", "//uint4 indices : BLENDINDICES;//DOTS_LiBleSki_DO", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
-            ChanLi("//uint vertexID : SV_VertexID;//DOTS_CompDef_DO", "uint vertexID : SV_VertexID;//DOTS_CompDef_DO", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
-            ChanLi("//DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_DO", "DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_DO", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
-            ChanLi("DOTS_LiBleSki(input.indices, input.weights, input.position.xyz, input.normalOS.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_DO", "//DOTS_LiBleSki(input.indices, input.weights, input.position.xyz, input.normalOS.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_DO", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
-
-
-            ChanLi("float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_DN", "//float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_DN", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
-            ChanLi("uint4 indices : BLENDINDICES;//DOTS_LiBleSki_DN", "//uint4 indices : BLENDINDICES;//DOTS_LiBleSki_DN", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
-            ChanLi("//uint vertexID : SV_VertexID;//DOTS_CompDef_DN", "uint vertexID : SV_VertexID;//DOTS_CompDef_DN", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
-            ChanLi("//DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_DN", "DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_DN", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
-            ChanLi("DOTS_LiBleSki(input.indices, input.weights, input.positionOS.xyz, input.normal.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_DN", "//DOTS_LiBleSki(input.indices, input.weights, input.positionOS.xyz, input.normal.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_DN", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
-
-
-            ChanLi("float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_MV", "//float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_MV", "Assets/RealToon/RealToon Shaders/RealToon Core/URP/Pass/RT_URP_MoVecPas.hlsl");
-            ChanLi("uint4 indices : BLENDINDICES;//DOTS_LiBleSki_MV", "//uint4 indices : BLENDINDICES;//DOTS_LiBleSki_MV", "Assets/RealToon/RealToon Shaders/RealToon Core/URP/Pass/RT_URP_MoVecPas.hlsl");
-            ChanLi("//uint vertexID : SV_VertexID;//DOTS_CompDef_MV", "uint vertexID : SV_VertexID;//DOTS_CompDef_MV", "Assets/RealToon/RealToon Shaders/RealToon Core/URP/Pass/RT_URP_MoVecPas.hlsl");
-            ChanLi("//DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_MV", "DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_MV", "Assets/RealToon/RealToon Shaders/RealToon Core/URP/Pass/RT_URP_MoVecPas.hlsl");
-            ChanLi("DOTS_LiBleSki(input.indices, input.weights, input.position.xyz, input.normalOS.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_MV", "//DOTS_LiBleSki(input.indices, input.weights, input.position.xyz, input.normalOS.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_MV", "Assets/RealToon/RealToon Shaders/RealToon Core/URP/Pass/RT_URP_MoVecPas.hlsl");
-
-
-            AssetDatabase.ImportAsset("Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
-            AssetDatabase.ImportAsset("Assets/RealToon/RealToon Shaders/RealToon Core/URP/Pass/RT_URP_MoVecPas.hlsl");
-            AssetDatabase.ImportAsset("Assets/RealToon/Editor/RealToonShaderGUI_URP_SRP.cs");
-            Debug.LogWarning("DOTS|HR - Compute Deformation is now use, This will enable you to use BlendShapes and other deformation.");
-
-            }
-            else if (dots_lbs_cd == true)
-            {
+            } else if (dots_lbs_cd == true) {
                 ChanLi("static bool dots_lbs_cd = true;", "static bool dots_lbs_cd = false;", "Assets/RealToon/Editor/RealToonShaderGUI_URP_SRP.cs");
                 ChanLi("static string dots_lbs_cd_string = " + (char)34 + "DOTS|HR - Use Linear Blend Skinning" + (char)34 + ";", "static string dots_lbs_cd_string = " + (char)34 + "DOTS|HR - Use Compute Deformation" + (char)34 + ";", "Assets/RealToon/Editor/RealToonShaderGUI_URP_SRP.cs");
-
 
                 ChanLi("//float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_OL", "float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_OL", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
                 ChanLi("//uint4 indices : BLENDINDICES;//DOTS_LiBleSki_OL", "uint4 indices : BLENDINDICES;//DOTS_LiBleSki_OL", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
@@ -3874,13 +3539,11 @@ static string add_st_string = "Add 'See Through' feature";
                 ChanLi("DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_OL", "//DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_OL", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
                 ChanLi("//DOTS_LiBleSki(input.indices, input.weights, input.positionOS.xyz, input.normalOS.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_OL", "DOTS_LiBleSki(input.indices, input.weights, input.positionOS.xyz, input.normalOS.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_OL", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
 
-
                 ChanLi("//float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_FL", "float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_FL", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
                 ChanLi("//uint4 indices : BLENDINDICES;//DOTS_LiBleSki_FL", "uint4 indices : BLENDINDICES;//DOTS_LiBleSki_FL", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
                 ChanLi("uint vertexID : SV_VertexID;//DOTS_CompDef_FL", "//uint vertexID : SV_VertexID;//DOTS_CompDef_FL", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
                 ChanLi("DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_FL", "//DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_FL", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
                 ChanLi("//DOTS_LiBleSki(input.indices, input.weights, input.positionOS.xyz, input.normalOS.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_FL", "DOTS_LiBleSki(input.indices, input.weights, input.positionOS.xyz, input.normalOS.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_FL", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
-
 
                 ChanLi("//float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_GB", "float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_GB", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
                 ChanLi("//uint4 indices : BLENDINDICES;//DOTS_LiBleSki_GB", "uint4 indices : BLENDINDICES;//DOTS_LiBleSki_GB", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
@@ -3888,13 +3551,11 @@ static string add_st_string = "Add 'See Through' feature";
                 ChanLi("DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_GB", "//DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_GB", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
                 ChanLi("//DOTS_LiBleSki(input.indices, input.weights, input.positionOS.xyz, input.normalOS.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_GB", "DOTS_LiBleSki(input.indices, input.weights, input.positionOS.xyz, input.normalOS.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_GB", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
 
-
                 ChanLi("//float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_SC", "float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_SC", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
                 ChanLi("//uint4 indices : BLENDINDICES;//DOTS_LiBleSki_SC", "uint4 indices : BLENDINDICES;//DOTS_LiBleSki_SC", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
                 ChanLi("uint vertexID : SV_VertexID;//DOTS_CompDef_SC", "//uint vertexID : SV_VertexID;//DOTS_CompDef_SC", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
                 ChanLi("DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_SC", "//DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_SC", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
                 ChanLi("//DOTS_LiBleSki(input.indices, input.weights, input.positionOS.xyz, input.normalOS.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_SC", "DOTS_LiBleSki(input.indices, input.weights, input.positionOS.xyz, input.normalOS.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_SC", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
-
 
                 ChanLi("//float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_DO", "float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_DO", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
                 ChanLi("//uint4 indices : BLENDINDICES;//DOTS_LiBleSki_DO", "uint4 indices : BLENDINDICES;//DOTS_LiBleSki_DO", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
@@ -3902,20 +3563,17 @@ static string add_st_string = "Add 'See Through' feature";
                 ChanLi("DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_DO", "//DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_DO", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
                 ChanLi("//DOTS_LiBleSki(input.indices, input.weights, input.position.xyz, input.normalOS.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_DO", "DOTS_LiBleSki(input.indices, input.weights, input.position.xyz, input.normalOS.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_DO", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
 
-
                 ChanLi("//float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_DN", "float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_DN", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
                 ChanLi("//uint4 indices : BLENDINDICES;//DOTS_LiBleSki_DN", "uint4 indices : BLENDINDICES;//DOTS_LiBleSki_DN", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
                 ChanLi("uint vertexID : SV_VertexID;//DOTS_CompDef_DN", "//uint vertexID : SV_VertexID;//DOTS_CompDef_DN", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
                 ChanLi("DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_DN", "//DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_DN", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
                 ChanLi("//DOTS_LiBleSki(input.indices, input.weights, input.positionOS.xyz, input.normal.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_DN", "DOTS_LiBleSki(input.indices, input.weights, input.positionOS.xyz, input.normal.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_DN", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
 
-
                 ChanLi("//float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_MV", "float4 weights : BLENDWEIGHTS;//DOTS_LiBleSki_MV", "Assets/RealToon/RealToon Shaders/RealToon Core/URP/Pass/RT_URP_MoVecPas.hlsl");
                 ChanLi("//uint4 indices : BLENDINDICES;//DOTS_LiBleSki_MV", "uint4 indices : BLENDINDICES;//DOTS_LiBleSki_MV", "Assets/RealToon/RealToon Shaders/RealToon Core/URP/Pass/RT_URP_MoVecPas.hlsl");
                 ChanLi("uint vertexID : SV_VertexID;//DOTS_CompDef_MV", "//uint vertexID : SV_VertexID;//DOTS_CompDef_MV", "Assets/RealToon/RealToon Shaders/RealToon Core/URP/Pass/RT_URP_MoVecPas.hlsl");
                 ChanLi("DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_MV", "//DOTS_CompDef(input.vertexID, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_CompDef_MV", "Assets/RealToon/RealToon Shaders/RealToon Core/URP/Pass/RT_URP_MoVecPas.hlsl");
                 ChanLi("//DOTS_LiBleSki(input.indices, input.weights, input.position.xyz, input.normalOS.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_MV", "DOTS_LiBleSki(input.indices, input.weights, input.position.xyz, input.normalOS.xyz, input.tangentOS.xyz, (float3)_LBS_CD_Position, _LBS_CD_Normal, (float3)_LBS_CD_Tangent);//DOTS_LiBleSki_MV", "Assets/RealToon/RealToon Shaders/RealToon Core/URP/Pass/RT_URP_MoVecPas.hlsl");
-
 
                 AssetDatabase.ImportAsset("Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
                 AssetDatabase.ImportAsset("Assets/RealToon/RealToon Shaders/RealToon Core/URP/Pass/RT_URP_MoVecPas.hlsl");
@@ -3927,10 +3585,8 @@ static string add_st_string = "Add 'See Through' feature";
         #endregion
 
         #region ADD_ST
-        void ADD_ST()
-        {
-            if (add_st == true)
-            {
+        private void ADD_ST() {
+            if (add_st == true) {
                 ChanLi("static bool add_st = true;", "static bool add_st = false;", "Assets/RealToon/Editor/RealToonShaderGUI_URP_SRP.cs");
                 ChanLi("static string add_st_string = " + (char)34 + "Add 'See Through' feature" + (char)34 + ";", "static string add_st_string = " + (char)34 + "Remove 'See Through' feature" + (char)34 + ";", "Assets/RealToon/Editor/RealToonShaderGUI_URP_SRP.cs");
 
@@ -3942,9 +3598,7 @@ static string add_st_string = "Add 'See Through' feature";
                 AssetDatabase.ImportAsset("Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
                 AssetDatabase.ImportAsset("Assets/RealToon/Editor/RealToonShaderGUI_URP_SRP.cs");
                 Debug.LogWarning("'See Through feature' has been added.");
-            }
-            else if (add_st == false)
-            {
+            } else if (add_st == false) {
                 ChanLi("static bool add_st = false;", "static bool add_st = true;", "Assets/RealToon/Editor/RealToonShaderGUI_URP_SRP.cs");
                 ChanLi("static string add_st_string = " + (char)34 + "Remove 'See Through' feature" + (char)34 + ";", "static string add_st_string = " + (char)34 + "Add 'See Through' feature" + (char)34 + ";", "Assets/RealToon/Editor/RealToonShaderGUI_URP_SRP.cs");
                 ChanLi("//Pass [_OutStenPass]//O_PI", "Pass [_OutStenPass]//O_PI", "Assets/RealToon/RealToon Shaders/Version 5/URP/Default/D_Default_URP.shader");
@@ -3960,7 +3614,6 @@ static string add_st_string = "Add 'See Through' feature";
         }
         #endregion
     }
-
 }
 
 #endif

@@ -16,12 +16,10 @@ using GetDrawerTypeForTypeDelegate = System.Func<System.Type, bool, System.Type>
 using GetDrawerTypeForTypeDelegate = System.Func<System.Type, System.Type>;
 #endif
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only] A cache of <see cref="PropertyDrawer"/>s mapped to their target type.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/PropertyDrawers
-    public static class PropertyDrawers
-    {
+    public static class PropertyDrawers {
         /************************************************************************************************************************/
 
         private const string
@@ -38,12 +36,12 @@ namespace Animancer.Editor
 
         /************************************************************************************************************************/
 
-        static PropertyDrawers()
-        {
+        static PropertyDrawers() {
             var editorAssembly = typeof(CustomPropertyDrawer).Assembly;
             var scriptAttributeUtility = editorAssembly.GetType(ScriptAttributeUtility);
-            if (scriptAttributeUtility == null)
+            if (scriptAttributeUtility == null) {
                 return;
+            }
 
             var getDrawerTypeForType = scriptAttributeUtility.GetMethod(
                 nameof(GetDrawerTypeForType),
@@ -57,8 +55,9 @@ namespace Animancer.Editor
                 new Type[] { typeof(Type) },
 #endif
                 null);
-            if (getDrawerTypeForType == null)
+            if (getDrawerTypeForType == null) {
                 return;
+            }
 
             GetDrawerTypeForType = (GetDrawerTypeForTypeDelegate)Delegate.CreateDelegate(
                 typeof(GetDrawerTypeForTypeDelegate),
@@ -84,20 +83,18 @@ namespace Animancer.Editor
             Type objectType,
             FieldInfo field,
             Attribute attribute,
-            out PropertyDrawer drawer)
-        {
-            if (GetDrawerTypeForType == null)
-            {
+            out PropertyDrawer drawer) {
+            if (GetDrawerTypeForType == null) {
                 drawer = null;
                 return false;
             }
 
-            if (ObjectTypeToDrawer.TryGetValue(objectType, out drawer))
+            if (ObjectTypeToDrawer.TryGetValue(objectType, out drawer)) {
                 return true;
+            }
 
             Type drawerType;
-            try
-            {
+            try {
 #if UNITY_6000_0_OR_NEWER
                 drawerType = GetDrawerTypeForType(objectType, Type.EmptyTypes, true);
 #elif UNITY_2022_3_OR_NEWER
@@ -105,29 +102,23 @@ namespace Animancer.Editor
 #else
                 drawerType = GetDrawerTypeForType(objectType);
 #endif
-            }
-            catch (Exception exception)
-            {
+            } catch (Exception exception) {
                 Debug.LogException(exception);
                 ObjectTypeToDrawer.Add(objectType, null);
                 return false;
             }
 
-            if (DrawerTypeToInstance.TryGetValue(drawerType, out drawer))
-            {
+            if (DrawerTypeToInstance.TryGetValue(drawerType, out drawer)) {
                 ObjectTypeToDrawer.Add(objectType, drawer);
                 return true;
             }
 
-            try
-            {
+            try {
                 drawer = (PropertyDrawer)Activator.CreateInstance(drawerType);
 
                 FieldField?.SetValue(drawer, field);
                 AttributeField?.SetValue(drawer, attribute);
-            }
-            catch (Exception exception)
-            {
+            } catch (Exception exception) {
                 Debug.LogException(exception);
             }
 
@@ -148,8 +139,7 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Discards any cached <see cref="IDiscardOnSelectionChange"/> drawers.</summary>
-        private static void OnSelectionChanged()
-        {
+        private static void OnSelectionChanged() {
             DiscardOnSelectionChanged(ObjectTypeToDrawer);
             DiscardOnSelectionChanged(DrawerTypeToInstance);
         }
@@ -157,16 +147,18 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Discards any cached <see cref="IDiscardOnSelectionChange"/> drawers.</summary>
-        private static void DiscardOnSelectionChanged(Dictionary<Type, PropertyDrawer> drawers)
-        {
+        private static void DiscardOnSelectionChanged(Dictionary<Type, PropertyDrawer> drawers) {
             var discard = ListPool<Type>.Instance.Acquire();
 
-            foreach (var drawer in drawers)
-                if (drawer.Value is IDiscardOnSelectionChange)
+            foreach (var drawer in drawers) {
+                if (drawer.Value is IDiscardOnSelectionChange) {
                     discard.Add(drawer.Key);
+                }
+            }
 
-            for (int i = discard.Count - 1; i >= 0; i--)
+            for (var i = discard.Count - 1; i >= 0; i--) {
                 drawers.Remove(discard[i]);
+            }
 
             ListPool<Type>.Instance.Release(discard);
         }

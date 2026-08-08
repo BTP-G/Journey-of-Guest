@@ -7,13 +7,11 @@
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>[Assert-Only]
     /// A simple system for caching <see cref="Object.name"/> since it allocates garbage every time it's accessed.
     /// </summary>
-    public static class NameCache
-    {
+    public static class NameCache {
         /************************************************************************************************************************/
 
         private static readonly ConditionalWeakTable<Object, string>
@@ -22,21 +20,19 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Caches and returns the <see cref="Object.name"/>.</summary>
-        public static string GetCachedName(this Object obj)
-        {
+        public static string GetCachedName(this Object obj) {
 #if ANIMANCER_DISABLE_NAME_CACHE
             return obj.name;
 #else
-            if (obj == null)
-            {
-                if (obj is not null)
+            if (obj == null) {
+                if (obj is not null) {
                     ObjectToName.Remove(obj);
+                }
 
                 return null;
             }
 
-            if (!ObjectToName.TryGetValue(obj, out var name))
-            {
+            if (!ObjectToName.TryGetValue(obj, out var name)) {
                 name = obj.name;
                 ObjectToName.Add(obj, name);
             }
@@ -48,28 +44,20 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Tries to get the <see cref="Object.name"/> or <see cref="object.ToString"/>.</summary>
-        public static bool TryToString(object obj, out string name)
-        {
-            if (obj == null)
-            {
+        public static bool TryToString(object obj, out string name) {
+            if (obj == null) {
                 name = null;
                 return false;
             }
 
-            if (obj is Object unityObject)
-            {
-                if (unityObject != null)
-                {
+            if (obj is Object unityObject) {
+                if (unityObject != null) {
                     name = unityObject.GetCachedName();
-                }
-                else
-                {
+                } else {
                     name = null;
                     return false;
                 }
-            }
-            else
-            {
+            } else {
                 name = obj.ToString();
             }
 
@@ -79,14 +67,14 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Clears all cached names so they will be re-gathered when next accessed.</summary>
-        public static void Clear()
-            => ObjectToName.Clear();
+        public static void Clear() {
+            ObjectToName.Clear();
+        }
 
         /************************************************************************************************************************/
 
         /// <summary>Sets the <see cref="Object.name"/> and caches it.</summary>
-        public static void SetName(this Object obj, string name)
-        {
+        public static void SetName(this Object obj, string name) {
             obj.name = name;
             ObjectToName.AddOrUpdate(obj, name);
         }
@@ -95,8 +83,7 @@ namespace Animancer
 #if UNITY_EDITOR
         /************************************************************************************************************************/
 
-        private class Cleaner : UnityEditor.AssetPostprocessor
-        {
+        private class Cleaner : UnityEditor.AssetPostprocessor {
             /************************************************************************************************************************/
 
             private static void OnPostprocessAllAssets(
@@ -104,8 +91,7 @@ namespace Animancer
                 string[] deletedAssets,
                 string[] movedAssets,
                 string[] movedFromAssetPaths,
-                bool didDomainReload)
-            {
+                bool didDomainReload) {
                 Clear();
             }
 

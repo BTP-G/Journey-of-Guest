@@ -1,11 +1,11 @@
-﻿using UnityEditor;
+using UnityEditor;
 using UnityEngine.UIElements;
 
-namespace EditorAttributes.Editor
-{
+namespace EditorAttributes.Editor {
     [CustomPropertyDrawer(typeof(Void))]
-    public class VoidDrawer : PropertyDrawerBase
-    {
-        public override VisualElement CreatePropertyGUI(SerializedProperty property) => new();
+    public class VoidDrawer : PropertyDrawerBase {
+        public override VisualElement CreatePropertyGUI(SerializedProperty property) {
+            return new();
+        }
     }
 }

@@ -1,9 +1,9 @@
-using Xoderony.Movement;
 using EditorAttributes;
 using JoG.Character.InputBanks;
 using JoG.StateMachines;
 using UnityEngine;
 using VContainer;
+using Xoderony.Movement;
 
 namespace JoG.Character.States {
 
@@ -63,5 +63,4 @@ namespace JoG.Character.States {
             return planarInput.sqrMagnitude > _moveDeadZoneSquared ? _moveState : _idleState;
         }
     }
-
 }

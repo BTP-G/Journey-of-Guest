@@ -5,8 +5,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only] [Internal]
     /// A utility for drawing empty [<see cref="SerializeReference"/>] <see cref="IInvokable"/> fields.
     /// </summary>
@@ -16,8 +15,7 @@ namespace Animancer.Editor
     /// the array is compacted to trim any <c>null</c> items from the end. 
     /// </remarks>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/DummyInvokableDrawer
-    internal class DummyInvokableDrawer : ScriptableObject
-    {
+    internal class DummyInvokableDrawer : ScriptableObject {
         /************************************************************************************************************************/
 
         [SerializeReference, Polymorphic]
@@ -28,20 +26,16 @@ namespace Animancer.Editor
         private static SerializedProperty _InvokableProperty;
 
         /// <summary>[Editor-Only] A static dummy <see cref="IInvokable"/>.</summary>
-        private static SerializedProperty InvokableProperty
-        {
-            get
-            {
-                if (_InvokableProperty == null)
-                {
+        private static SerializedProperty InvokableProperty {
+            get {
+                if (_InvokableProperty == null) {
                     var instance = CreateInstance<DummyInvokableDrawer>();
 
                     instance.hideFlags = HideFlags.HideInHierarchy | HideFlags.DontSave;
                     var serializedObject = new SerializedObject(instance);
                     _InvokableProperty = serializedObject.FindProperty(nameof(_Invokable));
 
-                    AssemblyReloadEvents.beforeAssemblyReload += () =>
-                    {
+                    AssemblyReloadEvents.beforeAssemblyReload += () => {
                         serializedObject.Dispose();
                         DestroyImmediate(instance);
                     };
@@ -67,18 +61,19 @@ namespace Animancer.Editor
             ref Rect area,
             GUIContent label,
             SerializedProperty property,
-            out object invokable)
-        {
+            out object invokable) {
             var controlID = GUIUtility.GetControlID(FocusType.Passive);
 
-            if (_LastControlID >= controlID)
+            if (_LastControlID >= controlID) {
                 _PropertyIndex = 0;
+            }
 
             _LastControlID = controlID;
 
             var invokablesProperty = InvokableProperty;
-            if (invokablesProperty.arraySize <= _PropertyIndex)
+            if (invokablesProperty.arraySize <= _PropertyIndex) {
                 invokablesProperty.arraySize = _PropertyIndex + 1;
+            }
 
             var invokableProperty = invokablesProperty.GetArrayElementAtIndex(_PropertyIndex);
             invokableProperty.prefabOverride = property.prefabOverride;
@@ -92,8 +87,9 @@ namespace Animancer.Editor
             EditorGUI.EndProperty();
 
             invokable = invokableProperty.managedReferenceValue;
-            if (invokable == null)
+            if (invokable == null) {
                 return false;
+            }
 
             invokableProperty.managedReferenceValue = null;
             invokableProperty.serializedObject.ApplyModifiedProperties();

@@ -6,12 +6,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>A dictionary of <see cref="IParameter"/>s registered using <see cref="StringReference"/>s.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer/ParameterDictionary
-    public class ParameterDictionary : IEnumerable<IParameter>
-    {
+    public class ParameterDictionary : IEnumerable<IParameter> {
         /************************************************************************************************************************/
 
 #if UNITY_ASSERTIONS || ANIMANCER_DEBUG_PARAMETERS
@@ -38,24 +36,24 @@ namespace Animancer
 
         /// <summary>Tries to get a `parameter` registered with the `key`.</summary>
         /// <remarks>The `key` must not be null or empty.</remarks>
-        public bool TryGet(StringReference key, out IParameter parameter)
-            => key.String.Length == 0// Let null throw an exception.
-            ? throw new ArgumentException("Must not be null or empty", nameof(key))
-            : KeyToParameter.TryGetValue(key, out parameter);
+        public bool TryGet(StringReference key, out IParameter parameter) {
+            return key.String.Length == 0// Let null throw an exception.
+                                                                                      ? throw new ArgumentException("Must not be null or empty", nameof(key))
+                                                                                      : KeyToParameter.TryGetValue(key, out parameter);
+        }
 
         /// <summary>Tries to get a `parameter` registered with the `key` and verifies its type.</summary>
         /// <remarks>The `key` must not be null or empty.</remarks>
-        public bool TryGet<T>(StringReference key, out Parameter<T> parameter)
-        {
-            if (!TryGet(key, out var iParameter))
-            {
+        public bool TryGet<T>(StringReference key, out Parameter<T> parameter) {
+            if (!TryGet(key, out var iParameter)) {
                 parameter = null;
                 return false;
             }
 
             parameter = iParameter as Parameter<T>;
-            if (parameter != null)
+            if (parameter != null) {
                 return true;
+            }
 
             throw new InvalidCastException(
                 $"The key '{key}' was already used to register a " +
@@ -67,10 +65,10 @@ namespace Animancer
 
         /// <summary>Gets an existing parameter registered with the `key` or creates one if necessary.</summary>
         /// <remarks>The `key` must not be null or empty.</remarks>
-        public Parameter<T> GetOrCreate<T>(StringReference key)
-        {
-            if (TryGet<T>(key, out var parameter))
+        public Parameter<T> GetOrCreate<T>(StringReference key) {
+            if (TryGet<T>(key, out var parameter)) {
                 return parameter;
+            }
 
             parameter = new(key);
             KeyToParameter.Add(key, parameter);
@@ -84,18 +82,20 @@ namespace Animancer
         /// Returns the default value if no such parameter exists.
         /// </summary>
         /// <remarks>The `key` must not be null or empty.</remarks>
-        public T GetValue<T>(StringReference key)
-            => TryGet<T>(key, out var parameter)
-            ? parameter.Value
-            : default;
+        public T GetValue<T>(StringReference key) {
+            return TryGet<T>(key, out var parameter)
+                                                              ? parameter.Value
+                                                              : default;
+        }
 
         /// <summary>
         /// Gets the value of a <see cref="float"/> parameter registered with the `key`.
         /// Returns 0 if no such parameter exists.
         /// </summary>
         /// <remarks>The `key` must not be null or empty.</remarks>
-        public float GetFloat(StringReference key)
-            => GetValue<float>(key);
+        public float GetFloat(StringReference key) {
+            return GetValue<float>(key);
+        }
 
         /************************************************************************************************************************/
 
@@ -104,8 +104,9 @@ namespace Animancer
         /// Creates the parameter if it didn't exist yet.
         /// </summary>
         /// <remarks>The `key` must not be null or empty.</remarks>
-        public void SetValue<T>(StringReference key, T value)
-            => GetOrCreate<T>(key).Value = value;
+        public void SetValue<T>(StringReference key, T value) {
+            GetOrCreate<T>(key).Value = value;
+        }
 
         /************************************************************************************************************************/
 
@@ -117,13 +118,13 @@ namespace Animancer
         public void AddOnValueChanged<T>(
             StringReference key,
             Action<T> onValueChanged,
-            bool invokeImmediately = false)
-        {
+            bool invokeImmediately = false) {
             var parameter = GetOrCreate<T>(key);
             parameter.OnValueChanged += onValueChanged;
 
-            if (invokeImmediately)
+            if (invokeImmediately) {
                 onValueChanged(parameter.Value);
+            }
         }
 
         /// <summary>
@@ -132,25 +133,28 @@ namespace Animancer
         /// <remarks>The `key` must not be null or empty.</remarks>
         public void RemoveOnValueChanged<T>(
             StringReference key,
-            Action<T> onValueChanged)
-        {
-            if (TryGet<T>(key, out var parameter))
+            Action<T> onValueChanged) {
+            if (TryGet<T>(key, out var parameter)) {
                 parameter.OnValueChanged -= onValueChanged;
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <summary>Returns an enumerator that iterates through all registered parameters.</summary>
-        public Dictionary<object, IParameter>.ValueCollection.Enumerator GetEnumerator()
-            => KeyToParameter.Values.GetEnumerator();
+        public Dictionary<object, IParameter>.ValueCollection.Enumerator GetEnumerator() {
+            return KeyToParameter.Values.GetEnumerator();
+        }
 
         /// <inheritdoc/>
-        IEnumerator<IParameter> IEnumerable<IParameter>.GetEnumerator()
-            => KeyToParameter.Values.GetEnumerator();
+        IEnumerator<IParameter> IEnumerable<IParameter>.GetEnumerator() {
+            return KeyToParameter.Values.GetEnumerator();
+        }
 
         /// <inheritdoc/>
-        IEnumerator IEnumerable.GetEnumerator()
-            => KeyToParameter.Values.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() {
+            return KeyToParameter.Values.GetEnumerator();
+        }
 
         /// <summary>All registered keys.</summary>
         public Dictionary<object, IParameter>.KeyCollection Keys

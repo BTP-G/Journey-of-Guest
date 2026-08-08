@@ -1,9 +1,9 @@
 using Animancer;
-using Xoderony;
-using Xoderony.Movement;
 using JoG.Health;
 using UnityEngine;
 using VContainer;
+using Xoderony;
+using Xoderony.Movement;
 
 namespace JoG.Character {
 
@@ -74,7 +74,5 @@ namespace JoG.Character {
             HealthChangeRouter = container.Resolve<HealthChangeRouter>();
             HitRouter = container.Resolve<HitRouter>();
         }
-
     }
-
 }

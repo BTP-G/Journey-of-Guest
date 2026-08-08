@@ -1,4 +1,4 @@
-﻿#if TEXTMESHPRO
+#if TEXTMESHPRO
 using UnityEngine;
 using UnityEditor;
 using System.Collections;

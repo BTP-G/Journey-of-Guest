@@ -1,29 +1,24 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-using System.Collections.Generic;
 using Antlr4.Runtime.Misc;
+using System.Collections.Generic;
 
-namespace Antlr4.Runtime.Dfa
-{
+namespace Antlr4.Runtime.Dfa {
     /// <author>Sam Harwell</author>
-    public interface IEdgeMap<T> : IEnumerable<KeyValuePair<int, T>>
-    {
-        int Count
-        {
+    public interface IEdgeMap<T> : IEnumerable<KeyValuePair<int, T>> {
+        int Count {
             get;
         }
 
-        bool IsEmpty
-        {
+        bool IsEmpty {
             get;
         }
 
         bool ContainsKey(int key);
 
-        T this[int key]
-        {
+        T this[int key] {
             get;
         }
 

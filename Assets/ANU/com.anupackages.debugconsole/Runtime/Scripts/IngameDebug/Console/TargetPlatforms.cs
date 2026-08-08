@@ -1,10 +1,8 @@
-﻿using System;
+using System;
 
-namespace ANU.IngameDebug.Console
-{
+namespace ANU.IngameDebug.Console {
     [Flags]
-    public enum TargetPlatforms
-    {
+    public enum TargetPlatforms {
         Any = 1 << 0,
         PC = 1 << 1,
         Mobile = 1 << 2,

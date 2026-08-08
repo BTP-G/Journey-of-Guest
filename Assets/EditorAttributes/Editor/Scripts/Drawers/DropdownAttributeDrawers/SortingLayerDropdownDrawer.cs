@@ -1,22 +1,19 @@
-﻿using System;
-using UnityEngine;
-using UnityEditor;
-using UnityEngine.UIElements;
-using UnityEditor.UIElements;
+using System;
 using System.Collections.Generic;
+using UnityEditor;
+using UnityEditor.UIElements;
+using UnityEngine;
+using UnityEngine.UIElements;
 
-namespace EditorAttributes.Editor
-{
+namespace EditorAttributes.Editor {
     [CustomPropertyDrawer(typeof(SortingLayerDropdownAttribute))]
-    public class SortingLayerDropdownDrawer : PropertyDrawerBase
-    {
-        public override VisualElement CreatePropertyGUI(SerializedProperty property)
-        {
-            if (!IsSupportedPropertyType(property))
+    public class SortingLayerDropdownDrawer : PropertyDrawerBase {
+        public override VisualElement CreatePropertyGUI(SerializedProperty property) {
+            if (!IsSupportedPropertyType(property)) {
                 return new HelpBox("The SortingLayerDropdown Attribute can only be attached to int fields", HelpBoxMessageType.Error);
+            }
 
-            MaskField maskField = new(property.displayName, GetSortingLayerNames(), property.intValue)
-            {
+            MaskField maskField = new(property.displayName, GetSortingLayerNames(), property.intValue) {
                 showMixedValue = property.hasMultipleDifferentValues,
                 tooltip = property.tooltip
             };
@@ -24,8 +21,7 @@ namespace EditorAttributes.Editor
             maskField.AddToClassList(BaseField<Void>.alignedFieldUssClassName);
             AddPropertyContextMenu(maskField, property);
 
-            maskField.RegisterValueChangedCallback((callback) =>
-            {
+            maskField.RegisterValueChangedCallback((callback) => {
                 property.intValue = maskField.value;
                 property.serializedObject.ApplyModifiedProperties();
             });
@@ -36,29 +32,27 @@ namespace EditorAttributes.Editor
             return maskField;
         }
 
-        protected override void PasteValue(VisualElement element, SerializedProperty property, string clipboardValue)
-        {
+        protected override void PasteValue(VisualElement element, SerializedProperty property, string clipboardValue) {
             var dropdown = element as MaskField;
             base.PasteValue(element, property, clipboardValue);
 
-            try
-            {
+            try {
                 dropdown.SetValueWithoutNotify(int.Parse(clipboardValue));
-            }
-            catch (FormatException)
-            {
+            } catch (FormatException) {
                 // Ignore, error will already be thrown by the base function
             }
         }
 
-        protected override bool IsSupportedPropertyType(SerializedProperty property) => property.propertyType == SerializedPropertyType.Integer;
+        protected override bool IsSupportedPropertyType(SerializedProperty property) {
+            return property.propertyType == SerializedPropertyType.Integer;
+        }
 
-        private List<string> GetSortingLayerNames()
-        {
+        private List<string> GetSortingLayerNames() {
             List<string> layerList = new();
 
-            foreach (var layer in SortingLayer.layers)
+            foreach (var layer in SortingLayer.layers) {
                 layerList.Add(layer.name);
+            }
 
             return layerList;
         }

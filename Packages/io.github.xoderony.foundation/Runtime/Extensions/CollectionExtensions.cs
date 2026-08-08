@@ -15,7 +15,5 @@ namespace Xoderony.Extensions {
         public static bool IsNullOrEmpty<T>(this T collection) where T : ICollection {
             return (collection is null) || (collection.Count is 0);
         }
-
     }
-
 }

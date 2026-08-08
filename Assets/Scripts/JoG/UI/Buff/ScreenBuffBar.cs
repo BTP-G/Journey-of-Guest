@@ -1,6 +1,6 @@
 using EditorAttributes;
 using JoG.Character;
-using JoG.Gameplay.Effects.Data;
+using JoG.GameplayEffects.Data;
 using System;
 using System.Collections.Generic;
 using UnityEngine;

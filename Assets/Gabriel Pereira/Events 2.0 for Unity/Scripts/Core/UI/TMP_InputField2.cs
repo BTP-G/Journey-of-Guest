@@ -1,4 +1,4 @@
-﻿#if TEXTMESHPRO
+#if TEXTMESHPRO
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -92,7 +92,7 @@ namespace TMPro
 		protected TouchScreenKeyboard m_SoftKeyboard;
 		static private readonly char[] kSeparators = { ' ', '.', ',', '\t', '\r', '\n' };
 
-		#region Exposed properties
+        #region Exposed properties
 		/// <summary>
 		/// Text Text used to display the input's value.
 		/// </summary>
@@ -287,7 +287,7 @@ namespace TMPro
 		[SerializeField]
 		private bool m_RichText = true;
 
-		#endregion
+        #endregion
 
 		protected int m_StringPosition = 0;
 		protected int m_StringSelectPosition = 0;

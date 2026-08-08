@@ -81,7 +81,5 @@ namespace Xoderony.Extensions {
             var result = component.GetComponentInChildren<T>(includeInactive);
             return ((result is not null) && result.CompareTag(tag)) ? result : null;
         }
-
     }
-
 }

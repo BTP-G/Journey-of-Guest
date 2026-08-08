@@ -1,10 +1,10 @@
 using JoG.Health;
-using Xoderony.Localization;
 using JoG.Localization;
 using MessagePipe;
 using System;
 using Unity.Netcode;
 using VContainer;
+using Xoderony.Localization;
 
 namespace JoG.Gameplay.Objectives {
 

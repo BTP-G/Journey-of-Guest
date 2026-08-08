@@ -5,8 +5,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <inheritdoc/>
     /// <summary>A group of transitions which play one after the other.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer/TransitionSequence
@@ -14,8 +13,7 @@ namespace Animancer
     [Serializable]
     public class TransitionSequence : Transition<SequenceState>,
         IAnimationClipCollection,
-        ICopyable<TransitionSequence>
-    {
+        ICopyable<TransitionSequence> {
         /************************************************************************************************************************/
 
         [SerializeField]
@@ -27,8 +25,7 @@ namespace Animancer
         private float _NormalizedStartTime = float.NaN;
 
         /// <inheritdoc/>
-        public override float NormalizedStartTime
-        {
+        public override float NormalizedStartTime {
             get => _NormalizedStartTime;
             set => _NormalizedStartTime = value;
         }
@@ -56,13 +53,13 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Is everything in this sequence valid?</summary>
-        public override bool IsValid
-        {
-            get
-            {
-                for (int i = 0; i < _Transitions.Length; i++)
-                    if (!_Transitions[i].IsValid())
+        public override bool IsValid {
+            get {
+                for (var i = 0; i < _Transitions.Length; i++) {
+                    if (!_Transitions[i].IsValid()) {
                         return false;
+                    }
+                }
 
                 return true;
             }
@@ -81,17 +78,15 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override float MaximumLength
-        {
-            get
-            {
+        public override float MaximumLength {
+            get {
                 var value = 0f;
 
-                for (int i = 0; i < _Transitions.Length; i++)
-                {
+                for (var i = 0; i < _Transitions.Length; i++) {
                     var transition = _Transitions[i];
-                    if (!transition.IsValid())
+                    if (!transition.IsValid()) {
                         continue;
+                    }
 
                     var speed = transition.Speed;
 
@@ -103,8 +98,9 @@ namespace Animancer
                         speed);
 
                     var normalizedLength = (end - start) / speed;
-                    if (normalizedLength < 0)
+                    if (normalizedLength < 0) {
                         continue;
+                    }
 
                     value += transition.MaximumLength * normalizedLength;
                 }
@@ -116,8 +112,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override SequenceState CreateState()
-        {
+        public override SequenceState CreateState() {
             var state = new SequenceState();
             state.Set(_Transitions);
             return state;
@@ -126,8 +121,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void Apply(AnimancerState state)
-        {
+        public override void Apply(AnimancerState state) {
             base.Apply(state);
             ApplyNormalizedStartTime(state, _NormalizedStartTime);
         }
@@ -135,29 +129,28 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Adds the <see cref="ClipTransition.Clip"/> of everything in this sequence to the collection.</summary>
-        public virtual void GatherAnimationClips(ICollection<AnimationClip> clips)
-        {
-            for (int i = 0; i < _Transitions.Length; i++)
+        public virtual void GatherAnimationClips(ICollection<AnimationClip> clips) {
+            for (var i = 0; i < _Transitions.Length; i++) {
                 clips.GatherFromSource(_Transitions[i]);
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override Transition<SequenceState> Clone(CloneContext context)
-        {
+        public override Transition<SequenceState> Clone(CloneContext context) {
             var clone = new TransitionSequence();
             clone.CopyFrom(this, context);
             return clone;
         }
 
         /// <inheritdoc/>
-        public sealed override void CopyFrom(Transition<SequenceState> copyFrom, CloneContext context)
-            => this.CopyFromBase(copyFrom, context);
+        public sealed override void CopyFrom(Transition<SequenceState> copyFrom, CloneContext context) {
+            this.CopyFromBase(copyFrom, context);
+        }
 
         /// <inheritdoc/>
-        public virtual void CopyFrom(TransitionSequence copyFrom, CloneContext context)
-        {
+        public virtual void CopyFrom(TransitionSequence copyFrom, CloneContext context) {
             base.CopyFrom(copyFrom, context);
 
             _NormalizedStartTime = copyFrom._NormalizedStartTime;

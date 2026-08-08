@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2025 PinePie. All rights reserved.
+// Copyright (c) 2025 PinePie. All rights reserved.
 
 #if UNITY_EDITOR
 using System.Collections.Generic;
@@ -9,52 +9,56 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace PinePie.PieTabs
-{
-    public static partial class Navigator
-    {
+namespace PinePie.PieTabs {
+    public static partial class Navigator {
         // UI Setup
 
-        public static void OnDrag(float mouseX)
-        {
-            VisualElement area = UI.creatorButtonArea;
+        public static void OnDrag(float mouseX) {
+            var area = UI.creatorButtonArea;
 
-            List<VisualElement> tabs = area.Children().Where(c => c.name != "line").ToList();
+            var tabs = area.Children().Where(c => c.name != "line").ToList();
 
-            int newIndex = tabs.Count;
-            for (int i = tabs.Count - 1; i >= 0; i--)
-            {
+            var newIndex = tabs.Count;
+            for (var i = tabs.Count - 1; i >= 0; i--) {
                 var child = tabs[i];
-                if (child == UI.placeholderNeedle) continue;
+                if (child == UI.placeholderNeedle) {
+                    continue;
+                }
 
-                Rect rect = child.worldBound;
-                float midX = rect.x + rect.width / 2;
+                var rect = child.worldBound;
+                var midX = rect.x + (rect.width / 2);
 
-                if (mouseX > midX) newIndex--;
+                if (mouseX > midX) {
+                    newIndex--;
+                }
             }
 
-            if (newIndex != placeHolderIndex)
-            {
+            if (newIndex != placeHolderIndex) {
                 placeHolderIndex = newIndex;
 
-                if (area.Contains(UI.placeholderNeedle)) UI.placeholderNeedle.RemoveFromHierarchy();
+                if (area.Contains(UI.placeholderNeedle)) {
+                    UI.placeholderNeedle.RemoveFromHierarchy();
+                }
+
                 area.Insert(newIndex, UI.placeholderNeedle);
             }
 
             if (!area.Contains(UI.placeholderNeedle)) // on over inserting section
+{
                 area.Insert(newIndex, UI.placeholderNeedle);
+            }
         }
 
-        public static void EndDrag(VisualElement btn)
-        {
-            VisualElement area = UI.creatorButtonArea;
+        public static void EndDrag(VisualElement btn) {
+            var area = UI.creatorButtonArea;
 
-            if (placeHolderIndex < 0)
+            if (placeHolderIndex < 0) {
                 return;
+            }
 
             UI.placeholderNeedle.RemoveFromHierarchy();
 
-            int oldIndex = area.IndexOf(btn);
+            var oldIndex = area.IndexOf(btn);
 
             MoveItem(creatorButtons.buttons, oldIndex, placeHolderIndex);
             creatorButtons.SaveToJson();
@@ -62,46 +66,46 @@ namespace PinePie.PieTabs
             placeHolderIndex = -1;
         }
 
-        public static void MoveItem<T>(List<T> list, int fromIndex, int toIndex)
-        {
+        public static void MoveItem<T>(List<T> list, int fromIndex, int toIndex) {
             toIndex = Mathf.Clamp(toIndex, 0, list.Count);
 
-            if (fromIndex == toIndex || (fromIndex == list.Count - 1 && toIndex == list.Count))
+            if (fromIndex == toIndex || (fromIndex == list.Count - 1 && toIndex == list.Count)) {
                 return;
+            }
 
-            T item = list[fromIndex];
+            var item = list[fromIndex];
             list.RemoveAt(fromIndex);
 
-            if (toIndex > fromIndex) toIndex--;
+            if (toIndex > fromIndex) {
+                toIndex--;
+            }
 
-            if (toIndex >= list.Count) list.Add(item);
-            else list.Insert(toIndex, item);
+            if (toIndex >= list.Count) {
+                list.Add(item);
+            } else {
+                list.Insert(toIndex, item);
+            }
         }
 
-
         // split bars
-        public static void SetupDragAreaStyling()
-        {
-            foreach (var view in new VisualElement[] { UI.shortcutButtonArea, UI.creatorButtonArea })
-            {
+        public static void SetupDragAreaStyling() {
+            foreach (var view in new VisualElement[] { UI.shortcutButtonArea, UI.creatorButtonArea }) {
                 view.contentContainer.style.flexDirection = FlexDirection.RowReverse;
                 view.contentContainer.style.justifyContent = Justify.FlexStart;
             }
         }
 
-        public static void SetupSplitter()
-        {
-            VisualElement splitter = UI.mainUI.Q<VisualElement>("splitter");
+        public static void SetupSplitter() {
+            var splitter = UI.mainUI.Q<VisualElement>("splitter");
 
-            bool isDragging = false;
-            int pointerId = -1;
+            var isDragging = false;
+            var pointerId = -1;
             float distFromMouse = 0;
 
             UI.shortcutButtonArea.style.flexGrow = 0;
             UI.shortcutButtonArea.style.width = LastCreatorWidth;
 
-            splitter.RegisterCallback<PointerDownEvent>(evt =>
-            {
+            splitter.RegisterCallback<PointerDownEvent>(evt => {
                 isDragging = true;
                 pointerId = evt.pointerId;
 
@@ -112,9 +116,10 @@ namespace PinePie.PieTabs
                 evt.StopPropagation();
             });
 
-            splitter.RegisterCallback<PointerMoveEvent>(evt =>
-            {
-                if (!isDragging || evt.pointerId != pointerId) return;
+            splitter.RegisterCallback<PointerMoveEvent>(evt => {
+                if (!isDragging || evt.pointerId != pointerId) {
+                    return;
+                }
 
                 UI.shortcutButtonArea.style.width = evt.position.x - 70f - distFromMouse;
                 UI.creatorButtonArea.style.flexGrow = 1;
@@ -122,9 +127,10 @@ namespace PinePie.PieTabs
                 evt.StopPropagation();
             });
 
-            splitter.RegisterCallback<PointerUpEvent>(evt =>
-            {
-                if (evt.pointerId != pointerId) return;
+            splitter.RegisterCallback<PointerUpEvent>(evt => {
+                if (evt.pointerId != pointerId) {
+                    return;
+                }
 
                 LastCreatorWidth = UI.shortcutButtonArea.resolvedStyle.width;
                 isDragging = false;
@@ -134,79 +140,73 @@ namespace PinePie.PieTabs
             });
         }
 
-        public static void SearchBarAndCreatorTabBtnCallbacks()
-        {
-            VisualElement splitter = UI.mainUI.Q<VisualElement>("splitter");
+        public static void SearchBarAndCreatorTabBtnCallbacks() {
+            var splitter = UI.mainUI.Q<VisualElement>("splitter");
             splitter.style.backgroundImage = LoadTex("grip.png");
 
-            Button searchBtn = UI.mainUI.Q<Button>("searchToggle");
+            var searchBtn = UI.mainUI.Q<Button>("searchToggle");
             searchBtn.Q<VisualElement>("icon").style.backgroundImage = LoadTex("magnifying-glass (1).png");
-            Button creatorTabBtn = UI.mainUI.Q<Button>("addCreatorBtn");
+            var creatorTabBtn = UI.mainUI.Q<Button>("addCreatorBtn");
             creatorTabBtn.style.backgroundImage = LoadTex("plus 1.png");
 
-            ScrollView AssetCreatorButtonArea = UI.mainUI.Q<ScrollView>("CreationMenuDragArea");
-            ScrollView shortcutTabsArea = UI.mainUI.Q<ScrollView>("shorcutsDragArea");
+            var AssetCreatorButtonArea = UI.mainUI.Q<ScrollView>("CreationMenuDragArea");
+            var shortcutTabsArea = UI.mainUI.Q<ScrollView>("shorcutsDragArea");
 
-            Button sceneMenu = UI.mainUI.Q<Button>("sceneSel");
+            var sceneMenu = UI.mainUI.Q<Button>("sceneSel");
 
-            if (IsSearchBarOpen)
+            if (IsSearchBarOpen) {
                 OpenSearchBar(sceneMenu, creatorTabBtn, splitter, searchBtn, AssetCreatorButtonArea);
-            else
+            } else {
                 CloseSearchBar(sceneMenu, creatorTabBtn, splitter, searchBtn, AssetCreatorButtonArea, shortcutTabsArea);
+            }
 
-
-            sceneMenu.clicked += () =>
-            {
+            sceneMenu.clicked += () => {
                 var menu = new GenericMenu();
 
-                string[] guids = AssetDatabase.FindAssets("t:Scene");
-                string activeScenePath = EditorSceneManager.GetActiveScene().path;
+                var guids = AssetDatabase.FindAssets("t:Scene");
+                var activeScenePath = EditorSceneManager.GetActiveScene().path;
 
-                foreach (string guid in guids)
-                {
-                    string path = AssetDatabase.GUIDToAssetPath(guid);
-                    if (!path.StartsWith("Assets/"))
+                foreach (var guid in guids) {
+                    var path = AssetDatabase.GUIDToAssetPath(guid);
+                    if (!path.StartsWith("Assets/")) {
                         continue;
+                    }
 
-                    string name = Path.GetFileNameWithoutExtension(path);
+                    var name = Path.GetFileNameWithoutExtension(path);
 
-                    string capturedPath = path;
-                    menu.AddItem(new GUIContent(name), capturedPath == activeScenePath, () =>
-                    {
-                        if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
+                    var capturedPath = path;
+                    menu.AddItem(new GUIContent(name), capturedPath == activeScenePath, () => {
+                        if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) {
                             EditorSceneManager.OpenScene(capturedPath);
+                        }
                     });
                 }
 
                 menu.ShowAsContext();
             };
 
-
-            searchBtn.clicked += () =>
-            {
-                if (IsSearchBarOpen)
+            searchBtn.clicked += () => {
+                if (IsSearchBarOpen) {
                     CloseSearchBar(sceneMenu, creatorTabBtn, splitter, searchBtn, AssetCreatorButtonArea, shortcutTabsArea);
-                else
+                } else {
                     OpenSearchBar(sceneMenu, creatorTabBtn, splitter, searchBtn, AssetCreatorButtonArea);
+                }
             };
 
-            creatorTabBtn.clicked += () =>
-            {
-                List<string> items = GetAssetCreateMenuEntries();
+            creatorTabBtn.clicked += () => {
+                var items = GetAssetCreateMenuEntries();
 
                 var menu = new GenericMenu();
-                foreach (var item in CleanEntries(items))
-                {
+                foreach (var item in CleanEntries(items)) {
                     var trimmedItem = item;
                     const string prefix = "Assets/Create/";
 
-                    if (item.StartsWith(prefix))
-                        trimmedItem = item.Substring(prefix.Length);
+                    if (item.StartsWith(prefix)) {
+                        trimmedItem = item[prefix.Length..];
+                    }
 
-                    menu.AddItem(new GUIContent(trimmedItem), false, () =>
-                    {
-                        CreateMenuIconUtility.GetIconFromCreateMenu(item, iconName =>
-                        {
+                    menu.AddItem(new GUIContent(trimmedItem), false, () => {
+                        CreateMenuIconUtility.GetIconFromCreateMenu(item, iconName => {
                             OnCreateMenuEntrySelected(iconName, item);
                         });
                     });
@@ -215,10 +215,8 @@ namespace PinePie.PieTabs
             };
         }
 
-        private static void CloseSearchBar(Button sceneBtn, Button creatorBtn, VisualElement splitter, Button openSearchButton, ScrollView AssetCreatorButtonArea, ScrollView shortcutTabsArea)
-        {
-            if (isTwoColumnMode)
-            {
+        private static void CloseSearchBar(Button sceneBtn, Button creatorBtn, VisualElement splitter, Button openSearchButton, ScrollView AssetCreatorButtonArea, ScrollView shortcutTabsArea) {
+            if (isTwoColumnMode) {
                 splitter.style.display = DisplayStyle.Flex;
                 creatorBtn.style.display = DisplayStyle.Flex;
                 sceneBtn.style.display = DisplayStyle.Flex;
@@ -233,10 +231,8 @@ namespace PinePie.PieTabs
             IsSearchBarOpen = false;
         }
 
-        private static void OpenSearchBar(Button sceneBtn, Button creatorBtn, VisualElement splitter, Button openSearchButton, ScrollView AssetCreatorButtonArea)
-        {
-            if (!isTwoColumnMode)
-            {
+        private static void OpenSearchBar(Button sceneBtn, Button creatorBtn, VisualElement splitter, Button openSearchButton, ScrollView AssetCreatorButtonArea) {
+            if (!isTwoColumnMode) {
                 openSearchButton.style.width = 20f;
                 sceneBtn.style.display = DisplayStyle.None;
             }
@@ -250,33 +246,28 @@ namespace PinePie.PieTabs
             IsSearchBarOpen = true;
         }
 
-
         // address copy from bottom bar
-        public static void SetupBottomBarMargin()
-        {
-            VisualElement bottomAddressBar = UI.mainUI.Q<VisualElement>("bottomAddressBar");
+        public static void SetupBottomBarMargin() {
+            var bottomAddressBar = UI.mainUI.Q<VisualElement>("bottomAddressBar");
 
             bottomAddressBar.style.marginLeft = GetSideRectWidth(GetWin());
         }
 
-        public static void RegisterAddressCopyCallbacks()
-        {
-            VisualElement bottomAddressBar = UI.mainUI.Q<VisualElement>("bottomAddressBar");
-            bottomAddressBar.RegisterCallback<MouseDownEvent>((evt) =>
-            {
-                if (isTwoColumnMode) bottomAddressBar.style.marginLeft = GetSideRectWidth(GetWin());
+        public static void RegisterAddressCopyCallbacks() {
+            var bottomAddressBar = UI.mainUI.Q<VisualElement>("bottomAddressBar");
+            bottomAddressBar.RegisterCallback<MouseDownEvent>((evt) => {
+                if (isTwoColumnMode) {
+                    bottomAddressBar.style.marginLeft = GetSideRectWidth(GetWin());
+                }
 
-                string copyingStr = "";
+                var copyingStr = "";
 
-                if (evt.button == 0)
-                {
+                if (evt.button == 0) {
                     copyingStr = !string.IsNullOrEmpty(AssetDatabase.GetAssetPath(Selection.activeObject))
                         ? AssetDatabase.GetAssetPath(Selection.activeObject)
                         : GetActiveFolderPath();
-                }
-                else if (evt.button == 1)
-                {
-                    string assetPath = AssetDatabase.GetAssetPath(Selection.activeObject);
+                } else if (evt.button == 1) {
+                    var assetPath = AssetDatabase.GetAssetPath(Selection.activeObject);
                     copyingStr = !string.IsNullOrEmpty(assetPath)
                         ? Path.GetFileName(assetPath)
                         : "";
@@ -287,48 +278,41 @@ namespace PinePie.PieTabs
                 ShowCopiedNotification(evt.mousePosition, UI.mainUI);
             });
 
-            if (isTwoColumnMode)
-                Selection.selectionChanged += () =>
-                {
+            if (isTwoColumnMode) {
+                Selection.selectionChanged += () => {
                     SetupBottomBarMargin();
                 };
+            }
         }
 
-        public static void ShowCopiedNotification(Vector2 position, VisualElement root)
-        {
+        public static void ShowCopiedNotification(Vector2 position, VisualElement root) {
             UI.copiedText.style.left = position.x - 20;
 
             UI.copiedText.style.display = DisplayStyle.Flex;
 
-            root.schedule.Execute(() =>
-            {
+            root.schedule.Execute(() => {
                 UI.copiedText.style.display = DisplayStyle.None;
             }).ExecuteLater(1000);
         }
 
-
         // icon popup
-        public static void ShowBoxAtPos(VisualElement box, float posX)
-        {
+        public static void ShowBoxAtPos(VisualElement box, float posX) {
             UI.mainUI.pickingMode = PickingMode.Position;
 
-            float rightOffset = UI.mainUI.resolvedStyle.width - 200;
+            var rightOffset = UI.mainUI.resolvedStyle.width - 200;
 
             box.style.left = Mathf.Clamp(posX, 0, rightOffset);
 
             box.style.display = DisplayStyle.Flex;
         }
 
-        public static void CallbacksForPopupBoxes()
-        {
-            UI.mainUI.RegisterCallback<MouseDownEvent>((evt) =>
-            {
+        public static void CallbacksForPopupBoxes() {
+            UI.mainUI.RegisterCallback<MouseDownEvent>((evt) => {
                 CloseAllPopups();
             });
         }
 
-        private static void CloseAllPopups()
-        {
+        private static void CloseAllPopups() {
             UI.colorPopup.style.display = DisplayStyle.None;
 
             ColorPopup.popupIsOpen = false;
@@ -336,27 +320,27 @@ namespace PinePie.PieTabs
             UI.mainUI.pickingMode = PickingMode.Ignore;
         }
 
-        public static void CallbacksForColorPopup()
-        {
+        public static void CallbacksForColorPopup() {
             var colorButtons = UI.colorPopup.Query<Button>("icon").ToList();
             var removeColorBtn = UI.colorPopup.Q<Button>("removeColorBtn");
 
-            foreach (Button clrBtn in colorButtons)
-            {
+            foreach (var clrBtn in colorButtons) {
                 var buttonColor = clrBtn.resolvedStyle.backgroundColor;
 
-                clrBtn.clicked += () =>
-                {
-                    if (!ColorPopup.popupIsOpen) return;
+                clrBtn.clicked += () => {
+                    if (!ColorPopup.popupIsOpen) {
+                        return;
+                    }
 
                     ApplyColorToVisualElement(ColorToHex(buttonColor));
                 };
             }
 
             removeColorBtn.style.backgroundImage = LoadTex("cross icon.png");
-            removeColorBtn.clicked += () =>
-            {
-                if (!ColorPopup.popupIsOpen) return;
+            removeColorBtn.clicked += () => {
+                if (!ColorPopup.popupIsOpen) {
+                    return;
+                }
 
                 ApplyColorToVisualElement("#3E3E3E");
             };
@@ -364,15 +348,11 @@ namespace PinePie.PieTabs
             UI.colorPopup.RegisterCallback<MouseDownEvent>((evt) => evt.StopPropagation());
         }
 
-        public static void ApplyColorToVisualElement(string hex)
-        {
-            if (ColorPopup.isForCreator)
-            {
+        public static void ApplyColorToVisualElement(string hex) {
+            if (ColorPopup.isForCreator) {
                 ColorPopup.activeCreatorButton.color = hex;
                 creatorButtons.SaveToJson();
-            }
-            else
-            {
+            } else {
                 ColorPopup.activeNavButton.color = hex;
                 navButtons.SaveToJson();
             }
@@ -380,7 +360,6 @@ namespace PinePie.PieTabs
             ColorPopup.activeVisualItem.style.backgroundColor = HexToColor(hex);
             CloseAllPopups();
         }
-
     }
 }
 

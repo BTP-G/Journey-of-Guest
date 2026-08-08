@@ -4,8 +4,7 @@ using System;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>Serializable data which defines how to control a <see cref="WeightedMaskLayerList"/>.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer/WeightedMaskLayersDefinition
     [Serializable]
@@ -58,20 +57,15 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>The number of weight groups in this definition.</summary>
-        public int GroupCount
-        {
+        public int GroupCount {
             get => _Transforms == null || _Transforms.Length == 0 || _Weights == null
                 ? 0
                 : _Weights.Length / _Transforms.Length;
-            set
-            {
-                if (_Transforms != null && value > 0)
-                {
+            set {
+                if (_Transforms != null && value > 0) {
                     Array.Resize(ref _Weights, _Transforms.Length * value);
                     Array.Resize(ref _RootMotionWeights, value);
-                }
-                else
-                {
+                } else {
                     _Weights = Array.Empty<float>();
                     _RootMotionWeights = Array.Empty<float>();
                 }
@@ -82,30 +76,29 @@ namespace Animancer
 
         /// <summary>[Assert-Conditional] Asserts that the `groupIndex` is valid.</summary>
         [System.Diagnostics.Conditional(Strings.Assertions)]
-        public void AssertGroupIndex(int groupIndex)
-        {
-            if ((uint)groupIndex >= (uint)GroupCount)
+        public void AssertGroupIndex(int groupIndex) {
+            if ((uint)groupIndex >= (uint)GroupCount) {
                 throw new ArgumentOutOfRangeException(
                     nameof(groupIndex),
                     groupIndex,
                     $"Must be 0 <= {nameof(groupIndex)} < Group Count ({GroupCount})");
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <summary>Calculates the index of each of the <see cref="Transforms"/>.</summary>
-        public int[] CalculateIndices(WeightedMaskLayerList layers)
-        {
+        public int[] CalculateIndices(WeightedMaskLayerList layers) {
             var indices = new int[_Transforms.Length];
 
-            for (int i = 0; i < _Transforms.Length; i++)
-            {
+            for (var i = 0; i < _Transforms.Length; i++) {
                 indices[i] = layers.IndexOf(_Transforms[i]);
 #if UNITY_ASSERTIONS
-                if (indices[i] < 0)
+                if (indices[i] < 0) {
                     Debug.LogWarning(
                         $"Unable to find index of {_Transforms[i]} in {nameof(WeightedMaskLayerList)}",
                         _Transforms[i]);
+                }
 #endif
             }
 
@@ -118,20 +111,17 @@ namespace Animancer
         /// Adds the `transform` at the specified `index`
         /// along with any associated <see cref="_Weights"/>.
         /// </summary>
-        public void AddTransform(Transform transform)
-        {
+        public void AddTransform(Transform transform) {
             var index = _Transforms.Length;
 
             AnimancerUtilities.InsertAt(ref _Transforms, index, transform);
 
-            if (_Transforms.Length == 1 && _Weights.IsNullOrEmpty())
-            {
+            if (_Transforms.Length == 1 && _Weights.IsNullOrEmpty()) {
                 _Weights = new float[1];
                 return;
             }
 
-            while (index <= _Weights.Length)
-            {
+            while (index <= _Weights.Length) {
                 AnimancerUtilities.InsertAt(ref _Weights, index, 0);
 
                 index += _Transforms.Length;
@@ -142,12 +132,10 @@ namespace Animancer
         /// Removes the `index` from the <see cref="_Transforms"/>
         /// along with any associated <see cref="_Weights"/>.
         /// </summary>
-        public void RemoveTransform(int index)
-        {
+        public void RemoveTransform(int index) {
             AnimancerUtilities.RemoveAt(ref _Transforms, index);
 
-            while (index < _Weights.Length)
-            {
+            while (index < _Weights.Length) {
                 AnimancerUtilities.RemoveAt(ref _Weights, index);
 
                 index += _Transforms.Length;
@@ -158,22 +146,24 @@ namespace Animancer
 
         /// <summary>Calculates the index in the <see cref="Weights"/> corresponding to the specified values.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int IndexOfGroup(int groupIndex)
-            => groupIndex * _Transforms.Length;
+        public int IndexOfGroup(int groupIndex) {
+            return groupIndex * _Transforms.Length;
+        }
 
         /// <summary>Calculates the index in the <see cref="Weights"/> corresponding to the specified values.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int IndexOf(int groupIndex, int transformIndex)
-            => groupIndex * _Transforms.Length + transformIndex;
+        public int IndexOf(int groupIndex, int transformIndex) {
+            return (groupIndex * _Transforms.Length) + transformIndex;
+        }
 
         /************************************************************************************************************************/
 
         /// <summary>Gets the specified weight.</summary>
         /// <remarks>Returns <see cref="float.NaN"/> if the indices are outside the <see cref="Weights"/>.</remarks>
-        public float GetWeight(int groupIndex, int transformIndex)
-        {
-            if (Weights == null)
+        public float GetWeight(int groupIndex, int transformIndex) {
+            if (Weights == null) {
                 return float.NaN;
+            }
 
             var index = IndexOf(groupIndex, transformIndex);
             return (uint)index < (uint)Weights.Length
@@ -183,14 +173,13 @@ namespace Animancer
 
         /// <summary>Sets the specified weight.</summary>
         /// <remarks>Returns false if the indices are outside the <see cref="Weights"/>.</remarks>
-        public bool SetWeight(int groupIndex, int transformIndex, float value)
-        {
-            if (Weights == null)
+        public bool SetWeight(int groupIndex, int transformIndex, float value) {
+            if (Weights == null) {
                 return false;
+            }
 
             var index = IndexOf(groupIndex, transformIndex);
-            if ((uint)index < (uint)Weights.Length)
-            {
+            if ((uint)index < (uint)Weights.Length) {
                 Weights[index] = value;
                 return true;
             }
@@ -202,10 +191,10 @@ namespace Animancer
 
         /// <summary>Gets the specified RootMotion weight.</summary>
         /// <remarks>Returns <see cref="float.NaN"/> if the indices are outside the <see cref="RootMotionWeights"/>.</remarks>
-        public float GetRmWeight(int groupIndex)
-        {
-            if (RootMotionWeights == null)
+        public float GetRmWeight(int groupIndex) {
+            if (RootMotionWeights == null) {
                 return float.NaN;
+            }
 
             return (uint)groupIndex < (uint)RootMotionWeights.Length
                 ? RootMotionWeights[groupIndex]
@@ -214,13 +203,12 @@ namespace Animancer
 
         /// <summary>Sets the specified RootMotion weight.</summary>
         /// <remarks>Returns false if the indices are outside the <see cref="RootMotionWeights"/>.</remarks>
-        public bool SetRmWeight(int groupIndex, float value)
-        {
-            if (RootMotionWeights == null)
+        public bool SetRmWeight(int groupIndex, float value) {
+            if (RootMotionWeights == null) {
                 return false;
+            }
 
-            if ((uint)groupIndex < (uint)RootMotionWeights.Length)
-            {
+            if ((uint)groupIndex < (uint)RootMotionWeights.Length) {
                 RootMotionWeights[groupIndex] = value;
                 return true;
             }
@@ -231,8 +219,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public void CopyFrom(WeightedMaskLayersDefinition copyFrom, CloneContext context)
-        {
+        public void CopyFrom(WeightedMaskLayersDefinition copyFrom, CloneContext context) {
             AnimancerUtilities.CopyExactArray(copyFrom._Transforms, ref _Transforms);
             AnimancerUtilities.CopyExactArray(copyFrom._Weights, ref _Weights);
             AnimancerUtilities.CopyExactArray(copyFrom._RootMotionWeights, ref _RootMotionWeights);
@@ -249,29 +236,23 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Ensures that the data in this definition is value.</summary>
-        public void Validate()
-        {
+        public void Validate() {
             ValidateArraySizes();
             RemoveMissingAndDuplicate();
         }
 
         /// <summary>Ensures that all the arrays have valid sizes.</summary>
-        public void ValidateArraySizes()
-        {
-            if (_Transforms.IsNullOrEmpty())
-            {
+        public void ValidateArraySizes() {
+            if (_Transforms.IsNullOrEmpty()) {
                 _Transforms = Array.Empty<Transform>();
                 _Weights = Array.Empty<float>();
                 _RootMotionWeights = Array.Empty<float>();
             }
 
             if (_Weights == null ||
-                _Weights.Length < _Transforms.Length)
-            {
+                _Weights.Length < _Transforms.Length) {
                 AnimancerUtilities.SetLength(ref _Weights, _Transforms.Length);
-            }
-            else
-            {
+            } else {
                 var expectedWeightCount = (int)Math.Ceiling(_Weights.Length / (double)_Transforms.Length);
                 expectedWeightCount *= _Transforms.Length;
                 AnimancerUtilities.SetLength(ref _Weights, expectedWeightCount);
@@ -281,36 +262,30 @@ namespace Animancer
                 ? 0
                 : _RootMotionWeights.Length;
             var groupCount = GroupCount;
-            if (rootMotionWeightCount != groupCount)
-            {
+            if (rootMotionWeightCount != groupCount) {
                 AnimancerUtilities.SetLength(ref _RootMotionWeights, groupCount);
-                for (int i = rootMotionWeightCount; i < groupCount; i++)
+                for (var i = rootMotionWeightCount; i < groupCount; i++) {
                     _RootMotionWeights[i] = 1;
+                }
             }
         }
 
         /// <summary>Removes any missing or identical <see cref="_Transforms"/>.</summary>
-        public bool RemoveMissingAndDuplicate()
-        {
+        public bool RemoveMissingAndDuplicate() {
             var removedAny = false;
 
-            for (int i = 0; i < _Transforms.Length; i++)
-            {
+            for (var i = 0; i < _Transforms.Length; i++) {
                 var transform = _Transforms[i];
-                if (transform == null)
-                {
+                if (transform == null) {
                     RemoveTransform(i);
                     removedAny = true;
-                }
-                else
-                {
+                } else {
                     var nextIndex = i + 1;
 
-                    RemoveDuplicates:
+                RemoveDuplicates:
 
                     nextIndex = Array.IndexOf(_Transforms, transform, nextIndex);
-                    if (nextIndex > i)
-                    {
+                    if (nextIndex > i) {
                         RemoveTransform(nextIndex);
                         removedAny = true;
                         goto RemoveDuplicates;
@@ -326,57 +301,65 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        void ISerializationCallbackReceiver.OnBeforeSerialize()
-            => Validate();
+        void ISerializationCallbackReceiver.OnBeforeSerialize() {
+            Validate();
+        }
 
         /// <inheritdoc/>
-        void ISerializationCallbackReceiver.OnAfterDeserialize()
-            => Validate();
+        void ISerializationCallbackReceiver.OnAfterDeserialize() {
+            Validate();
+        }
 
         /************************************************************************************************************************/
 #endif
         /************************************************************************************************************************/
 
         /// <summary>Returns a summary of this definition.</summary>
-        public override string ToString()
-            => $"{nameof(WeightedMaskLayersDefinition)}(" +
-            $"{nameof(Transforms)}={(Transforms != null ? Transforms.Length : 0)}, " +
-            $"{nameof(Weights)}={(Weights != null ? Weights.Length : 0)}, " +
-            $"{nameof(RootMotionWeights)}={(RootMotionWeights != null ? RootMotionWeights.Length : 0)})";
+        public override string ToString() {
+            return $"{nameof(WeightedMaskLayersDefinition)}(" +
+                                                      $"{nameof(Transforms)}={(Transforms != null ? Transforms.Length : 0)}, " +
+                                                      $"{nameof(Weights)}={(Weights != null ? Weights.Length : 0)}, " +
+                                                      $"{nameof(RootMotionWeights)}={(RootMotionWeights != null ? RootMotionWeights.Length : 0)})";
+        }
 
         /************************************************************************************************************************/
         #region Equality
         /************************************************************************************************************************/
 
         /// <summary>Are all fields in this object equal to the equivalent in `obj`?</summary>
-        public override bool Equals(object obj)
-            => Equals(obj as WeightedMaskLayersDefinition);
+        public override bool Equals(object obj) {
+            return Equals(obj as WeightedMaskLayersDefinition);
+        }
 
         /// <summary>Are all fields in this object equal to the equivalent fields in `other`?</summary>
-        public bool Equals(WeightedMaskLayersDefinition other)
-            => other != null
-            && AnimancerUtilities.ContentsAreEqual(_Transforms, other._Transforms)
-            && AnimancerUtilities.ContentsAreEqual(_Weights, other._Weights)
-            && AnimancerUtilities.ContentsAreEqual(_RootMotionWeights, other._RootMotionWeights);
+        public bool Equals(WeightedMaskLayersDefinition other) {
+            return other != null
+                                                                           && AnimancerUtilities.ContentsAreEqual(_Transforms, other._Transforms)
+                                                                           && AnimancerUtilities.ContentsAreEqual(_Weights, other._Weights)
+                                                                           && AnimancerUtilities.ContentsAreEqual(_RootMotionWeights, other._RootMotionWeights);
+        }
 
         /// <summary>Are all fields in `a` equal to the equivalent fields in `b`?</summary>
-        public static bool operator ==(WeightedMaskLayersDefinition a, WeightedMaskLayersDefinition b)
-            => a is null
-                ? b is null
-                : a.Equals(b);
+        public static bool operator ==(WeightedMaskLayersDefinition a, WeightedMaskLayersDefinition b) {
+            return a is null
+                                                                                                                       ? b is null
+                                                                                                                       : a.Equals(b);
+        }
 
         /// <summary>Are any fields in `a` not equal to the equivalent fields in `b`?</summary>
-        public static bool operator !=(WeightedMaskLayersDefinition a, WeightedMaskLayersDefinition b)
-            => !(a == b);
+        public static bool operator !=(WeightedMaskLayersDefinition a, WeightedMaskLayersDefinition b) {
+            return !(a == b);
+        }
 
         /************************************************************************************************************************/
 
         /// <summary>Returns a hash code based on the values of this object's fields.</summary>
-        public override int GetHashCode()
-            => AnimancerUtilities.Hash(-871379578,
-                _Transforms.SafeGetHashCode(),
-                _Weights.SafeGetHashCode(),
-                _RootMotionWeights.SafeGetHashCode());
+        public override int GetHashCode() {
+            return AnimancerUtilities.Hash(-871379578,
+                                                          _Transforms.SafeGetHashCode(),
+                                                          _Weights.SafeGetHashCode(),
+                                                          _RootMotionWeights.SafeGetHashCode());
+        }
 
         /************************************************************************************************************************/
         #endregion

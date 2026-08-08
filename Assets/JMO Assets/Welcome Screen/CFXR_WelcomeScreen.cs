@@ -1,25 +1,19 @@
-﻿using UnityEditor;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace CartoonFX
-{
+namespace CartoonFX {
     [InitializeOnLoad]
-    public class CFXR_WelcomeScreen : EditorWindow
-    {
-        static CFXR_WelcomeScreen()
-        {
-            EditorApplication.delayCall += () =>
-            {
-                if (SessionState.GetBool("CFXR_WelcomeScreen_Shown", false))
-                {
+    public class CFXR_WelcomeScreen : EditorWindow {
+        static CFXR_WelcomeScreen() {
+            EditorApplication.delayCall += () => {
+                if (SessionState.GetBool("CFXR_WelcomeScreen_Shown", false)) {
                     return;
                 }
-            SessionState.SetBool("CFXR_WelcomeScreen_Shown", true);
+                SessionState.SetBool("CFXR_WelcomeScreen_Shown", true);
 
                 var importer = AssetImporter.GetAtPath(AssetDatabase.GUIDToAssetPath("bfd03f272fe010b4ba558a3bc456ffeb"));
-                if (importer != null && importer.userData == "dontshow")
-                {
+                if (importer != null && importer.userData == "dontshow") {
                     return;
                 }
 
@@ -28,16 +22,15 @@ namespace CartoonFX
         }
 
         [MenuItem("Tools/Cartoon FX Remaster FREE - Welcome Screen")]
-        static void Open()
-        {
+        private static void Open() {
             var window = GetWindow<CFXR_WelcomeScreen>(true, "Cartoon FX Remaster FREE", true);
             window.minSize = new Vector2(516, 370);
             window.maxSize = new Vector2(516, 370);
         }
 
-        private void CreateGUI()
-        {
-            VisualElement root = rootVisualElement;
+        [System.Obsolete]
+        private void CreateGUI() {
+            var root = rootVisualElement;
             root.style.height = new StyleLength(new Length(100, LengthUnit.Percent));
 
             // UXML
@@ -62,14 +55,13 @@ namespace CartoonFX
             root.Q<Label>("btn_cfxr4").AddManipulator(new Clickable(evt => { Application.OpenURL("https://assetstore.unity.com/packages/slug/23634"); }));
             root.Q<Label>("btn_cfxrbundle").AddManipulator(new Clickable(evt => { Application.OpenURL("https://assetstore.unity.com/packages/slug/232385"); }));
 
-            root.Q<Button>("close_dontshow").RegisterCallback<ClickEvent>(evt =>
-            {
-                this.Close();
+            root.Q<Button>("close_dontshow").RegisterCallback<ClickEvent>(evt => {
+                Close();
                 var importer = AssetImporter.GetAtPath(AssetDatabase.GUIDToAssetPath("bfd03f272fe010b4ba558a3bc456ffeb"));
                 importer.userData = "dontshow";
                 importer.SaveAndReimport();
             });
-            root.Q<Button>("close").RegisterCallback<ClickEvent>(evt => { this.Close(); });
+            root.Q<Button>("close").RegisterCallback<ClickEvent>(evt => { Close(); });
         }
     }
 }

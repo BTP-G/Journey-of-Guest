@@ -2,19 +2,16 @@
 
 using System;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <inheritdoc/>
     /// https://kybernetik.com.au/animancer/api/Animancer/ManualMixerTransition
     [Serializable]
     public class ManualMixerTransition : ManualMixerTransition<ManualMixerState>,
-        ICopyable<ManualMixerTransition>
-    {
+        ICopyable<ManualMixerTransition> {
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override ManualMixerState CreateState()
-        {
+        public override ManualMixerState CreateState() {
             State = new();
             InitializeState();
             return State;
@@ -23,20 +20,21 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override Transition<ManualMixerState> Clone(CloneContext context)
-        {
+        public override Transition<ManualMixerState> Clone(CloneContext context) {
             var clone = new ManualMixerTransition();
             clone.CopyFrom(this, context);
             return clone;
         }
 
         /// <inheritdoc/>
-        public sealed override void CopyFrom(ManualMixerTransition<ManualMixerState> copyFrom, CloneContext context)
-            => this.CopyFromBase(copyFrom, context);
+        public sealed override void CopyFrom(ManualMixerTransition<ManualMixerState> copyFrom, CloneContext context) {
+            this.CopyFromBase(copyFrom, context);
+        }
 
         /// <inheritdoc/>
-        public virtual void CopyFrom(ManualMixerTransition copyFrom, CloneContext context)
-            => base.CopyFrom(copyFrom, context);
+        public virtual void CopyFrom(ManualMixerTransition copyFrom, CloneContext context) {
+            base.CopyFrom(copyFrom, context);
+        }
 
         /************************************************************************************************************************/
     }

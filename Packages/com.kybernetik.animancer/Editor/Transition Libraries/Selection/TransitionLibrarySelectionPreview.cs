@@ -10,14 +10,12 @@ using UnityEngine;
 using static Animancer.Editor.AnimancerGUI;
 using Object = UnityEngine.Object;
 
-namespace Animancer.Editor.TransitionLibraries
-{
+namespace Animancer.Editor.TransitionLibraries {
     /// <summary>[Editor-Only] Custom preview for <see cref="TransitionLibrarySelection"/>.</summary>
     /// <remarks>Parts of this class are based on Unity's <see cref="MeshPreview"/>.</remarks>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor.TransitionLibraries/TransitionLibrarySelectionPreview
     [CustomPreview(typeof(TransitionLibrarySelection))]
-    public class TransitionLibrarySelectionPreview : ObjectPreview
-    {
+    public class TransitionLibrarySelectionPreview : ObjectPreview {
         /************************************************************************************************************************/
 
         [SerializeField] private AnimancerPreviewRenderer _PreviewRenderer;
@@ -31,19 +29,18 @@ namespace Animancer.Editor.TransitionLibraries
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void Initialize(Object[] targets)
-        {
+        public override void Initialize(Object[] targets) {
             _PreviewRenderer ??= new();
             _PreviewPlayer ??= new();
 
-            if (targets.Length == 1)
-            {
+            if (targets.Length == 1) {
                 _Target = targets[0] as TransitionLibrarySelection;
-                if (_Target != null)
-                {
+                if (_Target != null) {
                     _TargetVersion = _Target.Version - 1;
-                    if (_Target.Window != null)
+                    if (_Target.Window != null) {
                         _PreviewRenderer.PreviewObject.TrySelectBestModel(_Target.Window.Data);
+                    }
+
                     CheckTarget();
                 }
             }
@@ -54,8 +51,7 @@ namespace Animancer.Editor.TransitionLibraries
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void Cleanup()
-        {
+        public override void Cleanup() {
             base.Cleanup();
             _PreviewPlayer?.Dispose();
             _PreviewPlayer = null;
@@ -66,16 +62,15 @@ namespace Animancer.Editor.TransitionLibraries
         /************************************************************************************************************************/
 
         /// <summary>Handles changes to the target object.</summary>
-        private void CheckTarget()
-        {
-            if (_TargetVersion == _Target.Version)
+        private void CheckTarget() {
+            if (_TargetVersion == _Target.Version) {
                 return;
+            }
 
             _TargetVersion = _Target.Version;
             _PreviewPlayer.IsPlaying = false;
 
-            switch (_Target.Type)
-            {
+            switch (_Target.Type) {
                 case TransitionLibrarySelection.SelectionType.FromTransition:
                     _PreviewPlayer.FromTransition = _Target.FromTransition;
                     _PreviewPlayer.ToTransition = null;
@@ -96,8 +91,7 @@ namespace Animancer.Editor.TransitionLibraries
         /************************************************************************************************************************/
 
         /// <summary>Updates the settings of the <see cref="TransitionPreviewPlayer"/>.</summary>
-        private void UpdatePlayerSettings()
-        {
+        private void UpdatePlayerSettings() {
             _PreviewPlayer.Graph = _PreviewRenderer.PreviewObject.Graph;
 
             _PreviewPlayer.FadeDuration = _Target.FadeDuration;
@@ -112,23 +106,24 @@ namespace Animancer.Editor.TransitionLibraries
             Title = new("Preview");
 
         /// <inheritdoc/>
-        public override GUIContent GetPreviewTitle()
-            => Title;
+        public override GUIContent GetPreviewTitle() {
+            return Title;
+        }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override bool HasPreviewGUI()
-            => _Target != null
-            && _Target.Type switch
-            {
-                TransitionLibrarySelection.SelectionType.FromTransition or
-                TransitionLibrarySelection.SelectionType.ToTransition or
-                TransitionLibrarySelection.SelectionType.Modifier
-                => true,
+        public override bool HasPreviewGUI() {
+            return _Target != null
+                                                         && _Target.Type switch {
+                                                             TransitionLibrarySelection.SelectionType.FromTransition or
+                                                             TransitionLibrarySelection.SelectionType.ToTransition or
+                                                             TransitionLibrarySelection.SelectionType.Modifier
+                                                             => true,
 
-                _ => false,
-            };
+                                                             _ => false,
+                                                         };
+        }
 
         /************************************************************************************************************************/
         #region Header Settings
@@ -137,12 +132,10 @@ namespace Animancer.Editor.TransitionLibraries
         private static GUIStyle _ToolbarButtonStyle;
 
         /// <inheritdoc/>
-        public override void OnPreviewSettings()
-        {
+        public override void OnPreviewSettings() {
             CheckTarget();
 
-            _ToolbarButtonStyle ??= new(EditorStyles.toolbarButton)
-            {
+            _ToolbarButtonStyle ??= new(EditorStyles.toolbarButton) {
                 padding = new(),
             };
 
@@ -156,10 +149,10 @@ namespace Animancer.Editor.TransitionLibraries
         /************************************************************************************************************************/
 
         /// <summary>Draws a toggle to play and pause the preview.</summary>
-        private void DoPlayPauseToggle(Rect area, GUIStyle style)
-        {
-            if (TryUseClickEvent(area, 1) || TryUseClickEvent(area, 2))
+        private void DoPlayPauseToggle(Rect area, GUIStyle style) {
+            if (TryUseClickEvent(area, 1) || TryUseClickEvent(area, 2)) {
                 _PreviewPlayer.CurrentTime = _PreviewPlayer.MinTime;
+            }
 
             _PreviewPlayer.IsPlaying = AnimancerGUI.DoPlayPauseToggle(
                 area,
@@ -173,10 +166,10 @@ namespace Animancer.Editor.TransitionLibraries
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void OnInteractivePreviewGUI(Rect area, GUIStyle background)
-        {
-            if (_Target == null)
+        public override void OnInteractivePreviewGUI(Rect area, GUIStyle background) {
+            if (_Target == null) {
                 return;
+            }
 
             CheckTarget();
             UpdatePlayerSettings();
@@ -193,10 +186,10 @@ namespace Animancer.Editor.TransitionLibraries
         /************************************************************************************************************************/
 
         /// <summary>Draws settings for modifying the preview.</summary>
-        private void DoSettingsGUI(ref Rect area)
-        {
-            if (!Speed.IsOn)
+        private void DoSettingsGUI(ref Rect area) {
+            if (!Speed.IsOn) {
                 return;
+            }
 
             area.yMin += StandardSpacing;
 
@@ -217,8 +210,7 @@ namespace Animancer.Editor.TransitionLibraries
         /************************************************************************************************************************/
 
         /// <summary>Draws the preview timeline.</summary>
-        private void DoTimelineGUI(ref Rect area)
-        {
+        private void DoTimelineGUI(ref Rect area) {
             var timelineArea = StealFromTop(ref area, EditorStyles.toolbar.fixedHeight, StandardSpacing);
 
             EditorGUI.DrawRect(timelineArea, Grey(0.25f, 0.3f));
@@ -235,13 +227,12 @@ namespace Animancer.Editor.TransitionLibraries
         /************************************************************************************************************************/
 
         /// <summary>Draws the fade duration slider.</summary>
-        private void DoFadeDurationSliderGUI(Rect area)
-        {
-            if (!CalculateFadeBounds(area, out var startFadeX, out var endFadeX))
+        private void DoFadeDurationSliderGUI(Rect area) {
+            if (!CalculateFadeBounds(area, out var startFadeX, out var endFadeX)) {
                 return;
+            }
 
-            switch (_Target.Type)
-            {
+            switch (_Target.Type) {
                 default:
                     return;
 
@@ -253,15 +244,16 @@ namespace Animancer.Editor.TransitionLibraries
 
             var sliderArea = area;
             sliderArea.width = LineHeight * 0.5f;
-            sliderArea.x = endFadeX - sliderArea.width * 0.5f;
+            sliderArea.x = endFadeX - (sliderArea.width * 0.5f);
 
             var control = new GUIControl(sliderArea, SliderHash);
 
-            switch (control.EventType)
-            {
+            switch (control.EventType) {
                 case EventType.MouseDown:
-                    if (control.TryUseMouseDown())
+                    if (control.TryUseMouseDown()) {
                         _PreviewPlayer.IsPlaying = false;
+                    }
+
                     break;
 
                 case EventType.MouseUp:
@@ -269,8 +261,7 @@ namespace Animancer.Editor.TransitionLibraries
                     break;
 
                 case EventType.MouseDrag:
-                    if (control.TryUseHotControl())
-                    {
+                    if (control.TryUseHotControl()) {
                         var x = Math.Max(startFadeX, control.Event.mousePosition.x);
                         var normalizedTime = area.InverseLerpUnclampedX(x);
                         var normalizedStartFade = area.InverseLerpUnclampedX(startFadeX);
@@ -281,15 +272,13 @@ namespace Animancer.Editor.TransitionLibraries
                             _PreviewPlayer.LerpTimeUnclamped(normalizedStartFade);
 
                         var selected = _Target.Selected;
-                        if (selected is TransitionModifierDefinition modifier)
-                        {
+                        if (selected is TransitionModifierDefinition modifier) {
                             _Target.Window.RecordUndo()
                                 .SetModifier(modifier.WithFadeDuration(fadeDuration));
-                        }
-                        else if (selected is TransitionAssetBase transitionAsset)
-                        {
-                            if (fadeDuration < 0)
+                        } else if (selected is TransitionAssetBase transitionAsset) {
+                            if (fadeDuration < 0) {
                                 fadeDuration = 0;
+                            }
 
                             using var serializedObject = new SerializedObject(transitionAsset);
                             var property = serializedObject.FindProperty(TransitionAssetBase.TransitionField);
@@ -308,11 +297,13 @@ namespace Animancer.Editor.TransitionLibraries
                     var color = AnimancerStateDrawerColors.FadeLineColor;
 
                     var showCursor = GUIUtility.hotControl == 0 || GUIUtility.hotControl == control.ID;
-                    if (showCursor)
+                    if (showCursor) {
                         EditorGUIUtility.AddCursorRect(sliderArea, MouseCursor.ResizeHorizontal);
+                    }
 
-                    if (!showCursor || !sliderArea.Contains(control.Event.mousePosition))
+                    if (!showCursor || !sliderArea.Contains(control.Event.mousePosition)) {
                         color.a *= 0.5f;
+                    }
 
                     EditorGUI.DrawRect(
                         new(endFadeX, sliderArea.y, 1, sliderArea.height - 1),
@@ -325,22 +316,20 @@ namespace Animancer.Editor.TransitionLibraries
         /************************************************************************************************************************/
 
         /// <summary>Draws the preview time slider.</summary>
-        private void DoTimeSliderGUI(Rect area)
-        {
+        private void DoTimeSliderGUI(Rect area) {
             var control = new GUIControl(area, SliderHash);
 
-            switch (control.EventType)
-            {
+            switch (control.EventType) {
                 case EventType.MouseDown:
-                    if (control.TryUseMouseDown())
-                    {
+                    if (control.TryUseMouseDown()) {
                         _ForceClampTime = true;
                         _DidWrapTime = false;
                         HandleDragTime(area, control.Event);
 
                         _ForceClampTime = control.Event.control;
-                        if (!_ForceClampTime)
+                        if (!_ForceClampTime) {
                             EditorGUIUtility.SetWantsMouseJumping(1);
+                        }
 
                         _PreviewPlayer.IsPlaying = control.Event.clickCount > 1;
                     }
@@ -348,21 +337,24 @@ namespace Animancer.Editor.TransitionLibraries
                     break;
 
                 case EventType.MouseUp:
-                    if (control.TryUseMouseUp())
+                    if (control.TryUseMouseUp()) {
                         EditorGUIUtility.SetWantsMouseJumping(0);
+                    }
+
                     break;
 
                 case EventType.MouseDrag:
-                    if (control.TryUseHotControl())
+                    if (control.TryUseHotControl()) {
                         HandleDragTime(area, control.Event);
+                    }
+
                     break;
 
                 case EventType.Repaint:
 
                     BeginTriangles(AnimancerStateDrawerColors.FadeLineColor);
 
-                    if (CalculateFadeBounds(area, out var startFadeX, out var endFadeX))
-                    {
+                    if (CalculateFadeBounds(area, out var startFadeX, out var endFadeX)) {
                         // Fade.
                         DrawLineBatched(
                             new(startFadeX, area.yMin + 1),
@@ -370,19 +362,21 @@ namespace Animancer.Editor.TransitionLibraries
                             1);
 
                         // To.
-                        if (endFadeX < area.xMax)
+                        if (endFadeX < area.xMax) {
                             DrawLineBatched(
                             new(endFadeX, area.yMax - 1),
                             new(area.xMax, area.yMax - 1),
                             1);
+                        }
                     }
 
                     // From.
-                    if (area.xMin < startFadeX)
+                    if (area.xMin < startFadeX) {
                         DrawLineBatched(
                             new(area.xMin, area.yMin + 1),
                             new(startFadeX, area.yMin + 1),
                             1);
+                    }
 
                     var color = _PreviewPlayer.IsPlaying
                         ? AnimancerStateDrawerColors.PlayingBarColor
@@ -407,10 +401,8 @@ namespace Animancer.Editor.TransitionLibraries
         private bool _DidWrapTime;
 
         /// <summary>Draws handles drag events to control the preview time.</summary>
-        private void HandleDragTime(Rect area, Event currentEvent)
-        {
-            if (_ForceClampTime)
-            {
+        private void HandleDragTime(Rect area, Event currentEvent) {
+            if (_ForceClampTime) {
                 _PreviewPlayer.NormalizedTime = area.InverseLerpUnclampedX(currentEvent.mousePosition.x);
                 return;
             }
@@ -418,24 +410,22 @@ namespace Animancer.Editor.TransitionLibraries
             var delta = currentEvent.delta.x;
 
             var normalizedTime = _PreviewPlayer.NormalizedTime;
-            if (normalizedTime == 0 && !_DidWrapTime && delta > 0)
-            {
+            if (normalizedTime == 0 && !_DidWrapTime && delta > 0) {
                 var x = currentEvent.mousePosition.x;
-                if (area.xMin > x || area.xMax < x)
+                if (area.xMin > x || area.xMax < x) {
                     return;
+                }
             }
 
             normalizedTime += delta / area.width;
-            if (normalizedTime >= 0 || _DidWrapTime)
-            {
+            if (normalizedTime >= 0 || _DidWrapTime) {
 
-                if (normalizedTime > 1)
+                if (normalizedTime > 1) {
                     _DidWrapTime = true;
+                }
 
                 normalizedTime = AnimancerUtilities.Wrap01(normalizedTime);
-            }
-            else
-            {
+            } else {
                 normalizedTime = 0;
             }
 
@@ -448,29 +438,22 @@ namespace Animancer.Editor.TransitionLibraries
         private bool CalculateFadeBounds(
             Rect area,
             out float startFadeX,
-            out float endFadeX)
-        {
+            out float endFadeX) {
             var fadeDuration = _Target.FadeDuration;
-            if (!float.IsNaN(fadeDuration))
-            {
+            if (!float.IsNaN(fadeDuration)) {
                 startFadeX = area.LerpUnclampedX(_PreviewPlayer.InverseLerpTimeUnclamped(0));
 
                 endFadeX = area.LerpUnclampedX(_PreviewPlayer.InverseLerpTimeUnclamped(fadeDuration));
 
-                if (_Target.FromTransition.IsValid())
-                {
-                    if (!_Target.ToTransition.IsValid())
-                    {
+                if (_Target.FromTransition.IsValid()) {
+                    if (!_Target.ToTransition.IsValid()) {
                         endFadeX -= startFadeX;
                         startFadeX = area.xMin;
                     }
 
                     return true;
-                }
-                else
-                {
-                    if (_Target.ToTransition.IsValid())
-                    {
+                } else {
+                    if (_Target.ToTransition.IsValid()) {
                         return true;
                     }
                 }
@@ -484,8 +467,7 @@ namespace Animancer.Editor.TransitionLibraries
         /************************************************************************************************************************/
 
         /// <summary>Draws labels for the selected transitions.</summary>
-        private void DoTransitionLabels(Rect area)
-        {
+        private void DoTransitionLabels(Rect area) {
             area.xMin += 1;
             area.xMax -= 2;
 
@@ -499,19 +481,20 @@ namespace Animancer.Editor.TransitionLibraries
             var hasFrom = fromTransition.IsValid();
             var hasTo = toTransition.IsValid();
 
-            if (hasFrom && hasTo)
-            {
-                leftArea.width = mid - StandardSpacing * 0.5f;
+            if (hasFrom && hasTo) {
+                leftArea.width = mid - (StandardSpacing * 0.5f);
 
                 rightArea.x = area.xMax - leftArea.width;
                 rightArea.width = leftArea.width;
             }
 
-            if (hasFrom)
+            if (hasFrom) {
                 GUI.Label(leftArea, _Target.FromTransition.GetCachedName());
+            }
 
-            if (hasTo)
+            if (hasTo) {
                 GUI.Label(rightArea, _Target.ToTransition.GetCachedName(), RightLabelStyle);
+            }
         }
 
         /************************************************************************************************************************/

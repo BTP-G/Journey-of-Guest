@@ -1,9 +1,9 @@
-using Xoderony;
-using Xoderony.Extensions;
-using Xoderony.Movement;
 using JoG.Health;
 using System;
 using VContainer;
+using Xoderony;
+using Xoderony.Extensions;
+using Xoderony.Movement;
 
 namespace JoG.Character.Components {
 
@@ -37,7 +37,5 @@ namespace JoG.Character.Components {
                 motor.ForceUngrounded(2);
             }
         }
-
     }
-
 }

@@ -1,15 +1,11 @@
-﻿using System;
+using System;
 
-namespace NCalc
-{
-    public class ParameterArgs : EventArgs
-    {
+namespace NCalc {
+    public class ParameterArgs : EventArgs {
         private object _result;
-        public object Result
-        {
+        public object Result {
             get { return _result; }
-            set
-            {
+            set {
                 _result = value;
                 HasResult = true;
             }

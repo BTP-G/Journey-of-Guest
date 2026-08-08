@@ -27,7 +27,5 @@ namespace JoG.StateMachines {
         void IState.Exit() {
             enabled = false;
         }
-
     }
-
 }

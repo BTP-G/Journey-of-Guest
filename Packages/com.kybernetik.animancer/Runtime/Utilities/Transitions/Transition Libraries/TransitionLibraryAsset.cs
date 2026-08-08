@@ -3,8 +3,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Animancer.TransitionLibraries
-{
+namespace Animancer.TransitionLibraries {
     /// <summary>[Pro-Only]
     /// A <see cref="ScriptableObject"/> which serializes a <see cref="TransitionLibraryDefinition"/>
     /// and creates a <see cref="TransitionLibrary"/> from it at runtime.
@@ -20,8 +19,7 @@ namespace Animancer.TransitionLibraries
         order = Strings.AssetMenuOrder + 0)]
     [AnimancerHelpUrl(typeof(TransitionLibraryAsset))]
     public class TransitionLibraryAsset : ScriptableObject,
-        IAnimationClipCollection
-    {
+        IAnimationClipCollection {
         /************************************************************************************************************************/
 
         [SerializeField]
@@ -34,11 +32,9 @@ namespace Animancer.TransitionLibraries
         /// If you modify the contents of this reference, either re-assign this property
         /// or call <see cref="OnDefinitionModified"/> to apply any changes to the <see cref="Library"/>.
         /// </remarks>
-        public TransitionLibraryDefinition Definition
-        {
+        public TransitionLibraryDefinition Definition {
             get => _Definition;
-            set
-            {
+            set {
                 _Definition = value ?? new();
                 OnDefinitionModified();
             }
@@ -59,8 +55,7 @@ namespace Animancer.TransitionLibraries
         /************************************************************************************************************************/
 
         /// <summary>Initializes the <see cref="Library"/>.</summary>
-        protected virtual void OnEnable()
-        {
+        protected virtual void OnEnable() {
             _Definition ??= new();
 
             Library = new();
@@ -80,14 +75,14 @@ namespace Animancer.TransitionLibraries
         /// Note that this doesn't remove anything from the <see cref="Library"/>,
         /// it only adds or replaces values.
         /// </remarks>
-        public void OnDefinitionModified()
-            => Library?.Initialize(_Definition);
+        public void OnDefinitionModified() {
+            Library?.Initialize(_Definition);
+        }
 
         /************************************************************************************************************************/
 
         /// <summary>Gathers all the animations in the <see cref="Definition"/> and <see cref="Library"/>.</summary>
-        public virtual void GatherAnimationClips(ICollection<AnimationClip> clips)
-        {
+        public virtual void GatherAnimationClips(ICollection<AnimationClip> clips) {
             clips.GatherFromSource(_Definition);
             clips.GatherFromSource(Library);
         }

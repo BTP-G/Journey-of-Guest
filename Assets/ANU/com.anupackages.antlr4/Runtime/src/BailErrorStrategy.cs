@@ -1,13 +1,10 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-using Antlr4.Runtime;
 using Antlr4.Runtime.Misc;
-using Antlr4.Runtime.Sharpen;
 
-namespace Antlr4.Runtime
-{
+namespace Antlr4.Runtime {
     /// <summary>
     /// This implementation of
     /// <see cref="IAntlrErrorStrategy"/>
@@ -41,8 +38,7 @@ namespace Antlr4.Runtime
     /// </p>
     /// </summary>
     /// <seealso cref="Parser.ErrorHandler"/>
-    public class BailErrorStrategy : DefaultErrorStrategy
-    {
+    public class BailErrorStrategy : DefaultErrorStrategy {
         /// <summary>
         /// Instead of recovering from exception
         /// <paramref name="e"/>
@@ -57,10 +53,8 @@ namespace Antlr4.Runtime
         /// <see cref="RecognitionException"/>
         /// .
         /// </summary>
-        public override void Recover(Parser recognizer, RecognitionException e)
-        {
-            for (ParserRuleContext context = recognizer.Context; context != null; context = ((ParserRuleContext)context.Parent))
-            {
+        public override void Recover(Parser recognizer, RecognitionException e) {
+            for (var context = recognizer.Context; context != null; context = (ParserRuleContext)context.Parent) {
                 context.exception = e;
             }
             throw new ParseCanceledException(e);
@@ -75,11 +69,9 @@ namespace Antlr4.Runtime
         /// successfully recovers, it won't throw an exception.
         /// </remarks>
         /// <exception cref="Antlr4.Runtime.RecognitionException"/>
-        public override IToken RecoverInline(Parser recognizer)
-        {
-            InputMismatchException e = new InputMismatchException(recognizer);
-            for (ParserRuleContext context = recognizer.Context; context != null; context = ((ParserRuleContext)context.Parent))
-            {
+        public override IToken RecoverInline(Parser recognizer) {
+            var e = new InputMismatchException(recognizer);
+            for (var context = recognizer.Context; context != null; context = (ParserRuleContext)context.Parent) {
                 context.exception = e;
             }
             throw new ParseCanceledException(e);
@@ -87,8 +79,7 @@ namespace Antlr4.Runtime
 
         /// <summary>Make sure we don't attempt to recover from problems in subrules.</summary>
         /// <remarks>Make sure we don't attempt to recover from problems in subrules.</remarks>
-        public override void Sync(Parser recognizer)
-        {
+        public override void Sync(Parser recognizer) {
         }
     }
 }

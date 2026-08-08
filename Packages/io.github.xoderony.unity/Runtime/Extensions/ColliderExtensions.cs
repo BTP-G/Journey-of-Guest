@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace Xoderony.Extensions {
 
@@ -11,7 +11,7 @@ namespace Xoderony.Extensions {
                 if (Physics.GetIgnoreLayerCollision(colliderLayer, i)) {
                     continue;
                 }
-                mask |= (1 << i);
+                mask |= 1 << i;
             }
             return mask;
         }

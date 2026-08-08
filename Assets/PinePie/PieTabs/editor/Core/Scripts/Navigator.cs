@@ -1,7 +1,6 @@
-﻿// Copyright (c) 2025 PinePie. All rights reserved.
+// Copyright (c) 2025 PinePie. All rights reserved.
 
 #if UNITY_EDITOR
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEditor;
@@ -9,69 +8,60 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using Object = UnityEngine.Object;
 
-namespace PinePie.PieTabs
-{
+namespace PinePie.PieTabs {
     [InitializeOnLoad]
-    public static class NavigatorLoader
-    {
-        static NavigatorLoader() => EditorApplication.update += RunOnceOnLoad;
+    public static class NavigatorLoader {
+        static NavigatorLoader() {
+            EditorApplication.update += RunOnceOnLoad;
+        }
 
-        static void RunOnceOnLoad()
-        {
+        private static void RunOnceOnLoad() {
             EditorApplication.update -= RunOnceOnLoad;
 
-            if (!Directory.Exists($"{PathUtility.GetPieTabsPath()}/PinePie/PieTabs"))
+            if (!Directory.Exists($"{PathUtility.GetPieTabsPath()}/PinePie/PieTabs")) {
                 return;
+            }
 
             Navigator.Setup();
-            UI.mainUI.RegisterCallback<DetachFromPanelEvent>(evt =>
-            {
+            UI.mainUI.RegisterCallback<DetachFromPanelEvent>(evt => {
                 Selection.selectionChanged -= EnsurePieDeskOverlay;
 
-                EditorApplication.delayCall += () =>
-                {
+                EditorApplication.delayCall += () => {
                     var projectWindow = Navigator.GetProjectBrowserUI();
-                    if (UI.mainUI.panel == null)
-                    {
+                    if (UI.mainUI.panel == null) {
                         Selection.selectionChanged += EnsurePieDeskOverlay;
                     }
                 };
             });
         }
 
-        private static void EnsurePieDeskOverlay()
-        {
+        private static void EnsurePieDeskOverlay() {
             var lastFocused = EditorWindow.focusedWindow;
-            if (lastFocused != null && lastFocused.GetType().Name == "ProjectBrowser")
-            {
+            if (lastFocused != null && lastFocused.GetType().Name == "ProjectBrowser") {
                 Selection.selectionChanged -= EnsurePieDeskOverlay;
                 Navigator.Setup();
             }
         }
 
         [MenuItem("Tools/Refresh PieTabs _F5")]
-        public static void RefreshPieDesk()
-        {
+        public static void RefreshPieDesk() {
             Navigator.Setup();
         }
     }
 
-    public static partial class Navigator
-    {
+    public static partial class Navigator {
         public static ShortcutButtonBundle navButtons = new();
         public static CreatorButtonBundle creatorButtons = new();
 
         private const string SplitterKey = "PieTabs_LastSplitterSpacing";
         private const string SearchBarOpenKey = "PieTabs_SearchBarOpen";
 
-        private static float LastCreatorWidth
-        {
+        private static float LastCreatorWidth {
             get => EditorPrefs.GetFloat(SplitterKey, 300f);
             set => EditorPrefs.SetFloat(SplitterKey, value);
         }
 
-        private static bool IsSearchBarOpen
-        {
+        private static bool IsSearchBarOpen {
             get => EditorPrefs.GetBool(SearchBarOpenKey, false);
             set => EditorPrefs.SetBool(SearchBarOpenKey, value);
         }
@@ -83,9 +73,7 @@ namespace PinePie.PieTabs
         private static bool isDragging = false;
         private static bool isMouseDown = false;
 
-
-        public static void Setup()
-        {
+        public static void Setup() {
             UI.projectBrowserUI = GetProjectBrowserUI();
             UI.mainUI = LoadUXML("PieDeskMainUI.uxml").Instantiate().Q<VisualElement>("PieDeskUI");
             UI.mainUI.styleSheets.Add(AssetDatabase.LoadAssetAtPath<StyleSheet>($"{PathUtility.GetPieTabsPath()}/PinePie/PieTabs/editor/Core/UI/PieDeskStyling.uss"));
@@ -98,7 +86,7 @@ namespace PinePie.PieTabs
 
             UI.colorPopup = UI.mainUI.Q<VisualElement>("colorPopup").Q<VisualElement>("colorPopup");
 
-            VisualElement alreadySetUI = UI.projectBrowserUI.Q<VisualElement>("PieDeskUI");
+            var alreadySetUI = UI.projectBrowserUI.Q<VisualElement>("PieDeskUI");
             alreadySetUI?.RemoveFromHierarchy();
 
             isTwoColumnMode = IsTwoColumnMode();
@@ -106,21 +94,19 @@ namespace PinePie.PieTabs
 
             UI.shortcutButtonArea = UI.mainUI.Q<ScrollView>("shorcutsDragArea");
             UI.creatorButtonArea = UI.mainUI.Q<ScrollView>("CreationMenuDragArea");
-            if (!isTwoColumnMode)
-            {
+            if (!isTwoColumnMode) {
                 UI.shortcutButtonArea.style.display = DisplayStyle.None;
                 UI.creatorButtonArea.style.flexGrow = 1;
 
                 UI.mainUI.Q<VisualElement>("splitter").style.display = DisplayStyle.None;
 
-                VisualElement bottomBar = UI.mainUI.Q<VisualElement>("bottomAddressBar");
+                var bottomBar = UI.mainUI.Q<VisualElement>("bottomAddressBar");
                 bottomBar.style.marginRight = 0;
                 bottomBar.style.marginLeft = 0;
 
                 UI.shortcutButtonArea = UI.mainUI.Q<ScrollView>("CreationMenuDragArea");
-            }
-            else // two coloumn mode 
-            {
+            } else // two coloumn mode 
+              {
                 SetupSplitter();
                 SetupBottomBarMargin();
                 UI.creatorButtonArea.style.width = LastCreatorWidth;
@@ -144,46 +130,39 @@ namespace PinePie.PieTabs
             UI.projectBrowserUI.Add(UI.mainUI);
         }
 
-
         // click callbacks
         public static void OnShortcutButtonClicked(
             VisualElement UIbutton,
-            ShortcutButton buttonProp)
-        {
+            ShortcutButton buttonProp) {
             // callbacks
-            Object obj = AssetDatabase.LoadAssetAtPath<Object>(buttonProp.Path);
+            var obj = AssetDatabase.LoadAssetAtPath<Object>(buttonProp.Path);
             UIbutton.AddManipulator(new ShortcutDragManipulator(obj));
 
-            UIbutton.RegisterCallback<PointerDownEvent>(evt =>
-            {
-                if (evt.button == 0)
-                {
+            UIbutton.RegisterCallback<PointerDownEvent>(evt => {
+                if (evt.button == 0) {
                     UIbutton.Q<VisualElement>("shade").style.backgroundColor = new Color(255, 255, 255, 0.15f);
 
                     evt.StopPropagation();
-                }
-                else if (evt.button == 1)
-                {
+                } else if (evt.button == 1) {
                     evt.StopPropagation();
                 }
             });
 
-            UIbutton.RegisterCallback<PointerUpEvent>(evt =>
-            {
+            UIbutton.RegisterCallback<PointerUpEvent>(evt => {
                 // single click
-                if (obj == null) return;
+                if (obj == null) {
+                    return;
+                }
 
-                if (PieTabsPrefs.KeyMatches(evt, PieTabsPrefs.directOpenShortcut))
-                {
-                    if (AssetDatabase.IsValidFolder(buttonProp.Path))
+                if (PieTabsPrefs.KeyMatches(evt, PieTabsPrefs.directOpenShortcut)) {
+                    if (AssetDatabase.IsValidFolder(buttonProp.Path)) {
                         OpenFolder(buttonProp.Path);
-                    else
+                    } else {
                         AssetDatabase.OpenAsset(obj);
+                    }
 
                     evt.StopPropagation();
-                }
-                else if (PieTabsPrefs.KeyMatches(evt, PieTabsPrefs.minimalShortcut))
-                {
+                } else if (PieTabsPrefs.KeyMatches(evt, PieTabsPrefs.minimalShortcut)) {
                     buttonProp.isMinimal = !buttonProp.isMinimal;
 
                     UIbutton.Q<Label>("buttonLabel").text = buttonProp.isMinimal ? "" : buttonProp.Label;
@@ -195,9 +174,7 @@ namespace PinePie.PieTabs
                     navButtons.SaveToJson();
 
                     evt.StopPropagation();
-                }
-                else if (PieTabsPrefs.KeyMatches(evt, PieTabsPrefs.colorShortcut))
-                {
+                } else if (PieTabsPrefs.KeyMatches(evt, PieTabsPrefs.colorShortcut)) {
                     ShowBoxAtPos(UI.colorPopup, evt.position.x - 100);
 
                     ColorPopup.isForCreator = false;
@@ -207,41 +184,37 @@ namespace PinePie.PieTabs
                     ColorPopup.activeVisualItem = UIbutton;
 
                     evt.StopPropagation();
-                }
-
-                else if (PieTabsPrefs.KeyMatches(evt, PieTabsPrefs.deleteShortcut))
-                {
-                    if (PieTabsPrefs.AskBeforeDelete)
-                    {
-                        bool confirm = EditorUtility.DisplayDialog(
+                } else if (PieTabsPrefs.KeyMatches(evt, PieTabsPrefs.deleteShortcut)) {
+                    if (PieTabsPrefs.AskBeforeDelete) {
+                        var confirm = EditorUtility.DisplayDialog(
                             "Delete Tab",
                             $"Are you sure you want to delete \"{buttonProp.Label}\" Tab?",
                             "Delete", "Cancel"
                         );
 
-                        if (confirm) RemoveButton(buttonProp);
+                        if (confirm) {
+                            RemoveButton(buttonProp);
+                        }
+                    } else {
+                        RemoveButton(buttonProp);
                     }
-                    else RemoveButton(buttonProp);
 
                     evt.StopPropagation();
-                }
+                } else if (evt.button == 0) {
+                    var path = buttonProp.Path;
+                    var type = GetAssetType(path);
 
-                else if (evt.button == 0)
-                {
-                    string path = buttonProp.Path;
-                    PieAssetType type = GetAssetType(path);
-
-                    if (type == PieAssetType.Folder && PieTabsPrefs.FastFolderOpen)
+                    if (type == PieAssetType.Folder && PieTabsPrefs.FastFolderOpen) {
                         OpenFolder(path);
-                    else if ((type == PieAssetType.Scene && PieTabsPrefs.FastSceneOpen)
+                    } else if ((type == PieAssetType.Scene && PieTabsPrefs.FastSceneOpen)
                             || (type == PieAssetType.Script && PieTabsPrefs.FastScriptOpen)
                             || (type == PieAssetType.Prefab && PieTabsPrefs.FastPrefabOpen)
                             || (type == PieAssetType.ShaderGraph && PieTabsPrefs.FastShaderGraphOpen)
-                            || (type == PieAssetType.VisualScriptingGraph && PieTabsPrefs.FastVisScrGraphOpen))
+                            || (type == PieAssetType.VisualScriptingGraph && PieTabsPrefs.FastVisScrGraphOpen)) {
                         AssetDatabase.OpenAsset(obj);
-                    else
+                    } else {
                         FocusAssetByObj(obj);
-
+                    }
 
                     evt.StopPropagation();
                 }
@@ -253,13 +226,10 @@ namespace PinePie.PieTabs
 
         public static void OnAssetCreatorButtonClicked(
             VisualElement UIbutton,
-            CreatorButton buttonProp)
-        {
+            CreatorButton buttonProp) {
             // callbacks
-            UIbutton.RegisterCallback<PointerDownEvent>(evt =>
-            {
-                if (evt.button == 0)
-                {
+            UIbutton.RegisterCallback<PointerDownEvent>(evt => {
+                if (evt.button == 0) {
                     UIbutton.Q<VisualElement>("shade").style.backgroundColor = new Color(255, 255, 255, 0.15f);
 
                     dragStartPos = evt.position;
@@ -267,33 +237,33 @@ namespace PinePie.PieTabs
                     isDragging = false;
 
                     evt.StopPropagation();
-                }
-                else if (evt.button == 1)
-                {
+                } else if (evt.button == 1) {
                     evt.StopPropagation();
                 }
             });
 
-            UIbutton.RegisterCallback<PointerMoveEvent>(evt =>
-            {
-                if (!isMouseDown) return;
+            UIbutton.RegisterCallback<PointerMoveEvent>(evt => {
+                if (!isMouseDown) {
+                    return;
+                }
 
-                if (!isDragging && Vector2.Distance(evt.position, dragStartPos) > 3f)
-                {
+                if (!isDragging && Vector2.Distance(evt.position, dragStartPos) > 3f) {
                     isDragging = true;
                     UIbutton.CaptureMouse();
                 }
 
-                if (UIbutton.HasMouseCapture() && isDragging) OnDrag(evt.position.x);
+                if (UIbutton.HasMouseCapture() && isDragging) {
+                    OnDrag(evt.position.x);
+                }
             });
 
-            UIbutton.RegisterCallback<PointerUpEvent>(evt =>
-            {
+            UIbutton.RegisterCallback<PointerUpEvent>(evt => {
                 // single click
-                if (evt.button == 0) isMouseDown = false;
+                if (evt.button == 0) {
+                    isMouseDown = false;
+                }
 
-                if (isDragging)
-                {
+                if (isDragging) {
                     isDragging = false;
                     UIbutton.ReleaseMouse();
 
@@ -304,21 +274,19 @@ namespace PinePie.PieTabs
                     return;
                 }
 
-                if (PieTabsPrefs.KeyMatches(evt, PieTabsPrefs.changeMenuEntryShortcut))
-                {
-                    List<string> items = GetAssetCreateMenuEntries();
+                if (PieTabsPrefs.KeyMatches(evt, PieTabsPrefs.changeMenuEntryShortcut)) {
+                    var items = GetAssetCreateMenuEntries();
 
                     var menu = new GenericMenu();
-                    foreach (var item in CleanEntries(items))
-                    {
+                    foreach (var item in CleanEntries(items)) {
                         var trimmedItem = item;
                         const string prefix = "Assets/Create/";
 
-                        if (item.StartsWith(prefix))
+                        if (item.StartsWith(prefix)) {
                             trimmedItem = item[prefix.Length..];
+                        }
 
-                        menu.AddItem(new GUIContent(trimmedItem), false, () =>
-                        {
+                        menu.AddItem(new GUIContent(trimmedItem), false, () => {
                             OnEditMenuEntry(buttonProp, item);
                         });
                     }
@@ -327,8 +295,7 @@ namespace PinePie.PieTabs
                     evt.StopPropagation();
                 }
                 // minimal mode
-                else if (PieTabsPrefs.KeyMatches(evt, PieTabsPrefs.minimalShortcut))
-                {
+                else if (PieTabsPrefs.KeyMatches(evt, PieTabsPrefs.minimalShortcut)) {
                     buttonProp.isMinimal = !buttonProp.isMinimal;
 
                     UIbutton.Q<Label>("buttonLabel").text = buttonProp.isMinimal ? "" : buttonProp.Label;
@@ -342,8 +309,7 @@ namespace PinePie.PieTabs
                     evt.StopPropagation();
                 }
                 // Color setting
-                else if (PieTabsPrefs.KeyMatches(evt, PieTabsPrefs.colorShortcut))
-                {
+                else if (PieTabsPrefs.KeyMatches(evt, PieTabsPrefs.colorShortcut)) {
                     ShowBoxAtPos(UI.colorPopup, evt.position.x - 100);
 
                     ColorPopup.isForCreator = true;
@@ -353,28 +319,25 @@ namespace PinePie.PieTabs
                     ColorPopup.activeVisualItem = UIbutton;
 
                     evt.StopPropagation();
-                }
-                else if (evt.button == 0)
-                {
+                } else if (evt.button == 0) {
                     EditorApplication.ExecuteMenuItem(buttonProp.menuEntry);
 
                     evt.StopPropagation();
-                }
-
-                else if (PieTabsPrefs.KeyMatches(evt, PieTabsPrefs.deleteShortcut))
-                {
-                    if (PieTabsPrefs.AskBeforeDelete)
-                    {
-                        bool confirm = EditorUtility.DisplayDialog(
+                } else if (PieTabsPrefs.KeyMatches(evt, PieTabsPrefs.deleteShortcut)) {
+                    if (PieTabsPrefs.AskBeforeDelete) {
+                        var confirm = EditorUtility.DisplayDialog(
                             "Delete Tab",
                             $"Are you sure you want to delete \"{buttonProp.Label}\" Tab?",
                             "Delete",
                             "Cancel"
                         );
 
-                        if (confirm) RemoveButton(buttonProp);
+                        if (confirm) {
+                            RemoveButton(buttonProp);
+                        }
+                    } else {
+                        RemoveButton(buttonProp);
                     }
-                    else RemoveButton(buttonProp);
 
                     evt.StopPropagation();
                 }
@@ -382,46 +345,36 @@ namespace PinePie.PieTabs
 
         }
 
-
         // filling and removing
-        public static void FillShortcutButtons()
-        {
+        public static void FillShortcutButtons() {
             UI.shortcutButtonArea.Clear();
 
-            foreach (var button in navButtons.buttons)
-            {
+            foreach (var button in navButtons.buttons) {
                 UI.shortcutButtonArea.Add(button.UIbutton);
             }
         }
-        public static void FillCreatorButtons()
-        {
+        public static void FillCreatorButtons() {
             UI.creatorButtonArea.Clear();
 
-            foreach (var button in creatorButtons.buttons)
-            {
+            foreach (var button in creatorButtons.buttons) {
                 UI.creatorButtonArea.Add(button.UIbutton);
             }
         }
 
-        public static void RemoveButton(ShortcutButton toRemove)
-        {
+        public static void RemoveButton(ShortcutButton toRemove) {
             navButtons.RemoveButton(toRemove);
 
             FillShortcutButtons();
         }
-        public static void RemoveButton(CreatorButton toRemove)
-        {
+        public static void RemoveButton(CreatorButton toRemove) {
             creatorButtons.RemoveButton(toRemove);
 
             FillCreatorButtons();
         }
 
-
         // shortcut bar dragging
-        public static void SetupDragNDropForShortcutArea(VisualElement area, ShortcutButtonBundle navButtonsList)
-        {
-            area.RegisterCallback<DragUpdatedEvent>(evt =>
-            {
+        public static void SetupDragNDropForShortcutArea(VisualElement area, ShortcutButtonBundle navButtonsList) {
+            area.RegisterCallback<DragUpdatedEvent>(evt => {
                 DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
 
                 PlaceholderNeedleAtPos(area, evt.localMousePosition.x);
@@ -429,25 +382,29 @@ namespace PinePie.PieTabs
                 evt.StopPropagation();
             });
 
-            area.RegisterCallback<DragPerformEvent>(evt =>
-            {
+            area.RegisterCallback<DragPerformEvent>(evt => {
                 DragAndDrop.AcceptDrag();
 
-                foreach (var obj in DragAndDrop.objectReferences)
-                {
-                    string guid = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(obj));
+                foreach (var obj in DragAndDrop.objectReferences) {
+                    var guid = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(obj));
 
-                    Texture2D iconTexture = EditorGUIUtility.ObjectContent(obj, obj.GetType()).image as Texture2D;
+                    var iconTexture = EditorGUIUtility.ObjectContent(obj, obj.GetType()).image as Texture2D;
 
                     var foundButton = navButtonsList.buttons.FirstOrDefault(b => b.buttonProp.guid == guid);
-                    ShortcutButton buttonAtSamePath = foundButton?.buttonProp;
+                    var buttonAtSamePath = foundButton?.buttonProp;
 
                     var button = new ShortcutButton(obj.name, guid);
-                    if (buttonAtSamePath != null) button = new ShortcutButton(obj.name, guid, buttonAtSamePath.isMinimal, buttonAtSamePath.color);
+                    if (buttonAtSamePath != null) {
+                        button = new ShortcutButton(obj.name, guid, buttonAtSamePath.isMinimal, buttonAtSamePath.color);
+                    }
 
-                    if (placeHolderIndex != -1) navButtonsList.InsertAt(placeHolderIndex, button, UI.shortcutButtonAsset);
+                    if (placeHolderIndex != -1) {
+                        navButtonsList.InsertAt(placeHolderIndex, button, UI.shortcutButtonAsset);
+                    }
 
-                    if (buttonAtSamePath != null) navButtonsList.RemoveButton(buttonAtSamePath);
+                    if (buttonAtSamePath != null) {
+                        navButtonsList.RemoveButton(buttonAtSamePath);
+                    }
 
                     UI.placeholderNeedle.RemoveFromHierarchy();
                     placeHolderIndex = -1;
@@ -458,21 +415,17 @@ namespace PinePie.PieTabs
                 evt.StopPropagation();
             });
 
-            area.RegisterCallback<MouseLeaveEvent>(evt =>
-            {
-                if (DragAndDrop.objectReferences.Length > 0)
-                {
+            area.RegisterCallback<MouseLeaveEvent>(evt => {
+                if (DragAndDrop.objectReferences.Length > 0) {
                     UI.placeholderNeedle.RemoveFromHierarchy();
 
                     placeHolderIndex = -1;
                 }
             });
         }
-
     }
 
-    static class UI
-    {
+    internal static class UI {
         public static VisualElement projectBrowserUI;
         public static VisualElement mainUI;
 
@@ -481,17 +434,14 @@ namespace PinePie.PieTabs
 
         public static VisualElement colorPopup;
 
-
         public static VisualTreeAsset shortcutButtonAsset;
         public static VisualTreeAsset creatorButtonAsset;
-
 
         public static VisualElement shortcutButtonArea;
         public static VisualElement creatorButtonArea;
     }
 
-    static class ColorPopup
-    {
+    internal static class ColorPopup {
         public static bool isForCreator = false;
         public static bool popupIsOpen = false;
 
@@ -499,6 +449,5 @@ namespace PinePie.PieTabs
         public static CreatorButton activeCreatorButton;
         public static VisualElement activeVisualItem;
     }
-
 }
 #endif

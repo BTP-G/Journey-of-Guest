@@ -10,7 +10,10 @@ namespace JoG.Networking {
         [Inject] internal IAuthenticationService _authenticationService;
 
         async UniTask IAsyncBootstrapModule.InitializeAsync() {
-            if (_authenticationService.IsSignedIn) return;
+            if (_authenticationService.IsSignedIn) {
+                return;
+            }
+
             using (_popupManager.PopupLoader()) {
                 await _authenticationService.SignInAnonymouslyAsync();
             }

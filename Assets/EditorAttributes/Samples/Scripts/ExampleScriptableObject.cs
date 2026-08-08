@@ -1,26 +1,22 @@
-﻿using System;
-using UnityEngine;
 using EditorAttributes;
+using System;
+using UnityEngine;
 using Void = EditorAttributes.Void;
 
-namespace EditorAttributesSamples
-{
+namespace EditorAttributesSamples {
     [CreateAssetMenu(fileName = "ExampleScriptableObject", menuName = "ScriptableObjects/ExampleScriptableObject")]
-    public class ExampleScriptableObject : ScriptableObject
-    {
+    public class ExampleScriptableObject : ScriptableObject {
         public enum Season { Winter, Spring, Summer, Fall }
 
         [Serializable]
-        public class PlayerClass
-        {
+        public class PlayerClass {
             public string className;
             [Range(0f, 100f)] public float playerHealth;
             public GameObject playerPrefab;
         }
 
         [Serializable]
-        public class EnemyData
-        {
+        public class EnemyData {
             public string enemyName;
             [Range(0, 100)] public int enemyHealth;
             public float enemyDamage;
@@ -51,7 +47,12 @@ namespace EditorAttributesSamples
         [Dropdown(nameof(GetAudioClips))] public string backgroundMusic;
         [AssetPreview] public Sprite levelBackground;
 
-        private string[] GetAudioClips() => new string[] { "Music/BackgroundMusic1", "Music/BackgroundMusic2", "SFX/Explosion" };
-        private string GetTimeOfDay() => $"{timeOfDay} minutes";
+        private string[] GetAudioClips() {
+            return new string[] { "Music/BackgroundMusic1", "Music/BackgroundMusic2", "SFX/Explosion" };
+        }
+
+        private string GetTimeOfDay() {
+            return $"{timeOfDay} minutes";
+        }
     }
 }

@@ -4,8 +4,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Animancer.TransitionLibraries
-{
+namespace Animancer.TransitionLibraries {
     /// <summary>[Pro-Only]
     /// A library of <see cref="ITransition"/>s which allows specific
     /// transition combinations to be overridden without needing to be hard coded.
@@ -18,8 +17,7 @@ namespace Animancer.TransitionLibraries
     /// https://kybernetik.com.au/animancer/api/Animancer.TransitionLibraries/TransitionLibrary
     public class TransitionLibrary :
         IAnimationClipCollection,
-        ICopyable<TransitionLibrary>
-    {
+        ICopyable<TransitionLibrary> {
         /************************************************************************************************************************/
         #region Fields and Properties
         /************************************************************************************************************************/
@@ -52,27 +50,28 @@ namespace Animancer.TransitionLibraries
         /// <summary>[Pro-Only]
         /// Does this library contain a transition registered with the `key`?
         /// </summary>
-        public bool ContainsKey(object key)
-            => KeyedTransitionModifiers.ContainsKey(key);
+        public bool ContainsKey(object key) {
+            return KeyedTransitionModifiers.ContainsKey(key);
+        }
 
         /// <summary>[Pro-Only]
         /// Does this library contain a transition registered with the <see cref="IHasKey.Key"/>?
         /// </summary>
-        public bool ContainsKey(IHasKey hasKey)
-            => ContainsKey(hasKey.Key);
+        public bool ContainsKey(IHasKey hasKey) {
+            return ContainsKey(hasKey.Key);
+        }
 
         /************************************************************************************************************************/
 
         /// <summary>[Pro-Only]
         /// Tries to find a <see cref="TransitionModifierGroup"/> registered with the `key`.
         /// </summary>
-        public bool TryGetTransition(object key, out TransitionModifierGroup transition)
-        {
-            if (KeyedTransitionModifiers.TryGetValue(key, out transition))
+        public bool TryGetTransition(object key, out TransitionModifierGroup transition) {
+            if (KeyedTransitionModifiers.TryGetValue(key, out transition)) {
                 return true;
+            }
 
-            if (key is AnimancerState state)
-            {
+            if (key is AnimancerState state) {
                 key = AnimancerUtilities.GetRootKey(state.Key);
 
                 return
@@ -87,16 +86,18 @@ namespace Animancer.TransitionLibraries
         /// <summary>[Pro-Only]
         /// Tries to find a <see cref="TransitionModifierGroup"/> registered with the <see cref="IHasKey.Key"/>.
         /// </summary>
-        public bool TryGetTransition(IHasKey hasKey, out TransitionModifierGroup transition)
-            => TryGetTransition(hasKey.Key, out transition);
+        public bool TryGetTransition(IHasKey hasKey, out TransitionModifierGroup transition) {
+            return TryGetTransition(hasKey.Key, out transition);
+        }
 
         /// <summary>[Pro-Only]
         /// Tries to find a <see cref="TransitionModifierGroup"/>
         /// via its <see cref="TransitionModifierGroup.Index"/>.
         /// </summary>
-        public bool TryGetTransition(int index, out TransitionModifierGroup transition)
-            => TransitionModifiers.TryGet(index, out transition)
-            && transition != null;
+        public bool TryGetTransition(int index, out TransitionModifierGroup transition) {
+            return TransitionModifiers.TryGet(index, out transition)
+                                                                                                    && transition != null;
+        }
 
         /************************************************************************************************************************/
 
@@ -104,17 +105,19 @@ namespace Animancer.TransitionLibraries
         /// Finds the <see cref="TransitionModifierGroup.Index"/> of the group registered with the `key`
         /// or returns <c>-1</c>.
         /// </summary>
-        public int IndexOf(object key)
-            => TryGetTransition(key, out var group)
-            ? group.Index
-            : -1;
+        public int IndexOf(object key) {
+            return TryGetTransition(key, out var group)
+                                                   ? group.Index
+                                                   : -1;
+        }
 
         /// <summary>[Pro-Only]
         /// Finds the <see cref="TransitionModifierGroup.Index"/> of the group registered with the `key`
         /// or returns <c>-1</c>.
         /// </summary>
-        public int IndexOf(IHasKey hasKey)
-            => IndexOf(hasKey.Key);
+        public int IndexOf(IHasKey hasKey) {
+            return IndexOf(hasKey.Key);
+        }
 
         /************************************************************************************************************************/
 
@@ -123,11 +126,11 @@ namespace Animancer.TransitionLibraries
         /// </summary>
         public float GetFadeDuration(
             object from,
-            ITransition to)
-        {
+            ITransition to) {
             if (from != null &&
-                TryGetTransition(to.Key, out var group))
+                TryGetTransition(to.Key, out var group)) {
                 return group.GetFadeDuration(from);
+            }
 
             return to.FadeDuration;
         }
@@ -137,8 +140,9 @@ namespace Animancer.TransitionLibraries
         /// </summary>
         public float GetFadeDuration(
             IHasKey from,
-            ITransition to)
-            => GetFadeDuration(from?.Key, to);
+            ITransition to) {
+            return GetFadeDuration(from?.Key, to);
+        }
 
         /// <summary>[Pro-Only]
         /// Returns the fade duration to use when transitioning from the
@@ -146,8 +150,9 @@ namespace Animancer.TransitionLibraries
         /// </summary>
         public float GetFadeDuration(
             AnimancerLayer layer,
-            ITransition transition)
-            => GetFadeDuration(layer.CurrentState?.Key, transition);
+            ITransition transition) {
+            return GetFadeDuration(layer.CurrentState?.Key, transition);
+        }
 
         /// <summary>[Pro-Only]
         /// Returns the fade duration to use when transitioning from the
@@ -156,14 +161,14 @@ namespace Animancer.TransitionLibraries
         public float GetFadeDuration(
             AnimancerLayer layer,
             object key,
-            float fadeDuration)
-        {
+            float fadeDuration) {
             AssertStringReference(key);
 
             var from = layer.CurrentState?.Key;
             if (from != null &&
-                TryGetTransition(key, out var group))
+                TryGetTransition(key, out var group)) {
                 return group.GetFadeDuration(from);
+            }
 
             return fadeDuration;
         }
@@ -171,10 +176,10 @@ namespace Animancer.TransitionLibraries
         /************************************************************************************************************************/
 
         /// <summary>[Pro-Only] Gathers all the animations in this library.</summary>
-        public virtual void GatherAnimationClips(ICollection<AnimationClip> clips)
-        {
-            for (int i = TransitionModifiers.Count - 1; i >= 0; i--)
+        public virtual void GatherAnimationClips(ICollection<AnimationClip> clips) {
+            for (var i = TransitionModifiers.Count - 1; i >= 0; i--) {
                 clips.GatherFromSource(TransitionModifiers[i].Transition);
+            }
         }
 
         /************************************************************************************************************************/
@@ -185,52 +190,51 @@ namespace Animancer.TransitionLibraries
 
         /// <summary>[Pro-Only] Adds the contents of the `definition` to this library.</summary>
         /// <remarks>Existing values will be completely replaced.</remarks>
-        public void Initialize(TransitionLibraryDefinition definition)
-        {
+        public void Initialize(TransitionLibraryDefinition definition) {
             Clear();
 
-            if (definition == null)
+            if (definition == null) {
                 return;
+            }
 
             var count = definition.Transitions.Length;
 
-            if (TransitionModifiers.Capacity < count)
-            {
+            if (TransitionModifiers.Capacity < count) {
                 var capacity = Math.Max(count, 16);
                 TransitionModifiers.Capacity = capacity;
                 KeyedTransitionModifiers.EnsureCapacity(capacity);
             }
 
-            for (int i = 0; i < count; i++)
-            {
+            for (var i = 0; i < count; i++) {
                 var transition = definition.Transitions[i];
-                if (transition != null)
+                if (transition != null) {
                     SetTransition(transition);
+                }
             }
 
-            for (int i = 0; i < definition.Modifiers.Length; i++)
+            for (var i = 0; i < definition.Modifiers.Length; i++) {
                 SetModifier(definition.Modifiers[i]);
+            }
 
-            if (definition.AliasAllTransitions)
-            {
+            if (definition.AliasAllTransitions) {
                 var modifierIndex = 0;
-                for (int i = 0; i < count; i++)
-                {
+                for (var i = 0; i < count; i++) {
                     var transition = definition.Transitions[i];
-                    if (transition == null)
+                    if (transition == null) {
                         continue;
+                    }
 
                     var modifier = TransitionModifiers[modifierIndex++];
                     KeyedTransitionModifiers[StringReference.Get(transition.name)] = modifier;
                 }
             }
 
-            for (int i = 0; i < definition.Aliases.Length; i++)
-            {
+            for (var i = 0; i < definition.Aliases.Length; i++) {
                 var alias = definition.Aliases[i];
                 if (alias.Name != null &&
-                    TransitionModifiers.TryGet(alias.Index, out var group))
+                    TransitionModifiers.TryGet(alias.Index, out var group)) {
                     KeyedTransitionModifiers[alias.Name.Name] = group;
+                }
             }
         }
 
@@ -240,8 +244,7 @@ namespace Animancer.TransitionLibraries
         /// <exception cref="ArgumentException">A transition is already registered with the `key`.</exception>
         public TransitionModifierGroup AddTransition(
             object key,
-            ITransition transition)
-        {
+            ITransition transition) {
             AssertStringReference(key);
 
             var modifier = new TransitionModifierGroup(TransitionModifiers.Count, transition);
@@ -254,14 +257,16 @@ namespace Animancer.TransitionLibraries
         /// <exception cref="ArgumentException">A transition is already registered with the `key`.</exception>
         public TransitionModifierGroup AddTransition(
             IHasKey hasKey,
-            ITransition transition)
-            => AddTransition(hasKey.Key, transition);
+            ITransition transition) {
+            return AddTransition(hasKey.Key, transition);
+        }
 
         /// <summary>[Pro-Only] Adds the `transition` to this library.</summary>
         /// <exception cref="ArgumentException">A transition is already registered with the `key`.</exception>
         public TransitionModifierGroup AddTransition(
-            ITransition transition)
-            => AddTransition(transition, transition);
+            ITransition transition) {
+            return AddTransition(transition, transition);
+        }
 
         /************************************************************************************************************************/
 
@@ -270,10 +275,8 @@ namespace Animancer.TransitionLibraries
         /// </summary>
         public TransitionModifierGroup SetTransition(
             object key,
-            ITransition transition)
-        {
-            if (TryGetTransition(key, out var oldModifier))
-            {
+            ITransition transition) {
+            if (TryGetTransition(key, out var oldModifier)) {
                 oldModifier.Transition = transition;
                 return oldModifier;
             }
@@ -286,15 +289,17 @@ namespace Animancer.TransitionLibraries
         /// </summary>
         public TransitionModifierGroup SetTransition(
             IHasKey hasKey,
-            ITransition transition)
-            => SetTransition(hasKey.Key, transition);
+            ITransition transition) {
+            return SetTransition(hasKey.Key, transition);
+        }
 
         /// <summary>[Pro-Only]
         /// Adds the `transition` to this library or replaces the existing one registered with the `key`.
         /// </summary>
         public TransitionModifierGroup SetTransition(
-            ITransition transition)
-            => SetTransition(transition, transition);
+            ITransition transition) {
+            return SetTransition(transition, transition);
+        }
 
         /************************************************************************************************************************/
 
@@ -305,8 +310,7 @@ namespace Animancer.TransitionLibraries
         public void SetFadeDuration(
             object from,
             ITransition to,
-            float fadeDuration)
-        {
+            float fadeDuration) {
             var group = SetTransition(to.Key, to);
             group.SetFadeDuration(from, fadeDuration);
         }
@@ -318,8 +322,9 @@ namespace Animancer.TransitionLibraries
         public void SetFadeDuration(
             IHasKey from,
             ITransition to,
-            float fadeDuration)
-            => SetFadeDuration(from.Key, to, fadeDuration);
+            float fadeDuration) {
+            SetFadeDuration(from.Key, to, fadeDuration);
+        }
 
         /************************************************************************************************************************/
 
@@ -330,8 +335,7 @@ namespace Animancer.TransitionLibraries
         public void SetNormalizedStartTime(
             object from,
             ITransition to,
-            float normalizedStartTime)
-        {
+            float normalizedStartTime) {
             var group = SetTransition(to.Key, to);
             group.SetNormalizedStartTime(from, normalizedStartTime);
         }
@@ -343,8 +347,9 @@ namespace Animancer.TransitionLibraries
         public void SetNormalizedStartTime(
             IHasKey from,
             ITransition to,
-            float normalizedStartTime)
-            => SetNormalizedStartTime(from.Key, to, normalizedStartTime);
+            float normalizedStartTime) {
+            SetNormalizedStartTime(from.Key, to, normalizedStartTime);
+        }
 
         /************************************************************************************************************************/
 
@@ -355,8 +360,7 @@ namespace Animancer.TransitionLibraries
         public void SetModifier(
             object from,
             ITransition to,
-            TransitionDetails modifier)
-        {
+            TransitionDetails modifier) {
             var group = SetTransition(to.Key, to);
             group.SetModifier(from, modifier);
         }
@@ -368,8 +372,9 @@ namespace Animancer.TransitionLibraries
         public void SetModifier(
             IHasKey from,
             ITransition to,
-            TransitionDetails modifier)
-            => SetModifier(from.Key, to, modifier);
+            TransitionDetails modifier) {
+            SetModifier(from.Key, to, modifier);
+        }
 
         /************************************************************************************************************************/
 
@@ -379,11 +384,11 @@ namespace Animancer.TransitionLibraries
         /// to <see cref="TransitionModifierDefinition.ToIndex"/>.
         /// </summary>
         public bool SetModifier(
-            TransitionModifierDefinition modifier)
-        {
+            TransitionModifierDefinition modifier) {
             if (!TransitionModifiers.TryGet(modifier.FromIndex, out var from) ||
-                !TransitionModifiers.TryGet(modifier.ToIndex, out var to))
+                !TransitionModifiers.TryGet(modifier.ToIndex, out var to)) {
                 return false;
+            }
 
             to.SetModifier(
                 from.Transition.Key,
@@ -396,8 +401,7 @@ namespace Animancer.TransitionLibraries
         /// <summary>[Pro-Only] Registers the `group` with another `key`.</summary>
         public void AddAlias(
             object key,
-            TransitionModifierGroup group)
-        {
+            TransitionModifierGroup group) {
             AssertStringReference(key);
             AssertGroup(group);
             KeyedTransitionModifiers.Add(key, group);
@@ -407,8 +411,7 @@ namespace Animancer.TransitionLibraries
         /// <remarks>Also registers it with its <see cref="IHasKey.Key"/> if it wasn't already.</remarks>
         public TransitionModifierGroup AddAlias(
             object key,
-            ITransition transition)
-        {
+            ITransition transition) {
             var group = SetTransition(transition);
             AddAlias(key, group);
             return group;
@@ -421,29 +424,24 @@ namespace Animancer.TransitionLibraries
         /// This method adds and replaces values, but does not remove any
         /// (unlike <see cref="CopyFrom(TransitionLibrary, CloneContext)"/>.
         /// </remarks>
-        public void AddLibrary(TransitionLibrary library, CloneContext context)
-        {
-            if (library == null)
+        public void AddLibrary(TransitionLibrary library, CloneContext context) {
+            if (library == null) {
                 return;
+            }
 
-            for (int i = 0; i < TransitionModifiers.Count; i++)
-            {
+            for (var i = 0; i < TransitionModifiers.Count; i++) {
                 var group = TransitionModifiers[i];
                 context[group.Transition] = group;
             }
 
-            foreach (var group in library.KeyedTransitionModifiers)
-            {
+            foreach (var group in library.KeyedTransitionModifiers) {
                 var transition = group.Value.Transition;
 
                 if (context.TryGetClone(transition, out var clone) &&
-                    clone is TransitionModifierGroup cloneGroup)
-                {
+                    clone is TransitionModifierGroup cloneGroup) {
                     AssertGroup(cloneGroup);
                     KeyedTransitionModifiers[group.Key] = cloneGroup;
-                }
-                else
-                {
+                } else {
                     cloneGroup = SetTransition(group.Key, group.Value.Transition);
                     cloneGroup.CopyFrom(group.Value);
                     context[transition] = cloneGroup;
@@ -456,8 +454,7 @@ namespace Animancer.TransitionLibraries
         /// This method adds and replaces values, but does not remove any
         /// (unlike <see cref="CopyFrom(TransitionLibrary, CloneContext)"/>.
         /// </remarks>
-        public void AddLibrary(TransitionLibrary library)
-        {
+        public void AddLibrary(TransitionLibrary library) {
             var context = CloneContext.Pool.Instance.Acquire();
             AddLibrary(library, context);
             CloneContext.Pool.Instance.Release(context);
@@ -467,19 +464,19 @@ namespace Animancer.TransitionLibraries
 
         /// <inheritdoc/>
         /// <remarks>See also <see cref="AddLibrary(TransitionLibrary, CloneContext)"/>.</remarks>
-        public void CopyFrom(TransitionLibrary copyFrom, CloneContext context)
-        {
+        public void CopyFrom(TransitionLibrary copyFrom, CloneContext context) {
             Clear();
 
-            if (copyFrom == null)
+            if (copyFrom == null) {
                 return;
+            }
 
             var count = copyFrom.TransitionModifiers.Count;
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++) {
                 TransitionModifiers.Add(copyFrom.TransitionModifiers[i].Clone(context));
+            }
 
-            foreach (var group in copyFrom.KeyedTransitionModifiers)
-            {
+            foreach (var group in copyFrom.KeyedTransitionModifiers) {
                 var clone = TransitionModifiers[group.Value.Index];
                 KeyedTransitionModifiers.Add(group.Key, clone);
             }
@@ -494,30 +491,33 @@ namespace Animancer.TransitionLibraries
         // Remove from the dictionary but not the list because there might be multiple aliases for that index.
 
         /// <summary>[Pro-Only] Removes the transition registered with the `key`.</summary>
-        public bool RemoveTransition(object key)
-            => KeyedTransitionModifiers.Remove(key);
+        public bool RemoveTransition(object key) {
+            return KeyedTransitionModifiers.Remove(key);
+        }
 
         /// <summary>[Pro-Only] Removes the transition registered with the <see cref="IHasKey.Key"/>.</summary>
-        public bool RemoveTransition(IHasKey hasKey)
-            => RemoveTransition(hasKey.Key);
+        public bool RemoveTransition(IHasKey hasKey) {
+            return RemoveTransition(hasKey.Key);
+        }
 
         /************************************************************************************************************************/
 
         /// <summary>[Pro-Only] Removes a modified fade duration for transitioning from `from` to `to`.</summary>
-        public bool RemoveFadeDuration(object from, object to)
-            => TryGetTransition(to, out var group)
-            && group.FromKeyToModifier != null
-            && group.FromKeyToModifier.Remove(from);
+        public bool RemoveFadeDuration(object from, object to) {
+            return TryGetTransition(to, out var group)
+                                                                           && group.FromKeyToModifier != null
+                                                                           && group.FromKeyToModifier.Remove(from);
+        }
 
         /// <summary>[Pro-Only] Removes a modified fade duration for transitioning from `from` to `to`.</summary>
-        public bool RemoveFadeDuration(IHasKey from, IHasKey to)
-            => RemoveFadeDuration(from.Key, to.Key);
+        public bool RemoveFadeDuration(IHasKey from, IHasKey to) {
+            return RemoveFadeDuration(from.Key, to.Key);
+        }
 
         /************************************************************************************************************************/
 
         /// <summary>[Pro-Only] Removes everything from this library, leaving it empty.</summary>
-        public void Clear()
-        {
+        public void Clear() {
             TransitionModifiers.Clear();
             KeyedTransitionModifiers.Clear();
         }
@@ -534,10 +534,11 @@ namespace Animancer.TransitionLibraries
         /// </summary>
         public AnimancerState Play(
             AnimancerLayer layer,
-            ITransition transition)
-            => TryGetTransition(transition, out var modifier)
-            ? Play(layer, modifier)
-            : layer.Play(transition);
+            ITransition transition) {
+            return TryGetTransition(transition, out var modifier)
+                                                ? Play(layer, modifier)
+                                                : layer.Play(transition);
+        }
 
         /// <summary>
         /// Calls <see cref="AnimancerLayer.Play(ITransition, float, FadeMode)"/>
@@ -545,20 +546,21 @@ namespace Animancer.TransitionLibraries
         /// </summary>
         public AnimancerState Play(
             AnimancerLayer layer,
-            TransitionModifierGroup transition)
-        {
+            TransitionModifierGroup transition) {
             var from = layer.CurrentState?.Key;
             var to = transition.Transition;
             var details = transition.GetDetails(from);
 
-            if (float.IsNaN(details.FadeDuration))
+            if (float.IsNaN(details.FadeDuration)) {
                 details.FadeDuration = to.FadeDuration;
+            }
 
-            if (float.IsNaN(details.NormalizedStartTime))
+            if (float.IsNaN(details.NormalizedStartTime)) {
                 return layer.Play(
                     to,
                     details.FadeDuration,
                     to.FadeMode);
+            }
 
             var state = layer.Play(
                 to,
@@ -576,10 +578,11 @@ namespace Animancer.TransitionLibraries
         /// </summary>
         public AnimancerState TryPlay(
             AnimancerLayer layer,
-            object key)
-            => TryGetTransition(key, out var transition)
-            ? Play(layer, transition)
-            : null;
+            object key) {
+            return TryGetTransition(key, out var transition)
+                                    ? Play(layer, transition)
+                                    : null;
+        }
 
         /************************************************************************************************************************/
         #endregion
@@ -591,23 +594,22 @@ namespace Animancer.TransitionLibraries
         /// Logs <see cref="OptionalWarning.StringReference"/> if the `key` is a <see cref="string"/>.
         /// </summary>
         [System.Diagnostics.Conditional(Strings.Assertions)]
-        private void AssertStringReference(object key)
-        {
+        private void AssertStringReference(object key) {
 #if UNITY_ASSERTIONS
-            if (key is string keyString)
-            {
+            if (key is string keyString) {
                 if (StringReference.TryGet(keyString, out var keyReference) &&
-                    KeyedTransitionModifiers.ContainsKey(keyReference))
+                    KeyedTransitionModifiers.ContainsKey(keyReference)) {
                     Debug.LogError(
                         $"{nameof(TransitionLibrary)} key type mismatch:" +
                         $" attempted to use string '{keyString}'," +
                         $" but that value is registered as a {nameof(StringReference)}." +
                         $" Use a {nameof(StringReference)} to ensure the correct lookup.");
-                else
+                } else {
                     OptionalWarning.StringReference.Log(
                         $"A string '{keyString}' is being used as a key in a {nameof(TransitionLibrary)}." +
                         $" {nameof(StringReference)}s should be used instead of strings because they are more efficient" +
                         $" and to avoid mismatches with aliases in a {nameof(TransitionLibraryDefinition)}.");
+                }
             }
 #endif
         }
@@ -620,15 +622,15 @@ namespace Animancer.TransitionLibraries
         /// </summary>
         [System.Diagnostics.Conditional(Strings.Assertions)]
         [HideInCallstack]
-        internal void AssertGroup(TransitionModifierGroup group)
-        {
+        internal void AssertGroup(TransitionModifierGroup group) {
 #if UNITY_ASSERTIONS
             if (!TransitionModifiers.TryGet(group.Index, out var registered) ||
-                registered != group)
+                registered != group) {
                 Debug.LogError(
                     $"{nameof(CloneContext)} contains an {nameof(TransitionModifierGroup)}" +
                     $" which isn't part of this {nameof(TransitionLibrary)}." +
                     $" It must have been added to the context manually.");
+            }
 #endif
         }
 

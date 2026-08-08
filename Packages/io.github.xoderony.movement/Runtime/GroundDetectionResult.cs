@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace Xoderony.Movement {
 
@@ -10,6 +10,5 @@ namespace Xoderony.Movement {
         public float distance;
         public bool isStable;
 
-         
     }
 }

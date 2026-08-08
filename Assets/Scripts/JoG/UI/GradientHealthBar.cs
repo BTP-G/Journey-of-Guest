@@ -1,8 +1,8 @@
 using EditorAttributes;
-using Xoderony.Extensions;
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using Xoderony.Extensions;
 
 namespace JoG.UI {
 
@@ -14,7 +14,10 @@ namespace JoG.UI {
 
         public void FillAmount(float healthRatio) {
             var current = barImage.fillAmount;
-            if (current == healthRatio) return;
+            if (current == healthRatio) {
+                return;
+            }
+
             barImage.fillAmount = current.MoveTowards(healthRatio, Speed * Time.deltaTime);
             barImage.color = gradient.Evaluate(barImage.fillAmount);
         }

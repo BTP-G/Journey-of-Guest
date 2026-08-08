@@ -1,23 +1,19 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-using System;
-using System.Collections.Generic;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
-using Antlr4.Runtime.Tree;
-using Antlr4.Runtime.Tree.Pattern;
+using System;
+using System.Collections.Generic;
 
-namespace Antlr4.Runtime.Tree.Pattern
-{
+namespace Antlr4.Runtime.Tree.Pattern {
     /// <summary>
     /// Represents the result of matching a
     /// <see cref="Antlr4.Runtime.Tree.IParseTree"/>
     /// against a tree pattern.
     /// </summary>
-    public class ParseTreeMatch
-    {
+    public class ParseTreeMatch {
         /// <summary>
         /// This is the backing field for
         /// <see cref="Tree()"/>
@@ -84,18 +80,14 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// is
         /// <see langword="null"/>
         /// </exception>
-        public ParseTreeMatch(IParseTree tree, ParseTreePattern pattern, MultiMap<string, IParseTree> labels, IParseTree mismatchedNode)
-        {
-            if (tree == null)
-            {
+        public ParseTreeMatch(IParseTree tree, ParseTreePattern pattern, MultiMap<string, IParseTree> labels, IParseTree mismatchedNode) {
+            if (tree == null) {
                 throw new ArgumentException("tree cannot be null");
             }
-            if (pattern == null)
-            {
+            if (pattern == null) {
                 throw new ArgumentException("pattern cannot be null");
             }
-            if (labels == null)
-            {
+            if (labels == null) {
                 throw new ArgumentException("labels cannot be null");
             }
             this.tree = tree;
@@ -141,11 +133,9 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// if no parse tree matched a tag with the label.
         /// </returns>
         [return: Nullable]
-        public virtual IParseTree Get(string label)
-        {
-            IList<IParseTree> parseTrees = labels.Get(label);
-            if (parseTrees == null || parseTrees.Count == 0)
-            {
+        public virtual IParseTree Get(string label) {
+            var parseTrees = labels.Get(label);
+            if (parseTrees == null || parseTrees.Count == 0) {
                 return null;
             }
             return parseTrees[parseTrees.Count - 1];
@@ -192,11 +182,9 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// is returned.
         /// </returns>
         [return: NotNull]
-        public virtual IList<IParseTree> GetAll(string label)
-        {
-            IList<IParseTree> nodes = labels.Get(label);
-            if (nodes == null)
-            {
+        public virtual IList<IParseTree> GetAll(string label) {
+            var nodes = labels.Get(label);
+            if (nodes == null) {
                 return Sharpen.Collections.EmptyList<IParseTree>();
             }
             return nodes;
@@ -216,10 +204,8 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// pattern did not contain any rule or token tags, this map will be empty.
         /// </returns>
         [NotNull]
-        public virtual MultiMap<string, IParseTree> Labels
-        {
-            get
-            {
+        public virtual MultiMap<string, IParseTree> Labels {
+            get {
                 return labels;
             }
         }
@@ -232,10 +218,8 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// if the match was successful.
         /// </returns>
         [Nullable]
-        public virtual IParseTree MismatchedNode
-        {
-            get
-            {
+        public virtual IParseTree MismatchedNode {
+            get {
                 return mismatchedNode;
             }
         }
@@ -249,10 +233,8 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// <see langword="false"/>
         /// .
         /// </returns>
-        public virtual bool Succeeded
-        {
-            get
-            {
+        public virtual bool Succeeded {
+            get {
                 return mismatchedNode == null;
             }
         }
@@ -261,10 +243,8 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// <remarks>Get the tree pattern we are matching against.</remarks>
         /// <returns>The tree pattern we are matching against.</returns>
         [NotNull]
-        public virtual ParseTreePattern Pattern
-        {
-            get
-            {
+        public virtual ParseTreePattern Pattern {
+            get {
                 return pattern;
             }
         }
@@ -277,17 +257,14 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// we are trying to match to a pattern.
         /// </returns>
         [NotNull]
-        public virtual IParseTree Tree
-        {
-            get
-            {
+        public virtual IParseTree Tree {
+            get {
                 return tree;
             }
         }
 
         /// <summary><inheritDoc/></summary>
-        public override string ToString()
-        {
+        public override string ToString() {
             return string.Format("Match {0}; found {1} labels", Succeeded ? "succeeded" : "failed", Labels.Count);
         }
     }

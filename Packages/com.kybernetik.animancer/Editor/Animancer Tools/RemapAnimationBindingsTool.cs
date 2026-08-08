@@ -9,8 +9,7 @@ using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 
-namespace Animancer.Editor.Tools
-{
+namespace Animancer.Editor.Tools {
     /// <summary>[Editor-Only] [Pro-Only] 
     /// A <see cref="AnimancerToolsWindow.Tool"/> for changing which bones an <see cref="AnimationClip"/>s controls.
     /// </summary>
@@ -22,8 +21,7 @@ namespace Animancer.Editor.Tools
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor.Tools/RemapAnimationBindingsTool
     /// 
     [Serializable]
-    public class RemapAnimationBindingsTool : AnimationModifierTool
-    {
+    public class RemapAnimationBindingsTool : AnimationModifierTool {
         /************************************************************************************************************************/
 
         [SerializeField] private List<string> _NewBindingPaths;
@@ -46,17 +44,16 @@ namespace Animancer.Editor.Tools
         public override string HelpURL => Strings.DocsURLs.RemapAnimationBindings;
 
         /// <inheritdoc/>
-        public override string Instructions
-        {
-            get
-            {
-                if (Animation == null)
+        public override string Instructions {
+            get {
+                if (Animation == null) {
                     return "Select the animation you want to remap.";
+                }
 
-                if (_OldBindingPaths.Count == 0)
-                {
-                    if (Animation.humanMotion)
+                if (_OldBindingPaths.Count == 0) {
+                    if (Animation.humanMotion) {
                         return "The selected animation only has Humanoid bindings which cannot be remapped.";
+                    }
 
                     return "The selected animation does not have any bindings.";
                 }
@@ -68,8 +65,7 @@ namespace Animancer.Editor.Tools
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void OnEnable(int index)
-        {
+        public override void OnEnable(int index) {
             base.OnEnable(index);
 
             _BindingGroups = new();
@@ -77,17 +73,18 @@ namespace Animancer.Editor.Tools
 
             _NewBindingPaths ??= new();
 
-            if (Animation == null)
+            if (Animation == null) {
                 _NewBindingPaths.Clear();
+            }
 
             _OldBindingPathsDisplay = AnimancerToolsWindow.CreateReorderableStringList(_OldBindingPaths, "Old Binding Paths");
-            _NewBindingPathsDisplay = AnimancerToolsWindow.CreateReorderableStringList(_NewBindingPaths, "New Binding Paths", (area, i) =>
-            {
+            _NewBindingPathsDisplay = AnimancerToolsWindow.CreateReorderableStringList(_NewBindingPaths, "New Binding Paths", (area, i) => {
                 var color = GUI.color;
 
                 var path = _NewBindingPaths[i];
-                if (path != _OldBindingPaths[i])
+                if (path != _OldBindingPaths[i]) {
                     GUI.color = new(0.15f, 0.7f, 0.15f, 1);
+                }
 
                 path = EditorGUI.TextField(area, path);
                 GUI.color = color;
@@ -98,8 +95,7 @@ namespace Animancer.Editor.Tools
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override void OnAnimationChanged()
-        {
+        protected override void OnAnimationChanged() {
             base.OnAnimationChanged();
             _OldBindingPathsAreDirty = true;
         }
@@ -107,8 +103,7 @@ namespace Animancer.Editor.Tools
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void DoBodyGUI()
-        {
+        public override void DoBodyGUI() {
             base.DoBodyGUI();
             GatherBindings();
 
@@ -132,30 +127,25 @@ namespace Animancer.Editor.Tools
             {
                 GUILayout.FlexibleSpace();
 
-                if (GUILayout.Button("Reset"))
-                {
+                if (GUILayout.Button("Reset")) {
                     AnimancerGUI.Deselect();
                     AnimancerToolsWindow.RecordUndo();
                     _NewBindingPaths.Clear();
                     _OldBindingPathsAreDirty = true;
                 }
 
-                if (GUILayout.Button("Copy All"))
-                {
+                if (GUILayout.Button("Copy All")) {
                     AnimancerGUI.Deselect();
                     CopyAll();
                 }
 
-                if (GUILayout.Button("Paste All"))
-                {
+                if (GUILayout.Button("Paste All")) {
                     AnimancerGUI.Deselect();
                     PasteAll();
                 }
 
-                if (GUILayout.Button("Save As"))
-                {
-                    if (SaveAs())
-                    {
+                if (GUILayout.Button("Save As")) {
+                    if (SaveAs()) {
                         _OldBindingPathsAreDirty = true;
                     }
                 }
@@ -166,18 +156,17 @@ namespace Animancer.Editor.Tools
         /************************************************************************************************************************/
 
         /// <summary>Gathers the bindings from the <see cref="AnimationModifierTool.Animation"/>.</summary>
-        private void GatherBindings()
-        {
-            if (!_OldBindingPathsAreDirty)
+        private void GatherBindings() {
+            if (!_OldBindingPathsAreDirty) {
                 return;
+            }
 
             _OldBindingPathsAreDirty = false;
 
             _BindingGroups.Clear();
             _OldBindingPaths.Clear();
 
-            if (Animation == null)
-            {
+            if (Animation == null) {
                 _NewBindingPaths.Clear();
                 return;
             }
@@ -186,28 +175,27 @@ namespace Animancer.Editor.Tools
 
             AnimationBindings.OnAnimationChanged(Animation);
             var bindings = AnimationBindings.GetBindings(Animation);
-            Array.Sort(bindings, (a, b) =>
-            {
+            Array.Sort(bindings, (a, b) => {
                 var result = EditorUtility.NaturalCompare(a.path, b.path);
-                if (result != 0)
+                if (result != 0) {
                     return result;
+                }
 
                 return EditorUtility.NaturalCompare(a.propertyName, b.propertyName);
             });
 
             string previousPath = null;
             List<EditorCurveBinding> previousGroup = null;
-            for (int i = 0; i < bindings.Length; i++)
-            {
+            for (var i = 0; i < bindings.Length; i++) {
                 var binding = bindings[i];
                 if (isHumanoid &&
                     string.IsNullOrEmpty(binding.path) &&
-                    IsHumanoidBinding(binding.propertyName))
+                    IsHumanoidBinding(binding.propertyName)) {
                     continue;
+                }
 
                 var path = binding.path;
-                if (path == previousPath)
-                {
+                if (path == previousPath) {
                     previousGroup.Add(binding);
                     continue;
                 }
@@ -218,12 +206,14 @@ namespace Animancer.Editor.Tools
                 _BindingGroups.Add(previousGroup);
 
                 _OldBindingPaths.Add(path);
-                if (_NewBindingPaths.Count < _OldBindingPaths.Count)
+                if (_NewBindingPaths.Count < _OldBindingPaths.Count) {
                     _NewBindingPaths.Add(path);
+                }
             }
 
-            if (_NewBindingPaths.Count > _OldBindingPaths.Count)
+            if (_NewBindingPaths.Count > _OldBindingPaths.Count) {
                 _NewBindingPaths.RemoveRange(_OldBindingPaths.Count, _NewBindingPaths.Count - _OldBindingPaths.Count);
+            }
         }
 
         /************************************************************************************************************************/
@@ -231,8 +221,7 @@ namespace Animancer.Editor.Tools
         private static HashSet<string> _HumanoidBindingNames;
 
         /// <summary>Is the `propertyName` one of the bindings used by Humanoid animations?</summary>
-        private static bool IsHumanoidBinding(string propertyName)
-        {
+        private static bool IsHumanoidBinding(string propertyName) {
             _HumanoidBindingNames ??= new()
             {
                 "RootT.x", "RootT.y", "RootT.z",
@@ -287,12 +276,10 @@ namespace Animancer.Editor.Tools
         /************************************************************************************************************************/
 
         /// <summary>Copies all of the <see cref="_NewBindingPaths"/> to the system clipboard.</summary>
-        private void CopyAll()
-        {
+        private void CopyAll() {
             var text = StringBuilderPool.Instance.Acquire();
 
-            for (int i = 0; i < _NewBindingPaths.Count; i++)
-            {
+            for (var i = 0; i < _NewBindingPaths.Count; i++) {
                 text.AppendLine(_NewBindingPaths[i]);
             }
 
@@ -300,15 +287,14 @@ namespace Animancer.Editor.Tools
         }
 
         /// <summary>Pastes the string from the system clipboard into the <see cref="_NewBindingPaths"/>.</summary>
-        private void PasteAll()
-        {
+        private void PasteAll() {
             using var reader = new StringReader(EditorGUIUtility.systemCopyBuffer);
 
-            for (int i = 0; i < _NewBindingPaths.Count; i++)
-            {
+            for (var i = 0; i < _NewBindingPaths.Count; i++) {
                 var line = reader.ReadLine();
-                if (line == null)
+                if (line == null) {
                     return;
+                }
 
                 _NewBindingPaths[i] = line;
             }
@@ -317,29 +303,24 @@ namespace Animancer.Editor.Tools
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override void Modify(AnimationClip animation)
-        {
-            for (int iGroup = 0; iGroup < _BindingGroups.Count; iGroup++)
-            {
+        protected override void Modify(AnimationClip animation) {
+            for (var iGroup = 0; iGroup < _BindingGroups.Count; iGroup++) {
                 var oldPath = _OldBindingPaths[iGroup];
                 var newPath = _NewBindingPaths[iGroup];
-                if (oldPath == newPath)
+                if (oldPath == newPath) {
                     continue;
+                }
 
                 var group = _BindingGroups[iGroup];
-                for (int iBinding = 0; iBinding < group.Count; iBinding++)
-                {
+                for (var iBinding = 0; iBinding < group.Count; iBinding++) {
                     var binding = group[iBinding];
-                    if (binding.isPPtrCurve)
-                    {
+                    if (binding.isPPtrCurve) {
                         var curve = AnimationUtility.GetObjectReferenceCurve(animation, binding);
                         AnimationUtility.SetObjectReferenceCurve(animation, binding, null);
 
                         binding.path = newPath;
                         AnimationUtility.SetObjectReferenceCurve(animation, binding, curve);
-                    }
-                    else
-                    {
+                    } else {
                         var curve = AnimationUtility.GetEditorCurve(animation, binding);
                         AnimationUtility.SetEditorCurve(animation, binding, null);
 

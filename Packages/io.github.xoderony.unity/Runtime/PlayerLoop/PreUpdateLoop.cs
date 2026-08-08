@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -65,7 +65,10 @@ namespace Xoderony.Unity {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void Update() {
             var count = _callback.Count;
-            if (count == 0) return;
+            if (count == 0) {
+                return;
+            }
+
             var array = _arrayPool.Rent(count);
             try {
                 _callback.CopyTo(array, 0, count);

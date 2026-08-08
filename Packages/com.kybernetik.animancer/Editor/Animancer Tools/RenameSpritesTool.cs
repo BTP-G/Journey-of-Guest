@@ -9,8 +9,7 @@ using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 
-namespace Animancer.Editor.Tools
-{
+namespace Animancer.Editor.Tools {
     /// <summary>[Editor-Only] [Pro-Only] A <see cref="SpriteModifierTool"/> for bulk-renaming <see cref="Sprite"/>s.</summary>
     /// <remarks>
     /// <strong>Documentation:</strong>
@@ -20,8 +19,7 @@ namespace Animancer.Editor.Tools
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor.Tools/RenameSpritesTool
     /// 
     [Serializable]
-    public class RenameSpritesTool : SpriteModifierTool
-    {
+    public class RenameSpritesTool : SpriteModifierTool {
         /************************************************************************************************************************/
 
         [NonSerialized] private List<string> _GeneratedNames;
@@ -44,12 +42,11 @@ namespace Animancer.Editor.Tools
         public override string HelpURL => Strings.DocsURLs.RenameSprites;
 
         /// <inheritdoc/>
-        public override string Instructions
-        {
-            get
-            {
-                if (Sprites.Count == 0)
+        public override string Instructions {
+            get {
+                if (Sprites.Count == 0) {
                     return "Select the Sprites you want to rename.";
+                }
 
                 return "Enter the new name(s) you want to give the Sprites then click Apply." +
                     "\n\nEach Sprite below the name you enter will be given the same name" +
@@ -60,8 +57,7 @@ namespace Animancer.Editor.Tools
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void OnEnable(int index)
-        {
+        public override void OnEnable(int index) {
             base.OnEnable(index);
 
             _ManualNames ??= new();
@@ -70,14 +66,13 @@ namespace Animancer.Editor.Tools
             _SpritesDisplay = AnimancerToolsWindow.CreateReorderableObjectList(Sprites, "Sprites to Rename");
             _SpritesDisplay.onChangedCallback += list => DirtyNames();
             _SpritesDisplay.drawElementCallback = DrawItem;
-            _SpritesDisplay.elementHeight = AnimancerGUI.LineHeight * 3 + AnimancerGUI.StandardSpacing * 2;
+            _SpritesDisplay.elementHeight = (AnimancerGUI.LineHeight * 3) + (AnimancerGUI.StandardSpacing * 2);
         }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void OnSelectionChanged()
-        {
+        public override void OnSelectionChanged() {
             base.OnSelectionChanged();
             DirtyNames();
         }
@@ -85,10 +80,10 @@ namespace Animancer.Editor.Tools
         /************************************************************************************************************************/
 
         /// <summary>Refreshes the <see cref="_GeneratedNames"/>.</summary>
-        private void UpdateNames()
-        {
-            if (!_NamesAreDirty)
+        private void UpdateNames() {
+            if (!_NamesAreDirty) {
                 return;
+            }
 
             _NamesAreDirty = false;
 
@@ -99,24 +94,25 @@ namespace Animancer.Editor.Tools
 
             string name = null;
             string digitFormat = null;
-            int index = 0;
-            for (int i = 0; i < sprites.Count; i++)
-            {
+            var index = 0;
+            for (var i = 0; i < sprites.Count; i++) {
                 var newName = _ManualNames[i];
-                if (!string.IsNullOrWhiteSpace(newName))
-                {
+                if (!string.IsNullOrWhiteSpace(newName)) {
                     name = newName;
                     index = 0;
 
                     var nextNameIndex = IndexOfNextManualName(i);
 
                     var digits = Mathf.FloorToInt(Mathf.Log10(nextNameIndex - i)) + 1;
-                    if (digits < _MinimumDigits)
+                    if (digits < _MinimumDigits) {
                         digits = _MinimumDigits;
+                    }
 
                     var formatCharacters = new char[digits];
-                    for (int iDigit = 0; iDigit < digits; iDigit++)
+                    for (var iDigit = 0; iDigit < digits; iDigit++) {
                         formatCharacters[iDigit] = '0';
+                    }
+
                     digitFormat = new string(formatCharacters);
                 }
 
@@ -130,11 +126,12 @@ namespace Animancer.Editor.Tools
 
         /************************************************************************************************************************/
 
-        private int IndexOfNextManualName(int startIndex)
-        {
-            for (int i = startIndex + 1; i < _ManualNames.Count; i++)
-                if (!string.IsNullOrWhiteSpace(_ManualNames[i]))
+        private int IndexOfNextManualName(int startIndex) {
+            for (var i = startIndex + 1; i < _ManualNames.Count; i++) {
+                if (!string.IsNullOrWhiteSpace(_ManualNames[i])) {
                     return i;
+                }
+            }
 
             return _ManualNames.Count;
         }
@@ -142,8 +139,7 @@ namespace Animancer.Editor.Tools
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void DoBodyGUI()
-        {
+        public override void DoBodyGUI() {
             base.DoBodyGUI();
 
 #if ! UNITY_2D_SPRITE
@@ -155,13 +151,15 @@ namespace Animancer.Editor.Tools
 
             AnimancerToolsWindow.BeginChangeCheck();
             var firstIndex = EditorGUILayout.IntField("First Index", _FirstIndex);
-            if (AnimancerToolsWindow.EndChangeCheck(ref _FirstIndex, Mathf.Max(firstIndex, 0)))
+            if (AnimancerToolsWindow.EndChangeCheck(ref _FirstIndex, Mathf.Max(firstIndex, 0))) {
                 DirtyNames();
+            }
 
             AnimancerToolsWindow.BeginChangeCheck();
             var digits = EditorGUILayout.IntField("Minimum Digits", _MinimumDigits);
-            if (AnimancerToolsWindow.EndChangeCheck(ref _MinimumDigits, Mathf.Max(digits, 1)))
+            if (AnimancerToolsWindow.EndChangeCheck(ref _MinimumDigits, Mathf.Max(digits, 1))) {
                 DirtyNames();
+            }
 
             UpdateNames();
 
@@ -173,8 +171,7 @@ namespace Animancer.Editor.Tools
 
                 GUI.enabled = HasAnyNames();
 
-                if (GUILayout.Button("Clear"))
-                {
+                if (GUILayout.Button("Clear")) {
                     AnimancerGUI.Deselect();
                     AnimancerToolsWindow.RecordUndo();
                     _ManualNames.Clear();
@@ -183,8 +180,7 @@ namespace Animancer.Editor.Tools
 
                 GUI.enabled = HasAnyDifferentNames();
 
-                if (GUILayout.Button("Apply"))
-                {
+                if (GUILayout.Button("Apply")) {
                     AnimancerGUI.Deselect();
                     AskAndApply();
                 }
@@ -194,8 +190,7 @@ namespace Animancer.Editor.Tools
 
         /************************************************************************************************************************/
 
-        private void DrawItem(Rect area, int index, bool isActive, bool isFocused)
-        {
+        private void DrawItem(Rect area, int index, bool isActive, bool isFocused) {
             var sprites = Sprites;
             var sprite = sprites[index];
 
@@ -216,23 +211,22 @@ namespace Animancer.Editor.Tools
 
         /************************************************************************************************************************/
 
-        private Sprite DrawSpriteField(Rect area, Sprite sprite)
-            => AnimancerGUI.DoObjectFieldGUI(area, "", sprite, false);
+        private Sprite DrawSpriteField(Rect area, Sprite sprite) {
+            return AnimancerGUI.DoObjectFieldGUI(area, "", sprite, false);
+        }
 
         /************************************************************************************************************************/
 
         private static GUIStyle _TextFieldStyle;
 
-        private void DrawName(Rect area, int index)
-        {
+        private void DrawName(Rect area, int index) {
             area.y += 1;
             area.height = AnimancerGUI.LineHeight;
 
             var manualName = _ManualNames[index];
             var generatedName = _GeneratedNames[index];
 
-            if (Event.current.type == EventType.Repaint)
-            {
+            if (Event.current.type == EventType.Repaint) {
                 _TextFieldStyle ??= new(EditorStyles.textField);
 
                 _TextFieldStyle.fontStyle = string.IsNullOrWhiteSpace(manualName)
@@ -240,50 +234,52 @@ namespace Animancer.Editor.Tools
                     : FontStyle.Bold;
 
                 GUI.TextField(area, generatedName, _TextFieldStyle);
-            }
-            else
-            {
+            } else {
                 EditorGUI.BeginChangeCheck();
                 _ManualNames[index] = GUI.TextField(area, manualName);
-                if (EditorGUI.EndChangeCheck())
+                if (EditorGUI.EndChangeCheck()) {
                     DirtyNames();
+                }
             }
         }
 
         /************************************************************************************************************************/
 
-        private bool HasAnyNames()
-        {
+        private bool HasAnyNames() {
             var sprites = Sprites;
 
-            for (int i = 0; i < sprites.Count; i++)
-                if (!string.IsNullOrWhiteSpace(_ManualNames[i]))
+            for (var i = 0; i < sprites.Count; i++) {
+                if (!string.IsNullOrWhiteSpace(_ManualNames[i])) {
                     return true;
+                }
+            }
 
             return false;
         }
 
-        private bool HasAnyDifferentNames()
-        {
+        private bool HasAnyDifferentNames() {
             var sprites = Sprites;
 
-            for (int i = 0; i < sprites.Count; i++)
-                if (sprites[i].name != _GeneratedNames[i])
+            for (var i = 0; i < sprites.Count; i++) {
+                if (sprites[i].name != _GeneratedNames[i]) {
                     return true;
+                }
+            }
 
             return false;
         }
 
         /************************************************************************************************************************/
 
-        private void DirtyNames()
-            => _NamesAreDirty = true;
+        private void DirtyNames() {
+            _NamesAreDirty = true;
+        }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override string AreYouSure =>
-            "Are you sure you want to rename these Sprites?"
+        protected override string AreYouSure
+            => "Are you sure you want to rename these Sprites?"
 #if UNITY_2D_SPRITE
             ;
 #else
@@ -296,16 +292,15 @@ namespace Animancer.Editor.Tools
         private static Dictionary<Sprite, string> _SpriteToName;
 
         /// <inheritdoc/>
-        protected override void BeforeApply()
-        {
-            if (_SpriteToName == null)
+        protected override void BeforeApply() {
+            if (_SpriteToName == null) {
                 _SpriteToName = new();
-            else
+            } else {
                 _SpriteToName.Clear();
+            }
 
             var sprites = Sprites;
-            for (int i = 0; i < sprites.Count; i++)
-            {
+            for (var i = 0; i < sprites.Count; i++) {
                 _SpriteToName.Add(sprites[i], _GeneratedNames[i]);
             }
 
@@ -316,22 +311,18 @@ namespace Animancer.Editor.Tools
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override void Modify(SpriteDataEditor data, int index, Sprite sprite)
-        {
+        protected override void Modify(SpriteDataEditor data, int index, Sprite sprite) {
             data.SetName(index, _SpriteToName[sprite]);
         }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override void Modify(TextureImporter importer, List<Sprite> sprites)
-        {
-            if (sprites.Count == 1 && importer.spriteImportMode != SpriteImportMode.Multiple)
-            {
+        protected override void Modify(TextureImporter importer, List<Sprite> sprites) {
+            if (sprites.Count == 1 && importer.spriteImportMode != SpriteImportMode.Multiple) {
                 var sprite = sprites[0];
                 var fileName = Path.GetFileNameWithoutExtension(importer.assetPath);
-                if (fileName == sprite.name)
-                {
+                if (fileName == sprite.name) {
                     AssetDatabase.RenameAsset(importer.assetPath, _SpriteToName[sprite]);
                     sprites.Clear();
                 }
@@ -343,8 +334,7 @@ namespace Animancer.Editor.Tools
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override void AfterApply()
-        {
+        protected override void AfterApply() {
             base.AfterApply();
 
             AnimancerToolsWindow.RecordUndo();

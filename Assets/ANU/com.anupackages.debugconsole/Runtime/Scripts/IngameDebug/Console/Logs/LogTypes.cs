@@ -1,7 +1,5 @@
-﻿namespace ANU.IngameDebug.Console
-{
-    public enum ConsoleLogType
-    {
+namespace ANU.IngameDebug.Console {
+    public enum ConsoleLogType {
         AppMessage,
         Input,
         Output,

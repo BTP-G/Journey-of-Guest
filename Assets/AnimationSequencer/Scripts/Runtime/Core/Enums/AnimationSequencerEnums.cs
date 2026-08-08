@@ -1,20 +1,16 @@
-﻿namespace BrunoMikoski.AnimationSequencer
-{
-    public enum PlayType
-    {
+namespace BrunoMikoski.AnimationSequencer {
+    public enum PlayType {
         Forward,
         Backward
     }
 
-    public enum AutoplayType
-    {
+    public enum AutoplayType {
         Nothing,
         Start,
         OnEnable
     }
 
-    public enum KillType
-    {
+    public enum KillType {
         None,
         Reset,
         Complete

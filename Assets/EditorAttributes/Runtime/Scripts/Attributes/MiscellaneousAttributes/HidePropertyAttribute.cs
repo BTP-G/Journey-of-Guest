@@ -1,12 +1,10 @@
-﻿using UnityEngine;
+using UnityEngine;
 
-namespace EditorAttributes
-{
+namespace EditorAttributes {
     /// <summary>
     /// Attribute to hide a field in the inspector but still show it in debug view
     /// </summary>
-    public class HidePropertyAttribute : PropertyAttribute
-    {
+    public class HidePropertyAttribute : PropertyAttribute {
         /// <summary>
         /// Attribute to hide a field in the inspector but still show it in debug view
         /// </summary>

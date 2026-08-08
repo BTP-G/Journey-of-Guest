@@ -7,8 +7,7 @@ using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Animancer.Editor.Previews
-{
+namespace Animancer.Editor.Previews {
     /// <summary>[Editor-Only]
     /// An <see cref="EditorWindow"/> which allows the user to preview animation transitions separately from the rest
     /// of the scene in Edit Mode or Play Mode.
@@ -22,8 +21,7 @@ namespace Animancer.Editor.Previews
     /// 
     [HelpURL(Strings.DocsURLs.TransitionPreviews)]
     [EditorWindowTitle]// Prevent the base SceneView from trying to use this type name to find the icon.
-    public partial class TransitionPreviewWindow : SceneView
-    {
+    public partial class TransitionPreviewWindow : SceneView {
         /************************************************************************************************************************/
         #region Public API
         /************************************************************************************************************************/
@@ -31,18 +29,16 @@ namespace Animancer.Editor.Previews
         private static Texture _Icon;
 
         /// <summary>The icon image used by this window.</summary>
-        public static Texture Icon
-        {
-            get
-            {
-                if (_Icon == null)
-                {
+        public static Texture Icon {
+            get {
+                if (_Icon == null) {
                     // Possible icons: "UnityEditor.LookDevView", "SoftlockInline", "ViewToolOrbit", "ClothInspector.ViewValue".
                     var name = EditorGUIUtility.isProSkin ? "ViewToolOrbit On" : "ViewToolOrbit";
 
                     _Icon = AnimancerIcons.Load(name);
-                    if (_Icon == null)
+                    if (_Icon == null) {
                         _Icon = EditorGUIUtility.whiteTexture;
+                    }
                 }
 
                 return _Icon;
@@ -55,20 +51,16 @@ namespace Animancer.Editor.Previews
         /// Focusses the <see cref="TransitionPreviewWindow"/> or creates one if none exists.
         /// Or closes the existing window if it was already previewing the `transitionProperty`.
         /// </summary>
-        public static void OpenOrClose(SerializedProperty transitionProperty)
-        {
+        public static void OpenOrClose(SerializedProperty transitionProperty) {
             transitionProperty = transitionProperty.Copy();
 
-            EditorApplication.delayCall += () =>
-            {
-                if (!IsPreviewing(transitionProperty))
-                {
+            EditorApplication.delayCall += () => {
+                if (!IsPreviewing(transitionProperty)) {
                     // To avoid Unity giving a warning about camera rotation in 2D Mode:
                     // Set all scene views to not 2D mode and store their previous state.
                     var sceneViews = SceneView.sceneViews.ToArray();
                     var was2D = new bool[sceneViews.Length];
-                    for (int i = 0; i < sceneViews.Length; i++)
-                    {
+                    for (var i = 0; i < sceneViews.Length; i++) {
                         var sceneView = (SceneView)sceneViews[i];
                         was2D[i] = sceneView.in2DMode;
                         sceneView.in2DMode = false;
@@ -78,14 +70,11 @@ namespace Animancer.Editor.Previews
                         .SetTargetProperty(transitionProperty);
 
                     // Then after opening the window immediately return each scene view back to its previous state.
-                    for (int i = 0; i < sceneViews.Length; i++)
-                    {
+                    for (var i = 0; i < sceneViews.Length; i++) {
                         var sceneView = (SceneView)sceneViews[i];
                         sceneView.in2DMode = was2D[i];
                     }
-                }
-                else
-                {
+                } else {
                     _Instance.Close();
                 }
             };
@@ -97,14 +86,13 @@ namespace Animancer.Editor.Previews
         /// The <see cref="AnimancerState.NormalizedTime"/> of the current transition. Can only be set if the property
         /// being previewed matches the current <see cref="TransitionDrawer.Context"/>.
         /// </summary>
-        public static float PreviewNormalizedTime
-        {
+        public static float PreviewNormalizedTime {
             get => _Instance._Animations.NormalizedTime;
-            set
-            {
+            set {
                 if (value.IsFinite() &&
-                    IsPreviewingCurrentProperty())
+                    IsPreviewingCurrentProperty()) {
                     _Instance._Animations.NormalizedTime = value;
+                }
             }
         }
 
@@ -114,14 +102,15 @@ namespace Animancer.Editor.Previews
         /// Returns the <see cref="AnimancerState"/> of the current transition if the property being previewed matches
         /// the <see cref="TransitionDrawer.Context"/>. Otherwise returns null.
         /// </summary>
-        public static AnimancerState GetCurrentState()
-        {
-            if (!IsPreviewingCurrentProperty())
+        public static AnimancerState GetCurrentState() {
+            if (!IsPreviewingCurrentProperty()) {
                 return null;
+            }
 
             var previewObject = _Instance._Scene.PreviewObject;
-            if (previewObject == null || previewObject.Graph == null)
+            if (previewObject == null || previewObject.Graph == null) {
                 return null;
+            }
 
             previewObject.Graph.States.TryGet(Transition, out var state);
             return state;
@@ -132,15 +121,17 @@ namespace Animancer.Editor.Previews
         /// <summary>
         /// Is the current <see cref="TransitionDrawer.DrawerContext.Property"/> being previewed at the moment?
         /// </summary>
-        public static bool IsPreviewingCurrentProperty()
-            => IsPreviewing(TransitionDrawer.Context.Property);
+        public static bool IsPreviewingCurrentProperty() {
+            return IsPreviewing(TransitionDrawer.Context.Property);
+        }
 
         /// <summary>Is the `property` being previewed at the moment?</summary>
-        public static bool IsPreviewing(SerializedProperty property)
-            => property != null
-            && _Instance != null
-            && _Instance._TransitionProperty.IsValid()
-            && Serialization.AreSameProperty(property, _Instance._TransitionProperty);
+        public static bool IsPreviewing(SerializedProperty property) {
+            return property != null
+                                                                                 && _Instance != null
+                                                                                 && _Instance._TransitionProperty.IsValid()
+                                                                                 && Serialization.AreSameProperty(property, _Instance._TransitionProperty);
+        }
 
         /************************************************************************************************************************/
         #endregion
@@ -157,8 +148,7 @@ namespace Animancer.Editor.Previews
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void OnEnable()
-        {
+        public override void OnEnable() {
             _Instance = this;
 
             base.OnEnable();
@@ -173,8 +163,7 @@ namespace Animancer.Editor.Previews
             _Animations ??= new();
 
             if (_TransitionProperty.IsValid() &&
-                !CanBePreviewed(_TransitionProperty))
-            {
+                !CanBePreviewed(_TransitionProperty)) {
                 DestroyTransitionProperty();
             }
 
@@ -185,8 +174,7 @@ namespace Animancer.Editor.Previews
 
             // Re-select next frame.
             // This fixes an issue where the Inspector header displays differently after a domain reload.
-            if (Selection.activeObject == this)
-            {
+            if (Selection.activeObject == this) {
                 Selection.activeObject = null;
                 EditorApplication.delayCall += () => Selection.activeObject = this;
             }
@@ -195,8 +183,7 @@ namespace Animancer.Editor.Previews
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void OnDisable()
-        {
+        public override void OnDisable() {
             base.OnDisable();
             _Scene.OnDisable();
             _Instance = null;
@@ -207,19 +194,17 @@ namespace Animancer.Editor.Previews
         /************************************************************************************************************************/
 
         /// <summary>Cleans up this window.</summary>
-        protected virtual new void OnDestroy()
-        {
+        protected new virtual void OnDestroy() {
             base.OnDestroy();
             _Scene.OnDestroy();
             DestroyTransitionProperty();
 
-            using (ListPool<Object>.Instance.Acquire(out var objects))
-            {
-                for (int i = 0; i < _PreviousSelection.Length; i++)
-                {
+            using (ListPool<Object>.Instance.Acquire(out var objects)) {
+                for (var i = 0; i < _PreviousSelection.Length; i++) {
                     var obj = _PreviousSelection[i];
-                    if (obj != null)
+                    if (obj != null) {
                         objects.Add(obj);
+                    }
                 }
                 Selection.objects = objects.ToArray();
             }
@@ -232,8 +217,7 @@ namespace Animancer.Editor.Previews
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override void OnSceneGUI()
-        {
+        protected override void OnSceneGUI() {
             _Instance = this;
 
             base.OnSceneGUI();
@@ -247,14 +231,13 @@ namespace Animancer.Editor.Previews
         /************************************************************************************************************************/
 
         /// <summary>Called multiple times per second while this window is visible.</summary>
-        private void Update()
-        {
-            if (Selection.activeObject == null)
+        private void Update() {
+            if (Selection.activeObject == null) {
                 Selection.activeObject = this;
+            }
 
             if (TransitionPreviewSettings.AutoClose &&
-                !_TransitionProperty.IsValid())
-            {
+                !_TransitionProperty.IsValid()) {
                 Close();
                 return;
             }
@@ -264,28 +247,28 @@ namespace Animancer.Editor.Previews
 
         /// <summary>Returns false.</summary>
         /// <remarks>Returning true makes it draw the main scene instead of the custom scene in Unity 2020.</remarks>
-        protected override bool SupportsStageHandling() => false;
-
-        /************************************************************************************************************************/
-
-        private void OnSelectionChanged()
-        {
-            if (Selection.activeObject == null)
-                EditorApplication.delayCall += () => Selection.activeObject = this;
+        protected override bool SupportsStageHandling() {
+            return false;
         }
 
         /************************************************************************************************************************/
 
-        private void DeselectPreviewSceneObjects()
-        {
-            using (ListPool<Object>.Instance.Acquire(out var objects))
-            {
+        private void OnSelectionChanged() {
+            if (Selection.activeObject == null) {
+                EditorApplication.delayCall += () => Selection.activeObject = this;
+            }
+        }
+
+        /************************************************************************************************************************/
+
+        private void DeselectPreviewSceneObjects() {
+            using (ListPool<Object>.Instance.Acquire(out var objects)) {
                 var selection = Selection.objects;
-                for (int i = 0; i < selection.Length; i++)
-                {
+                for (var i = 0; i < selection.Length; i++) {
                     var obj = selection[i];
-                    if (!_Scene.IsSceneObject(obj))
+                    if (!_Scene.IsSceneObject(obj)) {
                         objects.Add(obj);
+                    }
                 }
                 Selection.objects = objects.ToArray();
             }
@@ -306,13 +289,12 @@ namespace Animancer.Editor.Previews
         /************************************************************************************************************************/
 
         /// <summary>The <see cref="ITransition"/> currently being previewed.</summary>
-        public static ITransition Transition
-        {
-            get
-            {
+        public static ITransition Transition {
+            get {
                 var property = _Instance._TransitionProperty;
-                if (!property.IsValid())
+                if (!property.IsValid()) {
                     return null;
+                }
 
                 return property.Property.GetValue<ITransition>();
             }
@@ -321,15 +303,16 @@ namespace Animancer.Editor.Previews
         /************************************************************************************************************************/
 
         /// <summary>Indicates whether the `property` is able to be previewed by this system.</summary>
-        public static bool CanBePreviewed(SerializedProperty property)
-        {
+        public static bool CanBePreviewed(SerializedProperty property) {
             var accessor = property.GetAccessor();
-            if (accessor == null)
+            if (accessor == null) {
                 return false;
+            }
 
             var type = accessor.GetFieldElementType(property);
-            if (typeof(ITransition).IsAssignableFrom(type))
+            if (typeof(ITransition).IsAssignableFrom(type)) {
                 return true;
+            }
 
             var value = accessor.GetValue(property);
             return
@@ -339,22 +322,21 @@ namespace Animancer.Editor.Previews
 
         /************************************************************************************************************************/
 
-        private void SetTargetProperty(SerializedProperty property)
-        {
-            if (property.serializedObject.targetObjects.Length != 1)
-            {
+        private void SetTargetProperty(SerializedProperty property) {
+            if (property.serializedObject.targetObjects.Length != 1) {
                 Close();
                 throw new ArgumentException($"{nameof(TransitionPreviewWindow)} does not support multi-object selection.");
             }
 
-            if (!CanBePreviewed(property))
-            {
+            if (!CanBePreviewed(property)) {
                 Close();
                 throw new ArgumentException($"The specified property does not implement {nameof(ITransition)}.");
             }
 
-            if (!_TransitionProperty.IsValid())
+            if (!_TransitionProperty.IsValid()) {
                 _PreviousSelection = Selection.objects;
+            }
+
             Selection.activeObject = this;
 
             DestroyTransitionProperty();
@@ -365,10 +347,10 @@ namespace Animancer.Editor.Previews
 
         /************************************************************************************************************************/
 
-        private void DestroyTransitionProperty()
-        {
-            if (_TransitionProperty == null)
+        private void DestroyTransitionProperty() {
+            if (_TransitionProperty == null) {
                 return;
+            }
 
             _Scene.PreviewObject.DestroyInstanceObject();
 

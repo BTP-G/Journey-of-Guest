@@ -1,8 +1,8 @@
-using Xoderony.Localization;
 using JoG.UI;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Events;
+using Xoderony.Localization;
 
 namespace JoG.Interaction {
 

@@ -1,12 +1,8 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-using Antlr4.Runtime;
-using Antlr4.Runtime.Sharpen;
-
-namespace Antlr4.Runtime
-{
+namespace Antlr4.Runtime {
     /// <summary>
     /// This class extends
     /// <see cref="ParserRuleContext"/>
@@ -23,8 +19,7 @@ namespace Antlr4.Runtime
     /// parser, this class (with slightly more memory overhead per node) is used to
     /// provide equivalent functionality.</p>
     /// </summary>
-    public class InterpreterRuleContext : ParserRuleContext
-    {
+    public class InterpreterRuleContext : ParserRuleContext {
         /// <summary>
         /// This is the backing field for
         /// <see cref="RuleIndex()"/>
@@ -42,15 +37,12 @@ namespace Antlr4.Runtime
         /// <param name="invokingStateNumber">The invoking state number.</param>
         /// <param name="ruleIndex">The rule index for the current context.</param>
         public InterpreterRuleContext(ParserRuleContext parent, int invokingStateNumber, int ruleIndex)
-            : base(parent, invokingStateNumber)
-        {
+            : base(parent, invokingStateNumber) {
             this.ruleIndex = ruleIndex;
         }
 
-        public override int RuleIndex
-        {
-            get
-            {
+        public override int RuleIndex {
+            get {
                 return ruleIndex;
             }
         }

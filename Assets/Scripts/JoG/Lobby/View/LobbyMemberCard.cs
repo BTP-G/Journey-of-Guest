@@ -1,9 +1,9 @@
 using EditorAttributes;
-using Xoderony.Extensions;
 using Steamworks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Xoderony.Extensions;
 using SImage = Steamworks.Data.Image;
 
 namespace JoG.Lobby.View {
@@ -18,8 +18,8 @@ namespace JoG.Lobby.View {
             var avatar = new Texture2D((int)image.Width, (int)image.Height, TextureFormat.ARGB32, false) {
                 filterMode = FilterMode.Trilinear
             };
-            for (int x = 0; x < image.Width; ++x) {
-                for (int y = 0; y < image.Height; ++y) {
+            for (var x = 0; x < image.Width; ++x) {
+                for (var y = 0; y < image.Height; ++y) {
                     var p = image.GetPixel(x, y);
                     avatar.SetPixel(x, y, new(p.r / 255.0f, p.g / 255.0f, p.b / 255.0f, p.a / 255.0f));
                 }
@@ -29,7 +29,10 @@ namespace JoG.Lobby.View {
         }
 
         public async void UpdateCard(Friend member) {
-            if (currentMemberId == member.Id) return;
+            if (currentMemberId == member.Id) {
+                return;
+            }
+
             var sImage = await member.GetMediumAvatarAsync();
             var avatar = default(Texture);
             if (sImage.HasValue) {

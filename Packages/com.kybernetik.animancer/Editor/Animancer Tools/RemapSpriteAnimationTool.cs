@@ -8,8 +8,7 @@ using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 
-namespace Animancer.Editor.Tools
-{
+namespace Animancer.Editor.Tools {
     /// <summary>[Editor-Only] [Pro-Only] 
     /// An <see cref="AnimationModifierTool"/> for changing which
     /// <see cref="Sprite"/>s an <see cref="AnimationClip"/> uses.
@@ -22,8 +21,7 @@ namespace Animancer.Editor.Tools
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor.Tools/RemapSpriteAnimationTool
     /// 
     [Serializable]
-    public class RemapSpriteAnimationTool : AnimationModifierTool
-    {
+    public class RemapSpriteAnimationTool : AnimationModifierTool {
         /************************************************************************************************************************/
 
         [SerializeField] private List<Sprite> _NewSprites;
@@ -47,15 +45,15 @@ namespace Animancer.Editor.Tools
         public override string HelpURL => Strings.DocsURLs.RemapSpriteAnimation;
 
         /// <inheritdoc/>
-        public override string Instructions
-        {
-            get
-            {
-                if (Animation == null)
+        public override string Instructions {
+            get {
+                if (Animation == null) {
                     return "Select the animation you want to remap.";
+                }
 
-                if (_OldSprites.Count == 0)
+                if (_OldSprites.Count == 0) {
                     return "The selected animation does not use Sprites.";
+                }
 
                 return "Assign the New Sprites that you want to replace the Old Sprites with then click Save As." +
                     " You can Drag and Drop multiple Sprites onto the New Sprites list at the same time.";
@@ -65,14 +63,14 @@ namespace Animancer.Editor.Tools
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void OnEnable(int index)
-        {
+        public override void OnEnable(int index) {
             base.OnEnable(index);
 
             _NewSprites ??= new();
 
-            if (Animation == null)
+            if (Animation == null) {
                 _NewSprites.Clear();
+            }
 
             _OldSprites = new();
 
@@ -83,8 +81,7 @@ namespace Animancer.Editor.Tools
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override void OnAnimationChanged()
-        {
+        protected override void OnAnimationChanged() {
             base.OnAnimationChanged();
             _OldSpritesAreDirty = true;
         }
@@ -92,8 +89,7 @@ namespace Animancer.Editor.Tools
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void DoBodyGUI()
-        {
+        public override void DoBodyGUI() {
             base.DoBodyGUI();
             GatherOldSprites();
 
@@ -119,18 +115,15 @@ namespace Animancer.Editor.Tools
             {
                 GUILayout.FlexibleSpace();
 
-                if (GUILayout.Button("Reset"))
-                {
+                if (GUILayout.Button("Reset")) {
                     AnimancerGUI.Deselect();
                     AnimancerToolsWindow.RecordUndo();
                     _NewSprites.Clear();
                     _OldSpritesAreDirty = true;
                 }
 
-                if (GUILayout.Button("Save As"))
-                {
-                    if (SaveAs())
-                    {
+                if (GUILayout.Button("Save As")) {
+                    if (SaveAs()) {
                         _OldSpritesAreDirty = true;
                     }
                 }
@@ -141,33 +134,32 @@ namespace Animancer.Editor.Tools
         /************************************************************************************************************************/
 
         /// <summary>Gathers the <see cref="_OldSprites"/> from the <see cref="AnimationModifierTool.Animation"/>.</summary>
-        private void GatherOldSprites()
-        {
-            if (!_OldSpritesAreDirty)
+        private void GatherOldSprites() {
+            if (!_OldSpritesAreDirty) {
                 return;
+            }
 
             _OldSpritesAreDirty = false;
 
             _OldSprites.Clear();
             _NewSprites.Clear();
 
-            if (Animation == null)
+            if (Animation == null) {
                 return;
+            }
 
             var bindings = AnimationUtility.GetObjectReferenceCurveBindings(Animation);
-            for (int iBinding = 0; iBinding < bindings.Length; iBinding++)
-            {
+            for (var iBinding = 0; iBinding < bindings.Length; iBinding++) {
                 var binding = bindings[iBinding];
-                if (binding.type == typeof(SpriteRenderer) && binding.propertyName == "m_Sprite")
-                {
+                if (binding.type == typeof(SpriteRenderer) && binding.propertyName == "m_Sprite") {
                     _SpriteBinding = binding;
                     _SpriteKeyframes = AnimationUtility.GetObjectReferenceCurve(Animation, binding);
 
-                    for (int iKeyframe = 0; iKeyframe < _SpriteKeyframes.Length; iKeyframe++)
-                    {
+                    for (var iKeyframe = 0; iKeyframe < _SpriteKeyframes.Length; iKeyframe++) {
                         var reference = _SpriteKeyframes[iKeyframe].value as Sprite;
-                        if (reference != null)
+                        if (reference != null) {
                             _OldSprites.Add(reference);
+                        }
                     }
 
                     _NewSprites.AddRange(_OldSprites);
@@ -180,10 +172,8 @@ namespace Animancer.Editor.Tools
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override void Modify(AnimationClip animation)
-        {
-            for (int i = 0; i < _SpriteKeyframes.Length; i++)
-            {
+        protected override void Modify(AnimationClip animation) {
+            for (var i = 0; i < _SpriteKeyframes.Length; i++) {
                 _SpriteKeyframes[i].value = _NewSprites[i];
             }
 

@@ -8,15 +8,13 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only] A welcome screen for <see cref="Animancer"/>.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/AnimancerReadMe
     /// 
     // [CreateAssetMenu]
     [AnimancerHelpUrl(typeof(AnimancerReadMe))]
-    public class AnimancerReadMe : ReadMe
-    {
+    public class AnimancerReadMe : ReadMe {
         /************************************************************************************************************************/
 
         /// <summary>The release ID of the current version.</summary>
@@ -96,8 +94,7 @@ namespace Animancer.Editor
             new("Email",
                 "for anything private",
                 GetEmailURL(Strings.DocsURLs.DeveloperEmail, Strings.ProductName),
-                Strings.DocsURLs.DeveloperEmail))
-        {
+                Strings.DocsURLs.DeveloperEmail)) {
             ExtraSamples = new LinkSection[]
             {
                 new("Platformer Game Kit", null, "https://kybernetik.com.au/platformer"),
@@ -108,8 +105,7 @@ namespace Animancer.Editor
 
         /// <summary>[Editor-Only] A custom Inspector for <see cref="AnimancerReadMe"/>.</summary>
         [CustomEditor(typeof(AnimancerReadMe), editorForChildClasses: true)]
-        public new class Editor : ReadMe.Editor
-        {
+        public new class Editor : ReadMe.Editor {
             /************************************************************************************************************************/
 
             /// <summary>A callback to execute data migration.</summary>
@@ -118,16 +114,17 @@ namespace Animancer.Editor
             /************************************************************************************************************************/
 
             /// <inheritdoc/>
-            protected override void DoNewVersionDetails()
-            {
+            protected override void DoNewVersionDetails() {
                 base.DoNewVersionDetails();
 
-                if (MigrateOldAssetData == null)
+                if (MigrateOldAssetData == null) {
                     return;
+                }
 
                 var text = $"Migrate old asset data to {Target.BaseProductName} {Target.VersionName}";
-                if (GUILayout.Button(text))
+                if (GUILayout.Button(text)) {
                     MigrateOldAssetData(text);
+                }
             }
 
             /************************************************************************************************************************/

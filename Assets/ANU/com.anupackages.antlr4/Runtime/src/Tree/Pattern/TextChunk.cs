@@ -1,14 +1,11 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-using System;
 using Antlr4.Runtime.Misc;
-using Antlr4.Runtime.Sharpen;
-using Antlr4.Runtime.Tree.Pattern;
+using System;
 
-namespace Antlr4.Runtime.Tree.Pattern
-{
+namespace Antlr4.Runtime.Tree.Pattern {
     /// <summary>
     /// Represents a span of raw text (concrete syntax) between tags in a tree
     /// pattern string.
@@ -17,8 +14,7 @@ namespace Antlr4.Runtime.Tree.Pattern
     /// Represents a span of raw text (concrete syntax) between tags in a tree
     /// pattern string.
     /// </remarks>
-    internal class TextChunk : Chunk
-    {
+    internal class TextChunk : Chunk {
         /// <summary>
         /// This is the backing field for
         /// <see cref="Text()"/>
@@ -41,10 +37,8 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// <see langword="null"/>
         /// .
         /// </exception>
-        public TextChunk(string text)
-        {
-            if (text == null)
-            {
+        public TextChunk(string text) {
+            if (text == null) {
                 throw new ArgumentException("text cannot be null");
             }
             this.text = text;
@@ -54,10 +48,8 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// <remarks>Gets the raw text of this chunk.</remarks>
         /// <returns>The text of the chunk.</returns>
         [NotNull]
-        public string Text
-        {
-            get
-            {
+        public string Text {
+            get {
                 return text;
             }
         }
@@ -70,8 +62,7 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// <see cref="Text()"/>
         /// in single quotes.</p>
         /// </summary>
-        public override string ToString()
-        {
+        public override string ToString() {
             return "'" + text + "'";
         }
     }

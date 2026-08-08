@@ -1,9 +1,9 @@
-using Xoderony;
 using JoG.Character;
 using JoG.States;
 using System;
 using UnityEngine;
 using VContainer;
+using Xoderony;
 
 namespace JoG.StateMachines {
 
@@ -77,7 +77,5 @@ namespace JoG.StateMachines {
         private void OnLifeStop(CharacterEntity entity) {
             _stateMachine.TransitionTo(_death);
         }
-
     }
-
 }

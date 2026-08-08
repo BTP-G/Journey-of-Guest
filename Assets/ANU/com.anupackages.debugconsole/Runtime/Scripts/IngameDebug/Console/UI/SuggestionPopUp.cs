@@ -1,15 +1,13 @@
-﻿using System;
+using ANU.IngameDebug.Pooling;
+using ANU.IngameDebug.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using ANU.IngameDebug.Pooling;
-using ANU.IngameDebug.Utils;
 
-namespace ANU.IngameDebug.Console
-{
+namespace ANU.IngameDebug.Console {
     //TODO: add suggestions class to contain any value
     // or make generic?
     // or make object?
@@ -20,12 +18,10 @@ namespace ANU.IngameDebug.Console
     // maybe simply make string type of item
     //
     // something like this
-    public class Suggestion
-    {
+    public class Suggestion {
         private readonly Func<Suggestion, string, string> _apply;
 
-        public Suggestion(string displayValue, object source, Func<Suggestion, string, string> apply)
-        {
+        public Suggestion(string displayValue, object source, Func<Suggestion, string, string> apply) {
             _apply = apply ?? throw new ArgumentNullException(nameof(apply));
             DisplayValue = displayValue;
             Source = source;
@@ -34,7 +30,9 @@ namespace ANU.IngameDebug.Console
         public object Source { get; }
         public string DisplayValue { get; }
 
-        public string ApplySuggestion(string fullInput) => _apply.Invoke(this, fullInput);
+        public string ApplySuggestion(string fullInput) {
+            return _apply.Invoke(this, fullInput);
+        }
     }
 
     //TODO: suggestion presenter
@@ -42,8 +40,7 @@ namespace ANU.IngameDebug.Console
     // so maybe suggestion item it just {string, Action} container
 
     [RequireComponent(typeof(LayoutElement))]
-    public class SuggestionPopUp : MonoBehaviour
-    {
+    public class SuggestionPopUp : MonoBehaviour {
         [SerializeField] private Transform _parent;
         [SerializeField] private ScrollRect _scrollRect;
         [SerializeField] private SuggestionPresenter _suggestionPresenterPrefab;
@@ -61,20 +58,19 @@ namespace ANU.IngameDebug.Console
         public event Action Shown;
         public event Action Hided;
 
-        public string Title
-        {
+        public string Title {
             get => _title.text;
             set => _title.text = value;
         }
 
-        public IEnumerable<Suggestion> Suggestions
-        {
+        public IEnumerable<Suggestion> Suggestions {
             get => _suggestions;
-            set
-            {
+            set {
                 _suggestions.Clear();
-                foreach (var command in value)
+                foreach (var command in value) {
                     _suggestions.AddLast(command);
+                }
+
                 RegeneratePresenters();
             }
         }
@@ -90,85 +86,89 @@ namespace ANU.IngameDebug.Console
 
         private SimpleGameObjectPool _suggestionsPool;
 
-        public void Deselect()
-        {
+        public void Deselect() {
             _current = null;
-            if (IsShown)
+            if (IsShown) {
                 Show();
+            }
         }
 
-        public void Show()
-        {
+        public void Show() {
             var old = IsShown;
             gameObject.SetActive(true);
-            if (old != IsShown)
+            if (old != IsShown) {
                 Shown?.Invoke();
+            }
         }
 
-        public void Hide()
-        {
+        public void Hide() {
             var old = IsShown;
             gameObject.SetActive(false);
-            if (old != IsShown)
+            if (old != IsShown) {
                 Hided?.Invoke();
+            }
         }
 
-        public void MoveUp()
-        {
-            if (_suggestions.Count == 0)
+        public void MoveUp() {
+            if (_suggestions.Count == 0) {
                 return;
+            }
 
-            if (_current == null)
+            if (_current == null) {
                 _current = _suggestions.Last;
-            else if (_current.Previous != null)
+            } else if (_current.Previous != null) {
                 _current = _current.Previous;
-            else
+            } else {
                 _current = _suggestions.Last;
+            }
 
             Show();
             ChangeSelection();
         }
 
-        public void MoveDown()
-        {
-            if (_suggestions.Count == 0)
+        public void MoveDown() {
+            if (_suggestions.Count == 0) {
                 return;
+            }
 
-            if (_current == null)
+            if (_current == null) {
                 _current = _suggestions.First;
-            else if (_current.Next != null)
+            } else if (_current.Next != null) {
                 _current = _current.Next;
-            else
+            } else {
                 _current = _suggestions.First;
+            }
 
             Show();
             ChangeSelection();
         }
 
-        public bool TryChooseCurrent()
-        {
-            if (Selected == null)
+        public bool TryChooseCurrent() {
+            if (Selected == null) {
                 return false;
+            }
 
-            if (!_presenters.ContainsKey(Selected))
+            if (!_presenters.ContainsKey(Selected)) {
                 return false;
+            }
 
             var presenter = _presenters[Selected];
-            if (presenter == null)
+            if (presenter == null) {
                 return false;
+            }
 
             presenter.Choose();
             return true;
         }
 
-        private void RegeneratePresenters()
-        {
-            foreach (var p in _presenters.Values)
+        private void RegeneratePresenters() {
+            foreach (var p in _presenters.Values) {
                 _suggestionsPool.Return(p);
+            }
+
             _presenters.Clear();
 
-            foreach (var suggestion in _suggestions)
-            {
+            foreach (var suggestion in _suggestions) {
                 var suggestionPresenter = _suggestionsPool
                     .GetOrCreate()
                     .GetComponent<SuggestionPresenter>();
@@ -178,8 +178,7 @@ namespace ANU.IngameDebug.Console
 
                 suggestionPresenter.Present(
                     suggestion,
-                    () =>
-                    {
+                    () => {
                         Deselect();
                         Chosen?.Invoke(suggestion);
                     },
@@ -190,17 +189,17 @@ namespace ANU.IngameDebug.Console
             }
         }
 
-        private void ChangeSelection()
-        {
-            if (_presenters.ContainsKey(Selected))
+        private void ChangeSelection() {
+            if (_presenters.ContainsKey(Selected)) {
                 _presenters[Selected]?.Select();
+            }
 
-            if (Selected != null)
+            if (Selected != null) {
                 ScrollTo(Selected);
+            }
         }
 
-        private void ScrollTo(Suggestion suggestion)
-        {
+        private void ScrollTo(Suggestion suggestion) {
             var target = _presenters[suggestion].transform as RectTransform;
             Canvas.ForceUpdateCanvases();
 
@@ -209,31 +208,31 @@ namespace ANU.IngameDebug.Console
             var parentRect = (_scrollRect.transform as RectTransform).GetWorldRect();
             var targetRect = target.GetWorldRect();
 
-            if (!parentRect.IsInside(targetRect))
-            {
+            if (!parentRect.IsInside(targetRect)) {
                 var shift = Vector2.zero;
 
-                if (targetRect.yMax > parentRect.yMax)
+                if (targetRect.yMax > parentRect.yMax) {
                     shift.y = parentRect.yMax - targetRect.yMax;
-                else if (targetRect.yMin < parentRect.yMin)
+                } else if (targetRect.yMin < parentRect.yMin) {
                     shift.y = parentRect.yMin - targetRect.yMin;
+                }
 
-                if (targetRect.xMax > parentRect.xMax)
+                if (targetRect.xMax > parentRect.xMax) {
                     shift.x = parentRect.xMax - targetRect.xMax;
-                else if (targetRect.xMin < parentRect.xMin)
+                } else if (targetRect.xMin < parentRect.xMin) {
                     shift.x = parentRect.xMin - targetRect.xMin;
+                }
 
                 var localShift = (Vector2)_scrollRect.transform.InverseTransformVector(shift);
                 contentPanel.anchoredPosition += localShift;
             }
         }
 
-        private void Awake()
-        {
+        private void Awake() {
             _suggestionsPool = new SimpleGameObjectPool(_suggestionPresenterPrefab);
 
             _suggestionsParent = _suggestionPresenterPrefab.transform.parent as RectTransform;
-            _suggestionsElement = this.GetComponent<LayoutElement>();
+            _suggestionsElement = GetComponent<LayoutElement>();
             _preferredSuggestionsElementHeight = _suggestionsElement.preferredHeight;
             _preferredSuggestionsElementWidth = _suggestionsElement.preferredWidth;
 
@@ -242,10 +241,10 @@ namespace ANU.IngameDebug.Console
             Hide();
         }
 
-        private void LateUpdate()
-        {
-            if (!IsShown)
+        private void LateUpdate() {
+            if (!IsShown) {
                 return;
+            }
 
             var position = _suggestionsParent.anchoredPosition;
             position.x = 0;

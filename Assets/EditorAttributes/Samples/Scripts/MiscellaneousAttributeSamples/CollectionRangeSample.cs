@@ -1,12 +1,10 @@
-﻿using UnityEngine;
 using EditorAttributes;
 using System.Collections.Generic;
+using UnityEngine;
 
-namespace EditorAttributesSamples
-{
+namespace EditorAttributesSamples {
     [HelpURL("https://editorattributesdocs.readthedocs.io/en/latest/Attributes/MiscellaneousAttributes/collectionrange.html")]
-    public class CollectionRangeSample : MonoBehaviour
-    {
+    public class CollectionRangeSample : MonoBehaviour {
         [Header("CollectionRange Attribute:")]
         [SerializeField, CollectionRange(0, 5)] private int[] intArray;
 

@@ -1,15 +1,13 @@
-﻿//RealToon - SmoothObjectNomal [Helper]
+//RealToon - SmoothObjectNomal [Helper]
 //MJQStudioWorks
 //©2025
 
 using UnityEngine;
 
-namespace RealToon.Script
-{
+namespace RealToon.Script {
     [ExecuteAlways]
     [AddComponentMenu("RealToon/Tools/Smooth Object Normal - Helper")]
-    public class SmoothObjectNormalHelper : MonoBehaviour
-    {
+    public class SmoothObjectNormalHelper : MonoBehaviour {
         [Header("Note: Smooth Object Normal feature will be automatically enable\nWhen you put a material that uses RealToon Shader on the Material slot.")]
 
         [Space(25)]
@@ -35,29 +33,25 @@ namespace RealToon.Script
 
         [HideInInspector]
         [SerializeField]
-        bool checkstart = true;
+        private bool checkstart = true;
 
-        string RT_Sha_Nam_URP = "Universal Render Pipeline/RealToon/Version 5/Default/Default";
-        string RT_Sha_Nam_HDRP = "HDRP/RealToon/Version 5/Default";
+        private string RT_Sha_Nam_URP = "Universal Render Pipeline/RealToon/Version 5/Default/Default";
+        private string RT_Sha_Nam_HDRP = "HDRP/RealToon/Version 5/Default";
 
-        string RT_Sha_Nam_BiRP_DD = "RealToon/Version 5/Default/Default";
-        string RT_Sha_Nam_BiRP_DFT = "RealToon/Version 5/Default/Fade Transparency";
-        string RT_Sha_Nam_BiRP_DR = "RealToon/Version 5/Default/Refraction";
-        string RT_Sha_Nam_BiRP_TDD = "RealToon/Version 5/Tessellation/Default";
-        string RT_Sha_Nam_BiRP_TDFT = "RealToon/Version 5/Tessellation/Fade Transparency";
-        string RT_Sha_Nam_BiRP_TDR = "RealToon/Version 5/Tessellation/Refraction";
+        private string RT_Sha_Nam_BiRP_DD = "RealToon/Version 5/Default/Default";
+        private string RT_Sha_Nam_BiRP_DFT = "RealToon/Version 5/Default/Fade Transparency";
+        private string RT_Sha_Nam_BiRP_DR = "RealToon/Version 5/Default/Refraction";
+        private string RT_Sha_Nam_BiRP_TDD = "RealToon/Version 5/Tessellation/Default";
+        private string RT_Sha_Nam_BiRP_TDFT = "RealToon/Version 5/Tessellation/Fade Transparency";
+        private string RT_Sha_Nam_BiRP_TDR = "RealToon/Version 5/Tessellation/Refraction";
 
-        string RT_Sha_Nam_BiRP_LD = "RealToon/Version 5/Lite/Default";
-        string RT_Sha_Nam_BiRP_LFT = "RealToon/Version 5/Lite/Fade Transparency";
+        private string RT_Sha_Nam_BiRP_LD = "RealToon/Version 5/Lite/Default";
+        private string RT_Sha_Nam_BiRP_LFT = "RealToon/Version 5/Lite/Fade Transparency";
 
-        void LateUpdate()
-        {
+        private void LateUpdate() {
 
-            if (Material == null || ObjectToFollow == null)
-            { }
-            else
-            {
-                if (Material.shader.name == RT_Sha_Nam_URP || 
+            if (Material == null || ObjectToFollow == null) { } else {
+                if (Material.shader.name == RT_Sha_Nam_URP ||
                     Material.shader.name == RT_Sha_Nam_HDRP ||
                     Material.shader.name == RT_Sha_Nam_BiRP_DD ||
                     Material.shader.name == RT_Sha_Nam_BiRP_DFT ||
@@ -66,25 +60,19 @@ namespace RealToon.Script
                     Material.shader.name == RT_Sha_Nam_BiRP_TDFT ||
                     Material.shader.name == RT_Sha_Nam_BiRP_TDR ||
                     Material.shader.name == RT_Sha_Nam_BiRP_LD ||
-                    Material.shader.name == RT_Sha_Nam_BiRP_LFT)
-                {
-                    Vector3 ObjPos = ObjectToFollow.gameObject.transform.position;
+                    Material.shader.name == RT_Sha_Nam_BiRP_LFT) {
+                    var ObjPos = ObjectToFollow.gameObject.transform.position;
                     Material.SetVector("_XYZPosition", ObjPos);
                     Material.SetFloat("_SmoothObjectNormal", Intensity);
                 }
             }
-
         }
 
-        void OnValidate()
-        {
-            if (Material == null)
-            {
+        private void OnValidate() {
+            if (Material == null) {
                 checkstart = true;
-            }
-            else if (Material != null)
-            {
-                if (Material.shader.name == RT_Sha_Nam_URP || 
+            } else if (Material != null) {
+                if (Material.shader.name == RT_Sha_Nam_URP ||
                     Material.shader.name == RT_Sha_Nam_HDRP ||
                     Material.shader.name == RT_Sha_Nam_BiRP_DD ||
                     Material.shader.name == RT_Sha_Nam_BiRP_DFT ||
@@ -93,20 +81,16 @@ namespace RealToon.Script
                     Material.shader.name == RT_Sha_Nam_BiRP_TDFT ||
                     Material.shader.name == RT_Sha_Nam_BiRP_TDR ||
                     Material.shader.name == RT_Sha_Nam_BiRP_LD ||
-                    Material.shader.name == RT_Sha_Nam_BiRP_LFT)
-                {
-                    if (checkstart == true)
-                    {
-                        if (Material.IsKeywordEnabled("N_F_SON_ON") == false)
-                        {
+                    Material.shader.name == RT_Sha_Nam_BiRP_LFT) {
+                    if (checkstart == true) {
+                        if (Material.IsKeywordEnabled("N_F_SON_ON") == false) {
                             Material.EnableKeyword("N_F_SON_ON");
                             Material.SetFloat("_N_F_SON", 1.0f);
                             checkstart = false;
                         }
                     }
 
-                    switch(ShowNormal)
-                    {
+                    switch (ShowNormal) {
                         case true:
                             Material.SetFloat("_ShowNormal", 1.0f);
                             break;
@@ -118,12 +102,10 @@ namespace RealToon.Script
             }
         }
 
-        void Reset()
-        {
+        private void Reset() {
             Material = null;
             ObjectToFollow = null;
             checkstart = true;
         }
-
     }
 }

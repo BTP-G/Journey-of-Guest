@@ -1,7 +1,7 @@
 using JoG.Character.InputBanks;
-using Xoderony.Numerics;
 using UnityEngine;
 using VContainer;
+using Xoderony.Numerics;
 
 namespace JoG.Character.Components {
 

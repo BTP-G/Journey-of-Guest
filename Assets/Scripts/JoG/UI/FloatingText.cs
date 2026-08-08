@@ -10,7 +10,7 @@ namespace JoG.UI {
     [DisallowMultipleComponent]
     [RequireComponent(typeof(TextMeshPro))]
     public class FloatingText : MonoBehaviour {
-        [Inject,SerializeField,HideInInspector] internal Billboarder billboarder;
+        [Inject, SerializeField, HideInInspector] internal Billboarder billboarder;
         private TextMeshPro _textMesh;
         private Action<FloatingText> _stopAction;
 

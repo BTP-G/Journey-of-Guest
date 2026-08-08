@@ -1,5 +1,5 @@
-using Xoderony.Localization;
 using JoG.Localization;
+using Xoderony.Localization;
 
 namespace JoG.Gameplay.Objectives {
 

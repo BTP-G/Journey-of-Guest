@@ -1,6 +1,5 @@
 using Cysharp.Text;
 using Cysharp.Threading.Tasks;
-using Xoderony.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -8,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
+using Xoderony.Logging;
 
 namespace JoG.Modding {
 
@@ -153,7 +153,10 @@ namespace JoG.Modding {
         }
 
         private Type FindModEntryType(Assembly mainAssembly) {
-            if (mainAssembly == null) return null;
+            if (mainAssembly == null) {
+                return null;
+            }
+
             foreach (var type in mainAssembly.GetTypes()) {
                 if (type == null || type.IsAbstract || type.IsGenericType) {
                     continue;

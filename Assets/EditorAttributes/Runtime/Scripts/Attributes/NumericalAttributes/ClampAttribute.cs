@@ -1,12 +1,10 @@
-﻿using UnityEngine;
+using UnityEngine;
 
-namespace EditorAttributes
-{
+namespace EditorAttributes {
     /// <summary>
     /// Attribute to clamp a numeric field between two values
     /// </summary>
-    public class ClampAttribute : PropertyAttribute, IMinMaxAxisValueAttribute
-    {
+    public class ClampAttribute : PropertyAttribute, IMinMaxAxisValueAttribute {
         public float MinValueX { get; private set; }
         public float MaxValueX { get; private set; }
 
@@ -57,8 +55,7 @@ namespace EditorAttributes
         /// <param name="maxValueZ">The max value to clamp on Z</param>
         /// <param name="minValueW">The min value to clamp on W</param>
         /// <param name="maxValueW">The max value to clamp on W</param>
-        public ClampAttribute(float minValueX, float maxValueX, float minValueY, float maxValueY, float minValueZ, float maxValueZ, float minValueW, float maxValueW)
-        {
+        public ClampAttribute(float minValueX, float maxValueX, float minValueY, float maxValueY, float minValueZ, float maxValueZ, float minValueW, float maxValueW) {
             MinValueX = minValueX;
             MaxValueX = maxValueX;
 

@@ -1,11 +1,11 @@
-using Xoderony;
-using Xoderony.Extensions;
-using Xoderony.ObjectPool.Generic;
 using JoG.Character.InputBanks;
 using JoG.Interaction;
 using JoG.UI;
 using UnityEngine;
 using VContainer;
+using Xoderony;
+using Xoderony.Extensions;
+using Xoderony.ObjectPool.Generic;
 
 namespace JoG.Character {
 

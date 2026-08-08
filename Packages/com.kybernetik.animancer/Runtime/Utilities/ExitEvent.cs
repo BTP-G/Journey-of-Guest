@@ -2,8 +2,7 @@
 
 using System;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>[Pro-Only]
     /// A callback to be triggered after an <see cref="AnimancerNode"/>
     /// either starts or finishes fading out to 0 <see cref="AnimancerNode.EffectiveWeight"/>.
@@ -22,24 +21,22 @@ namespace Animancer
     /// 
     /// https://kybernetik.com.au/animancer/api/Animancer/ExitEvent
     /// 
-    public class ExitEvent : Updatable
-    {
+    public class ExitEvent : Updatable {
         /************************************************************************************************************************/
 
         private Action _Callback;
 
         /// <summary>The method to invoke when this event is triggered.</summary>
-        public Action Callback
-        {
+        public Action Callback {
             get => _Callback;
-            set
-            {
+            set {
                 _Callback = value;
 
-                if (_Callback != null)
+                if (_Callback != null) {
                     EnableIfActive();
-                else
+                } else {
                     Disable();
+                }
             }
         }
 
@@ -48,17 +45,16 @@ namespace Animancer
         private AnimancerNode _Node;
 
         /// <summary>The target node which determines when to trigger this event.</summary>
-        public AnimancerNode Node
-        {
+        public AnimancerNode Node {
             get => _Node;
-            set
-            {
+            set {
                 _Node = value;
 
-                if (_Node != null)
+                if (_Node != null) {
                     EnableIfActive();
-                else
+                } else {
                     Disable();
+                }
             }
         }
 
@@ -100,8 +96,7 @@ namespace Animancer
         public ExitEvent(
             AnimancerNode node,
             Action callback,
-            bool invokeOnStartExiting = false)
-        {
+            bool invokeOnStartExiting = false) {
             _Node = node;
             _Callback = callback;
             InvokeOnStartExiting = invokeOnStartExiting;
@@ -110,50 +105,48 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Registers this event to start receiving updates.</summary>
-        public void Enable()
-        {
-            if (_Callback != null)
+        public void Enable() {
+            if (_Callback != null) {
                 _Node?.Graph?.RequirePostUpdate(this);
+            }
         }
 
         /// <summary>
         /// Registers this event to start receiving updates if the
         /// <see cref="AnimancerNode.TargetWeight"/> is above 0 (i.e. it's not fading out).
         /// </summary>
-        public void EnableIfActive()
-        {
+        public void EnableIfActive() {
             if (_Callback != null &&
                 _Node != null &&
                 _Node.Graph != null &&
-                _Node.TargetWeight > 0)
+                _Node.TargetWeight > 0) {
                 _Node.Graph.RequirePostUpdate(this);
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <summary>Cancels this event to stop receiving updates.</summary>
-        public void Disable()
-        {
+        public void Disable() {
             _Node?.Graph?.CancelPostUpdate(this);
         }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void Update()
-        {
-            if (!_Node.IsValid())
+        public override void Update() {
+            if (!_Node.IsValid()) {
                 return;
-
-            if (InvokeOnStartExiting)
-            {
-                if (_Node.TargetWeight != 0)
-                    return;
             }
-            else
-            {
-                if (_Node.EffectiveWeight > 0)
+
+            if (InvokeOnStartExiting) {
+                if (_Node.TargetWeight != 0) {
                     return;
+                }
+            } else {
+                if (_Node.EffectiveWeight > 0) {
+                    return;
+                }
             }
 
             _Callback();

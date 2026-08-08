@@ -4,8 +4,7 @@
 
 using UnityEngine;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only] Utility for implementing IMGUI controls.</summary>
     /// <remarks>
     /// <strong>Example:</strong>
@@ -39,8 +38,7 @@ namespace Animancer.Editor
     /// }
     /// </code></remarks>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/GUIControl
-    public readonly struct GUIControl
-    {
+    public readonly struct GUIControl {
         /************************************************************************************************************************/
 
         /// <summary>The position and size of this control</summary>
@@ -65,8 +63,7 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Creaates a new <see cref="GUIControl"/>.</summary>
-        public GUIControl(Rect area, Event currentEvent, int idHint, FocusType focusType = FocusType.Passive)
-        {
+        public GUIControl(Rect area, Event currentEvent, int idHint, FocusType focusType = FocusType.Passive) {
             Area = area;
             Event = currentEvent;
             ID = GUIUtility.GetControlID(idHint, focusType, area);
@@ -74,27 +71,30 @@ namespace Animancer.Editor
 
         /// <summary>Creates a new <see cref="GUIControl"/> with the <see cref="Event.current"/>.</summary>
         public GUIControl(Rect area, int idHint, FocusType focusType = FocusType.Passive)
-            : this(area, Event.current, idHint, focusType)
-        {
+            : this(area, Event.current, idHint, focusType) {
         }
 
         /************************************************************************************************************************/
 
         /// <summary><see cref="AnimancerGUI.TryUseMouseDown"/></summary>
-        public bool TryUseMouseDown()
-            => AnimancerGUI.TryUseMouseDown(Area, Event, ID);
+        public bool TryUseMouseDown() {
+            return AnimancerGUI.TryUseMouseDown(Area, Event, ID);
+        }
 
         /// <summary><see cref="AnimancerGUI.TryUseMouseUp"/></summary>
-        public bool TryUseMouseUp(bool guiChanged = false)
-            => AnimancerGUI.TryUseMouseUp(Event, ID, guiChanged);
+        public bool TryUseMouseUp(bool guiChanged = false) {
+            return AnimancerGUI.TryUseMouseUp(Event, ID, guiChanged);
+        }
 
         /// <summary><see cref="AnimancerGUI.TryUseHotControl"/></summary>
-        public bool TryUseHotControl(bool guiChanged = true)
-            => AnimancerGUI.TryUseHotControl(Event, ID, guiChanged);
+        public bool TryUseHotControl(bool guiChanged = true) {
+            return AnimancerGUI.TryUseHotControl(Event, ID, guiChanged);
+        }
 
         /// <summary><see cref="AnimancerGUI.TryUseKey"/></summary>
-        public bool TryUseKey(KeyCode key = KeyCode.None)
-            => AnimancerGUI.TryUseKey(Event, ID, key);
+        public bool TryUseKey(KeyCode key = KeyCode.None) {
+            return AnimancerGUI.TryUseKey(Event, ID, key);
+        }
 
         /************************************************************************************************************************/
     }

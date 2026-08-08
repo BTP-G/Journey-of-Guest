@@ -5,8 +5,7 @@ using System.Runtime.CompilerServices;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>[Pro-Only] An object that can be updated during Animancer's animation updates.</summary>
     ///
     /// <remarks>
@@ -55,8 +54,7 @@ namespace Animancer
     /// 
     /// https://kybernetik.com.au/animancer/api/Animancer/IUpdatable
     /// 
-    public interface IUpdatable
-    {
+    public interface IUpdatable {
         /************************************************************************************************************************/
 
         /// <summary>The index of this object in its <see cref="IndexedList{TItem, TIndexer}"/>.</summary>
@@ -69,24 +67,26 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>An <see cref="IIndexer{T}"/> for <see cref="IUpdatable"/>.</summary>
-        public readonly struct Indexer : IIndexer<IUpdatable>
-        {
+        readonly struct Indexer : IIndexer<IUpdatable> {
             /************************************************************************************************************************/
 
             /// <inheritdoc/>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public readonly int GetIndex(IUpdatable item)
-                => item.UpdatableIndex;
+            public readonly int GetIndex(IUpdatable item) {
+                return item.UpdatableIndex;
+            }
 
             /// <inheritdoc/>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public readonly void SetIndex(IUpdatable item, int index)
-                => item.UpdatableIndex = index;
+            public readonly void SetIndex(IUpdatable item, int index) {
+                item.UpdatableIndex = index;
+            }
 
             /// <inheritdoc/>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public readonly void ClearIndex(IUpdatable item)
-                => item.UpdatableIndex = -1;
+            public readonly void ClearIndex(IUpdatable item) {
+                item.UpdatableIndex = -1;
+            }
 
             /************************************************************************************************************************/
         }
@@ -94,8 +94,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>An <see cref="IndexedList{TItem, TAccessor}"/> of <see cref="IUpdatable"/>.</summary>
-        public class List : IndexedList<IUpdatable, Indexer>
-        {
+        class List : IndexedList<IUpdatable, Indexer> {
             /************************************************************************************************************************/
 
             /// <summary>The default <see cref="IndexedList{TItem, TIndexer}.Capacity"/> for newly created lists.</summary>
@@ -106,8 +105,7 @@ namespace Animancer
 
             /// <summary>Creates a new <see cref="List"/> with the <see cref="DefaultCapacity"/>.</summary>
             public List()
-                : base(DefaultCapacity, new())
-            { }
+                : base(DefaultCapacity, new()) { }
 
             /************************************************************************************************************************/
 
@@ -116,19 +114,14 @@ namespace Animancer
             /// Uses <see cref="Debug.LogException(Exception, Object)"/> to handle exceptions and continues executing
             /// the remaining items if any occur.
             /// </remarks>
-            public void UpdateAll()
-            {
+            public void UpdateAll() {
                 BeginEnumeraton();
-                ContinueEnumeration:
-                try
-                {
-                    while (TryEnumerateNext())
-                    {
+            ContinueEnumeration:
+                try {
+                    while (TryEnumerateNext()) {
                         Current.Update();
                     }
-                }
-                catch (Exception exception)
-                {
+                } catch (Exception exception) {
                     Debug.LogException(exception, AnimancerGraph.Current?.Component as Object);
                     goto ContinueEnumeration;
                 }
@@ -139,13 +132,14 @@ namespace Animancer
             /// <summary>Clones any <see cref="ICloneable{T}"/> items.</summary>
             public void CloneFrom(
                 List copyFrom,
-                CloneContext context)
-            {
+                CloneContext context) {
                 var count = copyFrom.Count;
-                for (int i = 0; i < count; i++)
+                for (var i = 0; i < count; i++) {
                     if (copyFrom[i] is ICloneable<object> cloneable &&
-                        context.GetOrCreateClone(cloneable) is IUpdatable clone)
+                        context.GetOrCreateClone(cloneable) is IUpdatable clone) {
                         Add(clone);
+                    }
+                }
             }
 
             /************************************************************************************************************************/
@@ -155,13 +149,13 @@ namespace Animancer
     }
 
     /// https://kybernetik.com.au/animancer/api/Animancer/AnimancerUtilities
-    public static partial class AnimancerUtilities
-    {
+    public static partial class AnimancerUtilities {
         /************************************************************************************************************************/
 
         /// <summary>Is the `updatable` currently in a list?</summary>
-        public static bool IsInList(this IUpdatable updatable)
-            => updatable.UpdatableIndex >= 0;
+        public static bool IsInList(this IUpdatable updatable) {
+            return updatable.UpdatableIndex >= 0;
+        }
 
         /************************************************************************************************************************/
     }

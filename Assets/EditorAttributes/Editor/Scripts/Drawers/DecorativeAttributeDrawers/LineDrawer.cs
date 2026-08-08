@@ -1,14 +1,11 @@
-﻿using UnityEditor;
-using UnityEngine.UIElements;
 using EditorAttributes.Editor.Utility;
+using UnityEditor;
+using UnityEngine.UIElements;
 
-namespace EditorAttributes.Editor
-{
+namespace EditorAttributes.Editor {
     [CustomPropertyDrawer(typeof(LineAttribute))]
-    public class LineDrawer : DecoratorDrawer
-    {
-        public override VisualElement CreatePropertyGUI()
-        {
+    public class LineDrawer : DecoratorDrawer {
+        public override VisualElement CreatePropertyGUI() {
             var lineAttribute = attribute as LineAttribute;
 
             VisualElement line = new();

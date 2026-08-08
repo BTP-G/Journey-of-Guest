@@ -65,7 +65,7 @@ namespace JoG.Effects {
                 return;
             }
 
-            Shader shader = Shader.Find("JoG/Environment/DynamicFog");
+            var shader = Shader.Find("JoG/Environment/DynamicFog");
             if (shader == null) {
                 Debug.LogError("Shader 'JoG/Environment/DynamicFog' not found!");
                 return;
@@ -78,7 +78,9 @@ namespace JoG.Effects {
         }
 
         private void UpdateMaterialProperties() {
-            if (_fogMaterial == null) return;
+            if (_fogMaterial == null) {
+                return;
+            }
 
             _fogMaterial.SetColor(_fogColorID, fogColor);
             _fogMaterial.SetFloat(_fogDensityID, fogDensity);
@@ -130,12 +132,12 @@ namespace JoG.Effects {
         }
 
         private System.Collections.IEnumerator FadeFogCoroutine(float targetDensity, float duration) {
-            float startDensity = fogDensity;
+            var startDensity = fogDensity;
             float elapsed = 0;
 
             while (elapsed < duration) {
                 elapsed += Time.deltaTime;
-                float t = elapsed / duration;
+                var t = elapsed / duration;
                 fogDensity = Mathf.Lerp(startDensity, targetDensity, t);
                 yield return null;
             }

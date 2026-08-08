@@ -1,14 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace DamageNumbersPro
-{
+namespace DamageNumbersPro {
     [System.Serializable]
-    public struct DestructionSettings
-    {
-        public DestructionSettings(float customDefault)
-        {
+    public struct DestructionSettings {
+        public DestructionSettings(float customDefault) {
             maxDistance = 2f;
             spawnDelay = 0.2f;
 

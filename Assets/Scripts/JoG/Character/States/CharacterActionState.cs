@@ -1,5 +1,4 @@
 using Animancer;
-using JoG.States;
 using UnityEngine;
 
 namespace JoG.Character.States {
@@ -56,5 +55,4 @@ namespace JoG.Character.States {
             Completed?.Invoke();
         }
     }
-
 }

@@ -1,5 +1,4 @@
-﻿namespace Xoderony.Extensions {
+namespace Xoderony.Extensions {
 
     public static class LayerMaskExtensions { }
-
 }

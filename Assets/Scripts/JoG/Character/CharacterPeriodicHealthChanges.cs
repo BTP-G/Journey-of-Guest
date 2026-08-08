@@ -1,13 +1,13 @@
-using Xoderony.GameplayEffects;
-using JoG.Gameplay.Effects;
-using JoG.Gameplay.Effects.Data;
+using JoG.GameplayEffects;
+using JoG.GameplayEffects.Data;
 using JoG.Health;
-using Xoderony.Collections;
-using Xoderony.Unity;
 using System;
 using Unity.Netcode;
 using UnityEngine.PlayerLoop;
 using VContainer;
+using Xoderony.Collections;
+using Xoderony.GameplayEffects;
+using Xoderony.Unity;
 
 namespace JoG.Character {
 

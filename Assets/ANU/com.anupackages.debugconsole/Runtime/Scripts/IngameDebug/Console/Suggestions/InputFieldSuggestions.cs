@@ -1,31 +1,27 @@
-﻿using System;
-using System.Linq;
 using ANU.IngameDebug.Utils;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 
-namespace ANU.IngameDebug.Console
-{
-    internal class InputFieldSuggestions : MonoBehaviour
-    {
+namespace ANU.IngameDebug.Console {
+    internal class InputFieldSuggestions : MonoBehaviour {
         [SerializeField] private TMP_InputField _input;
         [SerializeField] private TextMeshProUGUI _label;
 
-        private void Awake() => _input.onValueChanged.AddListener(ShowSuggestions);
+        private void Awake() {
+            _input.onValueChanged.AddListener(ShowSuggestions);
+        }
 
-        private void ShowSuggestions(string text)
-        {
+        private void ShowSuggestions(string text) {
             var names = text.SplitCommandLine();
             var commandName = names.FirstOrDefault();
-            if (!DebugConsole.Commands.Commands.TryGetValue(commandName ?? "", out var command))
-            {
+            if (!DebugConsole.Commands.Commands.TryGetValue(commandName ?? "", out var command)) {
                 _label.text = "";
                 return;
             }
 
             var namedParameter = text.GetFirstNamedParameter();
-            if (namedParameter.Success)
-            {
+            if (namedParameter.Success) {
                 _label.text = "";
                 return;
             }

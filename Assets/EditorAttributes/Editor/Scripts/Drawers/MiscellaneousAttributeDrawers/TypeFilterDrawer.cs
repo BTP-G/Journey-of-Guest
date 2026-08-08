@@ -1,45 +1,37 @@
-﻿using System;
+using System;
 using System.Linq;
 using UnityEditor;
-using UnityEngine.UIElements;
 using UnityEditor.UIElements;
-using Object = UnityEngine.Object;
+using UnityEngine.UIElements;
 
-namespace EditorAttributes.Editor
-{
+namespace EditorAttributes.Editor {
     [CustomPropertyDrawer(typeof(TypeFilterAttribute))]
-    public class TypeFilterDrawer : PropertyDrawerBase
-    {
-        public override VisualElement CreatePropertyGUI(SerializedProperty property)
-        {
-            if (!IsSupportedPropertyType(property))
+    public class TypeFilterDrawer : PropertyDrawerBase {
+        public override VisualElement CreatePropertyGUI(SerializedProperty property) {
+            if (!IsSupportedPropertyType(property)) {
                 return new HelpBox("The attached field must derive from <b>UnityEngine.Object</b>", HelpBoxMessageType.Error);
+            }
 
             var typeFilterAttribute = attribute as TypeFilterAttribute;
 
-            PropertyField propertyField = CreatePropertyField(property);
+            var propertyField = CreatePropertyField(property);
 
-            propertyField.RegisterCallbackOnce<GeometryChangedEvent>((callback) =>
-            {
+            propertyField.RegisterCallbackOnce<GeometryChangedEvent>((callback) => {
                 var objectField = propertyField.Q<ObjectField>();
 
                 objectField.objectType = property.objectReferenceValue != null ? property.objectReferenceValue.GetType() : typeFilterAttribute.TypesToFilter.FirstOrDefault();
 
-                objectField.RegisterCallback<DragEnterEvent>(callback =>
-                {
-                    Object draggedObject = DragAndDrop.objectReferences.FirstOrDefault();
+                objectField.RegisterCallback<DragEnterEvent>(callback => {
+                    var draggedObject = DragAndDrop.objectReferences.FirstOrDefault();
 
-                    if (draggedObject != null)
-                    {
+                    if (draggedObject != null) {
                         Type acceptedDraggedType = null;
 
                         // Check if the dragged object is compatible with any of the allowed types
-                        bool isValidType = typeFilterAttribute.TypesToFilter.Any(type =>
-                        {
+                        var isValidType = typeFilterAttribute.TypesToFilter.Any(type => {
                             var objectType = type;
 
-                            if (objectType.IsInstanceOfType(draggedObject))
-                            {
+                            if (objectType.IsInstanceOfType(draggedObject)) {
                                 acceptedDraggedType = objectType;
                                 return true;
                             }
@@ -47,8 +39,9 @@ namespace EditorAttributes.Editor
                             return false;
                         });
 
-                        if (isValidType)
+                        if (isValidType) {
                             objectField.objectType = acceptedDraggedType;
+                        }
                     }
                 });
 
@@ -58,6 +51,8 @@ namespace EditorAttributes.Editor
             return propertyField;
         }
 
-        protected override bool IsSupportedPropertyType(SerializedProperty property) => property.propertyType == SerializedPropertyType.ObjectReference;
+        protected override bool IsSupportedPropertyType(SerializedProperty property) {
+            return property.propertyType == SerializedPropertyType.ObjectReference;
+        }
     }
 }

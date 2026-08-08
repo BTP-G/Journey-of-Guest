@@ -1,8 +1,8 @@
-using Xoderony.Extensions;
 using System;
 using System.Buffers;
 using Unity.Cinemachine;
 using UnityEngine;
+using Xoderony.Extensions;
 
 namespace JoG.Cinemachine {
 
@@ -117,7 +117,10 @@ namespace JoG.Cinemachine {
             var closestSqrDistance = float.MaxValue;
             foreach (ref var hit in buffer.AsSpan(0, hitCount)) {
                 var collider = hit.collider;
-                if (collider.attachedRigidbody == selfBody) continue;
+                if (collider.attachedRigidbody == selfBody) {
+                    continue;
+                }
+
                 var sqrDistance = origin.SqrDistanceTo(hit.point);
                 if (sqrDistance < closestSqrDistance) {
                     closestSqrDistance = sqrDistance;

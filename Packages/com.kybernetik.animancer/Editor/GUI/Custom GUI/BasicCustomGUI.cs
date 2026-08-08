@@ -5,19 +5,18 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only] A <see cref="ICustomGUI"/> for <see cref="float"/>.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/FloatGUI
     /// 
     [CustomGUI(typeof(float))]
-    public class FloatGUI : CustomGUI<float>
-    {
+    public class FloatGUI : CustomGUI<float> {
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void DoGUI()
-            => Value = EditorGUILayout.FloatField(Label, Value);
+        public override void DoGUI() {
+            Value = EditorGUILayout.FloatField(Label, Value);
+        }
 
         /************************************************************************************************************************/
     }
@@ -26,13 +25,13 @@ namespace Animancer.Editor
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/IntGUI
     /// 
     [CustomGUI(typeof(int))]
-    public class IntGUI : CustomGUI<int>
-    {
+    public class IntGUI : CustomGUI<int> {
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void DoGUI()
-            => Value = EditorGUILayout.IntField(Label, Value);
+        public override void DoGUI() {
+            Value = EditorGUILayout.IntField(Label, Value);
+        }
 
         /************************************************************************************************************************/
     }
@@ -41,13 +40,13 @@ namespace Animancer.Editor
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/StringGUI
     /// 
     [CustomGUI(typeof(string))]
-    public class StringGUI : CustomGUI<string>
-    {
+    public class StringGUI : CustomGUI<string> {
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void DoGUI()
-            => Value = EditorGUILayout.TextField(Label, Value);
+        public override void DoGUI() {
+            Value = EditorGUILayout.TextField(Label, Value);
+        }
 
         /************************************************************************************************************************/
     }
@@ -57,13 +56,13 @@ namespace Animancer.Editor
     /// 
     [CustomGUI(typeof(Object))]
     public class ObjectGUI<T> : CustomGUI<T>
-        where T : Object
-    {
+        where T : Object {
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void DoGUI()
-            => Value = AnimancerGUI.DoObjectFieldGUI(Label, Value, true);
+        public override void DoGUI() {
+            Value = AnimancerGUI.DoObjectFieldGUI(Label, Value, true);
+        }
 
         /************************************************************************************************************************/
     }

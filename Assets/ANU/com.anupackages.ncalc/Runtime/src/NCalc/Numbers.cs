@@ -1,1180 +1,1006 @@
-﻿using System;
+using System;
 using System.Globalization;
 
-namespace NCalc
-{
-    public class Numbers
-    {
-        private static object ConvertIfString(object s, CultureInfo cultureInfo)
-        {
-            if (s is String || s is char)
-            {
-                return Decimal.Parse(s.ToString(), cultureInfo);
+namespace NCalc {
+    public class Numbers {
+        private static object ConvertIfString(object s, CultureInfo cultureInfo) {
+            if (s is string or char) {
+                return decimal.Parse(s.ToString(), cultureInfo);
             }
 
             return s;
         }
 
-        public static object Add(object a, object b)
-        {
+        public static object Add(object a, object b) {
             return Add(a, b, CultureInfo.CurrentCulture);
         }
 
-        public static object Add(object a, object b, CultureInfo cultureInfo)
-        {
+        public static object Add(object a, object b, CultureInfo cultureInfo) {
             a = ConvertIfString(a, cultureInfo);
             b = ConvertIfString(b, cultureInfo);
 
-            TypeCode typeCodeA = Type.GetTypeCode(a.GetType());
-            TypeCode typeCodeB = Type.GetTypeCode(b.GetType());
+            var typeCodeA = Type.GetTypeCode(a.GetType());
+            var typeCodeB = Type.GetTypeCode(b.GetType());
 
-            switch (typeCodeA)
-            {
-                case TypeCode.Boolean:
-                    throw new InvalidOperationException(
-                        $"Operator '+' can't be applied to operands of types 'bool' and {typeCodeB}");
-                case TypeCode.Byte:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '+' can't be applied to operands of types 'byte' and 'bool'");
-                        case TypeCode.Byte: return (Byte)a + (Byte)b;
-                        case TypeCode.SByte: return (Byte)a + (SByte)b;
-                        case TypeCode.Int16: return (Byte)a + (Int16)b;
-                        case TypeCode.UInt16: return (Byte)a + (UInt16)b;
-                        case TypeCode.Int32: return (Byte)a + (Int32)b;
-                        case TypeCode.UInt32: return (Byte)a + (UInt32)b;
-                        case TypeCode.Int64: return (Byte)a + (Int64)b;
-                        case TypeCode.UInt64: return (Byte)a + (UInt64)b;
-                        case TypeCode.Single: return (Byte)a + (Single)b;
-                        case TypeCode.Double: return (Byte)a + (Double)b;
-                        case TypeCode.Decimal: return (Byte)a + (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '+' not implemented for 'byte' and {typeCodeB}");
-                    }
-                case TypeCode.SByte:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '+' can't be applied to operands of types 'sbyte' and 'bool'");
-                        case TypeCode.Byte: return (SByte)a + (Byte)b;
-                        case TypeCode.SByte: return (SByte)a + (SByte)b;
-                        case TypeCode.Int16: return (SByte)a + (Int16)b;
-                        case TypeCode.UInt16: return (SByte)a + (UInt16)b;
-                        case TypeCode.Int32: return (SByte)a + (Int32)b;
-                        case TypeCode.UInt32: return (SByte)a + (UInt32)b;
-                        case TypeCode.Int64: return (SByte)a + (Int64)b;
-                        case TypeCode.UInt64: throw new InvalidOperationException("Operator '+' can't be applied to operands of types 'sbyte' and 'ulong'");
-                        case TypeCode.Single: return (SByte)a + (Single)b;
-                        case TypeCode.Double: return (SByte)a + (Double)b;
-                        case TypeCode.Decimal: return (SByte)a + (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '+' not implemented for 'sbyte' and {typeCodeB}");
-                    }
-                case TypeCode.Int16:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '+' can't be applied to operands of types 'short' and 'bool'");
-                        case TypeCode.Byte: return (Int16)a + (Byte)b;
-                        case TypeCode.SByte: return (Int16)a + (SByte)b;
-                        case TypeCode.Int16: return (Int16)a + (Int16)b;
-                        case TypeCode.UInt16: return (Int16)a + (UInt16)b;
-                        case TypeCode.Int32: return (Int16)a + (Int32)b;
-                        case TypeCode.UInt32: return (Int16)a + (UInt32)b;
-                        case TypeCode.Int64: return (Int16)a + (Int64)b;
-                        case TypeCode.UInt64: throw new InvalidOperationException("Operator '+' can't be applied to operands of types 'short' and 'ulong'");
-                        case TypeCode.Single: return (Int16)a + (Single)b;
-                        case TypeCode.Double: return (Int16)a + (Double)b;
-                        case TypeCode.Decimal: return (Int16)a + (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '+' not implemented for types 'short' and {typeCodeB}");
-                    }
-                case TypeCode.UInt16:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '+' can't be applied to operands of types 'ushort' and 'bool'");
-                        case TypeCode.Byte: return (UInt16)a + (Byte)b;
-                        case TypeCode.SByte: return (UInt16)a + (SByte)b;
-                        case TypeCode.Int16: return (UInt16)a + (Int16)b;
-                        case TypeCode.UInt16: return (UInt16)a + (UInt16)b;
-                        case TypeCode.Int32: return (UInt16)a + (Int32)b;
-                        case TypeCode.UInt32: return (UInt16)a + (UInt32)b;
-                        case TypeCode.Int64: return (UInt16)a + (Int64)b;
-                        case TypeCode.UInt64: return (UInt16)a + (UInt64)b;
-                        case TypeCode.Single: return (UInt16)a + (Single)b;
-                        case TypeCode.Double: return (UInt16)a + (Double)b;
-                        case TypeCode.Decimal: return (UInt16)a + (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '+' not implemented for types 'ushort' and {typeCodeB}");
-                    }
-                case TypeCode.Int32:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '+' can't be applied to operands of types 'int' and 'bool'");
-                        case TypeCode.Byte: return (Int32)a + (Byte)b;
-                        case TypeCode.SByte: return (Int32)a + (SByte)b;
-                        case TypeCode.Int16: return (Int32)a + (Int16)b;
-                        case TypeCode.UInt16: return (Int32)a + (UInt16)b;
-                        case TypeCode.Int32: return (Int32)a + (Int32)b;
-                        case TypeCode.UInt32: return (Int32)a + (UInt32)b;
-                        case TypeCode.Int64: return (Int32)a + (Int64)b;
-                        case TypeCode.UInt64: throw new InvalidOperationException("Operator '+' can't be applied to operands of types 'int' and 'ulong'");
-                        case TypeCode.Single: return (Int32)a + (Single)b;
-                        case TypeCode.Double: return (Int32)a + (Double)b;
-                        case TypeCode.Decimal: return (Int32)a + (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '+' not implemented for types 'int' and {typeCodeB}");
-                    }
-                case TypeCode.UInt32:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '+' can't be applied to operands of types 'uint' and 'bool'");
-                        case TypeCode.Byte: return (UInt32)a + (Byte)b;
-                        case TypeCode.SByte: return (UInt32)a + (SByte)b;
-                        case TypeCode.Int16: return (UInt32)a + (Int16)b;
-                        case TypeCode.UInt16: return (UInt32)a + (UInt16)b;
-                        case TypeCode.Int32: return (UInt32)a + (Int32)b;
-                        case TypeCode.UInt32: return (UInt32)a + (UInt32)b;
-                        case TypeCode.Int64: return (UInt32)a + (Int64)b;
-                        case TypeCode.UInt64: return (UInt32)a + (UInt64)b;
-                        case TypeCode.Single: return (UInt32)a + (Single)b;
-                        case TypeCode.Double: return (UInt32)a + (Double)b;
-                        case TypeCode.Decimal: return (UInt32)a + (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '+' not implemented for types 'uint' and {typeCodeB}");
-                    }
-                case TypeCode.Int64:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '+' can't be applied to operands of types 'long' and 'bool'");
-                        case TypeCode.Byte: return (Int64)a + (Byte)b;
-                        case TypeCode.SByte: return (Int64)a + (SByte)b;
-                        case TypeCode.Int16: return (Int64)a + (Int16)b;
-                        case TypeCode.UInt16: return (Int64)a + (UInt16)b;
-                        case TypeCode.Int32: return (Int64)a + (Int32)b;
-                        case TypeCode.UInt32: return (Int64)a + (UInt32)b;
-                        case TypeCode.Int64: return (Int64)a + (Int64)b;
-                        case TypeCode.UInt64: throw new InvalidOperationException("Operator '+' can't be applied to operands of types 'long' and 'ulong'");
-                        case TypeCode.Single: return (Int64)a + (Single)b;
-                        case TypeCode.Double: return (Int64)a + (Double)b;
-                        case TypeCode.Decimal: return (Int64)a + (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '+' not implemented for types 'long' and {typeCodeB}");
-                    }
-                case TypeCode.UInt64:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '+' can't be applied to operands of types 'ulong' and 'bool'");
-                        case TypeCode.Byte: return (UInt64)a + (Byte)b;
-                        case TypeCode.SByte: throw new InvalidOperationException("Operator '+' can't be applied to operands of types 'ulong' and 'sbyte'");
-                        case TypeCode.Int16: throw new InvalidOperationException("Operator '+' can't be applied to operands of types 'ulong' and 'short'");
-                        case TypeCode.UInt16: return (UInt64)a + (UInt16)b;
-                        case TypeCode.Int32: throw new InvalidOperationException("Operator '+' can't be applied to operands of types 'ulong' and 'int'");
-                        case TypeCode.UInt32: return (UInt64)a + (UInt32)b;
-                        case TypeCode.Int64: throw new InvalidOperationException("Operator '+' can't be applied to operands of types 'ulong' and 'ulong'");
-                        case TypeCode.UInt64: return (UInt64)a + (UInt64)b;
-                        case TypeCode.Single: return (UInt64)a + (Single)b;
-                        case TypeCode.Double: return (UInt64)a + (Double)b;
-                        case TypeCode.Decimal: return (UInt64)a + (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '+' not implemented for types 'ulong' and {typeCodeB}");
-                    }
-                case TypeCode.Single:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '+' can't be applied to operands of types 'float' and 'bool'");
-                        case TypeCode.Byte: return (Single)a + (Byte)b;
-                        case TypeCode.SByte: return (Single)a + (SByte)b;
-                        case TypeCode.Int16: return (Single)a + (Int16)b;
-                        case TypeCode.UInt16: return (Single)a + (UInt16)b;
-                        case TypeCode.Int32: return (Single)a + (Int32)b;
-                        case TypeCode.UInt32: return (Single)a + (UInt32)b;
-                        case TypeCode.Int64: return (Single)a + (Int64)b;
-                        case TypeCode.UInt64: return (Single)a + (UInt64)b;
-                        case TypeCode.Single: return (Single)a + (Single)b;
-                        case TypeCode.Double: return (Single)a + (Double)b;
-                        case TypeCode.Decimal: return Convert.ToDecimal(a) + (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '+' not implemented for types 'float' and {typeCodeB}");
-                    }
-                case TypeCode.Double:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '+' can't be applied to operands of types 'double' and 'bool'");
-                        case TypeCode.Byte: return (Double)a + (Byte)b;
-                        case TypeCode.SByte: return (Double)a + (SByte)b;
-                        case TypeCode.Int16: return (Double)a + (Int16)b;
-                        case TypeCode.UInt16: return (Double)a + (UInt16)b;
-                        case TypeCode.Int32: return (Double)a + (Int32)b;
-                        case TypeCode.UInt32: return (Double)a + (UInt32)b;
-                        case TypeCode.Int64: return (Double)a + (Int64)b;
-                        case TypeCode.UInt64: return (Double)a + (UInt64)b;
-                        case TypeCode.Single: return (Double)a + (Single)b;
-                        case TypeCode.Double: return (Double)a + (Double)b;
-                        case TypeCode.Decimal: return Convert.ToDecimal(a) + (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '+' not implemented for types 'double' and {typeCodeB}");
-                    }
-
-                case TypeCode.Decimal:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '+' can't be applied to operands of types 'decimal' and 'bool'");
-                        case TypeCode.Byte: return (Decimal)a + (Byte)b;
-                        case TypeCode.SByte: return (Decimal)a + (SByte)b;
-                        case TypeCode.Int16: return (Decimal)a + (Int16)b;
-                        case TypeCode.UInt16: return (Decimal)a + (UInt16)b;
-                        case TypeCode.Int32: return (Decimal)a + (Int32)b;
-                        case TypeCode.UInt32: return (Decimal)a + (UInt32)b;
-                        case TypeCode.Int64: return (Decimal)a + (Int64)b;
-                        case TypeCode.UInt64: return (Decimal)a + (UInt64)b;
-                        case TypeCode.Single: return (Decimal)a + Convert.ToDecimal(b);
-                        case TypeCode.Double: return (Decimal)a + Convert.ToDecimal(b);
-                        case TypeCode.Decimal: return (Decimal)a + (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '+' not implemented for types 'decimal' and {typeCodeB}");
-                    }
-                default: throw new InvalidOperationException($"Operator '+' not implemented for operands of types {typeCodeA} and {typeCodeB}");
-            }
+            return typeCodeA switch {
+                TypeCode.Boolean => throw new InvalidOperationException(
+                                        $"Operator '+' can't be applied to operands of types 'bool' and {typeCodeB}"),
+                TypeCode.Byte => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '+' can't be applied to operands of types 'byte' and 'bool'"),
+                    TypeCode.Byte => (byte)a + (byte)b,
+                    TypeCode.SByte => (byte)a + (sbyte)b,
+                    TypeCode.Int16 => (byte)a + (short)b,
+                    TypeCode.UInt16 => (byte)a + (ushort)b,
+                    TypeCode.Int32 => (byte)a + (int)b,
+                    TypeCode.UInt32 => (byte)a + (uint)b,
+                    TypeCode.Int64 => (byte)a + (long)b,
+                    TypeCode.UInt64 => (byte)a + (ulong)b,
+                    TypeCode.Single => (byte)a + (float)b,
+                    TypeCode.Double => (byte)a + (double)b,
+                    TypeCode.Decimal => (byte)a + (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '+' not implemented for 'byte' and {typeCodeB}"),
+                },
+                TypeCode.SByte => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '+' can't be applied to operands of types 'sbyte' and 'bool'"),
+                    TypeCode.Byte => (sbyte)a + (byte)b,
+                    TypeCode.SByte => (sbyte)a + (sbyte)b,
+                    TypeCode.Int16 => (sbyte)a + (short)b,
+                    TypeCode.UInt16 => (sbyte)a + (ushort)b,
+                    TypeCode.Int32 => (sbyte)a + (int)b,
+                    TypeCode.UInt32 => (sbyte)a + (uint)b,
+                    TypeCode.Int64 => (sbyte)a + (long)b,
+                    TypeCode.UInt64 => throw new InvalidOperationException("Operator '+' can't be applied to operands of types 'sbyte' and 'ulong'"),
+                    TypeCode.Single => (sbyte)a + (float)b,
+                    TypeCode.Double => (sbyte)a + (double)b,
+                    TypeCode.Decimal => (sbyte)a + (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '+' not implemented for 'sbyte' and {typeCodeB}"),
+                },
+                TypeCode.Int16 => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '+' can't be applied to operands of types 'short' and 'bool'"),
+                    TypeCode.Byte => (short)a + (byte)b,
+                    TypeCode.SByte => (short)a + (sbyte)b,
+                    TypeCode.Int16 => (short)a + (short)b,
+                    TypeCode.UInt16 => (short)a + (ushort)b,
+                    TypeCode.Int32 => (short)a + (int)b,
+                    TypeCode.UInt32 => (short)a + (uint)b,
+                    TypeCode.Int64 => (short)a + (long)b,
+                    TypeCode.UInt64 => throw new InvalidOperationException("Operator '+' can't be applied to operands of types 'short' and 'ulong'"),
+                    TypeCode.Single => (short)a + (float)b,
+                    TypeCode.Double => (short)a + (double)b,
+                    TypeCode.Decimal => (short)a + (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '+' not implemented for types 'short' and {typeCodeB}"),
+                },
+                TypeCode.UInt16 => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '+' can't be applied to operands of types 'ushort' and 'bool'"),
+                    TypeCode.Byte => (ushort)a + (byte)b,
+                    TypeCode.SByte => (ushort)a + (sbyte)b,
+                    TypeCode.Int16 => (ushort)a + (short)b,
+                    TypeCode.UInt16 => (ushort)a + (ushort)b,
+                    TypeCode.Int32 => (ushort)a + (int)b,
+                    TypeCode.UInt32 => (ushort)a + (uint)b,
+                    TypeCode.Int64 => (ushort)a + (long)b,
+                    TypeCode.UInt64 => (ushort)a + (ulong)b,
+                    TypeCode.Single => (ushort)a + (float)b,
+                    TypeCode.Double => (ushort)a + (double)b,
+                    TypeCode.Decimal => (ushort)a + (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '+' not implemented for types 'ushort' and {typeCodeB}"),
+                },
+                TypeCode.Int32 => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '+' can't be applied to operands of types 'int' and 'bool'"),
+                    TypeCode.Byte => (int)a + (byte)b,
+                    TypeCode.SByte => (int)a + (sbyte)b,
+                    TypeCode.Int16 => (int)a + (short)b,
+                    TypeCode.UInt16 => (int)a + (ushort)b,
+                    TypeCode.Int32 => (int)a + (int)b,
+                    TypeCode.UInt32 => (int)a + (uint)b,
+                    TypeCode.Int64 => (int)a + (long)b,
+                    TypeCode.UInt64 => throw new InvalidOperationException("Operator '+' can't be applied to operands of types 'int' and 'ulong'"),
+                    TypeCode.Single => (int)a + (float)b,
+                    TypeCode.Double => (int)a + (double)b,
+                    TypeCode.Decimal => (int)a + (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '+' not implemented for types 'int' and {typeCodeB}"),
+                },
+                TypeCode.UInt32 => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '+' can't be applied to operands of types 'uint' and 'bool'"),
+                    TypeCode.Byte => (uint)a + (byte)b,
+                    TypeCode.SByte => (uint)a + (sbyte)b,
+                    TypeCode.Int16 => (uint)a + (short)b,
+                    TypeCode.UInt16 => (uint)a + (ushort)b,
+                    TypeCode.Int32 => (uint)a + (int)b,
+                    TypeCode.UInt32 => (uint)a + (uint)b,
+                    TypeCode.Int64 => (uint)a + (long)b,
+                    TypeCode.UInt64 => (uint)a + (ulong)b,
+                    TypeCode.Single => (uint)a + (float)b,
+                    TypeCode.Double => (uint)a + (double)b,
+                    TypeCode.Decimal => (uint)a + (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '+' not implemented for types 'uint' and {typeCodeB}"),
+                },
+                TypeCode.Int64 => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '+' can't be applied to operands of types 'long' and 'bool'"),
+                    TypeCode.Byte => (long)a + (byte)b,
+                    TypeCode.SByte => (long)a + (sbyte)b,
+                    TypeCode.Int16 => (long)a + (short)b,
+                    TypeCode.UInt16 => (long)a + (ushort)b,
+                    TypeCode.Int32 => (long)a + (int)b,
+                    TypeCode.UInt32 => (long)a + (uint)b,
+                    TypeCode.Int64 => (long)a + (long)b,
+                    TypeCode.UInt64 => throw new InvalidOperationException("Operator '+' can't be applied to operands of types 'long' and 'ulong'"),
+                    TypeCode.Single => (long)a + (float)b,
+                    TypeCode.Double => (long)a + (double)b,
+                    TypeCode.Decimal => (long)a + (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '+' not implemented for types 'long' and {typeCodeB}"),
+                },
+                TypeCode.UInt64 => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '+' can't be applied to operands of types 'ulong' and 'bool'"),
+                    TypeCode.Byte => (ulong)a + (byte)b,
+                    TypeCode.SByte => throw new InvalidOperationException("Operator '+' can't be applied to operands of types 'ulong' and 'sbyte'"),
+                    TypeCode.Int16 => throw new InvalidOperationException("Operator '+' can't be applied to operands of types 'ulong' and 'short'"),
+                    TypeCode.UInt16 => (ulong)a + (ushort)b,
+                    TypeCode.Int32 => throw new InvalidOperationException("Operator '+' can't be applied to operands of types 'ulong' and 'int'"),
+                    TypeCode.UInt32 => (ulong)a + (uint)b,
+                    TypeCode.Int64 => throw new InvalidOperationException("Operator '+' can't be applied to operands of types 'ulong' and 'ulong'"),
+                    TypeCode.UInt64 => (ulong)a + (ulong)b,
+                    TypeCode.Single => (ulong)a + (float)b,
+                    TypeCode.Double => (ulong)a + (double)b,
+                    TypeCode.Decimal => (ulong)a + (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '+' not implemented for types 'ulong' and {typeCodeB}"),
+                },
+                TypeCode.Single => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '+' can't be applied to operands of types 'float' and 'bool'"),
+                    TypeCode.Byte => (float)a + (byte)b,
+                    TypeCode.SByte => (float)a + (sbyte)b,
+                    TypeCode.Int16 => (float)a + (short)b,
+                    TypeCode.UInt16 => (float)a + (ushort)b,
+                    TypeCode.Int32 => (float)a + (int)b,
+                    TypeCode.UInt32 => (float)a + (uint)b,
+                    TypeCode.Int64 => (float)a + (long)b,
+                    TypeCode.UInt64 => (float)a + (ulong)b,
+                    TypeCode.Single => (float)a + (float)b,
+                    TypeCode.Double => (float)a + (double)b,
+                    TypeCode.Decimal => Convert.ToDecimal(a) + (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '+' not implemented for types 'float' and {typeCodeB}"),
+                },
+                TypeCode.Double => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '+' can't be applied to operands of types 'double' and 'bool'"),
+                    TypeCode.Byte => (double)a + (byte)b,
+                    TypeCode.SByte => (double)a + (sbyte)b,
+                    TypeCode.Int16 => (double)a + (short)b,
+                    TypeCode.UInt16 => (double)a + (ushort)b,
+                    TypeCode.Int32 => (double)a + (int)b,
+                    TypeCode.UInt32 => (double)a + (uint)b,
+                    TypeCode.Int64 => (double)a + (long)b,
+                    TypeCode.UInt64 => (double)a + (ulong)b,
+                    TypeCode.Single => (double)a + (float)b,
+                    TypeCode.Double => (double)a + (double)b,
+                    TypeCode.Decimal => Convert.ToDecimal(a) + (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '+' not implemented for types 'double' and {typeCodeB}"),
+                },
+                TypeCode.Decimal => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '+' can't be applied to operands of types 'decimal' and 'bool'"),
+                    TypeCode.Byte => (decimal)a + (byte)b,
+                    TypeCode.SByte => (decimal)a + (sbyte)b,
+                    TypeCode.Int16 => (decimal)a + (short)b,
+                    TypeCode.UInt16 => (decimal)a + (ushort)b,
+                    TypeCode.Int32 => (decimal)a + (int)b,
+                    TypeCode.UInt32 => (decimal)a + (uint)b,
+                    TypeCode.Int64 => (decimal)a + (long)b,
+                    TypeCode.UInt64 => (decimal)a + (ulong)b,
+                    TypeCode.Single => (decimal)a + Convert.ToDecimal(b),
+                    TypeCode.Double => (decimal)a + Convert.ToDecimal(b),
+                    TypeCode.Decimal => (decimal)a + (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '+' not implemented for types 'decimal' and {typeCodeB}"),
+                },
+                _ => throw new InvalidOperationException($"Operator '+' not implemented for operands of types {typeCodeA} and {typeCodeB}"),
+            };
         }
 
-        public static object Subtract(object a, object b)
-        {
+        public static object Subtract(object a, object b) {
             return Subtract(a, b, CultureInfo.CurrentCulture);
         }
 
-        public static object Subtract(object a, object b, CultureInfo cultureInfo)
-        {
+        public static object Subtract(object a, object b, CultureInfo cultureInfo) {
             a = ConvertIfString(a, cultureInfo);
             b = ConvertIfString(b, cultureInfo);
 
-            TypeCode typeCodeA = Type.GetTypeCode(a.GetType());
-            TypeCode typeCodeB = Type.GetTypeCode(b.GetType());
+            var typeCodeA = Type.GetTypeCode(a.GetType());
+            var typeCodeB = Type.GetTypeCode(b.GetType());
 
-            switch (typeCodeA)
-            {
-                case TypeCode.Boolean: 
-                    throw new InvalidOperationException($"Operator '-' can't be applied to operands of types 'bool' and {typeCodeB}");
-                case TypeCode.Byte:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'byte' and 'bool'");
-                        case TypeCode.Byte: return (Byte)a - (Byte)b;
-                        case TypeCode.SByte: return (Byte)a - (SByte)b;
-                        case TypeCode.Int16: return (Byte)a - (Int16)b;
-                        case TypeCode.UInt16: return (Byte)a - (UInt16)b;
-                        case TypeCode.Int32: return (Byte)a - (Int32)b;
-                        case TypeCode.UInt32: return (Byte)a - (UInt32)b;
-                        case TypeCode.Int64: return (Byte)a - (Int64)b;
-                        case TypeCode.UInt64: return (Byte)a - (UInt64)b;
-                        case TypeCode.Single: return (Byte)a - (Single)b;
-                        case TypeCode.Double: return (Byte)a - (Double)b;
-                        case TypeCode.Decimal: return (Byte)a - (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '-' not implemented for operands of types 'byte' and {typeCodeB}");
-                    }
-                case TypeCode.SByte:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'sbyte' and 'bool'");
-                        case TypeCode.Byte: return (SByte)a - (Byte)b;
-                        case TypeCode.SByte: return (SByte)a - (SByte)b;
-                        case TypeCode.Int16: return (SByte)a - (Int16)b;
-                        case TypeCode.UInt16: return (SByte)a - (UInt16)b;
-                        case TypeCode.Int32: return (SByte)a - (Int32)b;
-                        case TypeCode.UInt32: return (SByte)a - (UInt32)b;
-                        case TypeCode.Int64: return (SByte)a - (Int64)b;
-                        case TypeCode.UInt64: throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'sbyte' and 'ulong'");
-                        case TypeCode.Single: return (SByte)a - (Single)b;
-                        case TypeCode.Double: return (SByte)a - (Double)b;
-                        case TypeCode.Decimal: return (SByte)a - (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '-' not implemented for operands of types 'byte' and {typeCodeB}");
-                    }
-                case TypeCode.Int16:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'short' and 'bool'");
-                        case TypeCode.Byte: return (Int16)a - (Byte)b;
-                        case TypeCode.SByte: return (Int16)a - (SByte)b;
-                        case TypeCode.Int16: return (Int16)a - (Int16)b;
-                        case TypeCode.UInt16: return (Int16)a - (UInt16)b;
-                        case TypeCode.Int32: return (Int16)a - (Int32)b;
-                        case TypeCode.UInt32: return (Int16)a - (UInt32)b;
-                        case TypeCode.Int64: return (Int16)a - (Int64)b;
-                        case TypeCode.UInt64: throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'short' and 'ulong'");
-                        case TypeCode.Single: return (Int16)a - (Single)b;
-                        case TypeCode.Double: return (Int16)a - (Double)b;
-                        case TypeCode.Decimal: return (Int16)a - (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '-' not implemented for operands of types 'short' and {typeCodeB}");
-                    }
-                case TypeCode.UInt16:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'ushort' and 'bool'");
-                        case TypeCode.Byte: return (UInt16)a - (Byte)b;
-                        case TypeCode.SByte: return (UInt16)a - (SByte)b;
-                        case TypeCode.Int16: return (UInt16)a - (Int16)b;
-                        case TypeCode.UInt16: return (UInt16)a - (UInt16)b;
-                        case TypeCode.Int32: return (UInt16)a - (Int32)b;
-                        case TypeCode.UInt32: return (UInt16)a - (UInt32)b;
-                        case TypeCode.Int64: return (UInt16)a - (Int64)b;
-                        case TypeCode.UInt64: return (UInt16)a - (UInt64)b;
-                        case TypeCode.Single: return (UInt16)a - (Single)b;
-                        case TypeCode.Double: return (UInt16)a - (Double)b;
-                        case TypeCode.Decimal: return (UInt16)a - (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '-' not implemented for operands of types 'ushort' and {typeCodeB}");
-                    }
-                case TypeCode.Int32:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'int' and 'bool'");
-                        case TypeCode.Byte: return (Int32)a - (Byte)b;
-                        case TypeCode.SByte: return (Int32)a - (SByte)b;
-                        case TypeCode.Int16: return (Int32)a - (Int16)b;
-                        case TypeCode.UInt16: return (Int32)a - (UInt16)b;
-                        case TypeCode.Int32: return (Int32)a - (Int32)b;
-                        case TypeCode.UInt32: return (Int32)a - (UInt32)b;
-                        case TypeCode.Int64: return (Int32)a - (Int64)b;
-                        case TypeCode.UInt64: throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'int' and 'ulong'");
-                        case TypeCode.Single: return (Int32)a - (Single)b;
-                        case TypeCode.Double: return (Int32)a - (Double)b;
-                        case TypeCode.Decimal: return (Int32)a - (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '-' not implemented for operands of types 'int' and {typeCodeB}");
-                    }
-                case TypeCode.UInt32:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'uint' and 'bool'");
-                        case TypeCode.Byte: return (UInt32)a - (Byte)b;
-                        case TypeCode.SByte: return (UInt32)a - (SByte)b;
-                        case TypeCode.Int16: return (UInt32)a - (Int16)b;
-                        case TypeCode.UInt16: return (UInt32)a - (UInt16)b;
-                        case TypeCode.Int32: return (UInt32)a - (Int32)b;
-                        case TypeCode.UInt32: return (UInt32)a - (UInt32)b;
-                        case TypeCode.Int64: return (UInt32)a - (Int64)b;
-                        case TypeCode.UInt64: return (UInt32)a - (UInt64)b;
-                        case TypeCode.Single: return (UInt32)a - (Single)b;
-                        case TypeCode.Double: return (UInt32)a - (Double)b;
-                        case TypeCode.Decimal: return (UInt32)a - (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '-' not implemented for operands of types 'uint' and {typeCodeB}");
-                    }
-                case TypeCode.Int64:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'long' and 'bool'");
-                        case TypeCode.Byte: return (Int64)a - (Byte)b;
-                        case TypeCode.SByte: return (Int64)a - (SByte)b;
-                        case TypeCode.Int16: return (Int64)a - (Int16)b;
-                        case TypeCode.UInt16: return (Int64)a - (UInt16)b;
-                        case TypeCode.Int32: return (Int64)a - (Int32)b;
-                        case TypeCode.UInt32: return (Int64)a - (UInt32)b;
-                        case TypeCode.Int64: return (Int64)a - (Int64)b;
-                        case TypeCode.UInt64: throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'long' and 'ulong'");
-                        case TypeCode.Single: return (Int64)a - (Single)b;
-                        case TypeCode.Double: return (Int64)a - (Double)b;
-                        case TypeCode.Decimal: return (Int64)a - (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '-' not implemented for operands of types 'long' and {typeCodeB}");
-                    }
-                case TypeCode.UInt64:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'ulong' and 'bool'");
-                        case TypeCode.Byte: return (UInt64)a - (byte)b;
-                        case TypeCode.SByte: throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'ulong' and 'sbyte'");
-                        case TypeCode.Int16: throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'ulong' and 'short'");
-                        case TypeCode.UInt16: return (UInt64)a - (UInt16)b;
-                        case TypeCode.Int32: throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'ulong' and 'int'");
-                        case TypeCode.UInt32: return (UInt64)a - (UInt32)b;
-                        case TypeCode.Int64: throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'ulong' and 'long'");
-                        case TypeCode.UInt64: return (UInt64)a - (UInt64)b;
-                        case TypeCode.Single: return (UInt64)a - (Single)b;
-                        case TypeCode.Double: return (UInt64)a - (Double)b;
-                        case TypeCode.Decimal: return (UInt64)a - (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '-' not implemented for operands of types 'ulong' and {typeCodeB}");
-                    }
-
-                case TypeCode.Single:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'float' and 'bool'");
-                        case TypeCode.Byte: return (Single)a - (Byte)b;
-                        case TypeCode.SByte: return (Single)a - (SByte)b;
-                        case TypeCode.Int16: return (Single)a - (Int16)b;
-                        case TypeCode.UInt16: return (Single)a - (UInt16)b;
-                        case TypeCode.Int32: return (Single)a - (Int32)b;
-                        case TypeCode.UInt32: return (Single)a - (UInt32)b;
-                        case TypeCode.Int64: return (Single)a - (Int64)b;
-                        case TypeCode.UInt64: return (Single)a - (UInt64)b;
-                        case TypeCode.Single: return (Single)a - (Single)b;
-                        case TypeCode.Double: return (Single)a - (Double)b;
-                        case TypeCode.Decimal: throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'float' and 'decimal'");
-                        default: throw new InvalidOperationException($"Operator '-' not implemented for operands of types 'float' and {typeCodeB}");
-                    }
-                case TypeCode.Double:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'double' and 'bool'");
-                        case TypeCode.Byte: return (Double)a - (Byte)b;
-                        case TypeCode.SByte: return (Double)a - (SByte)b;
-                        case TypeCode.Int16: return (Double)a - (Int16)b;
-                        case TypeCode.UInt16: return (Double)a - (UInt16)b;
-                        case TypeCode.Int32: return (Double)a - (Int32)b;
-                        case TypeCode.UInt32: return (Double)a - (UInt32)b;
-                        case TypeCode.Int64: return (Double)a - (Int64)b;
-                        case TypeCode.UInt64: return (Double)a - (UInt64)b;
-                        case TypeCode.Single: return (Double)a - (Single)b;
-                        case TypeCode.Double: return (Double)a - (Double)b;
-                        case TypeCode.Decimal: return Convert.ToDecimal(a) - (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '-' not implemented for operands of types 'double' and {typeCodeB}");
-                    }
-                case TypeCode.Decimal:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'decimal' and 'bool'");
-                        case TypeCode.Byte: return (Decimal)a - (Byte)b;
-                        case TypeCode.SByte: return (Decimal)a - (SByte)b;
-                        case TypeCode.Int16: return (Decimal)a - (Int16)b;
-                        case TypeCode.UInt16: return (Decimal)a - (UInt16)b;
-                        case TypeCode.Int32: return (Decimal)a - (Int32)b;
-                        case TypeCode.UInt32: return (Decimal)a - (UInt32)b;
-                        case TypeCode.Int64: return (Decimal)a - (Int64)b;
-                        case TypeCode.UInt64: return (Decimal)a - (UInt64)b;
-                        case TypeCode.Single: return (Decimal)a - Convert.ToDecimal(b);
-                        case TypeCode.Double: return (Decimal)a - Convert.ToDecimal(b);
-                        case TypeCode.Decimal: return (Decimal)a - (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '-' not implemented for operands of types 'decimal' and {typeCodeB}");
-                    }
-                default: throw new InvalidOperationException($"Operator '-' not implemented for operands of types {typeCodeA} and {typeCodeB}");
-            }
+            return typeCodeA switch {
+                TypeCode.Boolean => throw new InvalidOperationException($"Operator '-' can't be applied to operands of types 'bool' and {typeCodeB}"),
+                TypeCode.Byte => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'byte' and 'bool'"),
+                    TypeCode.Byte => (byte)a - (byte)b,
+                    TypeCode.SByte => (byte)a - (sbyte)b,
+                    TypeCode.Int16 => (byte)a - (short)b,
+                    TypeCode.UInt16 => (byte)a - (ushort)b,
+                    TypeCode.Int32 => (byte)a - (int)b,
+                    TypeCode.UInt32 => (byte)a - (uint)b,
+                    TypeCode.Int64 => (byte)a - (long)b,
+                    TypeCode.UInt64 => (byte)a - (ulong)b,
+                    TypeCode.Single => (byte)a - (float)b,
+                    TypeCode.Double => (byte)a - (double)b,
+                    TypeCode.Decimal => (byte)a - (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '-' not implemented for operands of types 'byte' and {typeCodeB}"),
+                },
+                TypeCode.SByte => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'sbyte' and 'bool'"),
+                    TypeCode.Byte => (sbyte)a - (byte)b,
+                    TypeCode.SByte => (sbyte)a - (sbyte)b,
+                    TypeCode.Int16 => (sbyte)a - (short)b,
+                    TypeCode.UInt16 => (sbyte)a - (ushort)b,
+                    TypeCode.Int32 => (sbyte)a - (int)b,
+                    TypeCode.UInt32 => (sbyte)a - (uint)b,
+                    TypeCode.Int64 => (sbyte)a - (long)b,
+                    TypeCode.UInt64 => throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'sbyte' and 'ulong'"),
+                    TypeCode.Single => (sbyte)a - (float)b,
+                    TypeCode.Double => (sbyte)a - (double)b,
+                    TypeCode.Decimal => (sbyte)a - (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '-' not implemented for operands of types 'byte' and {typeCodeB}"),
+                },
+                TypeCode.Int16 => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'short' and 'bool'"),
+                    TypeCode.Byte => (short)a - (byte)b,
+                    TypeCode.SByte => (short)a - (sbyte)b,
+                    TypeCode.Int16 => (short)a - (short)b,
+                    TypeCode.UInt16 => (short)a - (ushort)b,
+                    TypeCode.Int32 => (short)a - (int)b,
+                    TypeCode.UInt32 => (short)a - (uint)b,
+                    TypeCode.Int64 => (short)a - (long)b,
+                    TypeCode.UInt64 => throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'short' and 'ulong'"),
+                    TypeCode.Single => (short)a - (float)b,
+                    TypeCode.Double => (short)a - (double)b,
+                    TypeCode.Decimal => (short)a - (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '-' not implemented for operands of types 'short' and {typeCodeB}"),
+                },
+                TypeCode.UInt16 => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'ushort' and 'bool'"),
+                    TypeCode.Byte => (ushort)a - (byte)b,
+                    TypeCode.SByte => (ushort)a - (sbyte)b,
+                    TypeCode.Int16 => (ushort)a - (short)b,
+                    TypeCode.UInt16 => (ushort)a - (ushort)b,
+                    TypeCode.Int32 => (ushort)a - (int)b,
+                    TypeCode.UInt32 => (ushort)a - (uint)b,
+                    TypeCode.Int64 => (ushort)a - (long)b,
+                    TypeCode.UInt64 => (ushort)a - (ulong)b,
+                    TypeCode.Single => (ushort)a - (float)b,
+                    TypeCode.Double => (ushort)a - (double)b,
+                    TypeCode.Decimal => (ushort)a - (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '-' not implemented for operands of types 'ushort' and {typeCodeB}"),
+                },
+                TypeCode.Int32 => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'int' and 'bool'"),
+                    TypeCode.Byte => (int)a - (byte)b,
+                    TypeCode.SByte => (int)a - (sbyte)b,
+                    TypeCode.Int16 => (int)a - (short)b,
+                    TypeCode.UInt16 => (int)a - (ushort)b,
+                    TypeCode.Int32 => (int)a - (int)b,
+                    TypeCode.UInt32 => (int)a - (uint)b,
+                    TypeCode.Int64 => (int)a - (long)b,
+                    TypeCode.UInt64 => throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'int' and 'ulong'"),
+                    TypeCode.Single => (int)a - (float)b,
+                    TypeCode.Double => (int)a - (double)b,
+                    TypeCode.Decimal => (int)a - (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '-' not implemented for operands of types 'int' and {typeCodeB}"),
+                },
+                TypeCode.UInt32 => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'uint' and 'bool'"),
+                    TypeCode.Byte => (uint)a - (byte)b,
+                    TypeCode.SByte => (uint)a - (sbyte)b,
+                    TypeCode.Int16 => (uint)a - (short)b,
+                    TypeCode.UInt16 => (uint)a - (ushort)b,
+                    TypeCode.Int32 => (uint)a - (int)b,
+                    TypeCode.UInt32 => (uint)a - (uint)b,
+                    TypeCode.Int64 => (uint)a - (long)b,
+                    TypeCode.UInt64 => (uint)a - (ulong)b,
+                    TypeCode.Single => (uint)a - (float)b,
+                    TypeCode.Double => (uint)a - (double)b,
+                    TypeCode.Decimal => (uint)a - (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '-' not implemented for operands of types 'uint' and {typeCodeB}"),
+                },
+                TypeCode.Int64 => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'long' and 'bool'"),
+                    TypeCode.Byte => (long)a - (byte)b,
+                    TypeCode.SByte => (long)a - (sbyte)b,
+                    TypeCode.Int16 => (long)a - (short)b,
+                    TypeCode.UInt16 => (long)a - (ushort)b,
+                    TypeCode.Int32 => (long)a - (int)b,
+                    TypeCode.UInt32 => (long)a - (uint)b,
+                    TypeCode.Int64 => (long)a - (long)b,
+                    TypeCode.UInt64 => throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'long' and 'ulong'"),
+                    TypeCode.Single => (long)a - (float)b,
+                    TypeCode.Double => (long)a - (double)b,
+                    TypeCode.Decimal => (long)a - (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '-' not implemented for operands of types 'long' and {typeCodeB}"),
+                },
+                TypeCode.UInt64 => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'ulong' and 'bool'"),
+                    TypeCode.Byte => (ulong)a - (byte)b,
+                    TypeCode.SByte => throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'ulong' and 'sbyte'"),
+                    TypeCode.Int16 => throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'ulong' and 'short'"),
+                    TypeCode.UInt16 => (ulong)a - (ushort)b,
+                    TypeCode.Int32 => throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'ulong' and 'int'"),
+                    TypeCode.UInt32 => (ulong)a - (uint)b,
+                    TypeCode.Int64 => throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'ulong' and 'long'"),
+                    TypeCode.UInt64 => (ulong)a - (ulong)b,
+                    TypeCode.Single => (ulong)a - (float)b,
+                    TypeCode.Double => (ulong)a - (double)b,
+                    TypeCode.Decimal => (ulong)a - (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '-' not implemented for operands of types 'ulong' and {typeCodeB}"),
+                },
+                TypeCode.Single => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'float' and 'bool'"),
+                    TypeCode.Byte => (float)a - (byte)b,
+                    TypeCode.SByte => (float)a - (sbyte)b,
+                    TypeCode.Int16 => (float)a - (short)b,
+                    TypeCode.UInt16 => (float)a - (ushort)b,
+                    TypeCode.Int32 => (float)a - (int)b,
+                    TypeCode.UInt32 => (float)a - (uint)b,
+                    TypeCode.Int64 => (float)a - (long)b,
+                    TypeCode.UInt64 => (float)a - (ulong)b,
+                    TypeCode.Single => (float)a - (float)b,
+                    TypeCode.Double => (object)((float)a - (double)b),
+                    TypeCode.Decimal => throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'float' and 'decimal'"),
+                    _ => throw new InvalidOperationException($"Operator '-' not implemented for operands of types 'float' and {typeCodeB}"),
+                },
+                TypeCode.Double => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'double' and 'bool'"),
+                    TypeCode.Byte => (double)a - (byte)b,
+                    TypeCode.SByte => (double)a - (sbyte)b,
+                    TypeCode.Int16 => (double)a - (short)b,
+                    TypeCode.UInt16 => (double)a - (ushort)b,
+                    TypeCode.Int32 => (double)a - (int)b,
+                    TypeCode.UInt32 => (double)a - (uint)b,
+                    TypeCode.Int64 => (double)a - (long)b,
+                    TypeCode.UInt64 => (double)a - (ulong)b,
+                    TypeCode.Single => (double)a - (float)b,
+                    TypeCode.Double => (double)a - (double)b,
+                    TypeCode.Decimal => Convert.ToDecimal(a) - (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '-' not implemented for operands of types 'double' and {typeCodeB}"),
+                },
+                TypeCode.Decimal => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'decimal' and 'bool'"),
+                    TypeCode.Byte => (decimal)a - (byte)b,
+                    TypeCode.SByte => (decimal)a - (sbyte)b,
+                    TypeCode.Int16 => (decimal)a - (short)b,
+                    TypeCode.UInt16 => (decimal)a - (ushort)b,
+                    TypeCode.Int32 => (decimal)a - (int)b,
+                    TypeCode.UInt32 => (decimal)a - (uint)b,
+                    TypeCode.Int64 => (decimal)a - (long)b,
+                    TypeCode.UInt64 => (decimal)a - (ulong)b,
+                    TypeCode.Single => (decimal)a - Convert.ToDecimal(b),
+                    TypeCode.Double => (decimal)a - Convert.ToDecimal(b),
+                    TypeCode.Decimal => (decimal)a - (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '-' not implemented for operands of types 'decimal' and {typeCodeB}"),
+                },
+                _ => throw new InvalidOperationException($"Operator '-' not implemented for operands of types {typeCodeA} and {typeCodeB}"),
+            };
         }
 
-        public static object Multiply(object a, object b)
-        {
+        public static object Multiply(object a, object b) {
             return Multiply(a, b, CultureInfo.CurrentCulture);
         }
 
-        public static object Multiply(object a, object b, CultureInfo cultureInfo)
-        {
+        public static object Multiply(object a, object b, CultureInfo cultureInfo) {
             a = ConvertIfString(a, cultureInfo);
             b = ConvertIfString(b, cultureInfo);
 
-            TypeCode typeCodeA = Type.GetTypeCode(a.GetType());
-            TypeCode typeCodeB = Type.GetTypeCode(b.GetType());
+            var typeCodeA = Type.GetTypeCode(a.GetType());
+            var typeCodeB = Type.GetTypeCode(b.GetType());
 
-            switch (typeCodeA)
-            {
-                case TypeCode.Boolean:
-                    throw new InvalidOperationException(
-                        $"Operator '*' can't be applied to operands of types 'bool' and {typeCodeB}");
-                case TypeCode.Byte:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '*' can't be applied to operands of types 'byte' and 'bool'");
-                        case TypeCode.Byte: return (Byte)a * (Byte)b;
-                        case TypeCode.SByte: return (Byte)a * (SByte)b;
-                        case TypeCode.Int16: return (Byte)a * (Int16)b;
-                        case TypeCode.UInt16: return (Byte)a * (UInt16)b;
-                        case TypeCode.Int32: return (Byte)a * (Int32)b;
-                        case TypeCode.UInt32: return (Byte)a * (UInt32)b;
-                        case TypeCode.Int64: return (Byte)a * (Int64)b;
-                        case TypeCode.UInt64: return (Byte)a * (UInt64)b;
-                        case TypeCode.Single: return (Byte)a * (Single)b;
-                        case TypeCode.Double: return (Byte)a * (Double)b;
-                        case TypeCode.Decimal: return (Byte)a * (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '*' not implemented for operands of types 'byte' and {typeCodeB}");
-                    }
-                case TypeCode.SByte:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '*' can't be applied to operands of types 'sbyte' and 'bool'");
-                        case TypeCode.Byte: return (SByte)a * (Byte)b;
-                        case TypeCode.SByte: return (SByte)a * (SByte)b;
-                        case TypeCode.Int16: return (SByte)a * (Int16)b;
-                        case TypeCode.UInt16: return (SByte)a * (UInt16)b;
-                        case TypeCode.Int32: return (SByte)a * (Int32)b;
-                        case TypeCode.UInt32: return (SByte)a * (UInt32)b;
-                        case TypeCode.Int64: return (SByte)a * (Int64)b;
-                        case TypeCode.UInt64: throw new InvalidOperationException("Operator '*' can't be applied to operands of types 'sbyte' and 'ulong'");
-                        case TypeCode.Single: return (SByte)a * (Single)b;
-                        case TypeCode.Double: return (SByte)a * (Double)b;
-                        case TypeCode.Decimal: return (SByte)a * (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '*' not implemented for operands of types 'sbyte' and {typeCodeB}");
-                    }
-                case TypeCode.Int16:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '*' can't be applied to operands of types 'short' and 'bool'");
-                        case TypeCode.Byte: return (Int16)a * (Byte)b;
-                        case TypeCode.SByte: return (Int16)a * (SByte)b;
-                        case TypeCode.Int16: return (Int16)a * (Int16)b;
-                        case TypeCode.UInt16: return (Int16)a * (UInt16)b;
-                        case TypeCode.Int32: return (Int16)a * (Int32)b;
-                        case TypeCode.UInt32: return (Int16)a * (UInt32)b;
-                        case TypeCode.Int64: return (Int16)a * (Int64)b;
-                        case TypeCode.UInt64: throw new InvalidOperationException("Operator '*' can't be applied to operands of types 'short' and 'ulong'");
-                        case TypeCode.Single: return (Int16)a * (Single)b;
-                        case TypeCode.Double: return (Int16)a * (Double)b;
-                        case TypeCode.Decimal: return (Int16)a * (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '*' not implemented for operands of types 'short' and {typeCodeB}");
-                    }
-                case TypeCode.UInt16:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '*' can't be applied to operands of types 'ushort' and 'bool'");
-                        case TypeCode.Byte: return (UInt16)a * (Byte)b;
-                        case TypeCode.SByte: return (UInt16)a * (SByte)b;
-                        case TypeCode.Int16: return (UInt16)a * (Int16)b;
-                        case TypeCode.UInt16: return (UInt16)a * (UInt16)b;
-                        case TypeCode.Int32: return (UInt16)a * (Int32)b;
-                        case TypeCode.UInt32: return (UInt16)a * (UInt32)b;
-                        case TypeCode.Int64: return (UInt16)a * (Int64)b;
-                        case TypeCode.UInt64: return (UInt16)a * (UInt64)b;
-                        case TypeCode.Single: return (UInt16)a * (Single)b;
-                        case TypeCode.Double: return (UInt16)a * (Double)b;
-                        case TypeCode.Decimal: return (UInt16)a * (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '*' not implemented for operands of types 'ushort' and {typeCodeB}");
-                    }
-                case TypeCode.Int32:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '*' can't be applied to operands of types 'int' and 'bool'");
-                        case TypeCode.Byte: return (Int32)a * (Byte)b;
-                        case TypeCode.SByte: return (Int32)a * (SByte)b;
-                        case TypeCode.Int16: return (Int32)a * (Int16)b;
-                        case TypeCode.UInt16: return (Int32)a * (UInt16)b;
-                        case TypeCode.Int32: return (Int32)a * (Int32)b;
-                        case TypeCode.UInt32: return (Int32)a * (UInt32)b;
-                        case TypeCode.Int64: return (Int32)a * (Int64)b;
-                        case TypeCode.UInt64: throw new InvalidOperationException("Operator '*' can't be applied to operands of types 'int' and 'ulong'");
-                        case TypeCode.Single: return (Int32)a * (Single)b;
-                        case TypeCode.Double: return (Int32)a * (Double)b;
-                        case TypeCode.Decimal: return (Int32)a * (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '*' not implemented for operands of types 'int' and {typeCodeB}");
-                    }
-                case TypeCode.UInt32:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '*' can't be applied to operands of types 'uint' and 'bool'");
-                        case TypeCode.Byte: return (UInt32)a * (Byte)b;
-                        case TypeCode.SByte: return (UInt32)a * (SByte)b;
-                        case TypeCode.Int16: return (UInt32)a * (Int16)b;
-                        case TypeCode.UInt16: return (UInt32)a * (UInt16)b;
-                        case TypeCode.Int32: return (UInt32)a * (Int32)b;
-                        case TypeCode.UInt32: return (UInt32)a * (UInt32)b;
-                        case TypeCode.Int64: return (UInt32)a * (Int64)b;
-                        case TypeCode.UInt64: return (UInt32)a * (UInt64)b;
-                        case TypeCode.Single: return (UInt32)a * (Single)b;
-                        case TypeCode.Double: return (UInt32)a * (Double)b;
-                        case TypeCode.Decimal: return (UInt32)a * (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '*' not implemented for operands of types 'int' and {typeCodeB}");
-                    }
-                case TypeCode.Int64:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '*' can't be applied to operands of types 'long' and 'bool'");
-                        case TypeCode.Byte: return (Int64)a * (Byte)b;
-                        case TypeCode.SByte: return (Int64)a * (SByte)b;
-                        case TypeCode.Int16: return (Int64)a * (Int16)b;
-                        case TypeCode.UInt16: return (Int64)a * (UInt16)b;
-                        case TypeCode.Int32: return (Int64)a * (Int32)b;
-                        case TypeCode.UInt32: return (Int64)a * (UInt32)b;
-                        case TypeCode.Int64: return (Int64)a * (Int64)b;
-                        case TypeCode.UInt64: throw new InvalidOperationException("Operator '*' can't be applied to operands of types 'long' and 'ulong'");
-                        case TypeCode.Single: return (Int64)a * (Single)b;
-                        case TypeCode.Double: return (Int64)a * (Double)b;
-                        case TypeCode.Decimal: return (Int64)a * (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '*' not implemented for operands of types 'int' and {typeCodeB}");
-                    }
-                case TypeCode.UInt64:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '*' can't be applied to operands of types 'ulong' and 'bool'");
-                        case TypeCode.Byte: return (UInt64)a * (Byte)b;
-                        case TypeCode.SByte: throw new InvalidOperationException("Operator '*' can't be applied to operands of types 'ulong' and 'sbyte'");
-                        case TypeCode.Int16: throw new InvalidOperationException("Operator '*' can't be applied to operands of types 'ulong' and 'short'");
-                        case TypeCode.UInt16: return (UInt64)a * (UInt16)b;
-                        case TypeCode.Int32: throw new InvalidOperationException("Operator '*' can't be applied to operands of types 'ulong' and 'int'");
-                        case TypeCode.UInt32: return (UInt64)a * (UInt32)b;
-                        case TypeCode.Int64: throw new InvalidOperationException("Operator '*' can't be applied to operands of types 'ulong' and 'long'");
-                        case TypeCode.UInt64: return (UInt64)a * (UInt64)b;
-                        case TypeCode.Single: return (UInt64)a * (Single)b;
-                        case TypeCode.Double: return (UInt64)a * (Double)b;
-                        case TypeCode.Decimal: return (UInt64)a * (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '*' not implemented for operands of types 'ulong' and {typeCodeB}");
-                    }
-
-                case TypeCode.Single:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '*' can't be applied to operands of types 'float' and 'bool'");
-                        case TypeCode.Byte: return (Single)a * (Byte)b;
-                        case TypeCode.SByte: return (Single)a * (SByte)b;
-                        case TypeCode.Int16: return (Single)a * (Int16)b;
-                        case TypeCode.UInt16: return (Single)a * (UInt16)b;
-                        case TypeCode.Int32: return (Single)a * (Int32)b;
-                        case TypeCode.UInt32: return (Single)a * (UInt32)b;
-                        case TypeCode.Int64: return (Single)a * (Int64)b;
-                        case TypeCode.UInt64: return (Single)a * (UInt64)b;
-                        case TypeCode.Single: return (Single)a * (Single)b;
-                        case TypeCode.Double: return (Single)a * (Double)b;
-                        case TypeCode.Decimal: return Convert.ToDecimal(a) * (Decimal) b;
-                        default: throw new InvalidOperationException($"Operator '*' not implemented for operands of types 'float' and {typeCodeB}");
-                    }
- 
-                case TypeCode.Double:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '*' can't be applied to operands of types 'double' and 'bool'");
-                        case TypeCode.Byte: return (Double)a * (Byte)b;
-                        case TypeCode.SByte: return (Double)a * (SByte)b;
-                        case TypeCode.Int16: return (Double)a * (Int16)b;
-                        case TypeCode.UInt16: return (Double)a * (UInt16)b;
-                        case TypeCode.Int32: return (Double)a * (Int32)b;
-                        case TypeCode.UInt32: return (Double)a * (UInt32)b;
-                        case TypeCode.Int64: return (Double)a * (Int64)b;
-                        case TypeCode.UInt64: return (Double)a * (UInt64)b;
-                        case TypeCode.Single: return (Double)a * (Single)b;
-                        case TypeCode.Double: return (Double)a * (Double)b;
-                        case TypeCode.Decimal: return Convert.ToDecimal(a) * (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '*' not implemented for operands of types 'double' and {typeCodeB}");
-                    }
-                case TypeCode.Decimal:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '*' can't be applied to operands of types 'decimal' and 'bool'");
-                        case TypeCode.Byte: return (Decimal)a * (Byte)b;
-                        case TypeCode.SByte: return (Decimal)a * (SByte)b;
-                        case TypeCode.Int16: return (Decimal)a * (Int16)b;
-                        case TypeCode.UInt16: return (Decimal)a * (UInt16)b;
-                        case TypeCode.Int32: return (Decimal)a * (Int32)b;
-                        case TypeCode.UInt32: return (Decimal)a * (UInt32)b;
-                        case TypeCode.Int64: return (Decimal)a * (Int64)b;
-                        case TypeCode.UInt64: return (Decimal)a * (UInt64)b;
-                        case TypeCode.Single: return (Decimal) a * Convert.ToDecimal(b);
-                        case TypeCode.Double: return (Decimal)a * Convert.ToDecimal(b);
-                        case TypeCode.Decimal: return (Decimal)a * (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '*' not implemented for operands of types 'decimal' and {typeCodeB}");
-                    }
-                default: throw new InvalidOperationException($"Operator '*' not implemented for operands of types {typeCodeA} and {typeCodeB}");
-            }
+            return typeCodeA switch {
+                TypeCode.Boolean => throw new InvalidOperationException(
+                                        $"Operator '*' can't be applied to operands of types 'bool' and {typeCodeB}"),
+                TypeCode.Byte => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '*' can't be applied to operands of types 'byte' and 'bool'"),
+                    TypeCode.Byte => (byte)a * (byte)b,
+                    TypeCode.SByte => (byte)a * (sbyte)b,
+                    TypeCode.Int16 => (byte)a * (short)b,
+                    TypeCode.UInt16 => (byte)a * (ushort)b,
+                    TypeCode.Int32 => (byte)a * (int)b,
+                    TypeCode.UInt32 => (byte)a * (uint)b,
+                    TypeCode.Int64 => (byte)a * (long)b,
+                    TypeCode.UInt64 => (byte)a * (ulong)b,
+                    TypeCode.Single => (byte)a * (float)b,
+                    TypeCode.Double => (byte)a * (double)b,
+                    TypeCode.Decimal => (byte)a * (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '*' not implemented for operands of types 'byte' and {typeCodeB}"),
+                },
+                TypeCode.SByte => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '*' can't be applied to operands of types 'sbyte' and 'bool'"),
+                    TypeCode.Byte => (sbyte)a * (byte)b,
+                    TypeCode.SByte => (sbyte)a * (sbyte)b,
+                    TypeCode.Int16 => (sbyte)a * (short)b,
+                    TypeCode.UInt16 => (sbyte)a * (ushort)b,
+                    TypeCode.Int32 => (sbyte)a * (int)b,
+                    TypeCode.UInt32 => (sbyte)a * (uint)b,
+                    TypeCode.Int64 => (sbyte)a * (long)b,
+                    TypeCode.UInt64 => throw new InvalidOperationException("Operator '*' can't be applied to operands of types 'sbyte' and 'ulong'"),
+                    TypeCode.Single => (sbyte)a * (float)b,
+                    TypeCode.Double => (sbyte)a * (double)b,
+                    TypeCode.Decimal => (sbyte)a * (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '*' not implemented for operands of types 'sbyte' and {typeCodeB}"),
+                },
+                TypeCode.Int16 => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '*' can't be applied to operands of types 'short' and 'bool'"),
+                    TypeCode.Byte => (short)a * (byte)b,
+                    TypeCode.SByte => (short)a * (sbyte)b,
+                    TypeCode.Int16 => (short)a * (short)b,
+                    TypeCode.UInt16 => (short)a * (ushort)b,
+                    TypeCode.Int32 => (short)a * (int)b,
+                    TypeCode.UInt32 => (short)a * (uint)b,
+                    TypeCode.Int64 => (short)a * (long)b,
+                    TypeCode.UInt64 => throw new InvalidOperationException("Operator '*' can't be applied to operands of types 'short' and 'ulong'"),
+                    TypeCode.Single => (short)a * (float)b,
+                    TypeCode.Double => (short)a * (double)b,
+                    TypeCode.Decimal => (short)a * (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '*' not implemented for operands of types 'short' and {typeCodeB}"),
+                },
+                TypeCode.UInt16 => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '*' can't be applied to operands of types 'ushort' and 'bool'"),
+                    TypeCode.Byte => (ushort)a * (byte)b,
+                    TypeCode.SByte => (ushort)a * (sbyte)b,
+                    TypeCode.Int16 => (ushort)a * (short)b,
+                    TypeCode.UInt16 => (ushort)a * (ushort)b,
+                    TypeCode.Int32 => (ushort)a * (int)b,
+                    TypeCode.UInt32 => (ushort)a * (uint)b,
+                    TypeCode.Int64 => (ushort)a * (long)b,
+                    TypeCode.UInt64 => (ushort)a * (ulong)b,
+                    TypeCode.Single => (ushort)a * (float)b,
+                    TypeCode.Double => (ushort)a * (double)b,
+                    TypeCode.Decimal => (ushort)a * (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '*' not implemented for operands of types 'ushort' and {typeCodeB}"),
+                },
+                TypeCode.Int32 => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '*' can't be applied to operands of types 'int' and 'bool'"),
+                    TypeCode.Byte => (int)a * (byte)b,
+                    TypeCode.SByte => (int)a * (sbyte)b,
+                    TypeCode.Int16 => (int)a * (short)b,
+                    TypeCode.UInt16 => (int)a * (ushort)b,
+                    TypeCode.Int32 => (int)a * (int)b,
+                    TypeCode.UInt32 => (int)a * (uint)b,
+                    TypeCode.Int64 => (int)a * (long)b,
+                    TypeCode.UInt64 => throw new InvalidOperationException("Operator '*' can't be applied to operands of types 'int' and 'ulong'"),
+                    TypeCode.Single => (int)a * (float)b,
+                    TypeCode.Double => (int)a * (double)b,
+                    TypeCode.Decimal => (int)a * (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '*' not implemented for operands of types 'int' and {typeCodeB}"),
+                },
+                TypeCode.UInt32 => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '*' can't be applied to operands of types 'uint' and 'bool'"),
+                    TypeCode.Byte => (uint)a * (byte)b,
+                    TypeCode.SByte => (uint)a * (sbyte)b,
+                    TypeCode.Int16 => (uint)a * (short)b,
+                    TypeCode.UInt16 => (uint)a * (ushort)b,
+                    TypeCode.Int32 => (uint)a * (int)b,
+                    TypeCode.UInt32 => (uint)a * (uint)b,
+                    TypeCode.Int64 => (uint)a * (long)b,
+                    TypeCode.UInt64 => (uint)a * (ulong)b,
+                    TypeCode.Single => (uint)a * (float)b,
+                    TypeCode.Double => (uint)a * (double)b,
+                    TypeCode.Decimal => (uint)a * (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '*' not implemented for operands of types 'int' and {typeCodeB}"),
+                },
+                TypeCode.Int64 => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '*' can't be applied to operands of types 'long' and 'bool'"),
+                    TypeCode.Byte => (long)a * (byte)b,
+                    TypeCode.SByte => (long)a * (sbyte)b,
+                    TypeCode.Int16 => (long)a * (short)b,
+                    TypeCode.UInt16 => (long)a * (ushort)b,
+                    TypeCode.Int32 => (long)a * (int)b,
+                    TypeCode.UInt32 => (long)a * (uint)b,
+                    TypeCode.Int64 => (long)a * (long)b,
+                    TypeCode.UInt64 => throw new InvalidOperationException("Operator '*' can't be applied to operands of types 'long' and 'ulong'"),
+                    TypeCode.Single => (long)a * (float)b,
+                    TypeCode.Double => (long)a * (double)b,
+                    TypeCode.Decimal => (long)a * (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '*' not implemented for operands of types 'int' and {typeCodeB}"),
+                },
+                TypeCode.UInt64 => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '*' can't be applied to operands of types 'ulong' and 'bool'"),
+                    TypeCode.Byte => (ulong)a * (byte)b,
+                    TypeCode.SByte => throw new InvalidOperationException("Operator '*' can't be applied to operands of types 'ulong' and 'sbyte'"),
+                    TypeCode.Int16 => throw new InvalidOperationException("Operator '*' can't be applied to operands of types 'ulong' and 'short'"),
+                    TypeCode.UInt16 => (ulong)a * (ushort)b,
+                    TypeCode.Int32 => throw new InvalidOperationException("Operator '*' can't be applied to operands of types 'ulong' and 'int'"),
+                    TypeCode.UInt32 => (ulong)a * (uint)b,
+                    TypeCode.Int64 => throw new InvalidOperationException("Operator '*' can't be applied to operands of types 'ulong' and 'long'"),
+                    TypeCode.UInt64 => (ulong)a * (ulong)b,
+                    TypeCode.Single => (ulong)a * (float)b,
+                    TypeCode.Double => (ulong)a * (double)b,
+                    TypeCode.Decimal => (ulong)a * (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '*' not implemented for operands of types 'ulong' and {typeCodeB}"),
+                },
+                TypeCode.Single => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '*' can't be applied to operands of types 'float' and 'bool'"),
+                    TypeCode.Byte => (float)a * (byte)b,
+                    TypeCode.SByte => (float)a * (sbyte)b,
+                    TypeCode.Int16 => (float)a * (short)b,
+                    TypeCode.UInt16 => (float)a * (ushort)b,
+                    TypeCode.Int32 => (float)a * (int)b,
+                    TypeCode.UInt32 => (float)a * (uint)b,
+                    TypeCode.Int64 => (float)a * (long)b,
+                    TypeCode.UInt64 => (float)a * (ulong)b,
+                    TypeCode.Single => (float)a * (float)b,
+                    TypeCode.Double => (float)a * (double)b,
+                    TypeCode.Decimal => Convert.ToDecimal(a) * (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '*' not implemented for operands of types 'float' and {typeCodeB}"),
+                },
+                TypeCode.Double => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '*' can't be applied to operands of types 'double' and 'bool'"),
+                    TypeCode.Byte => (double)a * (byte)b,
+                    TypeCode.SByte => (double)a * (sbyte)b,
+                    TypeCode.Int16 => (double)a * (short)b,
+                    TypeCode.UInt16 => (double)a * (ushort)b,
+                    TypeCode.Int32 => (double)a * (int)b,
+                    TypeCode.UInt32 => (double)a * (uint)b,
+                    TypeCode.Int64 => (double)a * (long)b,
+                    TypeCode.UInt64 => (double)a * (ulong)b,
+                    TypeCode.Single => (double)a * (float)b,
+                    TypeCode.Double => (double)a * (double)b,
+                    TypeCode.Decimal => Convert.ToDecimal(a) * (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '*' not implemented for operands of types 'double' and {typeCodeB}"),
+                },
+                TypeCode.Decimal => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '*' can't be applied to operands of types 'decimal' and 'bool'"),
+                    TypeCode.Byte => (decimal)a * (byte)b,
+                    TypeCode.SByte => (decimal)a * (sbyte)b,
+                    TypeCode.Int16 => (decimal)a * (short)b,
+                    TypeCode.UInt16 => (decimal)a * (ushort)b,
+                    TypeCode.Int32 => (decimal)a * (int)b,
+                    TypeCode.UInt32 => (decimal)a * (uint)b,
+                    TypeCode.Int64 => (decimal)a * (long)b,
+                    TypeCode.UInt64 => (decimal)a * (ulong)b,
+                    TypeCode.Single => (decimal)a * Convert.ToDecimal(b),
+                    TypeCode.Double => (decimal)a * Convert.ToDecimal(b),
+                    TypeCode.Decimal => (decimal)a * (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '*' not implemented for operands of types 'decimal' and {typeCodeB}"),
+                },
+                _ => throw new InvalidOperationException($"Operator '*' not implemented for operands of types {typeCodeA} and {typeCodeB}"),
+            };
         }
-        
-        public static object Divide(object a, object b)
-        {
+
+        public static object Divide(object a, object b) {
             return Divide(a, b, CultureInfo.CurrentCulture);
         }
 
-        public static object Divide(object a, object b, CultureInfo cultureInfo)
-        {
+        public static object Divide(object a, object b, CultureInfo cultureInfo) {
             a = ConvertIfString(a, cultureInfo);
             b = ConvertIfString(b, cultureInfo);
 
-            TypeCode typeCodeA = Type.GetTypeCode(a.GetType());
-            TypeCode typeCodeB = Type.GetTypeCode(b.GetType());
+            var typeCodeA = Type.GetTypeCode(a.GetType());
+            var typeCodeB = Type.GetTypeCode(b.GetType());
 
-            switch (typeCodeA)
-            {
-                case TypeCode.Boolean:
-                    throw new InvalidOperationException(
-                        $"Operator '/' can't be applied to operands of types 'bool' and {typeCodeB}");
-                case TypeCode.Byte:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '/' can't be applied to operands of types 'byte' and 'bool'");
-                        case TypeCode.Byte: return (Byte)a / (Byte)b;
-                        case TypeCode.SByte: return (Byte)a / (SByte)b;
-                        case TypeCode.Int16: return (Byte)a / (Int16)b;
-                        case TypeCode.UInt16: return (Byte)a / (UInt16)b;
-                        case TypeCode.Int32: return (Byte)a / (Int32)b;
-                        case TypeCode.UInt32: return (Byte)a / (UInt32)b;
-                        case TypeCode.Int64: return (Byte)a / (Int64)b;
-                        case TypeCode.UInt64: return (Byte)a / (UInt64)b;
-                        case TypeCode.Single: return (Byte)a / (Single)b;
-                        case TypeCode.Double: return (Byte)a / (Double)b;
-                        case TypeCode.Decimal: return (Byte)a / (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '/' not implemented for operands of types 'decimal' and {typeCodeB}");
-                    }
-                case TypeCode.SByte:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '/' can't be applied to operands of types 'sbyte' and 'bool'");
-                        case TypeCode.Byte: return (SByte)a / (Byte)b;
-                        case TypeCode.SByte: return (SByte)a / (SByte)b;
-                        case TypeCode.Int16: return (SByte)a / (Int16)b;
-                        case TypeCode.UInt16: return (SByte)a / (UInt16)b;
-                        case TypeCode.Int32: return (SByte)a / (Int32)b;
-                        case TypeCode.UInt32: return (SByte)a / (UInt32)b;
-                        case TypeCode.Int64: return (SByte)a / (Int64)b;
-                        case TypeCode.UInt64: throw new InvalidOperationException("Operator '/' can't be applied to operands of types 'sbyte' and 'ulong'");
-                        case TypeCode.Single: return (SByte)a / (Single)b;
-                        case TypeCode.Double: return (SByte)a / (Double)b;
-                        case TypeCode.Decimal: return (SByte)a / (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '/' not implemented for operands of types 'decimal' and {typeCodeB}");
-                    }
-
-                case TypeCode.Int16:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '/' can't be applied to operands of types 'short' and 'bool'");
-                        case TypeCode.Byte: return (Int16)a / (Byte)b;
-                        case TypeCode.SByte: return (Int16)a / (SByte)b;
-                        case TypeCode.Int16: return (Int16)a / (Int16)b;
-                        case TypeCode.UInt16: return (Int16)a / (UInt16)b;
-                        case TypeCode.Int32: return (Int16)a / (Int32)b;
-                        case TypeCode.UInt32: return (Int16)a / (UInt32)b;
-                        case TypeCode.Int64: return (Int16)a / (Int64)b;
-                        case TypeCode.UInt64: throw new InvalidOperationException("Operator '/' can't be applied to operands of types 'short' and 'ulong'");
-                        case TypeCode.Single: return (Int16)a / (Single)b;
-                        case TypeCode.Double: return (Int16)a / (Double)b;
-                        case TypeCode.Decimal: return (Int16)a / (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '/' not implemented for operands of types 'decimal' and {typeCodeB}");
-                    }
-                case TypeCode.UInt16:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '/' can't be applied to operands of types 'ushort' and 'bool'");
-                        case TypeCode.Byte: return (UInt16)a / (Byte)b;
-                        case TypeCode.SByte: return (UInt16)a / (SByte)b;
-                        case TypeCode.Int16: return (UInt16)a / (Int16)b;
-                        case TypeCode.UInt16: return (UInt16)a / (UInt16)b;
-                        case TypeCode.Int32: return (UInt16)a / (Int32)b;
-                        case TypeCode.UInt32: return (UInt16)a / (UInt32)b;
-                        case TypeCode.Int64: return (UInt16)a / (Int64)b;
-                        case TypeCode.UInt64: return (UInt16)a / (UInt64)b;
-                        case TypeCode.Single: return (UInt16)a / (Single)b;
-                        case TypeCode.Double: return (UInt16)a / (Double)b;
-                        case TypeCode.Decimal: return (UInt16)a / (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '/' not implemented for operands of types 'ushort' and {typeCodeB}");
-                    }
-                case TypeCode.Int32:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '/' can't be applied to operands of types 'int' and 'bool'");
-                        case TypeCode.Byte: return (Int32)a / (Byte)b;
-                        case TypeCode.SByte: return (Int32)a / (SByte)b;
-                        case TypeCode.Int16: return (Int32)a / (Int16)b;
-                        case TypeCode.UInt16: return (Int32)a / (UInt16)b;
-                        case TypeCode.Int32: return (Int32)a / (Int32)b;
-                        case TypeCode.UInt32: return (Int32)a / (UInt32)b;
-                        case TypeCode.Int64: return (Int32)a / (Int64)b;
-                        case TypeCode.UInt64: throw new InvalidOperationException("Operator '/' can't be applied to operands of types 'int' and 'ulong'");
-                        case TypeCode.Single: return (Int32)a / (Single)b;
-                        case TypeCode.Double: return (Int32)a / (Double)b;
-                        case TypeCode.Decimal: return (Int32)a / (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '/' not implemented for operands of types 'int' and {typeCodeB}");
-                    }
-                case TypeCode.UInt32:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '/' can't be applied to operands of types 'uint' and 'bool'");
-                        case TypeCode.Byte: return (UInt32)a / (Byte)b;
-                        case TypeCode.SByte: return (UInt32)a / (SByte)b;
-                        case TypeCode.Int16: return (UInt32)a / (Int16)b;
-                        case TypeCode.UInt16: return (UInt32)a / (UInt16)b;
-                        case TypeCode.Int32: return (UInt32)a / (Int32)b;
-                        case TypeCode.UInt32: return (UInt32)a / (UInt32)b;
-                        case TypeCode.Int64: return (UInt32)a / (Int64)b;
-                        case TypeCode.UInt64: return (UInt32)a / (UInt64)b;
-                        case TypeCode.Single: return (UInt32)a / (Single)b;
-                        case TypeCode.Double: return (UInt32)a / (Double)b;
-                        case TypeCode.Decimal: return (UInt32)a / (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '/' not implemented for operands of types 'uint' and {typeCodeB}");
-                    }
-                case TypeCode.Int64:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '/' can't be applied to operands of types 'long' and 'bool'");
-                        case TypeCode.Byte: return (Int64)a / (Byte)b;
-                        case TypeCode.SByte: return (Int64)a / (SByte)b;
-                        case TypeCode.Int16: return (Int64)a / (Int16)b;
-                        case TypeCode.UInt16: return (Int64)a / (UInt16)b;
-                        case TypeCode.Int32: return (Int64)a / (Int32)b;
-                        case TypeCode.UInt32: return (Int64)a / (UInt32)b;
-                        case TypeCode.Int64: return (Int64)a / (Int64)b;
-                        case TypeCode.UInt64: throw new InvalidOperationException("Operator '/' can't be applied to operands of types 'long' and 'ulong'");
-                        case TypeCode.Single: return (Int64)a / (Single)b;
-                        case TypeCode.Double: return (Int64)a / (Double)b;
-                        case TypeCode.Decimal: return (Int64)a / (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '/' not implemented for operands of types 'long' and {typeCodeB}");
-                    }
-                case TypeCode.UInt64:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'ulong' and 'bool'");
-                        case TypeCode.Byte: throw new InvalidOperationException("Operator '/' can't be applied to operands of types 'ulong' and 'byte'");
-                        case TypeCode.SByte: throw new InvalidOperationException("Operator '/' can't be applied to operands of types 'ulong' and 'sbyte'");
-                        case TypeCode.Int16: throw new InvalidOperationException("Operator '/' can't be applied to operands of types 'ulong' and 'short'");
-                        case TypeCode.UInt16: return (UInt64)a / (UInt16)b;
-                        case TypeCode.Int32: throw new InvalidOperationException("Operator '/' can't be applied to operands of types 'ulong' and 'int'");
-                        case TypeCode.UInt32: return (UInt64)a / (UInt32)b;
-                        case TypeCode.Int64: throw new InvalidOperationException("Operator '/' can't be applied to operands of types 'ulong' and 'long'");
-                        case TypeCode.UInt64: return (UInt64)a / (UInt64)b;
-                        case TypeCode.Single: return (UInt64)a / (Single)b;
-                        case TypeCode.Double: return (UInt64)a / (Double)b;
-                        case TypeCode.Decimal: return (UInt64)a / (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '/' not implemented for operands of types 'ulong' and {typeCodeB}");
-                    }
-                case TypeCode.Single:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '/' can't be applied to operands of types 'float' and 'bool'");
-                        case TypeCode.Byte: return (Single)a / (Byte)b;
-                        case TypeCode.SByte: return (Single)a / (SByte)b;
-                        case TypeCode.Int16: return (Single)a / (Int16)b;
-                        case TypeCode.UInt16: return (Single)a / (UInt16)b;
-                        case TypeCode.Int32: return (Single)a / (Int32)b;
-                        case TypeCode.UInt32: return (Single)a / (UInt32)b;
-                        case TypeCode.Int64: return (Single)a / (Int64)b;
-                        case TypeCode.UInt64: return (Single)a / (UInt64)b;
-                        case TypeCode.Single: return (Single)a / (Single)b;
-                        case TypeCode.Double: return (Single)a / (Double)b;
-                        case TypeCode.Decimal: throw new InvalidOperationException("Operator '/' can't be applied to operands of types 'float' and 'decimal'");
-                        default: throw new InvalidOperationException($"Operator '/' not implemented for operands of types 'ulong' and {typeCodeB}");
-                    }
-                case TypeCode.Double:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '/' can't be applied to operands of types 'double' and 'bool'");
-                        case TypeCode.Byte: return (Double)a / (Byte)b;
-                        case TypeCode.SByte: return (Double)a / (SByte)b;
-                        case TypeCode.Int16: return (Double)a / (Int16)b;
-                        case TypeCode.UInt16: return (Double)a / (UInt16)b;
-                        case TypeCode.Int32: return (Double)a / (Int32)b;
-                        case TypeCode.UInt32: return (Double)a / (UInt32)b;
-                        case TypeCode.Int64: return (Double)a / (Int64)b;
-                        case TypeCode.UInt64: return (Double)a / (UInt64)b;
-                        case TypeCode.Single: return (Double)a / (Single)b;
-                        case TypeCode.Double: return (Double)a / (Double)b;
-                        case TypeCode.Decimal: return Convert.ToDecimal(a) / (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '/' not implemented for operands of types 'double' and {typeCodeB}");
-                    }
-                case TypeCode.Decimal:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '/' can't be applied to operands of types 'decimal' and 'bool'");
-                        case TypeCode.Byte: return (Decimal)a / (SByte)b;
-                        case TypeCode.SByte: return (Decimal)a / (SByte)b;
-                        case TypeCode.Int16: return (Decimal)a / (Int16)b;
-                        case TypeCode.UInt16: return (Decimal)a / (UInt16)b;
-                        case TypeCode.Int32: return (Decimal)a / (Int32)b;
-                        case TypeCode.UInt32: return (Decimal)a / (UInt32)b;
-                        case TypeCode.Int64: return (Decimal)a / (Int64)b;
-                        case TypeCode.UInt64: return (Decimal)a / (UInt64)b;
-                        case TypeCode.Single: return (Decimal)a / Convert.ToDecimal(b);
-                        case TypeCode.Double: return (Decimal)a / Convert.ToDecimal(b);
-                        case TypeCode.Decimal: return (Decimal)a / (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '/' not implemented for operands of types 'decimal' and {typeCodeB}");
-                    }
-                default: throw new InvalidOperationException($"Operator '/' not implemented for operands of types {typeCodeA} and {typeCodeB}");
-            }
+            return typeCodeA switch {
+                TypeCode.Boolean => throw new InvalidOperationException(
+                                        $"Operator '/' can't be applied to operands of types 'bool' and {typeCodeB}"),
+                TypeCode.Byte => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '/' can't be applied to operands of types 'byte' and 'bool'"),
+                    TypeCode.Byte => (byte)a / (byte)b,
+                    TypeCode.SByte => (byte)a / (sbyte)b,
+                    TypeCode.Int16 => (byte)a / (short)b,
+                    TypeCode.UInt16 => (byte)a / (ushort)b,
+                    TypeCode.Int32 => (byte)a / (int)b,
+                    TypeCode.UInt32 => (byte)a / (uint)b,
+                    TypeCode.Int64 => (byte)a / (long)b,
+                    TypeCode.UInt64 => (byte)a / (ulong)b,
+                    TypeCode.Single => (byte)a / (float)b,
+                    TypeCode.Double => (byte)a / (double)b,
+                    TypeCode.Decimal => (byte)a / (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '/' not implemented for operands of types 'decimal' and {typeCodeB}"),
+                },
+                TypeCode.SByte => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '/' can't be applied to operands of types 'sbyte' and 'bool'"),
+                    TypeCode.Byte => (sbyte)a / (byte)b,
+                    TypeCode.SByte => (sbyte)a / (sbyte)b,
+                    TypeCode.Int16 => (sbyte)a / (short)b,
+                    TypeCode.UInt16 => (sbyte)a / (ushort)b,
+                    TypeCode.Int32 => (sbyte)a / (int)b,
+                    TypeCode.UInt32 => (sbyte)a / (uint)b,
+                    TypeCode.Int64 => (sbyte)a / (long)b,
+                    TypeCode.UInt64 => throw new InvalidOperationException("Operator '/' can't be applied to operands of types 'sbyte' and 'ulong'"),
+                    TypeCode.Single => (sbyte)a / (float)b,
+                    TypeCode.Double => (sbyte)a / (double)b,
+                    TypeCode.Decimal => (sbyte)a / (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '/' not implemented for operands of types 'decimal' and {typeCodeB}"),
+                },
+                TypeCode.Int16 => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '/' can't be applied to operands of types 'short' and 'bool'"),
+                    TypeCode.Byte => (short)a / (byte)b,
+                    TypeCode.SByte => (short)a / (sbyte)b,
+                    TypeCode.Int16 => (short)a / (short)b,
+                    TypeCode.UInt16 => (short)a / (ushort)b,
+                    TypeCode.Int32 => (short)a / (int)b,
+                    TypeCode.UInt32 => (short)a / (uint)b,
+                    TypeCode.Int64 => (short)a / (long)b,
+                    TypeCode.UInt64 => throw new InvalidOperationException("Operator '/' can't be applied to operands of types 'short' and 'ulong'"),
+                    TypeCode.Single => (short)a / (float)b,
+                    TypeCode.Double => (short)a / (double)b,
+                    TypeCode.Decimal => (short)a / (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '/' not implemented for operands of types 'decimal' and {typeCodeB}"),
+                },
+                TypeCode.UInt16 => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '/' can't be applied to operands of types 'ushort' and 'bool'"),
+                    TypeCode.Byte => (ushort)a / (byte)b,
+                    TypeCode.SByte => (ushort)a / (sbyte)b,
+                    TypeCode.Int16 => (ushort)a / (short)b,
+                    TypeCode.UInt16 => (ushort)a / (ushort)b,
+                    TypeCode.Int32 => (ushort)a / (int)b,
+                    TypeCode.UInt32 => (ushort)a / (uint)b,
+                    TypeCode.Int64 => (ushort)a / (long)b,
+                    TypeCode.UInt64 => (ushort)a / (ulong)b,
+                    TypeCode.Single => (ushort)a / (float)b,
+                    TypeCode.Double => (ushort)a / (double)b,
+                    TypeCode.Decimal => (ushort)a / (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '/' not implemented for operands of types 'ushort' and {typeCodeB}"),
+                },
+                TypeCode.Int32 => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '/' can't be applied to operands of types 'int' and 'bool'"),
+                    TypeCode.Byte => (int)a / (byte)b,
+                    TypeCode.SByte => (int)a / (sbyte)b,
+                    TypeCode.Int16 => (int)a / (short)b,
+                    TypeCode.UInt16 => (int)a / (ushort)b,
+                    TypeCode.Int32 => (int)a / (int)b,
+                    TypeCode.UInt32 => (int)a / (uint)b,
+                    TypeCode.Int64 => (int)a / (long)b,
+                    TypeCode.UInt64 => throw new InvalidOperationException("Operator '/' can't be applied to operands of types 'int' and 'ulong'"),
+                    TypeCode.Single => (int)a / (float)b,
+                    TypeCode.Double => (int)a / (double)b,
+                    TypeCode.Decimal => (int)a / (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '/' not implemented for operands of types 'int' and {typeCodeB}"),
+                },
+                TypeCode.UInt32 => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '/' can't be applied to operands of types 'uint' and 'bool'"),
+                    TypeCode.Byte => (uint)a / (byte)b,
+                    TypeCode.SByte => (uint)a / (sbyte)b,
+                    TypeCode.Int16 => (uint)a / (short)b,
+                    TypeCode.UInt16 => (uint)a / (ushort)b,
+                    TypeCode.Int32 => (uint)a / (int)b,
+                    TypeCode.UInt32 => (uint)a / (uint)b,
+                    TypeCode.Int64 => (uint)a / (long)b,
+                    TypeCode.UInt64 => (uint)a / (ulong)b,
+                    TypeCode.Single => (uint)a / (float)b,
+                    TypeCode.Double => (uint)a / (double)b,
+                    TypeCode.Decimal => (uint)a / (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '/' not implemented for operands of types 'uint' and {typeCodeB}"),
+                },
+                TypeCode.Int64 => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '/' can't be applied to operands of types 'long' and 'bool'"),
+                    TypeCode.Byte => (long)a / (byte)b,
+                    TypeCode.SByte => (long)a / (sbyte)b,
+                    TypeCode.Int16 => (long)a / (short)b,
+                    TypeCode.UInt16 => (long)a / (ushort)b,
+                    TypeCode.Int32 => (long)a / (int)b,
+                    TypeCode.UInt32 => (long)a / (uint)b,
+                    TypeCode.Int64 => (long)a / (long)b,
+                    TypeCode.UInt64 => throw new InvalidOperationException("Operator '/' can't be applied to operands of types 'long' and 'ulong'"),
+                    TypeCode.Single => (long)a / (float)b,
+                    TypeCode.Double => (long)a / (double)b,
+                    TypeCode.Decimal => (long)a / (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '/' not implemented for operands of types 'long' and {typeCodeB}"),
+                },
+                TypeCode.UInt64 => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '-' can't be applied to operands of types 'ulong' and 'bool'"),
+                    TypeCode.Byte => throw new InvalidOperationException("Operator '/' can't be applied to operands of types 'ulong' and 'byte'"),
+                    TypeCode.SByte => throw new InvalidOperationException("Operator '/' can't be applied to operands of types 'ulong' and 'sbyte'"),
+                    TypeCode.Int16 => throw new InvalidOperationException("Operator '/' can't be applied to operands of types 'ulong' and 'short'"),
+                    TypeCode.UInt16 => (ulong)a / (ushort)b,
+                    TypeCode.Int32 => throw new InvalidOperationException("Operator '/' can't be applied to operands of types 'ulong' and 'int'"),
+                    TypeCode.UInt32 => (ulong)a / (uint)b,
+                    TypeCode.Int64 => throw new InvalidOperationException("Operator '/' can't be applied to operands of types 'ulong' and 'long'"),
+                    TypeCode.UInt64 => (ulong)a / (ulong)b,
+                    TypeCode.Single => (ulong)a / (float)b,
+                    TypeCode.Double => (ulong)a / (double)b,
+                    TypeCode.Decimal => (ulong)a / (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '/' not implemented for operands of types 'ulong' and {typeCodeB}"),
+                },
+                TypeCode.Single => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '/' can't be applied to operands of types 'float' and 'bool'"),
+                    TypeCode.Byte => (float)a / (byte)b,
+                    TypeCode.SByte => (float)a / (sbyte)b,
+                    TypeCode.Int16 => (float)a / (short)b,
+                    TypeCode.UInt16 => (float)a / (ushort)b,
+                    TypeCode.Int32 => (float)a / (int)b,
+                    TypeCode.UInt32 => (float)a / (uint)b,
+                    TypeCode.Int64 => (float)a / (long)b,
+                    TypeCode.UInt64 => (float)a / (ulong)b,
+                    TypeCode.Single => (float)a / (float)b,
+                    TypeCode.Double => (object)((float)a / (double)b),
+                    TypeCode.Decimal => throw new InvalidOperationException("Operator '/' can't be applied to operands of types 'float' and 'decimal'"),
+                    _ => throw new InvalidOperationException($"Operator '/' not implemented for operands of types 'ulong' and {typeCodeB}"),
+                },
+                TypeCode.Double => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '/' can't be applied to operands of types 'double' and 'bool'"),
+                    TypeCode.Byte => (double)a / (byte)b,
+                    TypeCode.SByte => (double)a / (sbyte)b,
+                    TypeCode.Int16 => (double)a / (short)b,
+                    TypeCode.UInt16 => (double)a / (ushort)b,
+                    TypeCode.Int32 => (double)a / (int)b,
+                    TypeCode.UInt32 => (double)a / (uint)b,
+                    TypeCode.Int64 => (double)a / (long)b,
+                    TypeCode.UInt64 => (double)a / (ulong)b,
+                    TypeCode.Single => (double)a / (float)b,
+                    TypeCode.Double => (double)a / (double)b,
+                    TypeCode.Decimal => Convert.ToDecimal(a) / (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '/' not implemented for operands of types 'double' and {typeCodeB}"),
+                },
+                TypeCode.Decimal => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '/' can't be applied to operands of types 'decimal' and 'bool'"),
+                    TypeCode.Byte => (decimal)a / (sbyte)b,
+                    TypeCode.SByte => (decimal)a / (sbyte)b,
+                    TypeCode.Int16 => (decimal)a / (short)b,
+                    TypeCode.UInt16 => (decimal)a / (ushort)b,
+                    TypeCode.Int32 => (decimal)a / (int)b,
+                    TypeCode.UInt32 => (decimal)a / (uint)b,
+                    TypeCode.Int64 => (decimal)a / (long)b,
+                    TypeCode.UInt64 => (decimal)a / (ulong)b,
+                    TypeCode.Single => (decimal)a / Convert.ToDecimal(b),
+                    TypeCode.Double => (decimal)a / Convert.ToDecimal(b),
+                    TypeCode.Decimal => (decimal)a / (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '/' not implemented for operands of types 'decimal' and {typeCodeB}"),
+                },
+                _ => throw new InvalidOperationException($"Operator '/' not implemented for operands of types {typeCodeA} and {typeCodeB}"),
+            };
         }
 
-        public static object Modulo(object a, object b)
-        {
+        public static object Modulo(object a, object b) {
             return Modulo(a, b, CultureInfo.CurrentCulture);
         }
 
-        public static object Modulo(object a, object b, CultureInfo cultureInfo)
-        {
+        public static object Modulo(object a, object b, CultureInfo cultureInfo) {
             a = ConvertIfString(a, cultureInfo);
             b = ConvertIfString(b, cultureInfo);
 
-            TypeCode typeCodeA = Type.GetTypeCode(a.GetType());
-            TypeCode typeCodeB = Type.GetTypeCode(b.GetType());
+            var typeCodeA = Type.GetTypeCode(a.GetType());
+            var typeCodeB = Type.GetTypeCode(b.GetType());
 
-            switch (typeCodeA)
-            {
-                case TypeCode.Boolean:
-                    throw new InvalidOperationException(
-                        $"Operator '%' can't be applied to operands of types 'bool' and {typeCodeB}");
-                case TypeCode.Byte:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'byte' and 'bool'");
-                        case TypeCode.Byte: return (Byte)a % (Byte)b;
-                        case TypeCode.SByte: return (Byte)a % (SByte)b;
-                        case TypeCode.Int16: return (Byte)a % (Int16)b;
-                        case TypeCode.UInt16: return (Byte)a % (UInt16)b;
-                        case TypeCode.Int32: return (Byte)a % (Int32)b;
-                        case TypeCode.UInt32: return (Byte)a % (UInt32)b;
-                        case TypeCode.Int64: return (Byte)a % (Int64)b;
-                        case TypeCode.UInt64: return (Byte)a % (UInt64)b;
-                        case TypeCode.Single: return (Byte)a % (Single)b;
-                        case TypeCode.Double: return (Byte)a % (Double)b;
-                        case TypeCode.Decimal: return (Byte)a % (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '/' not implemented for operands of types 'byte' and {typeCodeB}");
-                    }
-                case TypeCode.SByte:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'sbyte' and 'bool'");
-                        case TypeCode.Byte: return (SByte)a % (Byte)b;
-                        case TypeCode.SByte: return (SByte)a % (SByte)b;
-                        case TypeCode.Int16: return (SByte)a % (Int16)b;
-                        case TypeCode.UInt16: return (SByte)a % (UInt16)b;
-                        case TypeCode.Int32: return (SByte)a % (Int32)b;
-                        case TypeCode.UInt32: return (SByte)a % (UInt32)b;
-                        case TypeCode.Int64: return (SByte)a % (Int64)b;
-                        case TypeCode.UInt64: throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'sbyte' and 'ulong'");
-                        case TypeCode.Single: return (SByte)a % (Single)b;
-                        case TypeCode.Double: return (SByte)a % (Double)b;
-                        case TypeCode.Decimal: return (SByte)a % (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '/' not implemented for operands of types 'sbyte' and {typeCodeB}");
-                    }
-                case TypeCode.Int16:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'short' and 'bool'");
-                        case TypeCode.Byte: return (Int16)a % (Byte)b;
-                        case TypeCode.SByte: return (Int16)a % (SByte)b;
-                        case TypeCode.Int16: return (Int16)a % (Int16)b;
-                        case TypeCode.UInt16: return (Int16)a % (UInt16)b;
-                        case TypeCode.Int32: return (Int16)a % (Int32)b;
-                        case TypeCode.UInt32: return (Int16)a % (UInt32)b;
-                        case TypeCode.Int64: return (Int16)a % (Int64)b;
-                        case TypeCode.UInt64: throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'short' and 'ulong'");
-                        case TypeCode.Single: return (Int16)a % (Single)b;
-                        case TypeCode.Double: return (Int16)a % (Double)b;
-                        case TypeCode.Decimal: return (Int16)a % (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '%' not implemented for operands of types 'short' and {typeCodeB}");
-                    }
-                case TypeCode.UInt16:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'ushort' and 'bool'");
-                        case TypeCode.Byte: return (UInt16)a % (Byte)b;
-                        case TypeCode.SByte: return (UInt16)a % (SByte)b;
-                        case TypeCode.Int16: return (UInt16)a % (Int16)b;
-                        case TypeCode.UInt16: return (UInt16)a % (UInt16)b;
-                        case TypeCode.Int32: return (UInt16)a % (Int32)b;
-                        case TypeCode.UInt32: return (UInt16)a % (UInt32)b;
-                        case TypeCode.Int64: return (UInt16)a % (Int64)b;
-                        case TypeCode.UInt64: return (UInt16)a % (UInt64)b;
-                        case TypeCode.Single: return (UInt16)a % (Single)b;
-                        case TypeCode.Double: return (UInt16)a % (Double)b;
-                        case TypeCode.Decimal: return (UInt16)a % (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '%' not implemented for operands of types 'ushort' and {typeCodeB}");
-                    }
-                case TypeCode.Int32:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'int' and 'bool'");
-                        case TypeCode.Byte: return (Int32)a % (Byte)b;
-                        case TypeCode.SByte: return (Int32)a % (SByte)b;
-                        case TypeCode.Int16: return (Int32)a % (Int16)b;
-                        case TypeCode.UInt16: return (Int32)a % (UInt16)b;
-                        case TypeCode.Int32: return (Int32)a % (Int32)b;
-                        case TypeCode.UInt32: return (Int32)a % (UInt32)b;
-                        case TypeCode.Int64: return (Int32)a % (Int64)b;
-                        case TypeCode.UInt64: throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'int' and 'ulong'");
-                        case TypeCode.Single: return (Int32)a % (Single)b;
-                        case TypeCode.Double: return (Int32)a % (Double)b;
-                        case TypeCode.Decimal: return (Int32)a % (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '%' not implemented for operands of types 'int' and {typeCodeB}");
-                    }
-                case TypeCode.UInt32:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'uint' and 'bool'");
-                        case TypeCode.Byte: return (UInt32)a % (Byte)b;
-                        case TypeCode.SByte: return (UInt32)a % (SByte)b;
-                        case TypeCode.Int16: return (UInt32)a % (Int16)b;
-                        case TypeCode.UInt16: return (UInt32)a % (UInt16)b;
-                        case TypeCode.Int32: return (UInt32)a % (Int32)b;
-                        case TypeCode.UInt32: return (UInt32)a % (UInt32)b;
-                        case TypeCode.Int64: return (UInt32)a % (Int64)b;
-                        case TypeCode.UInt64: return (UInt32)a % (UInt64)b;
-                        case TypeCode.Single: return (UInt32)a % (Single)b;
-                        case TypeCode.Double: return (UInt32)a % (Double)b;
-                        case TypeCode.Decimal: return (UInt32)a % (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '%' not implemented for operands of types 'uint' and {typeCodeB}");
-                    }
-                case TypeCode.Int64:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'long' and 'bool'");
-                        case TypeCode.Byte: return (Int64)a % (Byte)b;
-                        case TypeCode.SByte: return (Int64)a % (SByte)b;
-                        case TypeCode.Int16: return (Int64)a % (Int16)b;
-                        case TypeCode.UInt16: return (Int64)a % (UInt16)b;
-                        case TypeCode.Int32: return (Int64)a % (Int32)b;
-                        case TypeCode.UInt32: return (Int64)a % (UInt32)b;
-                        case TypeCode.Int64: return (Int64)a % (Int64)b;
-                        case TypeCode.UInt64: throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'long' and 'ulong'");
-                        case TypeCode.Single: return (Int64)a % (Single)b;
-                        case TypeCode.Double: return (Int64)a % (Double)b;
-                        case TypeCode.Decimal: return (Int64)a % (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '%' not implemented for operands of types 'long' and {typeCodeB}");
-                    }
-                case TypeCode.UInt64:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'ulong' and 'bool'");
-                        case TypeCode.Byte: return (UInt64)a % (Byte)b;
-                        case TypeCode.SByte: throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'ulong' and 'sbyte'");
-                        case TypeCode.Int16: throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'ulong' and 'short'");
-                        case TypeCode.UInt16: return (UInt64)a % (UInt16)b;
-                        case TypeCode.Int32: throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'ulong' and 'int'");
-                        case TypeCode.UInt32: return (UInt64)a % (UInt32)b;
-                        case TypeCode.Int64: throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'ulong' and 'long'");
-                        case TypeCode.UInt64: return (UInt64)a % (UInt64)b;
-                        case TypeCode.Single: return (UInt64)a % (Single)b;
-                        case TypeCode.Double: return (UInt64)a % (Double)b;
-                        case TypeCode.Decimal: return (UInt64)a % (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '%' not implemented for operands of types 'ulong' and {typeCodeB}");
-                    }
-                case TypeCode.Single:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'float' and 'bool'");
-                        case TypeCode.Byte: return (Single)a % (Byte)b;
-                        case TypeCode.SByte: return (Single)a % (SByte)b;
-                        case TypeCode.Int16: return (Single)a % (Int16)b;
-                        case TypeCode.UInt16: return (Single)a % (UInt16)b;
-                        case TypeCode.Int32: return (Single)a % (Int32)b;
-                        case TypeCode.UInt32: return (Single)a % (UInt32)b;
-                        case TypeCode.Int64: return (Single)a % (Int64)b;
-                        case TypeCode.UInt64: return (Single)a % (UInt64)b;
-                        case TypeCode.Single: return (Single)a % (Single)b;
-                        case TypeCode.Double: return (Single)a % (Double)b;
-                        case TypeCode.Decimal: throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'float' and 'decimal'");
-                        default: throw new InvalidOperationException($"Operator '%' not implemented for operands of types 'long' and {typeCodeB}");
-                    }
-                case TypeCode.Double:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'double' and 'bool'");
-                        case TypeCode.Byte: return (Double)a % (Byte)b;
-                        case TypeCode.SByte: return (Double)a % (SByte)b;
-                        case TypeCode.Int16: return (Double)a % (Int16)b;
-                        case TypeCode.UInt16: return (Double)a % (UInt16)b;
-                        case TypeCode.Int32: return (Double)a % (Int32)b;
-                        case TypeCode.UInt32: return (Double)a % (UInt32)b;
-                        case TypeCode.Int64: return (Double)a % (Int64)b;
-                        case TypeCode.UInt64: return (Double)a % (UInt64)b;
-                        case TypeCode.Single: return (Double)a % (Single)b;
-                        case TypeCode.Double: return (Double)a % (Double)b;
-                        case TypeCode.Decimal: throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'double' and 'decimal'");
-                        default: throw new InvalidOperationException($"Operator '%' not implemented for operands of types 'double' and {typeCodeB}");
-                    }
-                case TypeCode.Decimal:
-                    switch (typeCodeB)
-                    {
-                        case TypeCode.Boolean: throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'decimal' and 'bool'");
-                        case TypeCode.Byte: return (Decimal)a % (Byte)b;
-                        case TypeCode.SByte: return (Decimal)a % (SByte)b;
-                        case TypeCode.Int16: return (Decimal)a % (Int16)b;
-                        case TypeCode.UInt16: return (Decimal)a % (UInt16)b;
-                        case TypeCode.Int32: return (Decimal)a % (Int32)b;
-                        case TypeCode.UInt32: return (Decimal)a % (UInt32)b;
-                        case TypeCode.Int64: return (Decimal)a % (Int64)b;
-                        case TypeCode.UInt64: return (Decimal)a % (UInt64)b;
-                        case TypeCode.Single: throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'decimal' and 'float'");
-                        case TypeCode.Double: throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'decimal' and 'decimal'");
-                        case TypeCode.Decimal: return (Decimal)a % (Decimal)b;
-                        default: throw new InvalidOperationException($"Operator '%' not implemented for operands of types 'decimal' and {typeCodeB}");
-                    }
-                default: throw new InvalidOperationException($"Operator '+' not implemented for operands of types {typeCodeA} and {typeCodeB}");
-            }
+            return typeCodeA switch {
+                TypeCode.Boolean => throw new InvalidOperationException(
+                                        $"Operator '%' can't be applied to operands of types 'bool' and {typeCodeB}"),
+                TypeCode.Byte => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'byte' and 'bool'"),
+                    TypeCode.Byte => (byte)a % (byte)b,
+                    TypeCode.SByte => (byte)a % (sbyte)b,
+                    TypeCode.Int16 => (byte)a % (short)b,
+                    TypeCode.UInt16 => (byte)a % (ushort)b,
+                    TypeCode.Int32 => (byte)a % (int)b,
+                    TypeCode.UInt32 => (byte)a % (uint)b,
+                    TypeCode.Int64 => (byte)a % (long)b,
+                    TypeCode.UInt64 => (byte)a % (ulong)b,
+                    TypeCode.Single => (byte)a % (float)b,
+                    TypeCode.Double => (byte)a % (double)b,
+                    TypeCode.Decimal => (byte)a % (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '/' not implemented for operands of types 'byte' and {typeCodeB}"),
+                },
+                TypeCode.SByte => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'sbyte' and 'bool'"),
+                    TypeCode.Byte => (sbyte)a % (byte)b,
+                    TypeCode.SByte => (sbyte)a % (sbyte)b,
+                    TypeCode.Int16 => (sbyte)a % (short)b,
+                    TypeCode.UInt16 => (sbyte)a % (ushort)b,
+                    TypeCode.Int32 => (sbyte)a % (int)b,
+                    TypeCode.UInt32 => (sbyte)a % (uint)b,
+                    TypeCode.Int64 => (sbyte)a % (long)b,
+                    TypeCode.UInt64 => throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'sbyte' and 'ulong'"),
+                    TypeCode.Single => (sbyte)a % (float)b,
+                    TypeCode.Double => (sbyte)a % (double)b,
+                    TypeCode.Decimal => (sbyte)a % (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '/' not implemented for operands of types 'sbyte' and {typeCodeB}"),
+                },
+                TypeCode.Int16 => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'short' and 'bool'"),
+                    TypeCode.Byte => (short)a % (byte)b,
+                    TypeCode.SByte => (short)a % (sbyte)b,
+                    TypeCode.Int16 => (short)a % (short)b,
+                    TypeCode.UInt16 => (short)a % (ushort)b,
+                    TypeCode.Int32 => (short)a % (int)b,
+                    TypeCode.UInt32 => (short)a % (uint)b,
+                    TypeCode.Int64 => (short)a % (long)b,
+                    TypeCode.UInt64 => throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'short' and 'ulong'"),
+                    TypeCode.Single => (short)a % (float)b,
+                    TypeCode.Double => (short)a % (double)b,
+                    TypeCode.Decimal => (short)a % (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '%' not implemented for operands of types 'short' and {typeCodeB}"),
+                },
+                TypeCode.UInt16 => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'ushort' and 'bool'"),
+                    TypeCode.Byte => (ushort)a % (byte)b,
+                    TypeCode.SByte => (ushort)a % (sbyte)b,
+                    TypeCode.Int16 => (ushort)a % (short)b,
+                    TypeCode.UInt16 => (ushort)a % (ushort)b,
+                    TypeCode.Int32 => (ushort)a % (int)b,
+                    TypeCode.UInt32 => (ushort)a % (uint)b,
+                    TypeCode.Int64 => (ushort)a % (long)b,
+                    TypeCode.UInt64 => (ushort)a % (ulong)b,
+                    TypeCode.Single => (ushort)a % (float)b,
+                    TypeCode.Double => (ushort)a % (double)b,
+                    TypeCode.Decimal => (ushort)a % (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '%' not implemented for operands of types 'ushort' and {typeCodeB}"),
+                },
+                TypeCode.Int32 => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'int' and 'bool'"),
+                    TypeCode.Byte => (int)a % (byte)b,
+                    TypeCode.SByte => (int)a % (sbyte)b,
+                    TypeCode.Int16 => (int)a % (short)b,
+                    TypeCode.UInt16 => (int)a % (ushort)b,
+                    TypeCode.Int32 => (int)a % (int)b,
+                    TypeCode.UInt32 => (int)a % (uint)b,
+                    TypeCode.Int64 => (int)a % (long)b,
+                    TypeCode.UInt64 => throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'int' and 'ulong'"),
+                    TypeCode.Single => (int)a % (float)b,
+                    TypeCode.Double => (int)a % (double)b,
+                    TypeCode.Decimal => (int)a % (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '%' not implemented for operands of types 'int' and {typeCodeB}"),
+                },
+                TypeCode.UInt32 => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'uint' and 'bool'"),
+                    TypeCode.Byte => (uint)a % (byte)b,
+                    TypeCode.SByte => (uint)a % (sbyte)b,
+                    TypeCode.Int16 => (uint)a % (short)b,
+                    TypeCode.UInt16 => (uint)a % (ushort)b,
+                    TypeCode.Int32 => (uint)a % (int)b,
+                    TypeCode.UInt32 => (uint)a % (uint)b,
+                    TypeCode.Int64 => (uint)a % (long)b,
+                    TypeCode.UInt64 => (uint)a % (ulong)b,
+                    TypeCode.Single => (uint)a % (float)b,
+                    TypeCode.Double => (uint)a % (double)b,
+                    TypeCode.Decimal => (uint)a % (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '%' not implemented for operands of types 'uint' and {typeCodeB}"),
+                },
+                TypeCode.Int64 => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'long' and 'bool'"),
+                    TypeCode.Byte => (long)a % (byte)b,
+                    TypeCode.SByte => (long)a % (sbyte)b,
+                    TypeCode.Int16 => (long)a % (short)b,
+                    TypeCode.UInt16 => (long)a % (ushort)b,
+                    TypeCode.Int32 => (long)a % (int)b,
+                    TypeCode.UInt32 => (long)a % (uint)b,
+                    TypeCode.Int64 => (long)a % (long)b,
+                    TypeCode.UInt64 => throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'long' and 'ulong'"),
+                    TypeCode.Single => (long)a % (float)b,
+                    TypeCode.Double => (long)a % (double)b,
+                    TypeCode.Decimal => (long)a % (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '%' not implemented for operands of types 'long' and {typeCodeB}"),
+                },
+                TypeCode.UInt64 => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'ulong' and 'bool'"),
+                    TypeCode.Byte => (ulong)a % (byte)b,
+                    TypeCode.SByte => throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'ulong' and 'sbyte'"),
+                    TypeCode.Int16 => throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'ulong' and 'short'"),
+                    TypeCode.UInt16 => (ulong)a % (ushort)b,
+                    TypeCode.Int32 => throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'ulong' and 'int'"),
+                    TypeCode.UInt32 => (ulong)a % (uint)b,
+                    TypeCode.Int64 => throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'ulong' and 'long'"),
+                    TypeCode.UInt64 => (ulong)a % (ulong)b,
+                    TypeCode.Single => (ulong)a % (float)b,
+                    TypeCode.Double => (ulong)a % (double)b,
+                    TypeCode.Decimal => (ulong)a % (decimal)b,
+                    _ => throw new InvalidOperationException($"Operator '%' not implemented for operands of types 'ulong' and {typeCodeB}"),
+                },
+                TypeCode.Single => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'float' and 'bool'"),
+                    TypeCode.Byte => (float)a % (byte)b,
+                    TypeCode.SByte => (float)a % (sbyte)b,
+                    TypeCode.Int16 => (float)a % (short)b,
+                    TypeCode.UInt16 => (float)a % (ushort)b,
+                    TypeCode.Int32 => (float)a % (int)b,
+                    TypeCode.UInt32 => (float)a % (uint)b,
+                    TypeCode.Int64 => (float)a % (long)b,
+                    TypeCode.UInt64 => (float)a % (ulong)b,
+                    TypeCode.Single => (float)a % (float)b,
+                    TypeCode.Double => (object)((float)a % (double)b),
+                    TypeCode.Decimal => throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'float' and 'decimal'"),
+                    _ => throw new InvalidOperationException($"Operator '%' not implemented for operands of types 'long' and {typeCodeB}"),
+                },
+                TypeCode.Double => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'double' and 'bool'"),
+                    TypeCode.Byte => (double)a % (byte)b,
+                    TypeCode.SByte => (double)a % (sbyte)b,
+                    TypeCode.Int16 => (double)a % (short)b,
+                    TypeCode.UInt16 => (double)a % (ushort)b,
+                    TypeCode.Int32 => (double)a % (int)b,
+                    TypeCode.UInt32 => (double)a % (uint)b,
+                    TypeCode.Int64 => (double)a % (long)b,
+                    TypeCode.UInt64 => (double)a % (ulong)b,
+                    TypeCode.Single => (double)a % (float)b,
+                    TypeCode.Double => (double)a % (double)b,
+                    TypeCode.Decimal => throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'double' and 'decimal'"),
+                    _ => throw new InvalidOperationException($"Operator '%' not implemented for operands of types 'double' and {typeCodeB}"),
+                },
+                TypeCode.Decimal => typeCodeB switch {
+                    TypeCode.Boolean => throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'decimal' and 'bool'"),
+                    TypeCode.Byte => (decimal)a % (byte)b,
+                    TypeCode.SByte => (decimal)a % (sbyte)b,
+                    TypeCode.Int16 => (decimal)a % (short)b,
+                    TypeCode.UInt16 => (decimal)a % (ushort)b,
+                    TypeCode.Int32 => (decimal)a % (int)b,
+                    TypeCode.UInt32 => (decimal)a % (uint)b,
+                    TypeCode.Int64 => (decimal)a % (long)b,
+                    TypeCode.UInt64 => (decimal)a % (ulong)b,
+                    TypeCode.Single => throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'decimal' and 'float'"),
+                    TypeCode.Double => throw new InvalidOperationException("Operator '%' can't be applied to operands of types 'decimal' and 'decimal'"),
+                    TypeCode.Decimal => (object)((decimal)a % (decimal)b),
+                    _ => throw new InvalidOperationException($"Operator '%' not implemented for operands of types 'decimal' and {typeCodeB}"),
+                },
+                _ => throw new InvalidOperationException($"Operator '+' not implemented for operands of types {typeCodeA} and {typeCodeB}"),
+            };
         }
 
-        public static object Max(object a, object b)
-        {
+        public static object Max(object a, object b) {
             return Max(a, b, CultureInfo.CurrentCulture);
         }
 
-        public static object Max(object a, object b, CultureInfo cultureInfo)
-        {
+        public static object Max(object a, object b, CultureInfo cultureInfo) {
             a = ConvertIfString(a, cultureInfo);
             b = ConvertIfString(b, cultureInfo);
 
-            if (a == null && b == null)
-            {
+            if (a == null && b == null) {
                 return null;
             }
 
-            if (a == null)
-            {
+            if (a == null) {
                 return b;
             }
 
-            if (b == null)
-            {
+            if (b == null) {
                 return a;
             }
 
-            TypeCode typeCodeA = Type.GetTypeCode(a.GetType());
-            TypeCode typeCodeB = Type.GetTypeCode(b.GetType());
+            var typeCodeA = Type.GetTypeCode(a.GetType());
+            var typeCodeB = Type.GetTypeCode(b.GetType());
 
-            switch (typeCodeA)
-            {
-                case TypeCode.Byte:
-                    return Math.Max((Byte)a, Convert.ToByte(b));
-                case TypeCode.SByte:
-                    return Math.Max((SByte)a, Convert.ToSByte(b));
-                case TypeCode.Int16:
-                    return Math.Max((Int16)a, Convert.ToInt16(b));
-                case TypeCode.UInt16:
-                    return Math.Max((UInt16)a, Convert.ToUInt16(b));
-                case TypeCode.Int32:
-                    return Math.Max((Int32)a, Convert.ToInt32(b));
-                case TypeCode.UInt32:
-                    return Math.Max((UInt32)a, Convert.ToUInt32(b));
-                case TypeCode.Int64:
-                    return Math.Max((Int64)a, Convert.ToInt64(b));
-                case TypeCode.UInt64:
-                    return Math.Max((UInt64)a, Convert.ToUInt64(b));
-                case TypeCode.Single:
-                    return Math.Max((Single)a, Convert.ToSingle(b));
-                case TypeCode.Double:
-                    return Math.Max((Double)a, Convert.ToDouble(b));
-                case TypeCode.Decimal:
-                    return Math.Max((Decimal)a, Convert.ToDecimal(b));
-                default: throw new InvalidOperationException($"Max not implemented for parameters of {typeCodeA} and {typeCodeB}");
-            }
+            return typeCodeA switch {
+                TypeCode.Byte => Math.Max((byte)a, Convert.ToByte(b)),
+                TypeCode.SByte => Math.Max((sbyte)a, Convert.ToSByte(b)),
+                TypeCode.Int16 => Math.Max((short)a, Convert.ToInt16(b)),
+                TypeCode.UInt16 => Math.Max((ushort)a, Convert.ToUInt16(b)),
+                TypeCode.Int32 => Math.Max((int)a, Convert.ToInt32(b)),
+                TypeCode.UInt32 => Math.Max((uint)a, Convert.ToUInt32(b)),
+                TypeCode.Int64 => Math.Max((long)a, Convert.ToInt64(b)),
+                TypeCode.UInt64 => Math.Max((ulong)a, Convert.ToUInt64(b)),
+                TypeCode.Single => Math.Max((float)a, Convert.ToSingle(b)),
+                TypeCode.Double => Math.Max((double)a, Convert.ToDouble(b)),
+                TypeCode.Decimal => Math.Max((decimal)a, Convert.ToDecimal(b)),
+                _ => throw new InvalidOperationException($"Max not implemented for parameters of {typeCodeA} and {typeCodeB}"),
+            };
         }
 
-        public static object Min(object a, object b)
-        {
+        public static object Min(object a, object b) {
             return Min(a, b, CultureInfo.CurrentCulture);
         }
 
-        public static object Min(object a, object b, CultureInfo cultureInfo)
-        {
+        public static object Min(object a, object b, CultureInfo cultureInfo) {
             a = ConvertIfString(a, cultureInfo);
             b = ConvertIfString(b, cultureInfo);
 
-            if (a == null && b == null)
-            {
+            if (a == null && b == null) {
                 return null;
             }
 
-            if (a == null)
-            {
+            if (a == null) {
                 return b;
             }
 
-            if (b == null)
-            {
+            if (b == null) {
                 return a;
             }
 
-            TypeCode typeCodeA = Type.GetTypeCode(a.GetType());
-            TypeCode typeCodeB = Type.GetTypeCode(b.GetType());
+            var typeCodeA = Type.GetTypeCode(a.GetType());
+            var typeCodeB = Type.GetTypeCode(b.GetType());
 
-            switch (typeCodeA)
-            {
-                case TypeCode.Byte:
-                    return Math.Min((Byte)a, Convert.ToByte(b));
-                case TypeCode.SByte:
-                    return Math.Min((SByte)a, Convert.ToSByte(b));
-                case TypeCode.Int16:
-                    return Math.Min((Int16)a, Convert.ToInt16(b));
-                case TypeCode.UInt16:
-                    return Math.Min((UInt16)a, Convert.ToUInt16(b));
-                case TypeCode.Int32:
-                    return Math.Min((Int32)a, Convert.ToInt32(b));
-                case TypeCode.UInt32:
-                    return Math.Min((UInt32)a, Convert.ToUInt32(b));
-                case TypeCode.Int64:
-                    return Math.Min((Int64)a, Convert.ToInt64(b));
-                case TypeCode.UInt64:
-                    return Math.Min((UInt64)a, Convert.ToUInt64(b));
-                case TypeCode.Single:
-                    return Math.Min((Single)a, Convert.ToSingle(b));
-                case TypeCode.Double:
-                    return Math.Min((Double)a, Convert.ToDouble(b));
-                case TypeCode.Decimal:
-                    return Math.Min((Decimal)a, Convert.ToDecimal(b));
-                default: throw new InvalidOperationException($"Max not implemented for parameters of {typeCodeA} and {typeCodeB}");
-
-            }
+            return typeCodeA switch {
+                TypeCode.Byte => Math.Min((byte)a, Convert.ToByte(b)),
+                TypeCode.SByte => Math.Min((sbyte)a, Convert.ToSByte(b)),
+                TypeCode.Int16 => Math.Min((short)a, Convert.ToInt16(b)),
+                TypeCode.UInt16 => Math.Min((ushort)a, Convert.ToUInt16(b)),
+                TypeCode.Int32 => Math.Min((int)a, Convert.ToInt32(b)),
+                TypeCode.UInt32 => Math.Min((uint)a, Convert.ToUInt32(b)),
+                TypeCode.Int64 => Math.Min((long)a, Convert.ToInt64(b)),
+                TypeCode.UInt64 => Math.Min((ulong)a, Convert.ToUInt64(b)),
+                TypeCode.Single => Math.Min((float)a, Convert.ToSingle(b)),
+                TypeCode.Double => Math.Min((double)a, Convert.ToDouble(b)),
+                TypeCode.Decimal => Math.Min((decimal)a, Convert.ToDecimal(b)),
+                _ => throw new InvalidOperationException($"Max not implemented for parameters of {typeCodeA} and {typeCodeB}"),
+            };
         }
     }
 }

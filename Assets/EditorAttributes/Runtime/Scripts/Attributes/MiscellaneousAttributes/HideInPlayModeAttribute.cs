@@ -1,12 +1,10 @@
-﻿using UnityEngine;
+using UnityEngine;
 
-namespace EditorAttributes
-{
+namespace EditorAttributes {
     /// <summary>
     /// Attribute to hide a field when entering play mode
     /// </summary>
-    public class HideInPlayModeAttribute : PropertyAttribute
-    {
+    public class HideInPlayModeAttribute : PropertyAttribute {
         /// <summary>
         /// Attribute to hide a field when entering play mode
         /// </summary>

@@ -1,7 +1,5 @@
-﻿namespace EditorAttributes
-{
-    public interface IDisplayNamesAttribute
-    {
-        public string[] DisplayNames { get; }
+namespace EditorAttributes {
+    public interface IDisplayNamesAttribute {
+        string[] DisplayNames { get; }
     }
 }

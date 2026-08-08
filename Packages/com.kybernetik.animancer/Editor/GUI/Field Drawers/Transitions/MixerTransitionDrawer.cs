@@ -8,8 +8,7 @@ using UnityEditorInternal;
 using UnityEngine;
 using static Animancer.Editor.AnimancerGUI;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only] Draws the Inspector GUI for a <see cref="MixerTransition{TMixer, TParameter}"/>.</summary>
     /// <remarks>
     /// <strong>Documentation:</strong>
@@ -19,8 +18,7 @@ namespace Animancer.Editor
     /// Mixers</see>
     /// </remarks>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/MixerTransitionDrawer
-    public class MixerTransitionDrawer : ManualMixerTransitionDrawer
-    {
+    public class MixerTransitionDrawer : ManualMixerTransitionDrawer {
         /************************************************************************************************************************/
 
         /// <summary>The number of horizontal pixels the "Threshold" label occupies.</summary>
@@ -34,12 +32,12 @@ namespace Animancer.Editor
         /// The number of horizontal pixels the word "Threshold" occupies when drawn with the
         /// <see cref="EditorStyles.popup"/> style.
         /// </summary>
-        protected static float StandardThresholdWidth
-        {
-            get
-            {
-                if (_StandardThresholdWidth == 0)
+        protected static float StandardThresholdWidth {
+            get {
+                if (_StandardThresholdWidth == 0) {
                     _StandardThresholdWidth = AnimancerGUI.CalculateWidth(EditorStyles.popup, "Threshold");
+                }
+
                 return _StandardThresholdWidth;
             }
         }
@@ -50,14 +48,14 @@ namespace Animancer.Editor
         /// Creates a new <see cref="MixerTransitionDrawer"/> using the default <see cref="StandardThresholdWidth"/>.
         /// </summary>
         public MixerTransitionDrawer()
-            : this(StandardThresholdWidth)
-        { }
+            : this(StandardThresholdWidth) { }
 
         /// <summary>
         /// Creates a new <see cref="MixerTransitionDrawer"/> using a custom width for its threshold labels.
         /// </summary>
-        protected MixerTransitionDrawer(float thresholdWidth)
-            => ThresholdWidth = thresholdWidth;
+        protected MixerTransitionDrawer(float thresholdWidth) {
+            ThresholdWidth = thresholdWidth;
+        }
 
         /************************************************************************************************************************/
 
@@ -70,36 +68,34 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override void GatherSubProperties(SerializedProperty property)
-        {
+        protected override void GatherSubProperties(SerializedProperty property) {
             base.GatherSubProperties(property);
 
             CurrentThresholds = property.FindPropertyRelative(MixerTransition2D.ThresholdsField);
 
             if (CurrentAnimations == null ||
                 CurrentThresholds == null ||
-                property.hasMultipleDifferentValues)
+                property.hasMultipleDifferentValues) {
                 return;
+            }
 
             var count = Math.Max(CurrentAnimations.arraySize, CurrentThresholds.arraySize);
             CurrentAnimations.arraySize = count;
             CurrentThresholds.arraySize = count;
             if (CurrentSpeeds != null &&
-                CurrentSpeeds.arraySize != 0)
+                CurrentSpeeds.arraySize != 0) {
                 CurrentSpeeds.arraySize = count;
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-        {
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
             var height = base.GetPropertyHeight(property, label);
 
-            if (property.isExpanded)
-            {
-                if (CurrentThresholds != null)
-                {
+            if (property.isExpanded) {
+                if (CurrentThresholds != null) {
                     height -= StandardSpacing +
                         EditorGUI.GetPropertyHeight(CurrentThresholds, label);
                 }
@@ -115,10 +111,10 @@ namespace Animancer.Editor
             ref Rect area,
             SerializedProperty rootProperty,
             SerializedProperty property,
-            GUIContent label)
-        {
-            if (property.propertyPath.EndsWith($".{MixerTransition2D.ThresholdsField}"))
+            GUIContent label) {
+            if (property.propertyPath.EndsWith($".{MixerTransition2D.ThresholdsField}")) {
                 return;
+            }
 
             base.DoChildPropertyGUI(ref area, rootProperty, property, label);
         }
@@ -132,16 +128,12 @@ namespace Animancer.Editor
             out Rect animation,
             out Rect threshold,
             out Rect speed,
-            out Rect sync)
-        {
+            out Rect sync) {
             SplitListRect(area, isHeader, out animation, out speed, out sync);
 
-            if (TwoLineMode && !isHeader)
-            {
+            if (TwoLineMode && !isHeader) {
                 threshold = StealFromLeft(ref speed, ThresholdWidth, StandardSpacing);
-            }
-            else
-            {
+            } else {
                 threshold = animation;
 
                 var xMin = threshold.xMin = EditorGUIUtility.labelWidth + IndentSize;
@@ -153,8 +145,7 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override void DoChildListHeaderGUI(Rect area)
-        {
+        protected override void DoChildListHeaderGUI(Rect area) {
             SplitListRect(
                 area,
                 true,
@@ -171,8 +162,9 @@ namespace Animancer.Editor
                 : "Threshold";
 
             using (var label = PooledGUIContent.Acquire(text,
-                "The parameter values at which each child state will be fully active"))
+                "The parameter values at which each child state will be fully active")) {
                 DoHeaderDropdownGUI(thresholdArea, CurrentThresholds, label, AddThresholdFunctionsToMenu);
+            }
 
             DoSpeedHeaderGUI(speedArea);
 
@@ -186,8 +178,7 @@ namespace Animancer.Editor
             Rect area,
             int index,
             SerializedProperty animation,
-            SerializedProperty speed)
-        {
+            SerializedProperty speed) {
             SplitListRect(
                 area,
                 false,
@@ -205,8 +196,7 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Draws the GUI of the threshold at the specified `index`.</summary>
-        protected virtual void DoThresholdGUI(Rect area, int index)
-        {
+        protected virtual void DoThresholdGUI(Rect area, int index) {
             var threshold = CurrentThresholds.GetArrayElementAtIndex(index);
             EditorGUI.PropertyField(area, threshold, GUIContent.none);
         }
@@ -214,19 +204,18 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override void OnAddElement(int index)
-        {
+        protected override void OnAddElement(int index) {
             base.OnAddElement(index);
 
-            if (CurrentThresholds.arraySize > 0)
+            if (CurrentThresholds.arraySize > 0) {
                 CurrentThresholds.InsertArrayElementAtIndex(index);
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override void OnRemoveElement(ReorderableList list)
-        {
+        protected override void OnRemoveElement(ReorderableList list) {
             base.OnRemoveElement(list);
             Serialization.RemoveArrayElement(CurrentThresholds, list.index);
         }
@@ -234,8 +223,7 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override void ResizeList(int size)
-        {
+        protected override void ResizeList(int size) {
             base.ResizeList(size);
             CurrentThresholds.arraySize = size;
         }
@@ -243,8 +231,7 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override void OnReorderList(ReorderableList list, int oldIndex, int newIndex)
-        {
+        protected override void OnReorderList(ReorderableList list, int oldIndex, int newIndex) {
             base.OnReorderList(list, oldIndex, newIndex);
             CurrentThresholds.MoveArrayElement(oldIndex, newIndex);
         }

@@ -18,7 +18,5 @@ namespace JoG.StateMachines {
             previousState?.Exit();
             state?.Enter();
         }
-
     }
-
 }

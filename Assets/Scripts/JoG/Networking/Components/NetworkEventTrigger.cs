@@ -7,6 +7,8 @@ namespace JoG.Networking.Components {
         public UnityEvent2 onTrigger = new();
 
         [Rpc(SendTo.Everyone)]
-        public void InvokeRpc() => onTrigger.Invoke();
+        public void InvokeRpc() {
+            onTrigger.Invoke();
+        }
     }
 }

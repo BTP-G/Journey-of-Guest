@@ -1,15 +1,12 @@
-﻿//RealToon - Frame By Frame Rendering V1.0.0
+//RealToon - Frame By Frame Rendering V1.0.0
 //MJQStudioWorks
 //©2025
 
 using UnityEngine;
-using System.Collections;
 
-namespace RealToon.Tools.FrameByFrameRendering
-{
+namespace RealToon.Tools.FrameByFrameRendering {
     [AddComponentMenu("RealToon/Tools/Frame By Frame Rendering/Frame By Frame Rendering (Default)")]
-    public class FrameByFrameRendering_Default : MonoBehaviour
-    {
+    public class FrameByFrameRendering_Default : MonoBehaviour {
         [Header("(Frame By Frame Rendering V1.0.0)")]
         [Header("Click 'Play' button to start render.")]
 
@@ -71,43 +68,36 @@ namespace RealToon.Tools.FrameByFrameRendering
 
         private System.IO.DirectoryInfo DirInfo;
 
+        private void Start() {
 
-        void Start()
-        {
-
-            if (StartFrameCont <= -1)
-            {
+            if (StartFrameCont <= -1) {
                 StartFrameCheck = false;
                 StartRendering = false;
                 info = "Rendering has not started because 'Start Frame' value is less than 0.";
                 Debug.LogError(info);
             }
 
-            if (EndFrameCont <= 0)
-            {
+            if (EndFrameCont <= 0) {
                 StartFrameCheck = false;
                 StartRendering = false;
                 info = "Rendering has not started because 'End Frame' value is 0 or less than 0.";
                 Debug.LogError(info);
             }
 
-            if (FrameRateCont <= 0)
-            {
+            if (FrameRateCont <= 0) {
                 StartFrameCheck = false;
                 StartRendering = false;
                 info = "Rendering has not started because 'Frame Rate' value is 0 or less than 0.";
                 Debug.LogError(info);
             }
 
-            if (PNGFileName == string.Empty)
-            {
+            if (PNGFileName == string.Empty) {
                 PNGFileName = "Frame";
                 info = "File Name set to 'Frame' because the field is not set or empty.";
                 Debug.LogError(info);
             }
 
-            if (PathFolder == string.Empty)
-            {
+            if (PathFolder == string.Empty) {
                 PathFolder = "Rendered Files";
                 info = "Folder Path set to 'Rendered Files' and will be created to your UNITY ROOT PROJECT FOLDER because the field is not set or empty.";
                 Debug.LogError(info);
@@ -123,45 +113,35 @@ namespace RealToon.Tools.FrameByFrameRendering
 
             DirInfo = new System.IO.DirectoryInfo(PathFolder);
 
-            if (!System.IO.Directory.Exists(PathFolder))
-            {
+            if (!System.IO.Directory.Exists(PathFolder)) {
                 System.IO.Directory.CreateDirectory(PathFolder);
                 info = "Folder '" + PathFolder + "' Has Been Created To Your Root Project Folder.";
                 Debug.LogWarning(info);
             }
 
-
-            if (SingleFrameRenderingMode == false)
-            {
+            if (SingleFrameRenderingMode == false) {
                 info = "Video/Animation Mode";
                 Debug.LogWarning(info);
 
-                if (DirInfo.GetFiles().Length != 0)
-                {
+                if (DirInfo.GetFiles().Length != 0) {
                     StartFrameCheck = false;
                     StartRendering = false;
                     info = "(Video/Animation Mode) Rendering not started because there are already rendered frames or files in this folder ('" + PathFolder + "'), Please empty this folder or make another folder by changing the Path Folder.";
                     Debug.LogError(info);
-                }
-                else
-                {
+                } else {
                     StartFrameCheck = true;
                     StartRendering = true;
                 }
-            }
-            else
-            {
+            } else {
                 StartFrameCheck = true;
                 StartRendering = true;
                 info = "Picture or Single Frame Rendering Mode";
                 Debug.LogWarning(info);
                 EndFrameCont = 1;
             }
-
         }
 
-        void Update()
-        {
+        private void Update() {
             CurrentFrame = Time.frameCount - 1;
             StartFrame = StartFrameCont;
             EndFrame = EndFrameCont;
@@ -169,29 +149,34 @@ namespace RealToon.Tools.FrameByFrameRendering
             PathFolder = PathFolderCont;
             PNGFileName = PNGFileNameCont;
 
-            if (PathFolder == string.Empty)
-            {
+            if (PathFolder == string.Empty) {
                 PathFolder = "Rendered Files";
-            }
+            } else {
 
-            else
-            {
+                if (StartFrameCheck == true) {
 
-                if (StartFrameCheck == true)
-                {
-
-                    if (CurrentFrame == StartFrameCont)
-                    {
+                    if (CurrentFrame == StartFrameCont) {
                         info = "Rendering Has Started.";
                         Debug.LogWarning(info);
                         StartRendering = true;
                     }
 
-                    if (StartRendering == true)
-                    {
-                        if (SingleFrameRenderingMode == false)
-                        {
-                            string fname = string.Format("{0}/" + PNGFileNameCont + " {1:D04}.png", PathFolderCont, CurrentFrame);
+                    if (StartRendering == true) {
+                        if (SingleFrameRenderingMode == false) {
+                            var fname = string.Format("{0}/" + PNGFileNameCont + " {1:D04}.png", PathFolderCont, CurrentFrame);
+                            CurrentRenderedFile = fname;
+                            info = fname;
+
+#if UNITY_2017_1_OR_NEWER
+                            ScreenCapture.CaptureScreenshot(fname);
+#endif
+
+#if UNITY_5_6
+                        Application.CaptureScreenshot(fname);
+#endif
+
+                        } else {
+                            var fname = string.Format("{0}/" + PNGFileNameCont + " " + System.DateTime.Now.ToString("hh_mm_ss") + ".png", PathFolderCont, CurrentFrame);
                             CurrentRenderedFile = fname;
                             info = fname;
 
@@ -204,25 +189,8 @@ namespace RealToon.Tools.FrameByFrameRendering
 #endif
 
                         }
-                        else
-                        {
-                            string fname = string.Format("{0}/" + PNGFileNameCont + " " + System.DateTime.Now.ToString("hh_mm_ss") + ".png", PathFolderCont, CurrentFrame);
-                            CurrentRenderedFile = fname;
-                            info = fname;
 
-#if UNITY_2017_1_OR_NEWER
-                            ScreenCapture.CaptureScreenshot(fname);
-#endif
-
-#if UNITY_5_6
-                        Application.CaptureScreenshot(fname);
-#endif
-
-                        }
-
-
-                        if (CurrentFrame == EndFrame)
-                        {
+                        if (CurrentFrame == EndFrame) {
                             info = "Rendering Has Ended." + " [Last Rendered File: " + CurrentRenderedFile + "]";
                             Debug.LogWarning(info);
                             StartRendering = false;
@@ -233,5 +201,4 @@ namespace RealToon.Tools.FrameByFrameRendering
             }
         }
     }
-
 }

@@ -1,4 +1,4 @@
-﻿#if TEXTMESHPRO
+#if TEXTMESHPRO
 using System;
 using System.Collections;
 using System.Collections.Generic;

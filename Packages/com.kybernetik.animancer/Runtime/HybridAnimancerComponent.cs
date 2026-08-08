@@ -5,8 +5,7 @@ using UnityEngine;
 using UnityEngine.Animations;
 using UnityEngine.Playables;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>[Pro-Only]
     /// A <see cref="NamedAnimancerComponent"/> which plays a main <see cref="RuntimeAnimatorController"/>
     /// with the ability to play other individual <see cref="AnimationClip"/>s separately.
@@ -20,8 +19,7 @@ namespace Animancer
     /// 
     [AddComponentMenu(Strings.MenuPrefix + "Hybrid Animancer Component")]
     [AnimancerHelpUrl(typeof(HybridAnimancerComponent))]
-    public class HybridAnimancerComponent : NamedAnimancerComponent
-    {
+    public class HybridAnimancerComponent : NamedAnimancerComponent {
         /************************************************************************************************************************/
         #region Controller
         /************************************************************************************************************************/
@@ -41,10 +39,10 @@ namespace Animancer
         /// <see cref="Transition{TState}.FadeDuration"/> and returns the
         /// <see cref="Transition{TState}.State"/>.
         /// </summary>
-        public ControllerState PlayController()
-        {
-            if (!_Controller.IsValid())
+        public ControllerState PlayController() {
+            if (!_Controller.IsValid()) {
                 return null;
+            }
 
             Play(_Controller);
             return _Controller.State;
@@ -72,12 +70,10 @@ namespace Animancer
         /// Called by the Unity Editor when this component is first added (in Edit Mode) and whenever the Reset command
         /// is executed from its context menu.
         /// </remarks>
-        protected override void Reset()
-        {
+        protected override void Reset() {
             base.Reset();
 
-            if (Animator != null)
-            {
+            if (Animator != null) {
                 Controller = Animator.runtimeAnimatorController;
                 Animator.runtimeAnimatorController = null;
             }
@@ -92,10 +88,10 @@ namespace Animancer
         /// Plays the <see cref="Controller"/> if <see cref="PlayAutomatically"/> is false (otherwise it plays the
         /// first animation in the <see cref="NamedAnimancerComponent.Animations"/> array).
         /// </summary>
-        protected override void OnEnable()
-        {
-            if (!TryGetAnimator())
+        protected override void OnEnable() {
+            if (!TryGetAnimator()) {
                 return;
+            }
 
             PlayController();
             base.OnEnable();
@@ -107,8 +103,7 @@ namespace Animancer
         /// Sets <see cref="AnimancerGraph.KeepChildrenConnected"/> to <c>true</c> in order to avoid some
         /// undesirable behaviours caused by disconnecting <see cref="AnimatorControllerPlayable"/>s from the graph.
         /// </summary>
-        protected override void OnInitializeGraph()
-        {
+        protected override void OnInitializeGraph() {
             base.OnInitializeGraph();
             Graph.SetKeepChildrenConnected(true);
         }
@@ -116,8 +111,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void GatherAnimationClips(ICollection<AnimationClip> clips)
-        {
+        public override void GatherAnimationClips(ICollection<AnimationClip> clips) {
             base.GatherAnimationClips(clips);
             clips.GatherFromSource(_Controller);
         }
@@ -135,8 +129,7 @@ namespace Animancer
             => Graph;
 
         /// <summary><see cref="Controller"/></summary>
-        public RuntimeAnimatorController runtimeAnimatorController
-        {
+        public RuntimeAnimatorController runtimeAnimatorController {
             get => Controller.Controller;
             set => Controller.Controller = value;
         }
@@ -144,23 +137,21 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>The <see cref="AnimancerNode.Speed"/> of the <see cref="Controller"/>.</summary>
-        public float Speed
-        {
+        public float Speed {
             get => _Controller.State != null
                 ? _Controller.State.Speed
                 : _Controller.Speed;
-            set
-            {
+            set {
                 _Controller.Speed = value;
 
-                if (_Controller.State != null)
+                if (_Controller.State != null) {
                     _Controller.State.Speed = value;
+                }
             }
         }
 
         /// <summary>Wraps the <see cref="Speed"/> property with the same name as <see cref="Animator.speed"/>.</summary>
-        public float speed
-        {
+        public float speed {
             get => Speed;
             set => Speed = value;
         }
@@ -170,22 +161,19 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary><see cref="Animator.applyRootMotion"/></summary>
-        public bool applyRootMotion
-        {
+        public bool applyRootMotion {
             get => Animator.applyRootMotion;
             set => Animator.applyRootMotion = value;
         }
 
         /// <summary><see cref="Animator.bodyRotation"/></summary>
-        public Quaternion bodyRotation
-        {
+        public Quaternion bodyRotation {
             get => Animator.bodyRotation;
             set => Animator.bodyRotation = value;
         }
 
         /// <summary><see cref="Animator.bodyPosition"/></summary>
-        public Vector3 bodyPosition
-        {
+        public Vector3 bodyPosition {
             get => Animator.bodyPosition;
             set => Animator.bodyPosition = value;
         }
@@ -197,8 +185,7 @@ namespace Animancer
         public bool hasRootMotion => Animator.hasRootMotion;
 
         /// <summary><see cref="Animator.layersAffectMassCenter"/></summary>
-        public bool layersAffectMassCenter
-        {
+        public bool layersAffectMassCenter {
             get => Animator.layersAffectMassCenter;
             set => Animator.layersAffectMassCenter = value;
         }
@@ -210,15 +197,13 @@ namespace Animancer
         public float pivotWeight => Animator.pivotWeight;
 
         /// <summary><see cref="Animator.rootRotation"/></summary>
-        public Quaternion rootRotation
-        {
+        public Quaternion rootRotation {
             get => Animator.rootRotation;
             set => Animator.rootRotation = value;
         }
 
         /// <summary><see cref="Animator.rootPosition"/></summary>
-        public Vector3 rootPosition
-        {
+        public Vector3 rootPosition {
             get => Animator.rootPosition;
             set => Animator.rootPosition = value;
         }
@@ -236,22 +221,22 @@ namespace Animancer
         public Vector3 deltaPosition => Animator.deltaPosition;
 
         /// <summary><see cref="Animator.ApplyBuiltinRootMotion"/></summary>
-        public void ApplyBuiltinRootMotion() => Animator.ApplyBuiltinRootMotion();
+        public void ApplyBuiltinRootMotion() {
+            Animator.ApplyBuiltinRootMotion();
+        }
 
         /************************************************************************************************************************/
         // Feet.
         /************************************************************************************************************************/
 
         /// <summary><see cref="Animator.feetPivotActive"/></summary>
-        public float feetPivotActive
-        {
+        public float feetPivotActive {
             get => Animator.feetPivotActive;
             set => Animator.feetPivotActive = value;
         }
 
         /// <summary><see cref="Animator.stabilizeFeet"/></summary>
-        public bool stabilizeFeet
-        {
+        public bool stabilizeFeet {
             get => Animator.stabilizeFeet;
             set => Animator.stabilizeFeet = value;
         }
@@ -274,8 +259,7 @@ namespace Animancer
             int stateNameHash,
             float fadeDuration = ControllerState.DefaultFadeDuration,
             int layer = -1,
-            float normalizedTime = float.NegativeInfinity)
-        {
+            float normalizedTime = float.NegativeInfinity) {
             fadeDuration = ControllerState.GetFadeDuration(fadeDuration);
             var controllerState = PlayController();
             controllerState.Playable.CrossFade(stateNameHash, fadeDuration, layer, normalizedTime);
@@ -289,24 +273,22 @@ namespace Animancer
             string stateName,
             float fadeDuration = ControllerState.DefaultFadeDuration,
             int layer = -1,
-            float normalizedTime = float.NegativeInfinity)
-        {
+            float normalizedTime = float.NegativeInfinity) {
             fadeDuration = ControllerState.GetFadeDuration(fadeDuration);
 
-            if (States.TryGet(stateName, out var state))
-            {
+            if (States.TryGet(stateName, out var state)) {
                 Play(state, fadeDuration);
 
-                if (layer >= 0)
+                if (layer >= 0) {
                     state.LayerIndex = layer;
+                }
 
-                if (normalizedTime != float.NegativeInfinity)
+                if (normalizedTime != float.NegativeInfinity) {
                     state.NormalizedTime = normalizedTime;
+                }
 
                 return state;
-            }
-            else
-            {
+            } else {
                 var controllerState = PlayController();
                 controllerState.Playable.CrossFade(stateName, fadeDuration, layer, normalizedTime);
                 return controllerState;
@@ -321,8 +303,7 @@ namespace Animancer
             int stateNameHash,
             float fadeDuration = ControllerState.DefaultFadeDuration,
             int layer = -1,
-            float fixedTime = 0)
-        {
+            float fixedTime = 0) {
             fadeDuration = ControllerState.GetFadeDuration(fadeDuration);
             var controllerState = PlayController();
             controllerState.Playable.CrossFadeInFixedTime(stateNameHash, fadeDuration, layer, fixedTime);
@@ -336,23 +317,20 @@ namespace Animancer
             string stateName,
             float fadeDuration = ControllerState.DefaultFadeDuration,
             int layer = -1,
-            float fixedTime = 0)
-        {
+            float fixedTime = 0) {
             fadeDuration = ControllerState.GetFadeDuration(fadeDuration);
 
-            if (States.TryGet(stateName, out var state))
-            {
+            if (States.TryGet(stateName, out var state)) {
                 Play(state, fadeDuration);
 
-                if (layer >= 0)
+                if (layer >= 0) {
                     state.LayerIndex = layer;
+                }
 
                 state.Time = fixedTime;
 
                 return state;
-            }
-            else
-            {
+            } else {
                 var controllerState = PlayController();
                 controllerState.Playable.CrossFadeInFixedTime(stateName, fadeDuration, layer, fixedTime);
                 return controllerState;
@@ -369,8 +347,7 @@ namespace Animancer
         public void Play(
             int stateNameHash,
             int layer = -1,
-            float normalizedTime = float.NegativeInfinity)
-        {
+            float normalizedTime = float.NegativeInfinity) {
             var controllerState = PlayController();
             controllerState.Playable.Play(stateNameHash, layer, normalizedTime);
         }
@@ -381,22 +358,20 @@ namespace Animancer
         public AnimancerState Play(
             string stateName,
             int layer = -1,
-            float normalizedTime = float.NegativeInfinity)
-        {
-            if (States.TryGet(stateName, out var state))
-            {
+            float normalizedTime = float.NegativeInfinity) {
+            if (States.TryGet(stateName, out var state)) {
                 Play(state);
 
-                if (layer >= 0)
+                if (layer >= 0) {
                     state.LayerIndex = layer;
+                }
 
-                if (normalizedTime != float.NegativeInfinity)
+                if (normalizedTime != float.NegativeInfinity) {
                     state.NormalizedTime = normalizedTime;
+                }
 
                 return state;
-            }
-            else
-            {
+            } else {
                 var controllerState = PlayController();
                 controllerState.Playable.Play(stateName, layer, normalizedTime);
                 return controllerState;
@@ -409,8 +384,7 @@ namespace Animancer
         public void PlayInFixedTime(
             int stateNameHash,
             int layer = -1,
-            float fixedTime = 0)
-        {
+            float fixedTime = 0) {
             var controllerState = PlayController();
             controllerState.Playable.PlayInFixedTime(stateNameHash, layer, fixedTime);
         }
@@ -421,21 +395,18 @@ namespace Animancer
         public AnimancerState PlayInFixedTime(
             string stateName,
             int layer = -1,
-            float fixedTime = 0)
-        {
-            if (States.TryGet(stateName, out var state))
-            {
+            float fixedTime = 0) {
+            if (States.TryGet(stateName, out var state)) {
                 Play(state);
 
-                if (layer >= 0)
+                if (layer >= 0) {
                     state.LayerIndex = layer;
+                }
 
                 state.Time = fixedTime;
 
                 return state;
-            }
-            else
-            {
+            } else {
                 var controllerState = PlayController();
                 controllerState.Playable.PlayInFixedTime(stateName, layer, fixedTime);
                 return controllerState;
@@ -449,58 +420,114 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Gets the value of the specified boolean parameter.</summary>
-        public bool GetBool(int id) => ControllerPlayable.GetBool(id);
+        public bool GetBool(int id) {
+            return ControllerPlayable.GetBool(id);
+        }
+
         /// <summary>Gets the value of the specified boolean parameter.</summary>
-        public bool GetBool(string name) => ControllerPlayable.GetBool(name);
+        public bool GetBool(string name) {
+            return ControllerPlayable.GetBool(name);
+        }
+
         /// <summary>Sets the value of the specified boolean parameter.</summary>
-        public void SetBool(int id, bool value) => ControllerPlayable.SetBool(id, value);
+        public void SetBool(int id, bool value) {
+            ControllerPlayable.SetBool(id, value);
+        }
+
         /// <summary>Sets the value of the specified boolean parameter.</summary>
-        public void SetBool(string name, bool value) => ControllerPlayable.SetBool(name, value);
+        public void SetBool(string name, bool value) {
+            ControllerPlayable.SetBool(name, value);
+        }
 
         /// <summary>Gets the value of the specified float parameter.</summary>
-        public float GetFloat(int id) => ControllerPlayable.GetFloat(id);
+        public float GetFloat(int id) {
+            return ControllerPlayable.GetFloat(id);
+        }
+
         /// <summary>Gets the value of the specified float parameter.</summary>
-        public float GetFloat(string name) => ControllerPlayable.GetFloat(name);
+        public float GetFloat(string name) {
+            return ControllerPlayable.GetFloat(name);
+        }
+
         /// <summary>Sets the value of the specified float parameter.</summary>
-        public void SetFloat(int id, float value) => ControllerPlayable.SetFloat(id, value);
+        public void SetFloat(int id, float value) {
+            ControllerPlayable.SetFloat(id, value);
+        }
+
         /// <summary>Sets the value of the specified float parameter.</summary>
-        public void SetFloat(string name, float value) => ControllerPlayable.SetFloat(name, value);
+        public void SetFloat(string name, float value) {
+            ControllerPlayable.SetFloat(name, value);
+        }
 
         /// <summary>Sets the value of the specified float parameter with smoothing.</summary>
-        public float SetFloat(string name, float value, float dampTime, float deltaTime, float maxSpeed = float.PositiveInfinity)
-            => _Controller.State.SetFloat(name, value, dampTime, deltaTime, maxSpeed);
+        public float SetFloat(string name, float value, float dampTime, float deltaTime, float maxSpeed = float.PositiveInfinity) {
+            return _Controller.State.SetFloat(name, value, dampTime, deltaTime, maxSpeed);
+        }
 
         /// <summary>Sets the value of the specified float parameter with smoothing.</summary>
-        public float SetFloat(int id, float value, float dampTime, float deltaTime, float maxSpeed = float.PositiveInfinity)
-            => _Controller.State.SetFloat(id, value, dampTime, deltaTime, maxSpeed);
+        public float SetFloat(int id, float value, float dampTime, float deltaTime, float maxSpeed = float.PositiveInfinity) {
+            return _Controller.State.SetFloat(id, value, dampTime, deltaTime, maxSpeed);
+        }
 
         /// <summary>Gets the value of the specified integer parameter.</summary>
-        public int GetInteger(int id) => ControllerPlayable.GetInteger(id);
+        public int GetInteger(int id) {
+            return ControllerPlayable.GetInteger(id);
+        }
+
         /// <summary>Gets the value of the specified integer parameter.</summary>
-        public int GetInteger(string name) => ControllerPlayable.GetInteger(name);
+        public int GetInteger(string name) {
+            return ControllerPlayable.GetInteger(name);
+        }
+
         /// <summary>Sets the value of the specified integer parameter.</summary>
-        public void SetInteger(int id, int value) => ControllerPlayable.SetInteger(id, value);
+        public void SetInteger(int id, int value) {
+            ControllerPlayable.SetInteger(id, value);
+        }
+
         /// <summary>Sets the value of the specified integer parameter.</summary>
-        public void SetInteger(string name, int value) => ControllerPlayable.SetInteger(name, value);
+        public void SetInteger(string name, int value) {
+            ControllerPlayable.SetInteger(name, value);
+        }
 
         /// <summary>Sets the specified trigger parameter to true.</summary>
-        public void SetTrigger(int id) => ControllerPlayable.SetTrigger(id);
+        public void SetTrigger(int id) {
+            ControllerPlayable.SetTrigger(id);
+        }
+
         /// <summary>Sets the specified trigger parameter to true.</summary>
-        public void SetTrigger(string name) => ControllerPlayable.SetTrigger(name);
+        public void SetTrigger(string name) {
+            ControllerPlayable.SetTrigger(name);
+        }
+
         /// <summary>Resets the specified trigger parameter to false.</summary>
-        public void ResetTrigger(int id) => ControllerPlayable.ResetTrigger(id);
+        public void ResetTrigger(int id) {
+            ControllerPlayable.ResetTrigger(id);
+        }
+
         /// <summary>Resets the specified trigger parameter to false.</summary>
-        public void ResetTrigger(string name) => ControllerPlayable.ResetTrigger(name);
+        public void ResetTrigger(string name) {
+            ControllerPlayable.ResetTrigger(name);
+        }
 
         /// <summary>Indicates whether the specified parameter is controlled by an <see cref="AnimationClip"/>.</summary>
-        public bool IsParameterControlledByCurve(int id) => ControllerPlayable.IsParameterControlledByCurve(id);
+        public bool IsParameterControlledByCurve(int id) {
+            return ControllerPlayable.IsParameterControlledByCurve(id);
+        }
+
         /// <summary>Indicates whether the specified parameter is controlled by an <see cref="AnimationClip"/>.</summary>
-        public bool IsParameterControlledByCurve(string name) => ControllerPlayable.IsParameterControlledByCurve(name);
+        public bool IsParameterControlledByCurve(string name) {
+            return ControllerPlayable.IsParameterControlledByCurve(name);
+        }
 
         /// <summary>Gets the details of one of the <see cref="Controller"/>'s parameters.</summary>
-        public AnimatorControllerParameter GetParameter(int index) => ControllerPlayable.GetParameter(index);
+        public AnimatorControllerParameter GetParameter(int index) {
+            return ControllerPlayable.GetParameter(index);
+        }
+
         /// <summary>Gets the number of parameters in the <see cref="Controller"/>.</summary>
-        public int GetParameterCount() => ControllerPlayable.GetParameterCount();
+        public int GetParameterCount() {
+            return ControllerPlayable.GetParameterCount();
+        }
 
         /************************************************************************************************************************/
 
@@ -523,18 +550,34 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Gets information about the <see cref="AnimationClip"/>s currently being played.</summary>
-        public AnimatorClipInfo[] GetCurrentAnimatorClipInfo(int layerIndex = 0) => ControllerPlayable.GetCurrentAnimatorClipInfo(layerIndex);
+        public AnimatorClipInfo[] GetCurrentAnimatorClipInfo(int layerIndex = 0) {
+            return ControllerPlayable.GetCurrentAnimatorClipInfo(layerIndex);
+        }
+
         /// <summary>Gets information about the <see cref="AnimationClip"/>s currently being played.</summary>
-        public void GetCurrentAnimatorClipInfo(int layerIndex, List<AnimatorClipInfo> clips) => ControllerPlayable.GetCurrentAnimatorClipInfo(layerIndex, clips);
+        public void GetCurrentAnimatorClipInfo(int layerIndex, List<AnimatorClipInfo> clips) {
+            ControllerPlayable.GetCurrentAnimatorClipInfo(layerIndex, clips);
+        }
+
         /// <summary>Gets the number of <see cref="AnimationClip"/>s currently being played.</summary>
-        public int GetCurrentAnimatorClipInfoCount(int layerIndex = 0) => ControllerPlayable.GetCurrentAnimatorClipInfoCount(layerIndex);
+        public int GetCurrentAnimatorClipInfoCount(int layerIndex = 0) {
+            return ControllerPlayable.GetCurrentAnimatorClipInfoCount(layerIndex);
+        }
 
         /// <summary>Gets information about the <see cref="AnimationClip"/>s currently being transitioned towards.</summary>
-        public AnimatorClipInfo[] GetNextAnimatorClipInfo(int layerIndex = 0) => ControllerPlayable.GetNextAnimatorClipInfo(layerIndex);
+        public AnimatorClipInfo[] GetNextAnimatorClipInfo(int layerIndex = 0) {
+            return ControllerPlayable.GetNextAnimatorClipInfo(layerIndex);
+        }
+
         /// <summary>Gets information about the <see cref="AnimationClip"/>s currently being transitioned towards.</summary>
-        public void GetNextAnimatorClipInfo(int layerIndex, List<AnimatorClipInfo> clips) => ControllerPlayable.GetNextAnimatorClipInfo(layerIndex, clips);
+        public void GetNextAnimatorClipInfo(int layerIndex, List<AnimatorClipInfo> clips) {
+            ControllerPlayable.GetNextAnimatorClipInfo(layerIndex, clips);
+        }
+
         /// <summary>Gets the number of <see cref="AnimationClip"/>s currently being transitioned towards.</summary>
-        public int GetNextAnimatorClipInfoCount(int layerIndex = 0) => ControllerPlayable.GetNextAnimatorClipInfoCount(layerIndex);
+        public int GetNextAnimatorClipInfoCount(int layerIndex = 0) {
+            return ControllerPlayable.GetNextAnimatorClipInfoCount(layerIndex);
+        }
 
         /************************************************************************************************************************/
         // Humanoid.
@@ -547,86 +590,117 @@ namespace Animancer
         public bool isHuman => Animator.isHuman;
 
         /// <summary><see cref="Animator.GetBoneTransform"/></summary>
-        public Transform GetBoneTransform(HumanBodyBones humanBoneId) => Animator.GetBoneTransform(humanBoneId);
+        public Transform GetBoneTransform(HumanBodyBones humanBoneId) {
+            return Animator.GetBoneTransform(humanBoneId);
+        }
 
         /// <summary><see cref="Animator.SetBoneLocalRotation"/></summary>
-        public void SetBoneLocalRotation(HumanBodyBones humanBoneId, Quaternion rotation) => Animator.SetBoneLocalRotation(humanBoneId, rotation);
+        public void SetBoneLocalRotation(HumanBodyBones humanBoneId, Quaternion rotation) {
+            Animator.SetBoneLocalRotation(humanBoneId, rotation);
+        }
 
         /************************************************************************************************************************/
         // Layers.
         /************************************************************************************************************************/
 
         /// <summary>Gets the number of layers in the <see cref="Controller"/>.</summary>
-        public int GetLayerCount() => ControllerPlayable.GetLayerCount();
+        public int GetLayerCount() {
+            return ControllerPlayable.GetLayerCount();
+        }
+
         /// <summary>The number of layers in the <see cref="Controller"/>.</summary>
         public int layerCount => ControllerPlayable.GetLayerCount();
 
         /// <summary>Gets the index of the layer with the specified name.</summary>
-        public int GetLayerIndex(string layerName) => ControllerPlayable.GetLayerIndex(layerName);
+        public int GetLayerIndex(string layerName) {
+            return ControllerPlayable.GetLayerIndex(layerName);
+        }
+
         /// <summary>Gets the name of the layer with the specified index.</summary>
-        public string GetLayerName(int layerIndex) => ControllerPlayable.GetLayerName(layerIndex);
+        public string GetLayerName(int layerIndex) {
+            return ControllerPlayable.GetLayerName(layerIndex);
+        }
 
         /// <summary>Gets the weight of the layer at the specified index.</summary>
-        public float GetLayerWeight(int layerIndex) => ControllerPlayable.GetLayerWeight(layerIndex);
+        public float GetLayerWeight(int layerIndex) {
+            return ControllerPlayable.GetLayerWeight(layerIndex);
+        }
+
         /// <summary>Sets the weight of the layer at the specified index.</summary>
-        public void SetLayerWeight(int layerIndex, float weight) => ControllerPlayable.SetLayerWeight(layerIndex, weight);
+        public void SetLayerWeight(int layerIndex, float weight) {
+            ControllerPlayable.SetLayerWeight(layerIndex, weight);
+        }
 
         /************************************************************************************************************************/
         // StateMachineBehaviours.
         /************************************************************************************************************************/
 
         /// <summary><see cref="Animator.GetBehaviour{T}()"/></summary>
-        public T GetBehaviour<T>() where T : StateMachineBehaviour => Animator.GetBehaviour<T>();
+        public T GetBehaviour<T>() where T : StateMachineBehaviour {
+            return Animator.GetBehaviour<T>();
+        }
 
         /// <summary><see cref="Animator.GetBehaviours{T}()"/></summary>
-        public T[] GetBehaviours<T>() where T : StateMachineBehaviour => Animator.GetBehaviours<T>();
+        public T[] GetBehaviours<T>() where T : StateMachineBehaviour {
+            return Animator.GetBehaviours<T>();
+        }
 
         /// <summary><see cref="Animator.GetBehaviours"/></summary>
-        public StateMachineBehaviour[] GetBehaviours(int fullPathHash, int layerIndex) => Animator.GetBehaviours(fullPathHash, layerIndex);
+        public StateMachineBehaviour[] GetBehaviours(int fullPathHash, int layerIndex) {
+            return Animator.GetBehaviours(fullPathHash, layerIndex);
+        }
 
         /************************************************************************************************************************/
         // States.
         /************************************************************************************************************************/
 
         /// <summary>Returns information about the current state.</summary>
-        public AnimatorStateInfo GetCurrentAnimatorStateInfo(int layerIndex = 0) => ControllerPlayable.GetCurrentAnimatorStateInfo(layerIndex);
+        public AnimatorStateInfo GetCurrentAnimatorStateInfo(int layerIndex = 0) {
+            return ControllerPlayable.GetCurrentAnimatorStateInfo(layerIndex);
+        }
+
         /// <summary>Returns information about the next state being transitioned towards.</summary>
-        public AnimatorStateInfo GetNextAnimatorStateInfo(int layerIndex = 0) => ControllerPlayable.GetNextAnimatorStateInfo(layerIndex);
+        public AnimatorStateInfo GetNextAnimatorStateInfo(int layerIndex = 0) {
+            return ControllerPlayable.GetNextAnimatorStateInfo(layerIndex);
+        }
 
         /// <summary>Indicates whether the specified layer contains the specified state.</summary>
-        public bool HasState(int layerIndex, int stateID) => ControllerPlayable.HasState(layerIndex, stateID);
+        public bool HasState(int layerIndex, int stateID) {
+            return ControllerPlayable.HasState(layerIndex, stateID);
+        }
 
         /************************************************************************************************************************/
         // Transitions.
         /************************************************************************************************************************/
 
         /// <summary>Indicates whether the specified layer is currently executing a transition.</summary>
-        public bool IsInTransition(int layerIndex = 0) => ControllerPlayable.IsInTransition(layerIndex);
+        public bool IsInTransition(int layerIndex = 0) {
+            return ControllerPlayable.IsInTransition(layerIndex);
+        }
 
         /// <summary>Gets information about the current transition.</summary>
-        public AnimatorTransitionInfo GetAnimatorTransitionInfo(int layerIndex = 0) => ControllerPlayable.GetAnimatorTransitionInfo(layerIndex);
+        public AnimatorTransitionInfo GetAnimatorTransitionInfo(int layerIndex = 0) {
+            return ControllerPlayable.GetAnimatorTransitionInfo(layerIndex);
+        }
 
         /************************************************************************************************************************/
         // Other.
         /************************************************************************************************************************/
 
         /// <summary><see cref="Animator.avatar"/></summary>
-        public Avatar avatar
-        {
+        public Avatar avatar {
             get => Animator.avatar;
             set => Animator.avatar = value;
         }
 
         /// <summary><see cref="Animator.cullingMode"/></summary>
-        public AnimatorCullingMode cullingMode
-        {
+        public AnimatorCullingMode cullingMode {
             get => Animator.cullingMode;
             set => Animator.cullingMode = value;
         }
 
         /// <summary><see cref="Animator.fireEvents"/></summary>
-        public bool fireEvents
-        {
+        public bool fireEvents {
             get => Animator.fireEvents;
             set => Animator.fireEvents = value;
         }
@@ -644,16 +718,14 @@ namespace Animancer
         public bool isOptimizable => Animator.isOptimizable;
 
         /// <summary><see cref="Animator.logWarnings"/></summary>
-        public bool logWarnings
-        {
+        public bool logWarnings {
             get => Animator.logWarnings;
             set => Animator.logWarnings = value;
         }
 
         /// <summary><see cref="Animator.updateMode"/></summary>
         /// <remarks>Changing this at runtime doesn't work when using the Playables API.</remarks>
-        public AnimatorUpdateMode updateMode
-        {
+        public AnimatorUpdateMode updateMode {
             get => Animator.updateMode;
             set => Animator.updateMode = value;
         }
@@ -661,8 +733,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary><see cref="Animator.keepAnimatorStateOnDisable"/></summary>
-        public bool keepAnimatorStateOnDisable
-        {
+        public bool keepAnimatorStateOnDisable {
             get => Animator.keepAnimatorStateOnDisable;
             set => Animator.keepAnimatorStateOnDisable = value;
         }
@@ -670,7 +741,9 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary><see cref="Animator.Rebind"/></summary>
-        public void Rebind() => Animator.Rebind();
+        public void Rebind() {
+            Animator.Rebind();
+        }
 
         /************************************************************************************************************************/
         #endregion
@@ -682,8 +755,7 @@ namespace Animancer
     /// <summary>Extension methods for <see cref="HybridAnimancerComponent"/>.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer/HybridAnimancerComponentExtensions
     /// 
-    public static class HybridAnimancerComponentExtensions
-    {
+    public static class HybridAnimancerComponentExtensions {
         /************************************************************************************************************************/
 
         /// <summary>
@@ -694,8 +766,9 @@ namespace Animancer
         /// This is an extension method to avoid being treated as a <see cref="MonoBehaviour"/>
         /// <code>Update</code> message and getting called every frame.
         /// </remarks>
-        public static void Update(this HybridAnimancerComponent animancer, float deltaTime)
-            => animancer.Evaluate(deltaTime);
+        public static void Update(this HybridAnimancerComponent animancer, float deltaTime) {
+            animancer.Evaluate(deltaTime);
+        }
 
         /************************************************************************************************************************/
     }

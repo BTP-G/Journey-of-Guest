@@ -1,13 +1,8 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-using Antlr4.Runtime;
-using Antlr4.Runtime.Atn;
-using Antlr4.Runtime.Sharpen;
-
-namespace Antlr4.Runtime.Atn
-{
+namespace Antlr4.Runtime.Atn {
     /// <summary>
     /// This class represents profiling event information for semantic predicate
     /// evaluations which occur during prediction.
@@ -18,8 +13,7 @@ namespace Antlr4.Runtime.Atn
     /// </remarks>
     /// <seealso cref="ParserATNSimulator.EvalSemanticContext(Dfa.PredPrediction[], ParserRuleContext, bool)"/>
     /// <since>4.3</since>
-    public class PredicateEvalInfo : DecisionEventInfo
-    {
+    public class PredicateEvalInfo : DecisionEventInfo {
         /// <summary>The semantic context which was evaluated.</summary>
         /// <remarks>The semantic context which was evaluated.</remarks>
         public readonly SemanticContext semctx;
@@ -75,8 +69,7 @@ namespace Antlr4.Runtime.Atn
         /// <seealso cref="ParserATNSimulator.EvalSemanticContext(SemanticContext, ParserRuleContext, int, bool)"/>
         /// <seealso cref="SemanticContext.Eval"/>
         public PredicateEvalInfo(int decision, ITokenStream input, int startIndex, int stopIndex, SemanticContext semctx, bool evalResult, int predictedAlt, bool fullCtx)
-            : base(decision, new ATNConfigSet(), input, startIndex, stopIndex, fullCtx)
-        {
+            : base(decision, new ATNConfigSet(), input, startIndex, stopIndex, fullCtx) {
             this.semctx = semctx;
             this.evalResult = evalResult;
             this.predictedAlt = predictedAlt;

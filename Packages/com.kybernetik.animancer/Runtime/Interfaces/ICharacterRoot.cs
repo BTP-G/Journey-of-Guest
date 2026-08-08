@@ -2,16 +2,14 @@
 
 using UnityEngine;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>
     /// Interface for components to indicate which <see cref="GameObject"/> is the root of a character when
     /// <see cref="AnimancerUtilities.FindRoot(GameObject)"/> is called.
     /// </summary>
     /// https://kybernetik.com.au/animancer/api/Animancer/ICharacterRoot
     /// 
-    public interface ICharacterRoot
-    {
+    public interface ICharacterRoot {
         /************************************************************************************************************************/
 #pragma warning disable IDE1006 // Naming Styles.
         /************************************************************************************************************************/
@@ -49,8 +47,7 @@ namespace Animancer
     /************************************************************************************************************************/
 
     /// https://kybernetik.com.au/animancer/api/Animancer/AnimancerUtilities
-    public static partial class AnimancerUtilities
-    {
+    public static partial class AnimancerUtilities {
         /************************************************************************************************************************/
 
         /// <summary>[Editor-Only]
@@ -107,20 +104,20 @@ namespace Animancer
         /// This can be fixed by making any of the scripts on the <c>Character</c> implement <see cref="ICharacterRoot"/>
         /// to tell the system which object you want it to use as the root.
         /// </example>
-        public static Transform FindRoot(GameObject gameObject)
-        {
+        public static Transform FindRoot(GameObject gameObject) {
             var root = gameObject.GetComponentInParent<ICharacterRoot>();
-            if (root != null)
+            if (root != null) {
                 return root.transform;
+            }
 
 #if UNITY_EDITOR
             var path = UnityEditor.AssetDatabase.GetAssetPath(gameObject);
-            if (!string.IsNullOrEmpty(path))
+            if (!string.IsNullOrEmpty(path)) {
                 return gameObject.transform.root;
+            }
 
             var status = UnityEditor.PrefabUtility.GetPrefabInstanceStatus(gameObject);
-            if (status != UnityEditor.PrefabInstanceStatus.NotAPrefab)
-            {
+            if (status != UnityEditor.PrefabInstanceStatus.NotAPrefab) {
                 gameObject = UnityEditor.PrefabUtility.GetOutermostPrefabInstanceRoot(gameObject);
                 return gameObject.transform;
             }
@@ -131,15 +128,15 @@ namespace Animancer
             var animatorCount = animators.Count;
 
             var parent = gameObject.transform;
-            while (parent.parent != null)
-            {
+            while (parent.parent != null) {
                 animators.Clear();
                 parent.parent.GetComponentsInChildren(true, animators);
 
-                if (animatorCount == 0)
+                if (animatorCount == 0) {
                     animatorCount = animators.Count;
-                else if (animatorCount != animators.Count)
+                } else if (animatorCount != animators.Count) {
                     break;
+                }
 
                 parent = parent.parent;
             }
@@ -154,10 +151,10 @@ namespace Animancer
         /// Calls <see cref="FindRoot(GameObject)"/> if the specified `obj` is a
         /// <see cref="GameObject"/> or <see cref="Component"/>.
         /// </summary>
-        public static Transform FindRoot(Object obj)
-        {
-            if (obj is ICharacterRoot iRoot)
+        public static Transform FindRoot(Object obj) {
+            if (obj is ICharacterRoot iRoot) {
                 return iRoot.transform;
+            }
 
             return TryGetGameObject(obj, out var gameObject)
                 ? FindRoot(gameObject)
@@ -175,16 +172,13 @@ namespace Animancer
         /// Or if the `obj` is a <see cref="Component"/> then its <see cref="Component.gameObject"/>
         /// is used as the result.
         /// </remarks>
-        public static bool TryGetGameObject(Object obj, out GameObject gameObject)
-        {
-            if (obj is GameObject go)
-            {
+        public static bool TryGetGameObject(Object obj, out GameObject gameObject) {
+            if (obj is GameObject go) {
                 gameObject = go;
                 return true;
             }
 
-            if (obj is Component component)
-            {
+            if (obj is Component component) {
                 gameObject = component.gameObject;
                 return true;
             }

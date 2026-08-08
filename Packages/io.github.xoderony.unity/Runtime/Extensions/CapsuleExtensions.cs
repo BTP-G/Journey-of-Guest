@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace Xoderony.Extensions {
 
@@ -9,7 +9,7 @@ namespace Xoderony.Extensions {
             var radius = capsule.radius;
             var height = capsule.height;
             var center = capsule.center;
-            var halfCylinderHeight = Mathf.Max(0, height * 0.5f - radius);
+            var halfCylinderHeight = Mathf.Max(0, (height * 0.5f) - radius);
             toLowerCenter = rotation * new Vector3(center.x, center.y - halfCylinderHeight, center.z);
             toUpperCenter = rotation * new Vector3(center.x, center.y + halfCylinderHeight, center.z);
         }

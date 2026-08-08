@@ -79,7 +79,5 @@ namespace JoG.Networking {
             UnityEngine.Object.Destroy(instance);
             throw new InvalidOperationException($"The instantiated network prefab {prefab.name} has no {nameof(NetworkObject)} component.");
         }
-
     }
-
 }

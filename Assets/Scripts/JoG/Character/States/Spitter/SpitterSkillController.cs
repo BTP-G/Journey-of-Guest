@@ -1,4 +1,3 @@
-using Xoderony.YooAsset;
 using JoG.Character.Components;
 using JoG.Character.InputBanks;
 using JoG.Networking;
@@ -6,6 +5,7 @@ using JoG.Projectiles;
 using Unity.Netcode;
 using UnityEngine;
 using VContainer;
+using Xoderony.YooAsset;
 
 namespace JoG.Character.States.Spitter {
 

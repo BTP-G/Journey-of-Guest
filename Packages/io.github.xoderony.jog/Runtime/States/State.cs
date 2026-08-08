@@ -7,7 +7,6 @@ namespace JoG.States {
 
         object IComponent.Key => gameObject.name;
 
-
         public void Enter() {
             enabled = true;
         }
@@ -22,7 +21,5 @@ namespace JoG.States {
             gameObject.name = GetType()
                               .Name;
         }
-
     }
-
 }

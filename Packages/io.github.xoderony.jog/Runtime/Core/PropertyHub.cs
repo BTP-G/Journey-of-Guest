@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 
-
 namespace JoG.Core {
 
     public class PropertyHub {
+
         private readonly Dictionary<string, PropertyValue> _nameToProperty = new();
 
         public PropertyValue<T> GetProperty<T>(string name) {

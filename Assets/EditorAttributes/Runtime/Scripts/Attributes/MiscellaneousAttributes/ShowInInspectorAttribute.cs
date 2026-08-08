@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 
-namespace EditorAttributes
-{
+namespace EditorAttributes {
     /// <summary>
     /// Attribute to show a non serialized member in the inspector
     /// </summary>

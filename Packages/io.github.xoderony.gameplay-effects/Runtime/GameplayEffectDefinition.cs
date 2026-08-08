@@ -1,7 +1,7 @@
-using Xoderony.Logging;
 using System;
 using System.Runtime.CompilerServices;
 using UnityEngine;
+using Xoderony.Logging;
 
 namespace Xoderony.GameplayEffects {
 

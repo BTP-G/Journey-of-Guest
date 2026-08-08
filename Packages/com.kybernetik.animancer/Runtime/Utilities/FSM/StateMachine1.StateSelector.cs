@@ -2,8 +2,7 @@
 
 using System.Collections.Generic;
 
-namespace Animancer.FSM
-{
+namespace Animancer.FSM {
     /// <summary>An object with a <see cref="Priority"/>.</summary>
     /// <remarks>
     /// <strong>Documentation:</strong>
@@ -12,15 +11,13 @@ namespace Animancer.FSM
     /// </remarks>
     /// https://kybernetik.com.au/animancer/api/Animancer.FSM/IPrioritizable
     /// 
-    public interface IPrioritizable : IState
-    {
+    public interface IPrioritizable : IState {
         float Priority { get; }
     }
 
     /************************************************************************************************************************/
 
-    public partial class StateMachine<TState>
-    {
+    public partial class StateMachine<TState> {
         /// <summary>A prioritised list of potential states for a <see cref="StateMachine{TState}"/> to enter.</summary>
         /// 
         /// <remarks>
@@ -53,14 +50,14 @@ namespace Animancer.FSM
         /// 
         /// https://kybernetik.com.au/animancer/api/Animancer.FSM/StateSelector
         /// 
-        public class StateSelector : SortedList<float, TState>
-        {
+        public class StateSelector : SortedList<float, TState> {
             public StateSelector() : base(ReverseComparer<float>.Instance) { }
 
             /// <summary>Adds the `state` to this selector with its <see cref="IPrioritizable.Priority"/>.</summary>
             public void Add<TPrioritizable>(TPrioritizable state)
-                where TPrioritizable : TState, IPrioritizable
-                => Add(state.Priority, state);
+                where TPrioritizable : TState, IPrioritizable {
+                Add(state.Priority, state);
+            }
         }
     }
 
@@ -68,8 +65,7 @@ namespace Animancer.FSM
 
     /// <summary>An <see cref="IComparer{T}"/> which reverses the default comparison.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.FSM/ReverseComparer_1
-    public class ReverseComparer<T> : IComparer<T>
-    {
+    public class ReverseComparer<T> : IComparer<T> {
         /// <summary>The singleton instance.</summary>
         public static readonly ReverseComparer<T> Instance = new();
 
@@ -77,7 +73,9 @@ namespace Animancer.FSM
         private ReverseComparer() { }
 
         /// <summary>Uses <see cref="Comparer{T}.Default"/> with the parameters swapped.</summary>
-        public int Compare(T x, T y) => Comparer<T>.Default.Compare(y, x);
+        public int Compare(T x, T y) {
+            return Comparer<T>.Default.Compare(y, x);
+        }
     }
 }
 

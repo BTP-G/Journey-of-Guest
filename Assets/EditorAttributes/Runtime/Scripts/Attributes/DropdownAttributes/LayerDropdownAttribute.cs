@@ -1,7 +1,6 @@
-﻿using UnityEngine;
+using UnityEngine;
 
-namespace EditorAttributes
-{
+namespace EditorAttributes {
     /// <summary>
     /// Attribute to make a single selection dropdown of layers
     /// </summary>

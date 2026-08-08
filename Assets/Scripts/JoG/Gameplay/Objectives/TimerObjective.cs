@@ -1,9 +1,9 @@
-using Xoderony.Localization;
-using Xoderony.Unity;
 using JoG.Localization;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
+using Xoderony.Localization;
+using Xoderony.Unity;
 
 namespace JoG.Gameplay.Objectives {
 

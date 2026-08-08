@@ -4,8 +4,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>A <see cref="ScriptableObject"/> based <see cref="ITransition"/>.</summary>
     /// <remarks>
     /// <strong>Documentation:</strong>
@@ -20,8 +19,7 @@ namespace Animancer
     public abstract partial class TransitionAssetBase : ScriptableObject,
         IAnimationClipSource,
         ITransition,
-        IWrapper
-    {
+        IWrapper {
         /************************************************************************************************************************/
 
         /// <summary>The name of the serialized backing field of <see cref="GetTransition"/>.</summary>
@@ -53,12 +51,12 @@ namespace Animancer
             => GetTransition().FadeMode;
 
         /// <inheritdoc/>
-        public virtual AnimancerState CreateState()
-            => GetTransition().CreateState();
+        public virtual AnimancerState CreateState() {
+            return GetTransition().CreateState();
+        }
 
         /// <inheritdoc/>
-        public virtual void Apply(AnimancerState state)
-        {
+        public virtual void Apply(AnimancerState state) {
             GetTransition().Apply(state);
             state.SetDebugName(this);
         }
@@ -79,8 +77,7 @@ namespace Animancer
             => GetTransition().IsLooping;
 
         /// <inheritdoc/>
-        public float NormalizedStartTime
-        {
+        public float NormalizedStartTime {
             get => GetTransition().NormalizedStartTime;
             set => GetTransition().NormalizedStartTime = value;
         }
@@ -90,8 +87,7 @@ namespace Animancer
             => GetTransition().MaximumLength;
 
         /// <inheritdoc/>
-        public float Speed
-        {
+        public float Speed {
             get => GetTransition().Speed;
             set => GetTransition().Speed = value;
         }
@@ -116,8 +112,7 @@ namespace Animancer
 
         /// <inheritdoc/>
         [Obsolete(ObsoleteEventsMessage)]
-        public AnimancerEvent.Sequence.Serializable SerializedEvents
-        {
+        public AnimancerEvent.Sequence.Serializable SerializedEvents {
             get => GetTransition().SerializedEvents;
             set => GetTransition().SerializedEvents = value;
         }
@@ -127,8 +122,9 @@ namespace Animancer
         /// <summary>[<see cref="IAnimationClipSource"/>]
         /// Calls <see cref="AnimancerUtilities.GatherFromSource(ICollection{AnimationClip}, object)"/>.
         /// </summary>
-        public virtual void GetAnimationClips(List<AnimationClip> clips)
-            => clips.GatherFromSource(GetTransition());
+        public virtual void GetAnimationClips(List<AnimationClip> clips) {
+            clips.GatherFromSource(GetTransition());
+        }
 
         /************************************************************************************************************************/
 #if UNITY_EDITOR
@@ -145,12 +141,13 @@ namespace Animancer
         [UnityEditor.MenuItem(
             itemName: CreateFromSelectionMenu,
             validate = true)]
-        private static bool ValidateCreateFromSelection()
-        {
+        private static bool ValidateCreateFromSelection() {
             var selection = UnityEditor.Selection.objects;
-            foreach (var item in selection)
-                if (TryCreateTransitionAttribute.CanCreateAndSave(item))
+            foreach (var item in selection) {
+                if (TryCreateTransitionAttribute.CanCreateAndSave(item)) {
                     return true;
+                }
+            }
 
             return false;
         }
@@ -158,11 +155,11 @@ namespace Animancer
         [UnityEditor.MenuItem(
             itemName: CreateFromSelectionMenu,
             priority = Strings.AssetMenuOrder + 2)]
-        private static void CreateFromSelection()
-        {
+        private static void CreateFromSelection() {
             var selection = UnityEditor.Selection.objects;
-            foreach (var item in selection)
+            foreach (var item in selection) {
                 TryCreateTransitionAttribute.TryCreateTransitionAsset(item, true);
+            }
         }
 
         /************************************************************************************************************************/

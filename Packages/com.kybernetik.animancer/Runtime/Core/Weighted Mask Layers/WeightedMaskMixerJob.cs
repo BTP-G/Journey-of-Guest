@@ -8,8 +8,7 @@ using UnityEngine.Animations;
 using Unity.Burst;
 #endif
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>
     /// An <see cref="IAnimationJob"/> which mixes its inputs based on individual <see cref="boneWeights"/>.
     /// </summary>
@@ -20,8 +19,7 @@ namespace Animancer
 #endif
         )]
 #endif
-    public struct WeightedMaskMixerJob : IAnimationJob
-    {
+    public struct WeightedMaskMixerJob : IAnimationJob {
         /************************************************************************************************************************/
 
         /// <summary>The number of layers being mixed.</summary>
@@ -49,30 +47,31 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        readonly void IAnimationJob.ProcessRootMotion(AnimationStream output)
-        {
+        readonly void IAnimationJob.ProcessRootMotion(AnimationStream output) {
             var input = output.GetInputStream(0);
 
             var velocity = input.velocity;
             var angularVelocity = input.angularVelocity;
 
             var hasRootMotionWeights = rootMotionWeights.IsCreated;
-            if (hasRootMotionWeights)
-            {
+            if (hasRootMotionWeights) {
                 var baseLayerWeight = rootMotionWeights[0];
                 velocity *= baseLayerWeight;
                 angularVelocity *= baseLayerWeight;
             }
 
-            for (int i = 1; i < layerCount; i++)// Start at 1.
+            for (var i = 1; i < layerCount; i++)// Start at 1.
             {
                 input = output.GetInputStream(i);
-                if (!input.isValid)
+                if (!input.isValid) {
                     continue;
+                }
 
                 var layerWeight = output.GetInputWeight(i);
-                if (hasRootMotionWeights)
+                if (hasRootMotionWeights) {
                     layerWeight *= rootMotionWeights[i];
+                }
+
                 velocity = Vector3.LerpUnclamped(
                     velocity,
                     input.velocity,
@@ -90,10 +89,8 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        readonly void IAnimationJob.ProcessAnimation(AnimationStream output)
-        {
-            if (layerCount == 2)
-            {
+        readonly void IAnimationJob.ProcessAnimation(AnimationStream output) {
+            if (layerCount == 2) {
                 ProcessAnimation2Layers(output);
                 return;
             }
@@ -106,31 +103,32 @@ namespace Animancer
 
             var input = output.GetInputStream(0);
 
-            for (var i = 0; i < transformCount; i++)
-            {
+            for (var i = 0; i < transformCount; i++) {
                 var transform = boneTransforms[i];
                 localPositions[i] = transform.GetLocalPosition(input);
                 localRotations[i] = transform.GetLocalRotation(input);
             }
 
-            for (int iLayer = 1; iLayer < layerCount; iLayer++)// Start at 1.
+            for (var iLayer = 1; iLayer < layerCount; iLayer++)// Start at 1.
             {
                 input = output.GetInputStream(iLayer);
-                if (!input.isValid)
+                if (!input.isValid) {
                     break;
+                }
 
                 var layerWeight = output.GetInputWeight(iLayer);
-                if (layerWeight == 0)
+                if (layerWeight == 0) {
                     continue;
+                }
 
                 var weightOffset = (iLayer - 1) * transformCount;
 
-                for (var iTransform = 0; iTransform < transformCount; iTransform++)
-                {
+                for (var iTransform = 0; iTransform < transformCount; iTransform++) {
                     var transform = boneTransforms[iTransform];
                     var weight = layerWeight * boneWeights[weightOffset + iTransform];
-                    if (weight == 0)
+                    if (weight == 0) {
                         continue;
+                    }
 
                     localPositions[iTransform] = Vector3.LerpUnclamped(
                         localPositions[iTransform],
@@ -144,8 +142,7 @@ namespace Animancer
                 }
             }
 
-            for (var i = 0; i < transformCount; i++)
-            {
+            for (var i = 0; i < transformCount; i++) {
                 var transform = boneTransforms[i];
                 transform.SetLocalPosition(output, localPositions[i]);
                 transform.SetLocalRotation(output, localRotations[i]);
@@ -158,17 +155,14 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Blends the layers in an optimized way when there are only 2.</summary>
-        private readonly void ProcessAnimation2Layers(AnimationStream output)
-        {
+        private readonly void ProcessAnimation2Layers(AnimationStream output) {
             var input0 = output.GetInputStream(0);
             var input1 = output.GetInputStream(1);
 
-            if (input1.isValid)
-            {
+            if (input1.isValid) {
                 var layerWeight = output.GetInputWeight(1);
                 var transformCount = boneTransforms.Length;
-                for (var i = 0; i < transformCount; i++)
-                {
+                for (var i = 0; i < transformCount; i++) {
                     var transform = boneTransforms[i];
                     var weight = layerWeight * boneWeights[i];
 
@@ -180,12 +174,9 @@ namespace Animancer
                     var rotation1 = transform.GetLocalRotation(input1);
                     transform.SetLocalRotation(output, Quaternion.SlerpUnclamped(rotation0, rotation1, weight));
                 }
-            }
-            else
-            {
+            } else {
                 var transformCount = boneTransforms.Length;
-                for (var i = 0; i < transformCount; i++)
-                {
+                for (var i = 0; i < transformCount; i++) {
                     var transform = boneTransforms[i];
                     transform.SetLocalPosition(output, transform.GetLocalPosition(input0));
                     transform.SetLocalRotation(output, transform.GetLocalRotation(input0));

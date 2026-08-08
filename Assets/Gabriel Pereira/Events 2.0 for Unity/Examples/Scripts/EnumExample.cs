@@ -1,6 +1,5 @@
-﻿public enum EnumExample
-{
-	FIRST,
-	SECOND,
-	THIRD
+public enum EnumExample {
+    FIRST,
+    SECOND,
+    THIRD
 }

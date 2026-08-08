@@ -34,8 +34,7 @@ namespace Animancer.Units.Editor
     /// https://kybernetik.com.au/animancer/api/Animancer.Units.Editor/CompactUnitConversionCache
     /// https://kybernetik.com.au/inspector-gadgets/api/InspectorGadgets.Editor/CompactUnitConversionCache
     /// 
-    public class CompactUnitConversionCache
-    {
+    public class CompactUnitConversionCache {
         /************************************************************************************************************************/
 
         /// <summary>Should the fields show approximations if the value is too long for the GUI?</summary>
@@ -96,8 +95,7 @@ namespace Animancer.Units.Editor
         /************************************************************************************************************************/
 
         /// <summary>Creates a new <see cref="CompactUnitConversionCache"/>.</summary>
-        public CompactUnitConversionCache(string suffix)
-        {
+        public CompactUnitConversionCache(string suffix) {
             Suffix = suffix;
             ApproximateSuffix = "~" + Suffix;
             ConvertedZero = "0" + Suffix;
@@ -112,19 +110,21 @@ namespace Animancer.Units.Editor
         /// Returns a cached string representing the `value` trimmed to fit within the `width` (if necessary)
         /// and with the <see cref="Suffix"/> added on the end.
         /// </summary>
-        public string Convert(float value, float width)
-        {
-            if (value == 0)
+        public string Convert(float value, float width) {
+            if (value == 0) {
                 return ConvertedZero;
-            else if (float.IsNaN(value))
+            } else if (float.IsNaN(value)) {
                 return ConvertedNaN;
+            }
 
-            if (!ShowApproximations)
+            if (!ShowApproximations) {
                 return GetCache(0).Convert(value);
+            }
 
-            if (value < SmallExponentialThreshold &&
-                value > -SmallExponentialThreshold)
+            if (value is < SmallExponentialThreshold and
+                > -SmallExponentialThreshold) {
                 return value > 0 ? ConvertedSmallPositive : ConvertedSmallNegative;
+            }
 
             var index = CalculateCacheIndex(value, width);
             return GetCache(index).Convert(value);
@@ -133,8 +133,7 @@ namespace Animancer.Units.Editor
         /************************************************************************************************************************/
 
         /// <summary>Calculate the index of the cache to use for the given parameters.</summary>
-        private int CalculateCacheIndex(float value, float width)
-        {
+        private int CalculateCacheIndex(float value, float width) {
             //if (value > LargeExponentialThreshold ||
             //    value < -LargeExponentialThreshold)
             //    return 0;
@@ -142,33 +141,35 @@ namespace Animancer.Units.Editor
             var valueString = value.ToStringCached();
 
             // It the approximated string wouldn't be shorter than the original, don't approximate.
-            if (valueString.Length < 2 + ApproximateSuffix.Length)
+            if (valueString.Length < 2 + ApproximateSuffix.Length) {
                 return 0;
+            }
 
-            if (_SuffixWidth == 0)
-            {
-                if (_WidthCache == null)
-                {
+            if (_SuffixWidth == 0) {
+                if (_WidthCache == null) {
                     _WidthCache = ConversionCache.CreateWidthCache(EditorStyles.numberField);
                     _FieldPadding = EditorStyles.numberField.padding.horizontal;
                     _ApproximateSymbolWidth = _WidthCache.Convert("~") - _FieldPadding;
                 }
 
-                if (!string.IsNullOrWhiteSpace(Suffix))
+                if (!string.IsNullOrWhiteSpace(Suffix)) {
                     _SuffixWidth = _WidthCache.Convert(Suffix);
+                }
             }
 
             // If the field is wide enough to fit the full value, don't approximate.
-            width -= _FieldPadding + _ApproximateSymbolWidth * 0.75f;
+            width -= _FieldPadding + (_ApproximateSymbolWidth * 0.75f);
             var valueWidth = _WidthCache.Convert(valueString) + _SuffixWidth;
-            if (valueWidth <= width)
+            if (valueWidth <= width) {
                 return 0;
+            }
 
             // If the number of allowed characters would include the full value, don't approximate.
             var suffixedLength = valueString.Length + Suffix.Length;
             var allowedCharacters = (int)(suffixedLength * width / valueWidth);
-            if (allowedCharacters + 2 >= suffixedLength)
+            if (allowedCharacters + 2 >= suffixedLength) {
                 return 0;
+            }
 
             return allowedCharacters;
         }
@@ -176,41 +177,37 @@ namespace Animancer.Units.Editor
         /************************************************************************************************************************/
 
         /// <summary>Creates and returns a cache for the specified `characterCount`.</summary>
-        private ConversionCache<float, string> GetCache(int characterCount)
-        {
-            while (Caches.Count <= characterCount)
+        private ConversionCache<float, string> GetCache(int characterCount) {
+            while (Caches.Count <= characterCount) {
                 Caches.Add(null);
+            }
 
             var cache = Caches[characterCount];
-            if (cache == null)
-            {
-                if (characterCount == 0)
-                {
-                    cache = new((value) =>
-                    {
+            if (cache == null) {
+                if (characterCount == 0) {
+                    cache = new((value) => {
                         return value.ToStringCached() + Suffix;
                     });
-                }
-                else
-                {
-                    cache = new((value) =>
-                    {
+                } else {
+                    cache = new((value) => {
                         var valueString = value.ToStringCached();
 
-                        if (value > LargeExponentialThreshold ||
-                            value < -LargeExponentialThreshold)
+                        if (value is > LargeExponentialThreshold or
+                            < -LargeExponentialThreshold) {
                             goto IsExponential;
+                        }
 
                         _DecimalSeparator ??= CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
 
                         var decimalIndex = valueString.IndexOf(_DecimalSeparator);
-                        if (decimalIndex < 0 || decimalIndex > characterCount)
+                        if (decimalIndex < 0 || decimalIndex > characterCount) {
                             goto IsExponential;
+                        }
 
                         // Not exponential.
                         return valueString[..characterCount] + ApproximateSuffix;
 
-                        IsExponential:
+                    IsExponential:
                         var digits = Math.Max(0, characterCount - ApproximateSuffix.Length - 1);
                         var format = GetExponentialFormat(digits);
                         valueString = value.ToString(format);
@@ -230,25 +227,25 @@ namespace Animancer.Units.Editor
         private static List<string> _ExponentialFormats;
 
         /// <summary>Returns a format string to include the specified number of `digits` in an exponential number.</summary>
-        public static string GetExponentialFormat(int digits)
-        {
+        public static string GetExponentialFormat(int digits) {
             _ExponentialFormats ??= new();
 
-            while (_ExponentialFormats.Count <= digits)
+            while (_ExponentialFormats.Count <= digits) {
                 _ExponentialFormats.Add("g" + _ExponentialFormats.Count);
+            }
 
             return _ExponentialFormats[digits];
         }
 
         /************************************************************************************************************************/
 
-        private static void TrimExponential(ref string valueString)
-        {
+        private static void TrimExponential(ref string valueString) {
             var length = valueString.Length;
             if (length <= 4 ||
                 valueString[length - 4] != 'e' ||
-                valueString[length - 2] != '0')
+                valueString[length - 2] != '0') {
                 return;
+            }
 
             valueString =
                 valueString[..(length - 2)] +

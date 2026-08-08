@@ -2,8 +2,7 @@
 
 using System;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>[Editor-Conditional]
     /// Specifies a custom display label for the <c>Thresholds</c> column of a mixer transition.
     /// </summary>
@@ -11,8 +10,7 @@ namespace Animancer
     /// 
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Class | AttributeTargets.Struct, Inherited = true)]
     [System.Diagnostics.Conditional(Strings.UnityEditor)]
-    public sealed class ThresholdLabelAttribute : Attribute
-    {
+    public sealed class ThresholdLabelAttribute : Attribute {
         /************************************************************************************************************************/
 
 #if UNITY_EDITOR
@@ -23,8 +21,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Creates a new <see cref="ThresholdLabelAttribute"/>.</summary>
-        public ThresholdLabelAttribute(string label)
-        {
+        public ThresholdLabelAttribute(string label) {
 #if UNITY_EDITOR
             Label = label;
 #endif

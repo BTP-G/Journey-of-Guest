@@ -6,11 +6,9 @@ using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Animancer.Editor.Previews
-{
+namespace Animancer.Editor.Previews {
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor.Previews/TransitionPreviewWindow
-    partial class TransitionPreviewWindow
-    {
+    public partial class TransitionPreviewWindow {
         /// <summary>[Internal] Custom Inspector for the <see cref="TransitionPreviewWindow"/>.</summary>
         /// <remarks>
         /// <strong>Documentation:</strong>
@@ -18,8 +16,7 @@ namespace Animancer.Editor.Previews
         /// Previews</see>
         /// </remarks>
         [CustomEditor(typeof(TransitionPreviewWindow))]
-        internal class Inspector : UnityEditor.Editor
-        {
+        internal class Inspector : UnityEditor.Editor {
             /************************************************************************************************************************/
 
             private static readonly string[]
@@ -41,25 +38,25 @@ namespace Animancer.Editor.Previews
 
             /************************************************************************************************************************/
 
-            public override bool UseDefaultMargins()
-                => false;
+            public override bool UseDefaultMargins() {
+                return false;
+            }
 
             /************************************************************************************************************************/
 
-            public override void OnInspectorGUI()
-            {
+            public override void OnInspectorGUI() {
                 GUILayout.Space(AnimancerGUI.StandardSpacing * 2);
 
                 Target = (TransitionPreviewWindow)target;
 
-                if (Event.current.type == EventType.MouseDown)
+                if (Event.current.type == EventType.MouseDown) {
                     Target.ShowTab();
+                }
 
                 _CurrentTab = GUILayout.Toolbar(_CurrentTab, TabNames);
                 _CurrentTab = Mathf.Clamp(_CurrentTab, 0, TabNames.Length - 1);
 
-                switch (_CurrentTab)
-                {
+                switch (_CurrentTab) {
                     case PreviewTab: DoPreviewInspectorGUI(); break;
                     case SettingsTab: TransitionPreviewSettings.DoInspectorGUI(); break;
                     default: GUILayout.Label("Tab index is out of bounds"); break;
@@ -68,10 +65,8 @@ namespace Animancer.Editor.Previews
 
             /************************************************************************************************************************/
 
-            private void DoPreviewInspectorGUI()
-            {
-                if (!Target._TransitionProperty.IsValid())
-                {
+            private void DoPreviewInspectorGUI() {
+                if (!Target._TransitionProperty.IsValid()) {
                     EditorGUILayout.HelpBox("No target property", MessageType.Info, true);
                     Target.DestroyTransitionProperty();
                     return;
@@ -82,8 +77,7 @@ namespace Animancer.Editor.Previews
                 Target._Animations.DoGUI();
 
                 var animancer = Target._Scene.PreviewObject.Graph;
-                if (animancer != null)
-                {
+                if (animancer != null) {
                     PlayableDrawer.DoGUI(animancer.Component);
                     AnimancerGUI.SetGuiChanged(animancer.IsGraphPlaying);
                 }
@@ -95,13 +89,11 @@ namespace Animancer.Editor.Previews
             public const string CloseTooltip = "Close the Transition Preview Window";
 
             /// <summary>Draws the target object and path of the <see cref="TransitionProperty"/>.</summary>
-            private void DoTransitionPropertyGUI()
-            {
+            private void DoTransitionPropertyGUI() {
                 var property = Target._TransitionProperty;
                 property.Update();
 
-                using (new EditorGUI.DisabledScope(true))
-                {
+                using (new EditorGUI.DisabledScope(true)) {
                     EditorGUI.showMixedValue = property.TargetObjects.Length > 1;
                     EditorGUILayout.ObjectField(property.TargetObject, typeof(Object), true);
                     EditorGUI.showMixedValue = false;
@@ -112,10 +104,8 @@ namespace Animancer.Editor.Previews
 
                         GUI.enabled = true;
 
-                        using (var label = PooledGUIContent.Acquire("Close", CloseTooltip))
-                        {
-                            if (GUILayout.Button(label, EditorStyles.miniButton, AnimancerGUI.DontExpandWidth))
-                            {
+                        using (var label = PooledGUIContent.Acquire("Close", CloseTooltip)) {
+                            if (GUILayout.Button(label, EditorStyles.miniButton, AnimancerGUI.DontExpandWidth)) {
                                 Target.Close();
                                 GUIUtility.ExitGUI();
                             }
@@ -127,8 +117,7 @@ namespace Animancer.Editor.Previews
 
             /************************************************************************************************************************/
 
-            private void DoTransitionGUI()
-            {
+            private void DoTransitionGUI() {
                 var property = Target._TransitionProperty;
 
                 var isExpanded = property.Property.isExpanded;
@@ -146,8 +135,9 @@ namespace Animancer.Editor.Previews
                 EditorGUI.BeginChangeCheck();
                 EditorGUI.PropertyField(area, property, true);
                 property.Property.isExpanded = isExpanded;
-                if (EditorGUI.EndChangeCheck())
+                if (EditorGUI.EndChangeCheck()) {
                     property.ApplyModifiedProperties();
+                }
             }
 
             /************************************************************************************************************************/

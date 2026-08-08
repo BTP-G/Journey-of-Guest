@@ -9,8 +9,7 @@ using UnityEngine;
 using UnityEngine.Animations;
 using UnityEngine.Playables;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>
     /// A layer on which animations can play with their states managed independantly of other layers while blending the
     /// output with those layers.
@@ -27,23 +26,24 @@ namespace Animancer
     /// 
     public class AnimancerLayer : AnimancerNode,
         IAnimationClipCollection,
-        ICopyable<AnimancerLayer>
-    {
+        ICopyable<AnimancerLayer> {
         /************************************************************************************************************************/
         #region Fields and Properties
         /************************************************************************************************************************/
 
         /// <summary>[Internal] Creates a new <see cref="AnimancerLayer"/>.</summary>
-        protected internal AnimancerLayer(AnimancerGraph graph, int index)
-        {
+        protected internal AnimancerLayer(AnimancerGraph graph, int index) {
             Graph = graph;
             Parent = graph;
             Index = index;
 
-            if (ApplyParentAnimatorIK)
+            if (ApplyParentAnimatorIK) {
                 _ApplyAnimatorIK = graph.ApplyAnimatorIK;
-            if (ApplyParentFootIK)
+            }
+
+            if (ApplyParentFootIK) {
                 _ApplyFootIK = graph.ApplyFootIK;
+            }
 
             CreatePlayable();
 
@@ -53,8 +53,9 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Creates and assigns the <see cref="AnimationMixerPlayable"/> managed by this layer.</summary>
-        protected override void CreatePlayable(out Playable playable)
-            => playable = AnimationMixerPlayable.Create(Graph._PlayableGraph, _Capacity);
+        protected override void CreatePlayable(out Playable playable) {
+            playable = AnimationMixerPlayable.Create(Graph._PlayableGraph, _Capacity);
+        }
 
         /************************************************************************************************************************/
 
@@ -100,14 +101,13 @@ namespace Animancer
         /// </summary>
         /// <remarks>Starts at the <see cref="DefaultCapacity"/> and doubles each time it needs to expand.</remarks>
         /// <exception cref="ArgumentException">This value cannot be set lower than the <see cref="ChildCount"/>.</exception>
-        public int Capacity
-        {
+        public int Capacity {
             get => _Capacity;
-            set
-            {
-                if (value < ChildCount)
+            set {
+                if (value < ChildCount) {
                     throw new ArgumentException(
                         $"{nameof(Capacity)} ({value}) cannot be smaller than {nameof(ChildCount)} ({ChildCount}).");
+                }
 
                 _Capacity = value;
                 _Playable.SetInputCount(value);
@@ -126,11 +126,9 @@ namespace Animancer
         /// <para></para>
         /// Each time this property changes, the <see cref="CommandCount"/> is incremented.
         /// </remarks>
-        public AnimancerState CurrentState
-        {
+        public AnimancerState CurrentState {
             get => _CurrentState;
-            private set
-            {
+            private set {
                 _CurrentState = value;
                 IncrementCommandCount();
             }
@@ -145,16 +143,16 @@ namespace Animancer
 
         /// <summary>Increases the <see cref="CommandCount"/> by 1.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void IncrementCommandCount()
-            => CommandCount++;
+        public void IncrementCommandCount() {
+            CommandCount++;
+        }
 
         /************************************************************************************************************************/
 
         /// <summary>[Pro-Only]
         /// Determines whether this layer is set to additive blending. Otherwise it will override any earlier layers.
         /// </summary>
-        public bool IsAdditive
-        {
+        public bool IsAdditive {
             get => Graph.Layers.IsAdditive(Index);
             set => Graph.Layers.SetAdditive(Index, value);
         }
@@ -170,8 +168,7 @@ namespace Animancer
         /// This property doesn't check if the mask is the same
         /// so repeatedly assigning the same thing will simply waste performance.
         /// </remarks>
-        public AvatarMask Mask
-        {
+        public AvatarMask Mask {
             get => _Mask;
             set => Graph.Layers.SetMask(Index, value);
         }
@@ -182,14 +179,11 @@ namespace Animancer
         /// The average velocity of the root motion of all currently playing animations, taking their current
         /// <see cref="AnimancerNode.Weight"/> into account.
         /// </summary>
-        public Vector3 AverageVelocity
-        {
-            get
-            {
+        public Vector3 AverageVelocity {
+            get {
                 var velocity = default(Vector3);
 
-                for (int i = ActiveStatesInternal.Count - 1; i >= 0; i--)
-                {
+                for (var i = ActiveStatesInternal.Count - 1; i >= 0; i--) {
                     var state = ActiveStatesInternal[i];
                     velocity += state.AverageVelocity * state.Weight;
                 }
@@ -210,8 +204,9 @@ namespace Animancer
 
         /// <summary>Returns the state connected to the specified `index` as a child of this layer.</summary>
         /// <remarks>This method is identical to <see cref="this[int]"/>.</remarks>
-        public override AnimancerState GetChild(int index)
-            => States[index];
+        public override AnimancerState GetChild(int index) {
+            return States[index];
+        }
 
         /// <summary>Returns the state connected to the specified `index` as a child of this layer.</summary>
         /// <remarks>This indexer is identical to <see cref="GetChild(int)"/>.</remarks>
@@ -221,47 +216,47 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Connects the `state` to this layer at its <see cref="AnimancerNode.Index"/>.</summary>
-        protected internal override void OnAddChild(AnimancerState state)
-        {
+        protected internal override void OnAddChild(AnimancerState state) {
             Validate.AssertGraph(state, Graph);
 
             var index = States.Count;
             state.Index = index;
             States.Add(state);
 
-            if (_Capacity <= index)
-            {
+            if (_Capacity <= index) {
                 _Capacity *= 2;
                 _Playable.SetInputCount(_Capacity);
             }
 
             // If the state should be active, deactivate and properly add it to the active list.
-            if (state.TryDeactivate())
+            if (state.TryDeactivate()) {
                 ActiveStatesInternal.Add(state);
+            }
 
-            if (Graph.KeepChildrenConnected)
+            if (Graph.KeepChildrenConnected) {
                 ConnectChildUnsafe(state.Index, state);
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <summary>Disconnects the `state` from this layer at its <see cref="AnimancerNode.Index"/>.</summary>
-        protected internal override void OnRemoveChild(AnimancerState state)
-        {
+        protected internal override void OnRemoveChild(AnimancerState state) {
             var index = state.Index;
             Validate.AssertCanRemoveChild(state, States, States.Count);
 
-            if (ActiveStatesInternal.Remove(state))
+            if (ActiveStatesInternal.Remove(state)) {
                 state._ActiveIndex = 0;
+            }
 
             if (Graph._PlayableGraph.IsValid() &&
-                _Playable.GetInput(index).IsValid())
+                _Playable.GetInput(index).IsValid()) {
                 Graph._PlayableGraph.Disconnect(_Playable, index);
+            }
 
             // Swap the last state into the place of the one that was just removed.
             var last = States.Count - 1;
-            if (index < last)
-            {
+            if (index < last) {
                 state = States[last];
 
                 DisconnectChildSafe(last);
@@ -269,8 +264,9 @@ namespace Animancer
                 States[index] = state;
                 state.Index = index;
 
-                if (state.IsActive || Graph.KeepChildrenConnected)
+                if (state.IsActive || Graph.KeepChildrenConnected) {
                     ConnectChildUnsafe(index, state);
+                }
             }
 
             States.RemoveAt(last);
@@ -279,30 +275,32 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected internal override void ApplyChildActive(AnimancerState state, bool setActive)
-        {
-            if (setActive)
+        protected internal override void ApplyChildActive(AnimancerState state, bool setActive) {
+            if (setActive) {
                 ActiveStatesInternal.Add(state);
-            else
+            } else {
                 ActiveStatesInternal.Remove(state);
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <summary>[Internal] Connects all states in this layer.</summary>
-        internal void ConnectAllStates()
-        {
-            for (int i = ChildCount - 1; i >= 0; i--)
-                if (!_Playable.GetInput(i).IsValid())
+        internal void ConnectAllStates() {
+            for (var i = ChildCount - 1; i >= 0; i--) {
+                if (!_Playable.GetInput(i).IsValid()) {
                     ConnectChildUnsafe(i, States[i]);
+                }
+            }
         }
 
         /// <summary>[Internal] Disconnects all states which are not <see cref="AnimancerState.IsActive"/>.</summary>
-        internal void DisconnectInactiveStates()
-        {
-            for (int i = ChildCount - 1; i >= 0; i--)
-                if (!States[i].IsActive)
+        internal void DisconnectInactiveStates() {
+            for (var i = ChildCount - 1; i >= 0; i--) {
+                if (!States[i].IsActive) {
                     DisconnectChildSafe(i);
+                }
+            }
         }
 
         /************************************************************************************************************************/
@@ -310,44 +308,46 @@ namespace Animancer
         /// <summary>[Internal]
         /// Checks if any events should be invoked on any of the <see cref="ActiveStates"/>.
         /// </summary>
-        internal void UpdateEvents()
-        {
-            if (Weight <= 0)
+        internal void UpdateEvents() {
+            if (Weight <= 0) {
                 return;
+            }
 
             if (FadeGroup != null &&
                 FadeGroup.GetTargetWeight(this) == 0 &&
-                !AnimancerState.RaiseEventsDuringFadeOut)
+                !AnimancerState.RaiseEventsDuringFadeOut) {
                 return;
+            }
 
-            for (int i = ActiveStatesInternal.Count - 1; i >= 0; i--)
+            for (var i = ActiveStatesInternal.Count - 1; i >= 0; i--) {
                 ActiveStatesInternal[i].UpdateEvents();
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <summary>[Internal] Cancels the current <see cref="FadeGroup"/> so it can be object pooled.</summary>
-        internal void OnGraphDestroyed()
-        {
+        internal void OnGraphDestroyed() {
             CurrentState?.FadeGroup?.Cancel();
         }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override FastEnumerator<AnimancerState> GetEnumerator()
-            => new(States);
+        public override FastEnumerator<AnimancerState> GetEnumerator() {
+            return new(States);
+        }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public sealed override void CopyFrom(AnimancerNode copyFrom, CloneContext context)
-            => this.CopyFromBase(copyFrom, context);
+        public sealed override void CopyFrom(AnimancerNode copyFrom, CloneContext context) {
+            this.CopyFromBase(copyFrom, context);
+        }
 
         /// <summary>Copies the details of `copyFrom` into this layer.</summary>
         /// <remarks>Call <see cref="CopyStatesFrom"/> (as well) if you want to copy the states.</remarks>
-        public virtual void CopyFrom(AnimancerLayer copyFrom, CloneContext context)
-        {
+        public virtual void CopyFrom(AnimancerLayer copyFrom, CloneContext context) {
             base.CopyFrom(copyFrom, context);
 
             IsAdditive = copyFrom.IsAdditive;
@@ -366,39 +366,44 @@ namespace Animancer
         public void CopyStatesFrom(
             AnimancerLayer copyFrom,
             CloneContext context,
-            bool includeInactive = false)
-        {
-            if (copyFrom == this)
+            bool includeInactive = false) {
+            if (copyFrom == this) {
                 return;
+            }
 
-            for (int i = ActiveStatesInternal.Count - 1; i >= 0; i--)
+            for (var i = ActiveStatesInternal.Count - 1; i >= 0; i--) {
                 ActiveStatesInternal[i].Stop();
+            }
 
             IncrementCommandCount();
 
-            if (!includeInactive && Weight == 0)
+            if (!includeInactive && Weight == 0) {
                 return;
+            }
 
             IReadOnlyList<AnimancerState> copyFromStates = includeInactive
                 ? copyFrom.States
                 : copyFrom.ActiveStatesInternal;
 
             var stateCount = copyFromStates.Count;
-            for (int i = 0; i < stateCount; i++)
-            {
+            for (var i = 0; i < stateCount; i++) {
                 var state = copyFromStates[i];
 
                 // If the clone already exists, copy over the state details.
-                if (context.TryGetClone(state, out var clone))
+                if (context.TryGetClone(state, out var clone)) {
                     clone.CopyFrom(state, context);
-                else// Otherwise, create a new clone.
+                } else// Otherwise, create a new clone.
+                {
                     clone = context.Clone(state);
+                }
 
-                if (clone.Parent != this)
+                if (clone.Parent != this) {
                     clone.SetParent(this);
+                }
 
-                if (copyFrom.CurrentState == state)
+                if (copyFrom.CurrentState == state) {
                     CurrentState = clone;
+                }
 
                 // This should prevent the clones from being one frame behind after the next animation update
                 // but it seems to only work for some states and not others.
@@ -416,16 +421,15 @@ namespace Animancer
         /// <remarks>
         /// <see cref="AnimancerGraph.GetKey"/> is used to determine the <see cref="AnimancerState.Key"/>.
         /// </remarks>
-        public ClipState CreateState(AnimationClip clip)
-            => CreateState(Graph.GetKey(clip), clip);
+        public ClipState CreateState(AnimationClip clip) {
+            return CreateState(Graph.GetKey(clip), clip);
+        }
 
         /// <summary>
         /// Creates and returns a new <see cref="ClipState"/> to play the `clip` and registers it with the `key`.
         /// </summary>
-        public ClipState CreateState(object key, AnimationClip clip)
-        {
-            var state = new ClipState(clip)
-            {
+        public ClipState CreateState(object key, AnimationClip clip) {
+            var state = new ClipState(clip) {
                 _Key = key,
             };
             state.SetParent(this);
@@ -441,49 +445,44 @@ namespace Animancer
         /// key and try to look up another state with it. This allows it to associate multiple states with the same
         /// original key.
         /// </remarks>
-        public AnimancerState GetState(ref object key)
-        {
-            if (key == null)
+        public AnimancerState GetState(ref object key) {
+            if (key == null) {
                 throw new ArgumentNullException(nameof(key));
+            }
 
             // Check through any states backwards in the key chain.
             var earlierKey = key;
-            while (earlierKey is AnimancerState keyState)
-            {
+            while (earlierKey is AnimancerState keyState) {
                 if (keyState.Parent == this)// If the state is on this layer, return it.
                 {
                     key = keyState.Key;
                     return keyState;
-                }
-                else if (keyState.Parent == null)// If the state is on no layer, attach it to this one and return it.
-                {
+                } else if (keyState.Parent == null)// If the state is on no layer, attach it to this one and return it.
+                  {
                     key = keyState.Key;
                     keyState.SetParent(this);
                     return keyState;
-                }
-                else// Otherwise the state is on a different layer.
-                {
+                } else// Otherwise the state is on a different layer.
+                  {
                     earlierKey = keyState.Key;
                 }
             }
 
-            while (true)
-            {
+            while (true) {
                 // If no state is registered with the key, return null.
-                if (!Graph.States.TryGet(key, out var state))
+                if (!Graph.States.TryGet(key, out var state)) {
                     return null;
+                }
 
                 if (state.Parent == this)// If the state is on this layer, return it.
                 {
                     return state;
-                }
-                else if (state.Parent == null)// If the state is on no layer, attach it to this one and return it.
-                {
+                } else if (state.Parent == null)// If the state is on no layer, attach it to this one and return it.
+                  {
                     state.SetParent(this);
                     return state;
-                }
-                else// Otherwise the state is on a different layer.
-                {
+                } else// Otherwise the state is on a different layer.
+                  {
                     // Use it as the key and try to look up the next state in a chain.
                     key = state;
                 }
@@ -497,8 +496,7 @@ namespace Animancer
         /// <para></para>
         /// If you only want to create a single state, use <see cref="CreateState(AnimationClip)"/>.
         /// </summary>
-        public void CreateIfNew(AnimationClip clip0, AnimationClip clip1)
-        {
+        public void CreateIfNew(AnimationClip clip0, AnimationClip clip1) {
             GetOrCreateState(clip0);
             GetOrCreateState(clip1);
         }
@@ -508,8 +506,7 @@ namespace Animancer
         /// <para></para>
         /// If you only want to create a single state, use <see cref="CreateState(AnimationClip)"/>.
         /// </summary>
-        public void CreateIfNew(AnimationClip clip0, AnimationClip clip1, AnimationClip clip2)
-        {
+        public void CreateIfNew(AnimationClip clip0, AnimationClip clip1, AnimationClip clip2) {
             GetOrCreateState(clip0);
             GetOrCreateState(clip1);
             GetOrCreateState(clip2);
@@ -520,8 +517,7 @@ namespace Animancer
         /// <para></para>
         /// If you only want to create a single state, use <see cref="CreateState(AnimationClip)"/>.
         /// </summary>
-        public void CreateIfNew(AnimationClip clip0, AnimationClip clip1, AnimationClip clip2, AnimationClip clip3)
-        {
+        public void CreateIfNew(AnimationClip clip0, AnimationClip clip1, AnimationClip clip2, AnimationClip clip3) {
             GetOrCreateState(clip0);
             GetOrCreateState(clip1);
             GetOrCreateState(clip2);
@@ -533,17 +529,17 @@ namespace Animancer
         /// <para></para>
         /// If you only want to create a single state, use <see cref="CreateState(AnimationClip)"/>.
         /// </summary>
-        public void CreateIfNew(params AnimationClip[] clips)
-        {
-            if (clips == null)
+        public void CreateIfNew(params AnimationClip[] clips) {
+            if (clips == null) {
                 return;
+            }
 
             var count = clips.Length;
-            for (int i = 0; i < count; i++)
-            {
+            for (var i = 0; i < count; i++) {
                 var clip = clips[i];
-                if (clip != null)
+                if (clip != null) {
                     GetOrCreateState(clip);
+                }
             }
         }
 
@@ -559,21 +555,20 @@ namespace Animancer
         /// Note that the change is somewhat costly to performance to use with caution.
         /// </summary>
         /// <exception cref="ArgumentException"/>
-        public AnimancerState GetOrCreateState(AnimationClip clip, bool allowSetClip = false)
-            => GetOrCreateState(Graph.GetKey(clip), clip, allowSetClip);
+        public AnimancerState GetOrCreateState(AnimationClip clip, bool allowSetClip = false) {
+            return GetOrCreateState(Graph.GetKey(clip), clip, allowSetClip);
+        }
 
         /// <summary>
         /// Returns the state registered with the <see cref="IHasKey.Key"/> if there is one.
         /// Otherwise this method uses <see cref="ITransition.CreateState"/>
         /// to create a new one and registers it with that key before returning it.
         /// </summary>
-        public AnimancerState GetOrCreateState(ITransition transition)
-        {
+        public AnimancerState GetOrCreateState(ITransition transition) {
             var key = transition.Key;
             var state = GetState(ref key);
 
-            if (state == null)
-            {
+            if (state == null) {
                 state = transition.CreateState();
                 state._Key = key;
                 state.SetParent(this);
@@ -593,21 +588,17 @@ namespace Animancer
         /// <para></para>
         /// See also: <see cref="AnimancerStateDictionary.GetOrCreate(object, AnimationClip, bool)"/>.
         /// </remarks>
-        public AnimancerState GetOrCreateState(object key, AnimationClip clip, bool allowSetClip = false)
-        {
+        public AnimancerState GetOrCreateState(object key, AnimationClip clip, bool allowSetClip = false) {
             var state = GetState(ref key);
-            if (state == null)
+            if (state == null) {
                 return CreateState(key, clip);
+            }
 
             // If a state exists but has the wrong clip, either change it or complain.
-            if (!ReferenceEquals(state.Clip, clip))
-            {
-                if (allowSetClip)
-                {
+            if (!ReferenceEquals(state.Clip, clip)) {
+                if (allowSetClip) {
                     state.Clip = clip;
-                }
-                else
-                {
+                } else {
                     throw new ArgumentException(
                         AnimancerStateDictionary.GetClipMismatchError(key, state.Clip, clip));
                 }
@@ -618,14 +609,13 @@ namespace Animancer
 
         /// <summary>Returns the `state` if it's a child of this layer. Otherwise makes a clone of it.</summary>
         /// <remarks>The clone starts with 0 weight, no fade, and no events.</remarks>
-        public AnimancerState GetOrCreateState(AnimancerState state)
-        {
+        public AnimancerState GetOrCreateState(AnimancerState state) {
             var parent = state.Parent;
-            if (parent == this)
+            if (parent == this) {
                 return state;
+            }
 
-            if (parent == null)
-            {
+            if (parent == null) {
                 state.SetParent(this);
                 return state;
             }
@@ -635,8 +625,7 @@ namespace Animancer
 
             var stateOnThisLayer = GetState(ref key);
 
-            if (stateOnThisLayer == null)
-            {
+            if (stateOnThisLayer == null) {
                 stateOnThisLayer = state.Clone();
                 stateOnThisLayer._Weight = 0;
                 stateOnThisLayer.SharedEvents = null;
@@ -683,47 +672,37 @@ namespace Animancer
         /// The <see href="https://kybernetik.com.au/animancer/docs/manual/blending/fading/modes">Fade Modes</see>
         /// page explains why clones are created.
         /// </remarks>
-        public AnimancerState GetOrCreateWeightlessState(AnimancerState state)
-        {
-            if (state.Parent == null)
-            {
+        public AnimancerState GetOrCreateWeightlessState(AnimancerState state) {
+            if (state.Parent == null) {
                 state.Weight = 0;
                 goto GotState;
             }
 
             if (state.Parent == this &&
-                state.Weight <= WeightlessThreshold)
+                state.Weight <= WeightlessThreshold) {
                 goto GotState;
+            }
 
-            float lowestWeight = float.PositiveInfinity;
+            var lowestWeight = float.PositiveInfinity;
             AnimancerState lowestWeightState = null;
 
-            int cloneCount = 0;
+            var cloneCount = 0;
 
             // Use any earlier state that is weightless.
             var keyState = state;
-            while (true)
-            {
+            while (true) {
                 keyState = keyState.Key as AnimancerState;
-                if (keyState == null)
-                {
+                if (keyState == null) {
                     break;
-                }
-                else if (keyState.Parent == this)
-                {
-                    if (keyState.Weight <= WeightlessThreshold)
-                    {
+                } else if (keyState.Parent == this) {
+                    if (keyState.Weight <= WeightlessThreshold) {
                         state = keyState;
                         goto GotState;
-                    }
-                    else if (lowestWeight > keyState.Weight)
-                    {
+                    } else if (lowestWeight > keyState.Weight) {
                         lowestWeight = keyState.Weight;
                         lowestWeightState = keyState;
                     }
-                }
-                else if (keyState.Parent == null)
-                {
+                } else if (keyState.Parent == null) {
                     keyState.SetParent(this);
                     goto GotState;
                 }
@@ -731,8 +710,7 @@ namespace Animancer
                 cloneCount++;
             }
 
-            if (state.Parent == this)
-            {
+            if (state.Parent == this) {
                 lowestWeight = state.Weight;
                 lowestWeightState = state;
             }
@@ -742,19 +720,14 @@ namespace Animancer
             // If that state is not at low weight,
             // get or create another state registered using the previous state as a key.
             // Keep going through states in this manner until you find one at low weight.
-            while (true)
-            {
+            while (true) {
                 var key = (object)state;
 
-                if (!Graph.States.TryGet(key, out state))
-                {
-                    if (cloneCount >= MaxCloneCount && lowestWeightState != null)
-                    {
+                if (!Graph.States.TryGet(key, out state)) {
+                    if (cloneCount >= MaxCloneCount && lowestWeightState != null) {
                         state = lowestWeightState;
                         goto GotState;
-                    }
-                    else
-                    {
+                    } else {
 #if UNITY_ASSERTIONS
                         var cloneTimer = OptionalWarning.CloneComplexState.IsEnabled() && keyState is not ClipState
                             ? SimpleTimer.Start()
@@ -765,12 +738,12 @@ namespace Animancer
                         state.SetDebugName($"[{cloneCount + 1}] {keyState}");
                         state.Weight = 0;
                         state.Key = key;
-                        if (state.Parent != this)
+                        if (state.Parent != this) {
                             state.SetParent(this);
+                        }
 
 #if UNITY_ASSERTIONS
-                        if (cloneTimer.Count() > 0)
-                        {
+                        if (cloneTimer.Count() > 0) {
                             var milliseconds = cloneTimer.TotalTimeSeconds * 1000;
                             OptionalWarning.CloneComplexState.Log(
                                 $"Using {Strings.DocsURLs.FadeModes.AsHtmlLink($"{nameof(FadeMode)}.{nameof(FadeMode.FromStart)}")}" +
@@ -786,21 +759,14 @@ namespace Animancer
 
                         goto GotState;
                     }
-                }
-                else if (state.Parent == this)
-                {
-                    if (state.Weight <= WeightlessThreshold)
-                    {
+                } else if (state.Parent == this) {
+                    if (state.Weight <= WeightlessThreshold) {
                         goto GotState;
-                    }
-                    else if (lowestWeight > state.Weight)
-                    {
+                    } else if (lowestWeight > state.Weight) {
                         lowestWeight = state.Weight;
                         lowestWeightState = state;
                     }
-                }
-                else if (state.Parent == null)
-                {
+                } else if (state.Parent == null) {
                     state.SetParent(this);
                     goto GotState;
                 }
@@ -808,7 +774,7 @@ namespace Animancer
                 cloneCount++;
             }
 
-            GotState:
+        GotState:
 
             state.TimeD = 0;
 
@@ -819,12 +785,12 @@ namespace Animancer
 
         /// <summary>Destroys all states connected to this layer.</summary>
         /// <remarks>This operation cannot be undone.</remarks>
-        public void DestroyStates()
-        {
+        public void DestroyStates() {
             CurrentState?.FadeGroup?.Cancel();
 
-            for (int i = States.Count - 1; i >= 0; i--)
+            for (var i = States.Count - 1; i >= 0; i--) {
                 States[i].Destroy();
+            }
 
             States.Clear();
             CurrentState = null;
@@ -846,8 +812,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected internal override void OnStartFade()
-        {
+        protected internal override void OnStartFade() {
             IncrementCommandCount();
         }
 
@@ -867,8 +832,9 @@ namespace Animancer
         /// This method is safe to call repeatedly without checking whether the `clip` was already playing.
         /// </remarks>
         public AnimancerState Play(
-            AnimationClip clip)
-            => Play(GetOrCreateState(clip));
+            AnimationClip clip) {
+            return Play(GetOrCreateState(clip));
+        }
 
         /// <summary>Stops all other animations on the same layer, plays the `state`, and returns it.</summary>
         /// <remarks>
@@ -886,23 +852,24 @@ namespace Animancer
         /// It must be either null or a layer.
         /// </exception>
         public AnimancerState Play(
-            AnimancerState state)
-        {
+            AnimancerState state) {
 #if UNITY_ASSERTIONS
             AnimancerEvent.AssertEventPlayMismatch(Graph);
             AnimancerState.AssertNotExpectingFade(state);
 
-            if (state.Parent is AnimancerState)
+            if (state.Parent is AnimancerState) {
                 throw new InvalidOperationException(
                     $"A layer can't Play a state which is the child of another state." +
                     $"\n• State: {state}" +
                     $"\n• Parent: {state.Parent}" +
                     $"\n• Layer: {this}");
+            }
 #endif
 
             // If the layer is at 0 weight and not fading, set it to 1.
-            if (SetLayerWeightOnPlay && Weight == 0 && FadeGroup == null)
+            if (SetLayerWeightOnPlay && Weight == 0 && FadeGroup == null) {
                 Weight = 1;
+            }
 
             CurrentState?.FadeGroup?.Cancel();
 
@@ -910,18 +877,20 @@ namespace Animancer
 
             CurrentState = state;
 
-            for (int i = ActiveStatesInternal.Count - 1; i >= 0; i--)
-            {
+            for (var i = ActiveStatesInternal.Count - 1; i >= 0; i--) {
                 var otherState = ActiveStatesInternal[i];
-                if (otherState != state)
+                if (otherState != state) {
                     otherState.Stop();
+                }
             }
 
             // Similar to state.Play but more optimized.
             state.SetIsPlaying(true);
             state._Weight = 1;
-            if (!state.IsActive)
+            if (!state.IsActive) {
                 ActiveStatesInternal.Add(state);
+            }
+
             _Playable.ApplyChildWeight(state);
 
             return state;
@@ -950,13 +919,13 @@ namespace Animancer
         public AnimancerState Play(
             AnimationClip clip,
             float fadeDuration,
-            FadeMode mode = default)
-        {
+            FadeMode mode = default) {
             var key = Graph.GetKey(clip);
             var state = GetOrCreateState(key, clip);
 
-            if (Graph.Transitions != null)
+            if (Graph.Transitions != null) {
                 fadeDuration = Graph.Transitions.GetFadeDuration(this, key, fadeDuration);
+            }
 
             return Play(state, fadeDuration, mode);
         }
@@ -980,8 +949,7 @@ namespace Animancer
         public AnimancerState Play(
             AnimancerState state,
             float fadeDuration,
-            FadeMode mode = default)
-        {
+            FadeMode mode = default) {
 
             // Skip the fade if:
             if (fadeDuration <= 0 ||// There is no duration.
@@ -991,9 +959,10 @@ namespace Animancer
                 AnimancerState.SkipNextExpectFade();
                 state = Play(state);
 
-                if (mode == FadeMode.FromStart ||
-                    mode == FadeMode.NormalizedFromStart)
+                if (mode is FadeMode.FromStart or
+                    FadeMode.NormalizedFromStart) {
                     state.TimeD = 0;
+                }
 
                 return state;
             }
@@ -1009,16 +978,15 @@ namespace Animancer
 
             // If the layer is at or fading towards 0 weight, fade it in.
             // Otherwise it's probably at 1 weight or has been explicitly set or faded to some other weight.
-            if (TargetWeight == 0)
-            {
-                if (SetLayerWeightOnPlay)
+            if (TargetWeight == 0) {
+                if (SetLayerWeightOnPlay) {
                     StartFade(1, layerFadeDuration);
+                }
 
                 // If the layer has to fade in, play the state immediately.
                 // Even if we didn't start the fade in, do this anyway because having the
                 // state weights on a layer not add up to 1 gives bad results.
-                if (Weight == 0)
-                {
+                if (Weight == 0) {
                     AnimancerState.SkipNextExpectFade();
                     return Play(state);
                 }
@@ -1030,12 +998,10 @@ namespace Animancer
 
             // If the state is already playing or will finish fading in faster than this new fade,
             // continue the existing fade.
-            if (IsAlreadyFadingIn(state, fadeDuration))
-            {
+            if (IsAlreadyFadingIn(state, fadeDuration)) {
                 IncrementCommandCount();// Still pretend the fade was restarted.
-            }
-            else// Otherwise fade in the target state and fade out all others.
-            {
+            } else// Otherwise fade in the target state and fade out all others.
+              {
                 state.IsPlaying = true;
 
                 var fade = GetFade();
@@ -1051,14 +1017,15 @@ namespace Animancer
         /// <summary>Is the `state` already faded in or fading in with shorter than the given `fadeDuration`?</summary>
         private static bool IsAlreadyFadingIn(
             AnimancerState state,
-            float fadeDuration)
-        {
-            if (!state.IsPlaying)
+            float fadeDuration) {
+            if (!state.IsPlaying) {
                 return false;
+            }
 
             var fadeGroup = state.FadeGroup;
-            if (fadeGroup == null)
+            if (fadeGroup == null) {
                 return state.Weight == 1;
+            }
 
             return
                 fadeGroup.FadeIn.Node == state &&
@@ -1069,13 +1036,10 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Clears and reuses the existing fade if there is one. Otherwise gets one from the object pool.</summary>
-        private FadeGroup GetFade()
-        {
-            if (CurrentState != null)
-            {
+        private FadeGroup GetFade() {
+            if (CurrentState != null) {
                 var fade = CurrentState.FadeGroup;
-                if (fade != null)
-                {
+                if (fade != null) {
                     fade.FadeOutInternal.Clear();
                     fade.Easing = null;
                     return fade;
@@ -1098,10 +1062,11 @@ namespace Animancer
         /// This method is safe to call repeatedly without checking whether the `transition` was already playing.
         /// </remarks>
         public AnimancerState Play(
-            ITransition transition)
-            => Graph.Transitions != null
-            ? Graph.Transitions.Play(this, transition)
-            : Play(transition, transition.FadeDuration, transition.FadeMode);
+            ITransition transition) {
+            return Graph.Transitions != null
+                                                ? Graph.Transitions.Play(this, transition)
+                                                : Play(transition, transition.FadeDuration, transition.FadeMode);
+        }
 
         /// <summary>
         /// Creates a state for the `transition` if it didn't already exist, then calls
@@ -1114,8 +1079,7 @@ namespace Animancer
         public AnimancerState Play(
             ITransition transition,
             float fadeDuration,
-            FadeMode mode = default)
-        {
+            FadeMode mode = default) {
             var state = GetOrCreateState(transition);
             state = Play(state, fadeDuration, mode);
             transition.Apply(state);
@@ -1140,13 +1104,12 @@ namespace Animancer
         /// This method is safe to call repeatedly without checking whether the animation was already playing.
         /// </remarks>
         public AnimancerState TryPlay(
-            object key)
-        {
-            if (Graph.Transitions != null)
-            {
+            object key) {
+            if (Graph.Transitions != null) {
                 var transitionState = Graph.Transitions.TryPlay(this, key);
-                if (transitionState != null)
+                if (transitionState != null) {
                     return transitionState;
+                }
             }
 
             return Graph.States.TryGet(key, out var state)
@@ -1168,8 +1131,9 @@ namespace Animancer
         /// This method is safe to call repeatedly without checking whether the animation was already playing.
         /// </remarks>
         public AnimancerState TryPlay(
-            IHasKey hasKey)
-            => TryPlay(hasKey.Key);
+            IHasKey hasKey) {
+            return TryPlay(hasKey.Key);
+        }
 
         /// <summary>
         /// Starts fading in the animation registered with the `key`
@@ -1192,10 +1156,11 @@ namespace Animancer
         public AnimancerState TryPlay(
             object key,
             float fadeDuration,
-            FadeMode mode = default)
-            => Graph.States.TryGet(key, out var state)
-            ? Play(state, fadeDuration, mode)
-            : null;
+            FadeMode mode = default) {
+            return Graph.States.TryGet(key, out var state)
+                                                 ? Play(state, fadeDuration, mode)
+                                                 : null;
+        }
 
         /// <summary>
         /// Starts fading in the animation registered with the `key`
@@ -1218,8 +1183,9 @@ namespace Animancer
         public AnimancerState TryPlay(
             IHasKey hasKey,
             float fadeDuration,
-            FadeMode mode = default)
-            => TryPlay(hasKey.Key, fadeDuration, mode);
+            FadeMode mode = default) {
+            return TryPlay(hasKey.Key, fadeDuration, mode);
+        }
 
         /************************************************************************************************************************/
 
@@ -1233,14 +1199,12 @@ namespace Animancer
             ref AnimancerState state,
             float fadeDuration,
             out float stateNormalizedFadeSpeed,
-            out float layerFadeDuration)
-        {
+            out float layerFadeDuration) {
             layerFadeDuration = fadeDuration;
 
             float fadeDistance;
 
-            switch (mode)
-            {
+            switch (mode) {
                 case FadeMode.FixedSpeed:
                     fadeDistance = 1;
                     layerFadeDuration *= Math.Abs(1 - Weight);
@@ -1255,34 +1219,31 @@ namespace Animancer
                     fadeDistance = 1;
                     break;
 
-                case FadeMode.NormalizedSpeed:
-                    {
-                        var length = state.Length;
-                        fadeDistance = 1;
-                        fadeDuration *= length;
-                        layerFadeDuration *= Math.Abs(1 - Weight) * length;
-                    }
-                    break;
+                case FadeMode.NormalizedSpeed: {
+                    var length = state.Length;
+                    fadeDistance = 1;
+                    fadeDuration *= length;
+                    layerFadeDuration *= Math.Abs(1 - Weight) * length;
+                }
+                break;
 
-                case FadeMode.NormalizedDuration:
-                    {
-                        var length = state.Length;
-                        fadeDistance = Math.Abs(1 - state.Weight);
-                        fadeDuration *= length;
-                        layerFadeDuration *= length;
-                    }
-                    break;
+                case FadeMode.NormalizedDuration: {
+                    var length = state.Length;
+                    fadeDistance = Math.Abs(1 - state.Weight);
+                    fadeDuration *= length;
+                    layerFadeDuration *= length;
+                }
+                break;
 
-                case FadeMode.NormalizedFromStart:
-                    {
-                        state = GetOrCreateWeightlessState(state);
+                case FadeMode.NormalizedFromStart: {
+                    state = GetOrCreateWeightlessState(state);
 
-                        var length = state.Length;
-                        fadeDistance = 1;
-                        fadeDuration *= length;
-                        layerFadeDuration *= length;
-                    }
-                    break;
+                    var length = state.Length;
+                    fadeDistance = 1;
+                    fadeDuration *= length;
+                    layerFadeDuration *= length;
+                }
+                break;
 
                 default:
                     throw AnimancerUtilities.CreateUnsupportedArgumentException(mode);
@@ -1299,12 +1260,12 @@ namespace Animancer
         /// Sets <see cref="AnimancerNode.Weight"/> = 0 and calls <see cref="AnimancerNode.Stop"/>
         /// on all animations to stop them from playing and rewind them to the start.
         /// </summary>
-        protected internal override void StopWithoutWeight()
-        {
+        protected internal override void StopWithoutWeight() {
             CurrentState = null;
 
-            for (int i = ActiveStatesInternal.Count - 1; i >= 0; i--)
+            for (var i = ActiveStatesInternal.Count - 1; i >= 0; i--) {
                 ActiveStatesInternal[i].Stop();
+            }
         }
 
         /************************************************************************************************************************/
@@ -1312,24 +1273,24 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Is the `clip` currently being played by at least one state?</summary>
-        public bool IsPlayingClip(AnimationClip clip)
-        {
-            for (int i = ActiveStatesInternal.Count - 1; i >= 0; i--)
-            {
+        public bool IsPlayingClip(AnimationClip clip) {
+            for (var i = ActiveStatesInternal.Count - 1; i >= 0; i--) {
                 var state = ActiveStatesInternal[i];
-                if (state.Clip == clip && state.IsPlaying)
+                if (state.Clip == clip && state.IsPlaying) {
                     return true;
+                }
             }
 
             return false;
         }
 
         /// <summary>Is at least one animation is being played?</summary>
-        public bool IsAnyStatePlaying()
-        {
-            for (int i = ActiveStatesInternal.Count - 1; i >= 0; i--)
-                if (ActiveStatesInternal[i].IsPlaying)
+        public bool IsAnyStatePlaying() {
+            for (var i = ActiveStatesInternal.Count - 1; i >= 0; i--) {
+                if (ActiveStatesInternal[i].IsPlaying) {
                     return true;
+                }
+            }
 
             return false;
         }
@@ -1339,21 +1300,22 @@ namespace Animancer
         /// This method is called by <see cref="IEnumerator.MoveNext"/> so this object can be used as a custom yield
         /// instruction to wait until it finishes.
         /// </remarks>
-        public override bool IsPlayingAndNotEnding()
-            => _CurrentState != null
-            && _CurrentState.IsPlayingAndNotEnding();
+        public override bool IsPlayingAndNotEnding() {
+            return _CurrentState != null
+                                                                 && _CurrentState.IsPlayingAndNotEnding();
+        }
 
         /************************************************************************************************************************/
 
         /// <summary>
         /// Calculates the total <see cref="AnimancerNode.Weight"/> of all states in this layer.
         /// </summary>
-        public float GetTotalChildWeight()
-        {
+        public float GetTotalChildWeight() {
             float weight = 0;
 
-            for (int i = ActiveStatesInternal.Count - 1; i >= 0; i--)
+            for (var i = ActiveStatesInternal.Count - 1; i >= 0; i--) {
                 weight += ActiveStatesInternal[i].Weight;
+            }
 
             return weight;
         }
@@ -1367,8 +1329,7 @@ namespace Animancer
         private bool _ApplyAnimatorIK;
 
         /// <inheritdoc/>
-        public override bool ApplyAnimatorIK
-        {
+        public override bool ApplyAnimatorIK {
             get => _ApplyAnimatorIK;
             set => base.ApplyAnimatorIK = _ApplyAnimatorIK = value;
         }
@@ -1378,8 +1339,7 @@ namespace Animancer
         private bool _ApplyFootIK;
 
         /// <inheritdoc/>
-        public override bool ApplyFootIK
-        {
+        public override bool ApplyFootIK {
             get => _ApplyFootIK;
             set => base.ApplyFootIK = _ApplyFootIK = value;
         }
@@ -1393,19 +1353,19 @@ namespace Animancer
         /// <summary>[<see cref="IAnimationClipCollection"/>]
         /// Gathers all the animations in this layer.
         /// </summary>
-        public void GatherAnimationClips(ICollection<AnimationClip> clips)
-            => clips.GatherFromSource(States);
+        public void GatherAnimationClips(ICollection<AnimationClip> clips) {
+            clips.GatherFromSource(States);
+        }
 
         /************************************************************************************************************************/
 
         /// <summary>The Inspector display name of this layer.</summary>
-        public override string ToString()
-        {
+        public override string ToString() {
 #if UNITY_ASSERTIONS
-            if (DebugName == null)
-            {
-                if (_Mask != null)
+            if (DebugName == null) {
+                if (_Mask != null) {
                     return _Mask.GetCachedName();
+                }
 
                 SetDebugName(Index == 0
                     ? "Base Layer"
@@ -1421,8 +1381,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override void AppendDetails(StringBuilder text, string separator)
-        {
+        protected override void AppendDetails(StringBuilder text, string separator) {
             base.AppendDetails(text, separator);
 
             text.AppendField(separator, nameof(CurrentState), CurrentState?.GetPath());

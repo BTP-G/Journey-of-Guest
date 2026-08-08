@@ -1,21 +1,18 @@
-﻿#if DOTWEEN_ENABLED
+#if DOTWEEN_ENABLED
 using System;
 using UnityEngine;
 
-namespace BrunoMikoski.AnimationSequencer
-{
+namespace BrunoMikoski.AnimationSequencer {
     // Created by Pablo Huaxteco
     [Serializable]
-    public abstract class PunchBaseTweenAction : TweenActionBase
-    {
+    public abstract class PunchBaseTweenAction : TweenActionBase {
         public override Type TargetComponentType => typeof(Transform);
         public override string[] ExcludedFields => new string[] { "direction", "ease", "relative" };
 
         [Tooltip("The punch strength (added to the Transform's current value).")]
         [SerializeField]
         protected Vector3 punch = Vector3.one;
-        public Vector3 Punch
-        {
+        public Vector3 Punch {
             get => punch;
             set => punch = value;
         }
@@ -23,8 +20,7 @@ namespace BrunoMikoski.AnimationSequencer
         [Tooltip("Indicates how much will the punch vibrate.")]
         [SerializeField]
         protected int vibrato = 10;
-        public int Vibrato
-        {
+        public int Vibrato {
             get => vibrato;
             set => vibrato = value;
         }
@@ -33,8 +29,7 @@ namespace BrunoMikoski.AnimationSequencer
             "1 creates full oscillation (dramatic effect), 0 keeps it between punch and start values (gentler movement).")]
         [SerializeField, Range(0f, 1f)]
         protected float elasticity = 1f;
-        public float Elasticity
-        {
+        public float Elasticity {
             get => elasticity;
             set => elasticity = value;
         }

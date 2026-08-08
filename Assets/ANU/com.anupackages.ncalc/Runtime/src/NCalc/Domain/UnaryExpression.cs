@@ -1,9 +1,6 @@
-﻿namespace NCalc.Domain
-{
-    public class UnaryExpression : LogicalExpression
-    {
-        public UnaryExpression(UnaryExpressionType type, LogicalExpression expression)
-        {
+namespace NCalc.Domain {
+    public class UnaryExpression : LogicalExpression {
+        public UnaryExpression(UnaryExpressionType type, LogicalExpression expression) {
             Type = type;
             Expression = expression;
         }
@@ -12,14 +9,12 @@
 
         public UnaryExpressionType Type { get; set; }
 
-        public override void Accept(LogicalExpressionVisitor visitor)
-        {
+        public override void Accept(LogicalExpressionVisitor visitor) {
             visitor.Visit(this);
         }
     }
 
-    public enum UnaryExpressionType
-    {
+    public enum UnaryExpressionType {
         Not,
         Negate,
         BitwiseNot,

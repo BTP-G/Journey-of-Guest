@@ -1,9 +1,9 @@
 using EditorAttributes;
+using Unity.Netcode;
+using UnityEngine;
 using Xoderony.Extensions;
 using Xoderony.ObjectPool.Unity;
 using Xoderony.Unity;
-using Unity.Netcode;
-using UnityEngine;
 
 namespace JoG.Networking.Components {
 

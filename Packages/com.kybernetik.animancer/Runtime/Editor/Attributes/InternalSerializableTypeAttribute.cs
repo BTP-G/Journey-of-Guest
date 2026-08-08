@@ -3,8 +3,7 @@
 using System;
 using UnityEngine.Scripting.APIUpdating;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Conditional]
     /// A <see cref="MovedFromAttribute"/> which indicates that a type may have been previously
     /// defined in the pre-compiled Animancer Lite DLL in an earlier version of Animancer.
@@ -16,14 +15,12 @@ namespace Animancer.Editor
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/InternalSerializableTypeAttribute
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, Inherited = true)]
     [System.Diagnostics.Conditional(Strings.UnityEditor)]
-    public sealed class InternalSerializableTypeAttribute : MovedFromAttribute
-    {
+    public sealed class InternalSerializableTypeAttribute : MovedFromAttribute {
         /************************************************************************************************************************/
 
         /// <summary>Creates a new <see cref="InternalSerializableTypeAttribute"/>.</summary>
         public InternalSerializableTypeAttribute()
-            : base(true, sourceAssembly: Strings.LiteAssemblyName)
-        {
+            : base(true, sourceAssembly: Strings.LiteAssemblyName) {
         }
 
         /************************************************************************************************************************/

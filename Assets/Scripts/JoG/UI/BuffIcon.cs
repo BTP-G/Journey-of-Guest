@@ -14,7 +14,10 @@ namespace JoG.UI {
 
         public void UpdateView(Sprite icon, int count) {
             IconImage.sprite = icon;
-            if (countCache == count) return;
+            if (countCache == count) {
+                return;
+            }
+
             using var sb = ZString.CreateStringBuilder(true);
             CountText.SetText(sb);
             countCache = count;

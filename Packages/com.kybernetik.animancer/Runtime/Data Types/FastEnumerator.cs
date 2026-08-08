@@ -5,8 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>
     /// An <see cref="IEnumerator{T}"/> for any <see cref="IList{T}"/>
     /// which doesn't bother checking if the target has been modified.
@@ -32,8 +31,7 @@ namespace Animancer
     /// // 7
     /// // 6
     /// </code></remarks>
-    public struct FastEnumerator<T> : IReadOnlyList<T>, IEnumerator<T>
-    {
+    public struct FastEnumerator<T> : IReadOnlyList<T>, IEnumerator<T> {
         /************************************************************************************************************************/
 
         /// <summary>The target <see cref="IList{T}"/>.</summary>
@@ -47,13 +45,11 @@ namespace Animancer
         /// The number of items in the <see cref="List"/> (which can be less than the
         /// <see cref="ICollection{T}.Count"/> of the <see cref="List"/>).
         /// </summary>
-        public int Count
-        {
+        public int Count {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             readonly get => _Count;
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            set
-            {
+            set {
                 AssertCount(value);
                 _Count = value;
             }
@@ -64,13 +60,11 @@ namespace Animancer
         private int _Index;
 
         /// <summary>The position of the <see cref="Current"/> item in the <see cref="List"/>.</summary>
-        public int Index
-        {
+        public int Index {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             readonly get => _Index;
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            set
-            {
+            set {
                 AssertIndex(value);
                 _Index = value;
             }
@@ -79,11 +73,9 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>The item at the current <see cref="Index"/> in the <see cref="List"/>.</summary>
-        public readonly T Current
-        {
+        public readonly T Current {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
+            get {
                 AssertCount(_Count);
                 AssertIndex(_Index);
                 return List[_Index];
@@ -102,13 +94,11 @@ namespace Animancer
         /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public FastEnumerator(IList<T> list)
-            : this(list, list.Count)
-        { }
+            : this(list, list.Count) { }
 
         /// <summary>Creates a new <see cref="FastEnumerator{T}"/>.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public FastEnumerator(IList<T> list, int count)
-        {
+        public FastEnumerator(IList<T> list, int count) {
             List = list;
             _Count = count;
             _Index = -1;
@@ -120,15 +110,11 @@ namespace Animancer
         /// <summary>Moves to the next item in the <see cref="List"/> and returns true if there is one.</summary>
         /// <remarks>At the end of the <see cref="List"/> the <see cref="Index"/> is set to <see cref="int.MinValue"/>.</remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool MoveNext()
-        {
+        public bool MoveNext() {
             _Index++;
-            if ((uint)_Index < (uint)_Count)
-            {
+            if ((uint)_Index < (uint)_Count) {
                 return true;
-            }
-            else
-            {
+            } else {
                 _Index = int.MinValue;
                 return false;
             }
@@ -139,15 +125,11 @@ namespace Animancer
         /// <summary>Moves to the previous item in the <see cref="List"/> and returns true if there is one.</summary>
         /// <remarks>At the end of the <see cref="List"/> the <see cref="Index"/> is set to <c>-1</c>.</remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool MovePrevious()
-        {
-            if (_Index > 0)
-            {
+        public bool MovePrevious() {
+            if (_Index > 0) {
                 _Index--;
                 return true;
-            }
-            else
-            {
+            } else {
                 _Index = -1;
                 return false;
             }
@@ -157,8 +139,7 @@ namespace Animancer
 
         /// <summary>[<see cref="IEnumerator"/>] Reverts this enumerator to the start of the <see cref="List"/>.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Reset()
-        {
+        public void Reset() {
             _Index = -1;
         }
 
@@ -174,15 +155,21 @@ namespace Animancer
 
         /// <summary>Returns <c>this</c>.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly FastEnumerator<T> GetEnumerator() => this;
+        public readonly FastEnumerator<T> GetEnumerator() {
+            return this;
+        }
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        readonly IEnumerator<T> IEnumerable<T>.GetEnumerator() => this;
+        readonly IEnumerator<T> IEnumerable<T>.GetEnumerator() {
+            return this;
+        }
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        readonly IEnumerator IEnumerable.GetEnumerator() => this;
+        readonly IEnumerator IEnumerable.GetEnumerator() {
+            return this;
+        }
 
         /************************************************************************************************************************/
         // IList.
@@ -190,15 +177,14 @@ namespace Animancer
 
         /// <summary>[<see cref="IList{T}"/>] Returns the first index of the `item` in the <see cref="List"/>.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly int IndexOf(T item)
-            => List.IndexOf(item);
+        public readonly int IndexOf(T item) {
+            return List.IndexOf(item);
+        }
 
         /// <summary>[<see cref="IList{T}"/>] The item at the specified `index` in the <see cref="List"/>.</summary>
-        public readonly T this[int index]
-        {
+        public readonly T this[int index] {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
+            get {
                 AssertIndex(index);
                 return List[index];
             }
@@ -210,14 +196,16 @@ namespace Animancer
 
         /// <summary>[<see cref="ICollection{T}"/>] Does the <see cref="List"/> contain the `item`?</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly bool Contains(T item) => List.Contains(item);
+        public readonly bool Contains(T item) {
+            return List.Contains(item);
+        }
 
         /// <summary>[<see cref="ICollection{T}"/>] Copies the contents of the <see cref="List"/> into the `array`.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly void CopyTo(T[] array, int arrayIndex)
-        {
-            for (int i = 0; i < _Count; i++)
+        public readonly void CopyTo(T[] array, int arrayIndex) {
+            for (var i = 0; i < _Count; i++) {
                 array[arrayIndex + i] = List[i];
+            }
         }
 
         /************************************************************************************************************************/
@@ -226,13 +214,13 @@ namespace Animancer
         /// <exception cref="ArgumentOutOfRangeException"/>
         [System.Diagnostics.Conditional(Strings.Assertions)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private readonly void AssertIndex(int index)
-        {
+        private readonly void AssertIndex(int index) {
 #if UNITY_ASSERTIONS
-            if ((uint)index > (uint)_Count)
+            if ((uint)index > (uint)_Count) {
                 throw new ArgumentOutOfRangeException(nameof(index),
                     $"{nameof(FastEnumerator<T>)}.{nameof(Index)}" +
                     $" must be within 0 <= {nameof(Index)} ({index}) < {nameof(Count)} ({_Count}).");
+            }
 #endif
         }
 
@@ -241,20 +229,18 @@ namespace Animancer
         /// <summary>[Assert-Only] Throws an exception unless 0 &lt; `count` &lt;= <see cref="ICollection{T}.Count"/>.</summary>
         /// <exception cref="ArgumentOutOfRangeException"/>
         [System.Diagnostics.Conditional(Strings.Assertions)]
-        private readonly void AssertCount(int count)
-        {
+        private readonly void AssertCount(int count) {
 #if UNITY_ASSERTIONS
-            if (List == null)
-            {
-                if (count != 0)
+            if (List == null) {
+                if (count != 0) {
                     throw new ArgumentOutOfRangeException(nameof(count),
                         $"Must be 0 since the {nameof(List)} is null.");
-            }
-            else
-            {
-                if ((uint)count > (uint)List.Count)
+                }
+            } else {
+                if ((uint)count > (uint)List.Count) {
                     throw new ArgumentOutOfRangeException(nameof(count),
                         $"Must be within 0 <= {nameof(count)} ({count}) < {nameof(List)}.{nameof(List.Count)} ({List.Count}).");
+                }
             }
 #endif
         }

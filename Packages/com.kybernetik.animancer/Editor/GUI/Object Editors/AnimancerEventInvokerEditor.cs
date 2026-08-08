@@ -5,21 +5,18 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only] A custom Inspector for <see cref="AnimancerEvent.Invoker"/>s.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/AnimancerEventInvokerEditor
     /// 
     [CustomEditor(typeof(AnimancerEvent.Invoker), true), CanEditMultipleObjects]
-    public class AnimancerEventInvokerEditor : UnityEditor.Editor
-    {
+    public class AnimancerEventInvokerEditor : UnityEditor.Editor {
         /************************************************************************************************************************/
 
         private readonly Field[]
             Fields = new Field[100];
 
-        private struct Field
-        {
+        private struct Field {
             public FastObjectField component;
             public FastObjectField state;
         }
@@ -27,29 +24,24 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void OnInspectorGUI()
-        {
+        public override void OnInspectorGUI() {
             if (target is Behaviour behaviour &&
-                !behaviour.enabled)
-            {
+                !behaviour.enabled) {
                 EditorGUILayout.HelpBox(
                     "This component is disabled so it won't invoke any events.",
                     MessageType.Warning);
             }
 
-            int index = 0;
+            var index = 0;
 
             var isLayoutEvent = Event.current.type == EventType.Layout;
 
             var enumerator = AnimancerEvent.Invoker.EnumerateInvocationQueue();
-            while (enumerator.MoveNext())
-            {
-                if (index < Fields.Length)
-                {
+            while (enumerator.MoveNext()) {
+                if (index < Fields.Length) {
                     var invocation = enumerator.Current;
 
-                    if (invocation.State == null)
-                    {
+                    if (invocation.State == null) {
                         GUILayout.Label("State is Null");
                         return;
                     }
@@ -61,8 +53,7 @@ namespace Animancer.Editor
                     var labelArea = AnimancerGUI.StealFromLeft(ref area, EditorGUIUtility.labelWidth);
                     labelArea = EditorGUI.IndentedRect(labelArea);
 
-                    if (isLayoutEvent)
-                    {
+                    if (isLayoutEvent) {
                         field.component.SetValue(invocation.State.Graph?.Component);
                         field.state.SetValue(invocation.State, invocation.State.GetPath());
                     }
@@ -83,8 +74,9 @@ namespace Animancer.Editor
                 index++;
             }
 
-            if (index > Fields.Length)
+            if (index > Fields.Length) {
                 GUILayout.Label($"And {index - Fields.Length} more events.");
+            }
 
             Repaint();
         }

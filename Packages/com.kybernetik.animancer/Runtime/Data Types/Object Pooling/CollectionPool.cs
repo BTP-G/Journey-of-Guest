@@ -2,8 +2,7 @@
 
 using System.Collections.Generic;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>An <see cref="ObjectPool{T}"/> for <see cref="ICollection{T}"/>.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer/CollectionPool_2
     public abstract class CollectionPool<TItem, TCollection> : ObjectPool<TCollection>
@@ -12,8 +11,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override TCollection Acquire()
-        {
+        public override TCollection Acquire() {
             var collection = base.Acquire();
             AssertEmpty(collection);
             return collection;
@@ -22,8 +20,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void Release(TCollection collection)
-        {
+        public override void Release(TCollection collection) {
             collection.Clear();
             base.Release(collection);
         }
@@ -32,13 +29,13 @@ namespace Animancer
 
         /// <summary>[Assert-Conditional] Asserts that the `collection` is empty.</summary>
         [System.Diagnostics.Conditional(Strings.Assertions)]
-        public static void AssertEmpty(TCollection collection)
-        {
+        public static void AssertEmpty(TCollection collection) {
 #if UNITY_ASSERTIONS
-            if (collection.Count != 0)
+            if (collection.Count != 0) {
                 throw new UnityEngine.Assertions.AssertionException(
                     $"A pooled {collection.GetType().GetNameCS()} is not empty.{NotResetError}",
                     null);
+            }
 #endif
         }
 

@@ -8,19 +8,16 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Animancer.Editor.Previews
-{
+namespace Animancer.Editor.Previews {
     /// <summary>[Editor-Only] Manages the selection and instantiation of models for previewing animations.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor.Previews/AnimancerPreviewObject
     [Serializable]
-    public class AnimancerPreviewObject : IDisposable
-    {
+    public class AnimancerPreviewObject : IDisposable {
         /************************************************************************************************************************/
 
         /// <summary>[Editor-Only] Handles events from an <see cref="AnimancerPreviewObject"/>.</summary>
         /// https://kybernetik.com.au/animancer/api/Animancer.Editor.Previews/IEventHandler
-        public interface IEventHandler
-        {
+        public interface IEventHandler {
             /// <summary>Called after the <see cref="InstanceObject"/> is instantiated.</summary>
             void OnInstantiateObject();
 
@@ -42,16 +39,15 @@ namespace Animancer.Editor.Previews
         /// <summary>[<see cref="SerializeField"/>]
         /// The original model which was instantiated to create the <see cref="InstanceObject"/>.
         /// </summary>
-        public Transform OriginalObject
-        {
+        public Transform OriginalObject {
             get => _OriginalObject;
-            set
-            {
+            set {
                 _OriginalObject = value;
                 InstantiateObject();
 
-                if (value != null)
+                if (value != null) {
                     TransitionPreviewSettings.AddModel(value.gameObject);
+                }
             }
         }
 
@@ -83,15 +79,15 @@ namespace Animancer.Editor.Previews
         private int _SelectedInstanceAnimator;
 
         /// <summary>The <see cref="Animator"/> component currently being used for the preview.</summary>
-        public Animator SelectedInstanceAnimator
-        {
-            get
-            {
-                if (InstanceAnimators.IsNullOrEmpty())
+        public Animator SelectedInstanceAnimator {
+            get {
+                if (InstanceAnimators.IsNullOrEmpty()) {
                     return null;
+                }
 
-                if (_SelectedInstanceAnimator >= InstanceAnimators.Length)
+                if (_SelectedInstanceAnimator >= InstanceAnimators.Length) {
                     _SelectedInstanceAnimator = InstanceAnimators.Length - 1;
+                }
 
                 return InstanceAnimators[_SelectedInstanceAnimator];
             }
@@ -103,18 +99,14 @@ namespace Animancer.Editor.Previews
         private AnimancerGraph _Graph;
 
         /// <summary>The <see cref="AnimancerGraph"/> being used for the preview.</summary>
-        public AnimancerGraph Graph
-        {
-            get
-            {
+        public AnimancerGraph Graph {
+            get {
                 if ((_Graph == null || !_Graph.IsValidOrDispose()) &&
-                    InstanceObject != null)
-                {
+                    InstanceObject != null) {
                     _Graph = null;
 
                     var animator = SelectedInstanceAnimator;
-                    if (animator != null)
-                    {
+                    if (animator != null) {
                         AnimancerGraph.SetNextGraphName($"{animator.name} (Animancer Preview)");
                         _Graph = new AnimancerGraph();
                         _Graph.Initialize(
@@ -136,8 +128,7 @@ namespace Animancer.Editor.Previews
         public static AnimancerPreviewObject Initialize(
             ref AnimancerPreviewObject preview,
             IEventHandler eventHandler,
-            Transform instanceRoot)
-        {
+            Transform instanceRoot) {
             preview ??= new();
             preview.EventHandler = eventHandler;
             preview.Initialize(instanceRoot);
@@ -149,19 +140,19 @@ namespace Animancer.Editor.Previews
         [NonSerialized] private bool _HasInitialized;
 
         /// <summary>Sets the <see cref="InstanceRoot"/> for this preview to work under.</summary>
-        public void Initialize(Transform instanceRoot)
-        {
-            if (InstanceRoot != instanceRoot)
-            {
+        public void Initialize(Transform instanceRoot) {
+            if (InstanceRoot != instanceRoot) {
                 DestroyInstanceObject();
                 InstanceRoot = instanceRoot;
             }
 
-            if (InstanceObject == null)
+            if (InstanceObject == null) {
                 InstantiateObject();
+            }
 
-            if (_HasInitialized)
+            if (_HasInitialized) {
                 return;
+            }
 
             _HasInitialized = true;
 
@@ -172,8 +163,7 @@ namespace Animancer.Editor.Previews
         /************************************************************************************************************************/
 
         /// <summary>Cleans up this preview.</summary>
-        public void Dispose()
-        {
+        public void Dispose() {
             EditorSceneManager.sceneOpening -= OnSceneOpening;
             EditorApplication.playModeStateChanged -= OnPlayModeChanged;
         }
@@ -181,10 +171,8 @@ namespace Animancer.Editor.Previews
         /************************************************************************************************************************/
 
         /// <summary>Called when entering or exiting Play Mode to destroy the <see cref="InstanceObject"/>.</summary>
-        private void OnPlayModeChanged(PlayModeStateChange change)
-        {
-            switch (change)
-            {
+        private void OnPlayModeChanged(PlayModeStateChange change) {
+            switch (change) {
                 case PlayModeStateChange.ExitingEditMode:
                 case PlayModeStateChange.ExitingPlayMode:
                     DestroyInstanceObject();
@@ -195,25 +183,26 @@ namespace Animancer.Editor.Previews
         /************************************************************************************************************************/
 
         /// <summary>Called when opening a scene to destroy the <see cref="InstanceObject"/>.</summary>
-        private void OnSceneOpening(string path, OpenSceneMode mode)
-        {
-            if (mode == OpenSceneMode.Single)
+        private void OnSceneOpening(string path, OpenSceneMode mode) {
+            if (mode == OpenSceneMode.Single) {
                 DestroyInstanceObject();
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <summary>Destroys and re-instantiates the <see cref="InstanceObject"/>.</summary>
-        private void InstantiateObject()
-        {
-            if (AnimancerEditorUtilities.IsChangingPlayMode)
+        private void InstantiateObject() {
+            if (AnimancerEditorUtilities.IsChangingPlayMode) {
                 return;
+            }
 
             DestroyInstanceObject();
 
             if (_OriginalObject == null ||
-                InstanceRoot == null)
+                InstanceRoot == null) {
                 return;
+            }
 
             InstanceRoot.gameObject.SetActive(false);
             InstanceObject = Object.Instantiate(_OriginalObject, InstanceRoot);
@@ -225,8 +214,7 @@ namespace Animancer.Editor.Previews
             DisableUnnecessaryComponents(InstanceObject.gameObject);
 
             InstanceAnimators = InstanceObject.GetComponentsInChildren<Animator>();
-            for (int i = 0; i < InstanceAnimators.Length; i++)
-            {
+            for (var i = 0; i < InstanceAnimators.Length; i++) {
                 var animator = InstanceAnimators[i];
                 animator.enabled = false;
                 animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
@@ -245,21 +233,21 @@ namespace Animancer.Editor.Previews
         /************************************************************************************************************************/
 
         /// <summary>Disables all unnecessary components on the `root` or its children.</summary>
-        private static void DisableUnnecessaryComponents(GameObject root)
-        {
+        private static void DisableUnnecessaryComponents(GameObject root) {
             var behaviours = root.GetComponentsInChildren<Behaviour>();
-            for (int i = 0; i < behaviours.Length; i++)
-            {
+            for (var i = 0; i < behaviours.Length; i++) {
                 var behaviour = behaviours[i];
 
                 // Other undesirable components aren't Behaviours anyway: Transform, MeshFilter, Renderer.
-                if (behaviour is Animator)
+                if (behaviour is Animator) {
                     continue;
+                }
 
                 var type = behaviour.GetType();
                 if (type.IsDefined(typeof(ExecuteAlways), true) ||
-                    type.IsDefined(typeof(ExecuteInEditMode), true))
+                    type.IsDefined(typeof(ExecuteInEditMode), true)) {
                     continue;
+                }
 
                 behaviour.enabled = false;
                 behaviour.hideFlags |= HideFlags.NotEditable;
@@ -269,13 +257,11 @@ namespace Animancer.Editor.Previews
         /************************************************************************************************************************/
 
         /// <summary>Sets the <see cref="SelectedInstanceAnimator"/>.</summary>
-        public void SetSelectedAnimator(int index)
-        {
+        public void SetSelectedAnimator(int index) {
             DestroyGraph();
 
             var animator = SelectedInstanceAnimator;
-            if (animator != null && animator.enabled)
-            {
+            if (animator != null && animator.enabled) {
                 animator.Rebind();
                 animator.enabled = false;
                 return;
@@ -284,13 +270,10 @@ namespace Animancer.Editor.Previews
             _SelectedInstanceAnimator = index;
 
             animator = SelectedInstanceAnimator;
-            if (animator != null)
-            {
+            if (animator != null) {
                 animator.enabled = true;
                 SelectedInstanceType = AnimationBindings.GetAnimationType(animator);
-            }
-            else
-            {
+            } else {
                 SelectedInstanceType = default;
             }
 
@@ -300,12 +283,12 @@ namespace Animancer.Editor.Previews
         /************************************************************************************************************************/
 
         /// <summary>Destroys the <see cref="InstanceObject"/>.</summary>
-        public void DestroyInstanceObject()
-        {
+        public void DestroyInstanceObject() {
             DestroyGraph();
 
-            if (InstanceObject == null)
+            if (InstanceObject == null) {
                 return;
+            }
 
             Object.DestroyImmediate(InstanceObject.gameObject);
             InstanceObject = null;
@@ -315,10 +298,10 @@ namespace Animancer.Editor.Previews
         /************************************************************************************************************************/
 
         /// <summary>Destroys the <see cref="Graph"/>.</summary>
-        private void DestroyGraph()
-        {
-            if (_Graph == null)
+        private void DestroyGraph() {
+            if (_Graph == null) {
                 return;
+            }
 
             _Graph.Destroy();
             _Graph = null;
@@ -330,10 +313,10 @@ namespace Animancer.Editor.Previews
         /// Calls <see cref="TransitionPreviewSettings.TrySelectBestModel(object, Transform)"/>
         /// if there is no <see cref="OriginalObject"/> yet.
         /// </summary>
-        public void TrySelectBestModel(object animationClipSource)
-        {
-            if (OriginalObject == null)
+        public void TrySelectBestModel(object animationClipSource) {
+            if (OriginalObject == null) {
                 OriginalObject = TransitionPreviewSettings.TrySelectBestModel(animationClipSource, InstanceRoot);
+            }
         }
 
         /************************************************************************************************************************/
@@ -342,10 +325,11 @@ namespace Animancer.Editor.Previews
         /// Creates an object using <see cref="HideFlags.HideAndDontSave"/>
         /// without <see cref="HideFlags.NotEditable"/>.
         /// </summary>
-        public static GameObject CreateEmpty(string name)
-            => EditorUtility.CreateGameObjectWithHideFlags(
-                name,
-                HideFlags.HideInHierarchy | HideFlags.DontSave);
+        public static GameObject CreateEmpty(string name) {
+            return EditorUtility.CreateGameObjectWithHideFlags(
+                                                                          name,
+                                                                          HideFlags.HideInHierarchy | HideFlags.DontSave);
+        }
 
         /************************************************************************************************************************/
     }

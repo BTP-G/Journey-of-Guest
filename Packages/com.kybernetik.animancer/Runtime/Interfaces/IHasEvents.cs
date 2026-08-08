@@ -1,7 +1,6 @@
 // Animancer // https://kybernetik.com.au/animancer // Copyright 2018-2026 Kybernetik //
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>An object which has an <see cref="AnimancerEvent.Sequence.Serializable"/>.</summary>
     /// <remarks>
     /// <strong>Documentation:</strong>
@@ -9,8 +8,7 @@ namespace Animancer
     /// Animancer Events</see>
     /// </remarks>
     /// https://kybernetik.com.au/animancer/api/Animancer/IHasEvents
-    public interface IHasEvents
-    {
+    public interface IHasEvents {
         /************************************************************************************************************************/
 
         /// <summary>Events which will be triggered as the animation plays.</summary>

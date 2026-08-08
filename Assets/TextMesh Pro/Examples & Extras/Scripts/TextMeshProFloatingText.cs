@@ -1,12 +1,9 @@
-﻿using UnityEngine;
 using System.Collections;
+using UnityEngine;
 
+namespace TMPro.Examples {
 
-namespace TMPro.Examples
-{
-
-    public class TextMeshProFloatingText : MonoBehaviour
-    {
+    public class TextMeshProFloatingText : MonoBehaviour {
         public Font TheFont;
 
         private GameObject m_floatingText;
@@ -17,16 +14,16 @@ namespace TMPro.Examples
         private Transform m_floatingText_Transform;
         private Transform m_cameraTransform;
 
-        Vector3 lastPOS = Vector3.zero;
-        Quaternion lastRotation = Quaternion.identity;
+        private Vector3 lastPOS = Vector3.zero;
+        private Quaternion lastRotation = Quaternion.identity;
 
         public int SpawnType;
         public bool IsTextObjectScaleStatic;
 
         //private int m_frame = 0;
 
-        static WaitForEndOfFrame k_WaitForEndOfFrame = new WaitForEndOfFrame();
-        static WaitForSeconds[] k_WaitForSecondsRandom = new WaitForSeconds[]
+        private static WaitForEndOfFrame k_WaitForEndOfFrame = new WaitForEndOfFrame();
+        private static WaitForSeconds[] k_WaitForSecondsRandom = new WaitForSeconds[]
         {
             new WaitForSeconds(0.05f), new WaitForSeconds(0.1f), new WaitForSeconds(0.15f), new WaitForSeconds(0.2f), new WaitForSeconds(0.25f),
             new WaitForSeconds(0.3f), new WaitForSeconds(0.35f), new WaitForSeconds(0.4f), new WaitForSeconds(0.45f), new WaitForSeconds(0.5f),
@@ -34,10 +31,9 @@ namespace TMPro.Examples
             new WaitForSeconds(0.8f), new WaitForSeconds(0.85f), new WaitForSeconds(0.9f), new WaitForSeconds(0.95f), new WaitForSeconds(1.0f),
         };
 
-        void Awake()
-        {
+        private void Awake() {
             m_transform = transform;
-            m_floatingText = new GameObject(this.name + " floating text");
+            m_floatingText = new GameObject(name + " floating text");
 
             // Reference to Transform is lost when TMP component is added since it replaces it by a RectTransform.
             //m_floatingText_Transform = m_floatingText.transform;
@@ -46,10 +42,8 @@ namespace TMPro.Examples
             m_cameraTransform = Camera.main.transform;
         }
 
-        void Start()
-        {
-            if (SpawnType == 0)
-            {
+        private void Start() {
+            if (SpawnType == 0) {
                 // TextMesh Pro Implementation
                 m_textMeshPro = m_floatingText.AddComponent<TextMeshPro>();
                 m_textMeshPro.rectTransform.sizeDelta = new Vector2(3, 3);
@@ -70,9 +64,7 @@ namespace TMPro.Examples
                 m_textMeshPro.isTextObjectScaleStatic = IsTextObjectScaleStatic;
 
                 StartCoroutine(DisplayTextMeshProFloatingText());
-            }
-            else if (SpawnType == 1)
-            {
+            } else if (SpawnType == 1) {
                 //Debug.Flush("Spawning TextMesh Objects.");
 
                 m_floatingText_Transform = m_floatingText.transform;
@@ -86,14 +78,10 @@ namespace TMPro.Examples
                 m_textMesh.fontSize = 24;
 
                 StartCoroutine(DisplayTextMeshFloatingText());
-            }
-            else if (SpawnType == 2)
-            {
+            } else if (SpawnType == 2) {
 
             }
-
         }
-
 
         //void Update()
         //{
@@ -109,29 +97,24 @@ namespace TMPro.Examples
 
         //}
 
+        public IEnumerator DisplayTextMeshProFloatingText() {
+            var CountDuration = 2.0f; // How long is the countdown alive.
+            var starting_Count = Random.Range(5f, 20f); // At what number is the itemCounter starting at.
+            var current_Count = starting_Count;
 
-        public IEnumerator DisplayTextMeshProFloatingText()
-        {
-            float CountDuration = 2.0f; // How long is the countdown alive.
-            float starting_Count = Random.Range(5f, 20f); // At what number is the itemCounter starting at.
-            float current_Count = starting_Count;
-
-            Vector3 start_pos = m_floatingText_Transform.position;
+            var start_pos = m_floatingText_Transform.position;
             Color32 start_color = m_textMeshPro.color;
             float alpha = 255;
-            int int_counter = 0;
+            var int_counter = 0;
 
+            var fadeDuration = 3 / starting_Count * CountDuration;
 
-            float fadeDuration = 3 / starting_Count * CountDuration;
+            while (current_Count > 0) {
+                current_Count -= Time.deltaTime / CountDuration * starting_Count;
 
-            while (current_Count > 0)
-            {
-                current_Count -= (Time.deltaTime / CountDuration) * starting_Count;
-
-                if (current_Count <= 3)
-                {
+                if (current_Count <= 3) {
                     //Debug.Flush("Fading TickCount ... " + current_Count.ToString("f2"));
-                    alpha = Mathf.Clamp(alpha - (Time.deltaTime / fadeDuration) * 255, 0, 255);
+                    alpha = Mathf.Clamp(alpha - (Time.deltaTime / fadeDuration * 255), 0, 255);
                 }
 
                 int_counter = (int)current_Count;
@@ -144,12 +127,11 @@ namespace TMPro.Examples
                 m_floatingText_Transform.position += new Vector3(0, starting_Count * Time.deltaTime, 0);
 
                 // Align floating text perpendicular to Camera.
-                if (!lastPOS.Compare(m_cameraTransform.position, 1000) || !lastRotation.Compare(m_cameraTransform.rotation, 1000))
-                {
+                if (!lastPOS.Compare(m_cameraTransform.position, 1000) || !lastRotation.Compare(m_cameraTransform.rotation, 1000)) {
                     lastPOS = m_cameraTransform.position;
                     lastRotation = m_cameraTransform.rotation;
                     m_floatingText_Transform.rotation = lastRotation;
-                    Vector3 dir = m_transform.position - lastPOS;
+                    var dir = m_transform.position - lastPOS;
                     m_transform.forward = new Vector3(dir.x, 0, dir.z);
                 }
 
@@ -165,28 +147,24 @@ namespace TMPro.Examples
             StartCoroutine(DisplayTextMeshProFloatingText());
         }
 
+        public IEnumerator DisplayTextMeshFloatingText() {
+            var CountDuration = 2.0f; // How long is the countdown alive.
+            var starting_Count = Random.Range(5f, 20f); // At what number is the itemCounter starting at.
+            var current_Count = starting_Count;
 
-        public IEnumerator DisplayTextMeshFloatingText()
-        {
-            float CountDuration = 2.0f; // How long is the countdown alive.
-            float starting_Count = Random.Range(5f, 20f); // At what number is the itemCounter starting at.
-            float current_Count = starting_Count;
-
-            Vector3 start_pos = m_floatingText_Transform.position;
+            var start_pos = m_floatingText_Transform.position;
             Color32 start_color = m_textMesh.color;
             float alpha = 255;
-            int int_counter = 0;
+            var int_counter = 0;
 
-            float fadeDuration = 3 / starting_Count * CountDuration;
+            var fadeDuration = 3 / starting_Count * CountDuration;
 
-            while (current_Count > 0)
-            {
-                current_Count -= (Time.deltaTime / CountDuration) * starting_Count;
+            while (current_Count > 0) {
+                current_Count -= Time.deltaTime / CountDuration * starting_Count;
 
-                if (current_Count <= 3)
-                {
+                if (current_Count <= 3) {
                     //Debug.Flush("Fading TickCount ... " + current_Count.ToString("f2"));
-                    alpha = Mathf.Clamp(alpha - (Time.deltaTime / fadeDuration) * 255, 0, 255);
+                    alpha = Mathf.Clamp(alpha - (Time.deltaTime / fadeDuration * 255), 0, 255);
                 }
 
                 int_counter = (int)current_Count;
@@ -199,12 +177,11 @@ namespace TMPro.Examples
                 m_floatingText_Transform.position += new Vector3(0, starting_Count * Time.deltaTime, 0);
 
                 // Align floating text perpendicular to Camera.
-                if (!lastPOS.Compare(m_cameraTransform.position, 1000) || !lastRotation.Compare(m_cameraTransform.rotation, 1000))
-                {
+                if (!lastPOS.Compare(m_cameraTransform.position, 1000) || !lastRotation.Compare(m_cameraTransform.rotation, 1000)) {
                     lastPOS = m_cameraTransform.position;
                     lastRotation = m_cameraTransform.rotation;
                     m_floatingText_Transform.rotation = lastRotation;
-                    Vector3 dir = m_transform.position - lastPOS;
+                    var dir = m_transform.position - lastPOS;
                     m_transform.forward = new Vector3(dir.x, 0, dir.z);
                 }
 

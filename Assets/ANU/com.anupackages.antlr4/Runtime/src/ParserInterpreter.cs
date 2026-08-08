@@ -1,16 +1,15 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace Antlr4.Runtime
-{
+namespace Antlr4.Runtime {
     /// <summary>
     /// A parser simulator that mimics what ANTLR's generated
     /// parser code does.
@@ -26,17 +25,16 @@ namespace Antlr4.Runtime
     /// transitions to make left recursive rules work.
     /// See TestParserInterpreter for examples.
     /// </remarks>
-    public class ParserInterpreter : Parser
-    {
+    public class ParserInterpreter : Parser {
         private readonly string _grammarFileName;
 
         private readonly ATN _atn;
-		
+
         private readonly Dfa.DFA[] _decisionToDFA;
 
         protected internal readonly BitSet pushRecursionContextStates;
 
-		private readonly string[] _ruleNames;
+        private readonly string[] _ruleNames;
 
         [NotNull]
         private readonly IVocabulary vocabulary;
@@ -44,102 +42,78 @@ namespace Antlr4.Runtime
         private readonly Stack<Tuple<ParserRuleContext, int>> _parentContextStack = new Stack<Tuple<ParserRuleContext, int>>();
 
         public ParserInterpreter(string grammarFileName, IVocabulary vocabulary, IEnumerable<string> ruleNames, ATN atn, ITokenStream input)
-            : base(input)
-        {
-            this._grammarFileName = grammarFileName;
-            this._atn = atn;
-            this._ruleNames = ruleNames.ToArray();
+            : base(input) {
+            _grammarFileName = grammarFileName;
+            _atn = atn;
+            _ruleNames = ruleNames.ToArray();
             this.vocabulary = vocabulary;
             // identify the ATN states where pushNewRecursionContext must be called
-            this.pushRecursionContextStates = new BitSet(atn.states.Count);
-            foreach (ATNState state in atn.states)
-            {
-                if (!(state is StarLoopEntryState))
-                {
+            pushRecursionContextStates = new BitSet(atn.states.Count);
+            foreach (var state in atn.states) {
+                if (state is not StarLoopEntryState) {
                     continue;
                 }
-				if (((StarLoopEntryState)state).isPrecedenceDecision)
-                {
-                    this.pushRecursionContextStates.Set(state.stateNumber);
+                if (((StarLoopEntryState)state).isPrecedenceDecision) {
+                    pushRecursionContextStates.Set(state.stateNumber);
                 }
             }
-			
+
             //init decision DFA
-            int numberofDecisions = atn.NumberOfDecisions;
-            this._decisionToDFA = new Dfa.DFA[numberofDecisions];
-            for (int i = 0; i < numberofDecisions; i++)
-            {
-                DecisionState decisionState = atn.GetDecisionState(i);
+            var numberofDecisions = atn.NumberOfDecisions;
+            _decisionToDFA = new Dfa.DFA[numberofDecisions];
+            for (var i = 0; i < numberofDecisions; i++) {
+                var decisionState = atn.GetDecisionState(i);
                 _decisionToDFA[i] = new Dfa.DFA(decisionState, i);
             }
-             // get atn simulator that knows how to do predictions
+            // get atn simulator that knows how to do predictions
             Interpreter = new ParserATNSimulator(this, atn, _decisionToDFA, null);
         }
 
-        public override ATN Atn
-        {
-            get
-            {
+        public override ATN Atn {
+            get {
                 return _atn;
             }
         }
 
-        public override IVocabulary Vocabulary
-        {
-            get
-            {
+        public override IVocabulary Vocabulary {
+            get {
                 return vocabulary;
             }
         }
 
-        public override string[] RuleNames
-        {
-            get
-            {
+        public override string[] RuleNames {
+            get {
                 return _ruleNames;
             }
         }
 
-        public override string GrammarFileName
-        {
-            get
-            {
+        public override string GrammarFileName {
+            get {
                 return _grammarFileName;
             }
         }
 
         /// <summary>Begin parsing at startRuleIndex</summary>
-        public virtual ParserRuleContext Parse(int startRuleIndex)
-        {
-            RuleStartState startRuleStartState = _atn.ruleToStartState[startRuleIndex];
-            InterpreterRuleContext rootContext = new InterpreterRuleContext(null, ATNState.InvalidStateNumber, startRuleIndex);
-            if (startRuleStartState.isPrecedenceRule)
-            {
+        public virtual ParserRuleContext Parse(int startRuleIndex) {
+            var startRuleStartState = _atn.ruleToStartState[startRuleIndex];
+            var rootContext = new InterpreterRuleContext(null, ATNState.InvalidStateNumber, startRuleIndex);
+            if (startRuleStartState.isPrecedenceRule) {
                 EnterRecursionRule(rootContext, startRuleStartState.stateNumber, startRuleIndex, 0);
-            }
-            else
-            {
+            } else {
                 EnterRule(rootContext, startRuleStartState.stateNumber, startRuleIndex);
             }
-            while (true)
-            {
-                ATNState p = AtnState;
-                switch (p.StateType)
-                {
-                    case StateType.RuleStop:
-                    {
+            while (true) {
+                var p = AtnState;
+                switch (p.StateType) {
+                    case StateType.RuleStop: {
                         // pop; return from rule
-						if (RuleContext.IsEmpty)
-                        {
-                            if (startRuleStartState.isPrecedenceRule)
-                            {
-								ParserRuleContext result = RuleContext;
-                                Tuple<ParserRuleContext, int> parentContext = _parentContextStack.Pop();
+                        if (RuleContext.IsEmpty) {
+                            if (startRuleStartState.isPrecedenceRule) {
+                                var result = RuleContext;
+                                var parentContext = _parentContextStack.Pop();
                                 UnrollRecursionContexts(parentContext.Item1);
                                 return result;
-                            }
-                            else
-                            {
+                            } else {
                                 ExitRule();
                                 return rootContext;
                             }
@@ -148,14 +122,10 @@ namespace Antlr4.Runtime
                         break;
                     }
 
-                    default:
-                    {
-                        try
-                        {
+                    default: {
+                        try {
                             VisitState(p);
-                        }
-                        catch (RecognitionException e)
-                        {
+                        } catch (RecognitionException e) {
                             State = _atn.ruleToStopState[p.ruleIndex].stateNumber;
                             Context.exception = e;
                             ErrorHandler.ReportError(this, e);
@@ -167,133 +137,105 @@ namespace Antlr4.Runtime
             }
         }
 
-        public override void EnterRecursionRule(ParserRuleContext localctx, int state, int ruleIndex, int precedence)
-        {
-			_parentContextStack.Push(Tuple.Create(RuleContext, localctx.invokingState));
+        public override void EnterRecursionRule(ParserRuleContext localctx, int state, int ruleIndex, int precedence) {
+            _parentContextStack.Push(Tuple.Create(RuleContext, localctx.invokingState));
             base.EnterRecursionRule(localctx, state, ruleIndex, precedence);
         }
 
-        protected internal virtual ATNState AtnState
-        {
-            get
-            {
+        protected internal virtual ATNState AtnState {
+            get {
                 return _atn.states[State];
             }
         }
 
-        protected internal virtual void VisitState(ATNState p)
-        {
+        protected internal virtual void VisitState(ATNState p) {
             int edge;
-            if (p.NumberOfTransitions > 1)
-            {
+            if (p.NumberOfTransitions > 1) {
                 ErrorHandler.Sync(this);
-				edge = Interpreter.AdaptivePredict(TokenStream, ((DecisionState)p).decision, RuleContext);
-            }
-            else
-            {
+                edge = Interpreter.AdaptivePredict(TokenStream, ((DecisionState)p).decision, RuleContext);
+            } else {
                 edge = 1;
             }
-            Transition transition = p.Transition(edge - 1);
-            switch (transition.TransitionType)
-            {
-                case TransitionType.EPSILON:
-                {
-                    if (pushRecursionContextStates.Get(p.stateNumber) && !(transition.target is LoopEndState))
-                    {
-						InterpreterRuleContext ctx = new InterpreterRuleContext(_parentContextStack.Peek().Item1, _parentContextStack.Peek().Item2, RuleContext.RuleIndex);
-						PushNewRecursionContext(ctx, _atn.ruleToStartState[p.ruleIndex].stateNumber, RuleContext.RuleIndex);
+            var transition = p.Transition(edge - 1);
+            switch (transition.TransitionType) {
+                case TransitionType.EPSILON: {
+                    if (pushRecursionContextStates.Get(p.stateNumber) && transition.target is not LoopEndState) {
+                        var ctx = new InterpreterRuleContext(_parentContextStack.Peek().Item1, _parentContextStack.Peek().Item2, RuleContext.RuleIndex);
+                        PushNewRecursionContext(ctx, _atn.ruleToStartState[p.ruleIndex].stateNumber, RuleContext.RuleIndex);
                     }
                     break;
                 }
 
-                case TransitionType.ATOM:
-                {
-					Match(((AtomTransition)transition).token);
+                case TransitionType.ATOM: {
+                    Match(((AtomTransition)transition).token);
                     break;
                 }
 
                 case TransitionType.RANGE:
                 case TransitionType.SET:
-                case TransitionType.NOT_SET:
-                {
-                    if (!transition.Matches(TokenStream.LA(1), TokenConstants.MinUserTokenType, 65535))
-                    {
-						ErrorHandler.RecoverInline(this);
+                case TransitionType.NOT_SET: {
+                    if (!transition.Matches(TokenStream.LA(1), TokenConstants.MinUserTokenType, 65535)) {
+                        ErrorHandler.RecoverInline(this);
                     }
                     MatchWildcard();
                     break;
                 }
 
-                case TransitionType.WILDCARD:
-                {
+                case TransitionType.WILDCARD: {
                     MatchWildcard();
                     break;
                 }
 
-                case TransitionType.RULE:
-                {
-                    RuleStartState ruleStartState = (RuleStartState)transition.target;
-                    int ruleIndex = ruleStartState.ruleIndex;
-					InterpreterRuleContext ctx_1 = new InterpreterRuleContext(RuleContext, p.stateNumber, ruleIndex);
-                    if (ruleStartState.isPrecedenceRule)
-                    {
+                case TransitionType.RULE: {
+                    var ruleStartState = (RuleStartState)transition.target;
+                    var ruleIndex = ruleStartState.ruleIndex;
+                    var ctx_1 = new InterpreterRuleContext(RuleContext, p.stateNumber, ruleIndex);
+                    if (ruleStartState.isPrecedenceRule) {
                         EnterRecursionRule(ctx_1, ruleStartState.stateNumber, ruleIndex, ((RuleTransition)transition).precedence);
-                    }
-                    else
-                    {
+                    } else {
                         EnterRule(ctx_1, transition.target.stateNumber, ruleIndex);
                     }
                     break;
                 }
 
-                case TransitionType.PREDICATE:
-                {
-                    PredicateTransition predicateTransition = (PredicateTransition)transition;
-					if (!Sempred(RuleContext, predicateTransition.ruleIndex, predicateTransition.predIndex))
-                    {
+                case TransitionType.PREDICATE: {
+                    var predicateTransition = (PredicateTransition)transition;
+                    if (!Sempred(RuleContext, predicateTransition.ruleIndex, predicateTransition.predIndex)) {
                         throw new FailedPredicateException(this);
                     }
                     break;
                 }
 
-                case TransitionType.ACTION:
-                {
-                    ActionTransition actionTransition = (ActionTransition)transition;
-					Action(RuleContext, actionTransition.ruleIndex, actionTransition.actionIndex);
+                case TransitionType.ACTION: {
+                    var actionTransition = (ActionTransition)transition;
+                    Action(RuleContext, actionTransition.ruleIndex, actionTransition.actionIndex);
                     break;
                 }
 
-                case TransitionType.PRECEDENCE:
-                {
-					if (!Precpred(RuleContext, ((PrecedencePredicateTransition)transition).precedence))
-                    {
+                case TransitionType.PRECEDENCE: {
+                    if (!Precpred(RuleContext, ((PrecedencePredicateTransition)transition).precedence)) {
                         throw new FailedPredicateException(this, string.Format("precpred(_ctx, {0})", ((PrecedencePredicateTransition)transition).precedence));
                     }
                     break;
                 }
 
-                default:
-                {
+                default: {
                     throw new NotSupportedException("Unrecognized ATN transition type.");
                 }
             }
             State = transition.target.stateNumber;
         }
 
-        protected internal virtual void VisitRuleStopState(ATNState p)
-        {
-            RuleStartState ruleStartState = _atn.ruleToStartState[p.ruleIndex];
-            if (ruleStartState.isPrecedenceRule)
-            {
-                Tuple<ParserRuleContext, int> parentContext = _parentContextStack.Pop();
+        protected internal virtual void VisitRuleStopState(ATNState p) {
+            var ruleStartState = _atn.ruleToStartState[p.ruleIndex];
+            if (ruleStartState.isPrecedenceRule) {
+                var parentContext = _parentContextStack.Pop();
                 UnrollRecursionContexts(parentContext.Item1);
                 State = parentContext.Item2;
-            }
-            else
-            {
+            } else {
                 ExitRule();
             }
-            RuleTransition ruleTransition = (RuleTransition)_atn.states[State].Transition(0);
+            var ruleTransition = (RuleTransition)_atn.states[State].Transition(0);
             State = ruleTransition.followState.stateNumber;
         }
     }

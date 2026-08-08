@@ -1,10 +1,10 @@
 using ANU.IngameDebug.Console;
 using Cysharp.Text;
-using Xoderony.Logging;
 using JoG.Character;
 using Newtonsoft.Json;
 using System.Collections;
 using System.Collections.Generic;
+using Xoderony.Logging;
 
 [assembly: RegisterDebugCommandTypes(typeof(CharacterDataDictionary))]
 
@@ -35,18 +35,32 @@ namespace JoG.Character {
             Shared.Log(sb.ToString());
         }
 
-        public void Add(CharacterData data) => _nameToData.Add(data.name, data);
+        public void Add(CharacterData data) {
+            _nameToData.Add(data.name, data);
+        }
 
-        public bool Remove(CharacterData data) => _nameToData.Remove(data.name);
+        public bool Remove(CharacterData data) {
+            return _nameToData.Remove(data.name);
+        }
 
-        public void Clear() => _nameToData.Clear();
+        public void Clear() {
+            _nameToData.Clear();
+        }
 
-        public bool ContainsKey(string name) => _nameToData.ContainsKey(name);
+        public bool ContainsKey(string name) {
+            return _nameToData.ContainsKey(name);
+        }
 
-        public bool TryGetValue(string name, out CharacterData data) => _nameToData.TryGetValue(name, out data);
+        public bool TryGetValue(string name, out CharacterData data) {
+            return _nameToData.TryGetValue(name, out data);
+        }
 
-        IEnumerator<KeyValuePair<string, CharacterData>> IEnumerable<KeyValuePair<string, CharacterData>>.GetEnumerator() => _nameToData.GetEnumerator();
+        IEnumerator<KeyValuePair<string, CharacterData>> IEnumerable<KeyValuePair<string, CharacterData>>.GetEnumerator() {
+            return _nameToData.GetEnumerator();
+        }
 
-        IEnumerator IEnumerable.GetEnumerator() => _nameToData.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() {
+            return _nameToData.GetEnumerator();
+        }
     }
 }

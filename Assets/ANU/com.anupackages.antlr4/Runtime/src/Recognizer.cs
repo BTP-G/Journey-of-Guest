@@ -1,18 +1,16 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
+using Antlr4.Runtime.Atn;
+using Antlr4.Runtime.Misc;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using Antlr4.Runtime.Atn;
-using Antlr4.Runtime.Misc;
 
-namespace Antlr4.Runtime
-{
+namespace Antlr4.Runtime {
     public abstract class Recognizer<Symbol, ATNInterpreter> : IRecognizer
-        where ATNInterpreter : ATNSimulator
-    {
+        where ATNInterpreter : ATNSimulator {
         public const int Eof = -1;
 
         private static readonly ConditionalWeakTable<IVocabulary, IDictionary<string, int>> tokenTypeMapCache = new ConditionalWeakTable<IVocabulary, IDictionary<string, int>>();
@@ -38,11 +36,9 @@ namespace Antlr4.Runtime
         /// that overrides this to point to their String[] tokenNames.
         /// </remarks>
 
-        public abstract string[] RuleNames
-        {
+        public abstract string[] RuleNames {
             get;
         }
-
 
         /// <summary>Get the vocabulary used by the recognizer.</summary>
         /// <remarks>Get the vocabulary used by the recognizer.</remarks>
@@ -52,10 +48,9 @@ namespace Antlr4.Runtime
         /// instance providing information about the
         /// vocabulary used by the grammar.
         /// </returns>
-        public abstract IVocabulary Vocabulary
-        {
-			get;
-       }
+        public abstract IVocabulary Vocabulary {
+            get;
+        }
 
         /// <summary>Get a map from token names to token types.</summary>
         /// <remarks>
@@ -63,27 +58,21 @@ namespace Antlr4.Runtime
         /// <p>Used for XPath and tree pattern compilation.</p>
         /// </remarks>
         [NotNull]
-        public virtual IDictionary<string, int> TokenTypeMap
-        {
-            get
-            {
+        public virtual IDictionary<string, int> TokenTypeMap {
+            get {
                 return tokenTypeMapCache.GetValue(Vocabulary, CreateTokenTypeMap);
             }
         }
 
-        protected virtual IDictionary<string, int> CreateTokenTypeMap(IVocabulary vocabulary)
-        {
+        protected virtual IDictionary<string, int> CreateTokenTypeMap(IVocabulary vocabulary) {
             var result = new Dictionary<string, int>();
-            for (int i = 0; i <= Atn.maxTokenType; i++)
-            {
-                string literalName = vocabulary.GetLiteralName(i);
-                if (literalName != null)
-                {
+            for (var i = 0; i <= Atn.maxTokenType; i++) {
+                var literalName = vocabulary.GetLiteralName(i);
+                if (literalName != null) {
                     result[literalName] = i;
                 }
-                string symbolicName = vocabulary.GetSymbolicName(i);
-                if (symbolicName != null)
-                {
+                var symbolicName = vocabulary.GetSymbolicName(i);
+                if (symbolicName != null) {
                     result[symbolicName] = i;
                 }
             }
@@ -97,25 +86,15 @@ namespace Antlr4.Runtime
         /// <p>Used for XPath and tree pattern compilation.</p>
         /// </remarks>
         [NotNull]
-        public virtual IDictionary<string, int> RuleIndexMap
-        {
-            get
-            {
-                string[] ruleNames = RuleNames;
-                if (ruleNames == null)
-                {
-                    throw new NotSupportedException("The current recognizer does not provide a list of rule names.");
-                }
-
+        public virtual IDictionary<string, int> RuleIndexMap {
+            get {
+                var ruleNames = RuleNames ?? throw new NotSupportedException("The current recognizer does not provide a list of rule names.");
                 return ruleIndexMapCache.GetValue(ruleNames, Utils.ToMap);
             }
         }
 
-        public virtual int GetTokenType(string tokenName)
-        {
-            int ttype;
-            if (TokenTypeMap.TryGetValue(tokenName, out ttype))
-            {
+        public virtual int GetTokenType(string tokenName) {
+            if (TokenTypeMap.TryGetValue(tokenName, out var ttype)) {
                 return ttype;
             }
             return TokenConstants.InvalidType;
@@ -131,11 +110,9 @@ namespace Antlr4.Runtime
         /// <p>For interpreters, we don't know their serialized ATN despite having
         /// created the interpreter from it.</p>
         /// </remarks>
-        public virtual int[] SerializedAtn
-        {
+        public virtual int[] SerializedAtn {
             [return: NotNull]
-            get
-            {
+            get {
                 throw new NotSupportedException("there is no serialized ATN");
             }
         }
@@ -145,8 +122,7 @@ namespace Antlr4.Runtime
         /// For debugging and other purposes, might want the grammar name.
         /// Have ANTLR generate an implementation for this method.
         /// </remarks>
-        public abstract string GrammarFileName
-        {
+        public abstract string GrammarFileName {
             get;
         }
 
@@ -160,10 +136,8 @@ namespace Antlr4.Runtime
         /// <see cref="Antlr4.Runtime.Atn.ATN"/>
         /// used by the recognizer for prediction.
         /// </returns>
-        public virtual ATN Atn
-        {
-            get
-            {
+        public virtual ATN Atn {
+            get {
                 return _interp.atn;
             }
         }
@@ -177,15 +151,12 @@ namespace Antlr4.Runtime
         /// The ATN interpreter used by the recognizer for
         /// prediction.
         /// </value>
-        public virtual ATNInterpreter Interpreter
-        {
-            get
-            {
+        public virtual ATNInterpreter Interpreter {
+            get {
                 return _interp;
             }
-            protected set
-            {
-				_interp = value;
+            protected set {
+                _interp = value;
             }
         }
 
@@ -198,20 +169,17 @@ namespace Antlr4.Runtime
         /// for each decision in recognizer in a ParseInfo object.
         /// </remarks>
         /// <since>4.3</since>
-        public virtual Antlr4.Runtime.Atn.ParseInfo ParseInfo
-        {
-            get
-            {
+        public virtual Antlr4.Runtime.Atn.ParseInfo ParseInfo {
+            get {
                 return null;
             }
         }
 
         /// <summary>What is the error header, normally line/character position information?</summary>
         [return: NotNull]
-        public virtual string GetErrorHeader(RecognitionException e)
-        {
-            int line = e.OffendingToken.Line;
-            int charPositionInLine = e.OffendingToken.Column;
+        public virtual string GetErrorHeader(RecognitionException e) {
+            var line = e.OffendingToken.Line;
+            var charPositionInLine = e.OffendingToken.Column;
             return "line " + line + ":" + charPositionInLine;
         }
 
@@ -230,21 +198,15 @@ namespace Antlr4.Runtime
         /// so that it creates a new Java type.
         /// </remarks>
         [ObsoleteAttribute(@"This method is not called by the ANTLR 4 Runtime. Specific implementations of IAntlrErrorStrategy may provide a similar feature when necessary. For example, see DefaultErrorStrategy.GetTokenErrorDisplay(IToken).")]
-        public virtual string GetTokenErrorDisplay(IToken t)
-        {
-            if (t == null)
-            {
+        public virtual string GetTokenErrorDisplay(IToken t) {
+            if (t == null) {
                 return "<no token>";
             }
-            string s = t.Text;
-            if (s == null)
-            {
-                if (t.Type == TokenConstants.EOF)
-                {
+            var s = t.Text;
+            if (s == null) {
+                if (t.Type == TokenConstants.EOF) {
                     s = "<EOF>";
-                }
-                else
-                {
+                } else {
                     s = "<" + t.Type + ">";
                 }
             }
@@ -262,64 +224,55 @@ namespace Antlr4.Runtime
         /// <see langword="null"/>
         /// .
         /// </exception>
-        public virtual void AddErrorListener(IAntlrErrorListener<Symbol> listener)
-        {
+        public virtual void AddErrorListener(IAntlrErrorListener<Symbol> listener) {
             Args.NotNull("listener", listener);
 
-            IAntlrErrorListener<Symbol>[] listeners = _listeners;
+            var listeners = _listeners;
             Array.Resize(ref listeners, listeners.Length + 1);
-            listeners[listeners.Length - 1] = listener;
+            listeners[^1] = listener;
             _listeners = listeners;
         }
 
-        public virtual void RemoveErrorListener(IAntlrErrorListener<Symbol> listener)
-        {
-            IAntlrErrorListener<Symbol>[] listeners = _listeners;
-            int removeIndex = Array.IndexOf(listeners, listener);
-            if (removeIndex < 0)
+        public virtual void RemoveErrorListener(IAntlrErrorListener<Symbol> listener) {
+            var listeners = _listeners;
+            var removeIndex = Array.IndexOf(listeners, listener);
+            if (removeIndex < 0) {
                 return;
+            }
 
             Array.Copy(listeners, removeIndex + 1, listeners, removeIndex, listeners.Length - removeIndex - 1);
             Array.Resize(ref listeners, listeners.Length - 1);
             _listeners = listeners;
         }
 
-        public virtual void RemoveErrorListeners()
-        {
+        public virtual void RemoveErrorListeners() {
             _listeners = new IAntlrErrorListener<Symbol>[0];
         }
 
         [NotNull]
-        public virtual IList<IAntlrErrorListener<Symbol>> ErrorListeners
-        {
-            get
-            {
+        public virtual IList<IAntlrErrorListener<Symbol>> ErrorListeners {
+            get {
                 return new List<IAntlrErrorListener<Symbol>>(_listeners);
             }
         }
 
-        public virtual IAntlrErrorListener<Symbol> ErrorListenerDispatch
-        {
-            get
-            {
+        public virtual IAntlrErrorListener<Symbol> ErrorListenerDispatch {
+            get {
                 return new ProxyErrorListener<Symbol>(ErrorListeners);
             }
         }
 
         // subclass needs to override these if there are sempreds or actions
         // that the ATN interp needs to execute
-        public virtual bool Sempred(RuleContext _localctx, int ruleIndex, int actionIndex)
-        {
+        public virtual bool Sempred(RuleContext _localctx, int ruleIndex, int actionIndex) {
             return true;
         }
 
-        public virtual bool Precpred(RuleContext localctx, int precedence)
-        {
+        public virtual bool Precpred(RuleContext localctx, int precedence) {
             return true;
         }
 
-        public virtual void Action(RuleContext _localctx, int ruleIndex, int actionIndex)
-        {
+        public virtual void Action(RuleContext _localctx, int ruleIndex, int actionIndex) {
         }
 
         /// <summary>
@@ -334,22 +287,18 @@ namespace Antlr4.Runtime
         /// invoking rules. Combine this and we have complete ATN
         /// configuration information.
         /// </remarks>
-        public int State
-        {
-            get
-            {
+        public int State {
+            get {
                 return _stateNumber;
             }
-            set
-            {
-                int atnState = value;
+            set {
+                var atnState = value;
                 //		System.err.println("setState "+atnState);
                 _stateNumber = atnState;
             }
         }
 
-        public abstract IIntStream InputStream
-        {
+        public abstract IIntStream InputStream {
             get;
         }
         //		if ( traceATNStates ) _ctx.trace(atnState);

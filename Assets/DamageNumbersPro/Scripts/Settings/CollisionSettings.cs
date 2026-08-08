@@ -1,14 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace DamageNumbersPro
-{
+namespace DamageNumbersPro {
     [System.Serializable]
-    public struct CollisionSettings
-    {
-        public CollisionSettings(float customDefault)
-        {
+    public struct CollisionSettings {
+        public CollisionSettings(float customDefault) {
             radius = 0.5f;
             pushFactor = 1f;
 

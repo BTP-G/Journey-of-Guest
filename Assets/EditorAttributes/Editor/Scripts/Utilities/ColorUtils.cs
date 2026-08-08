@@ -1,24 +1,22 @@
-﻿using UnityEngine;
-using UnityEditor;
 using System.Reflection;
+using UnityEditor;
+using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace EditorAttributes.Editor.Utility
-{
-    public static class ColorUtils
-    {
+namespace EditorAttributes.Editor.Utility {
+    public static class ColorUtils {
         /// <summary>
         /// Applies a color to a visual element via the color attribute
         /// </summary>
         /// <param name="visualElement">The visual element to color</param>
         /// <param name="color">The color attribute</param>
         /// <param name="errorBox">The error box to display any errors to</param>
-        public static void ApplyColor(VisualElement visualElement, IColorAttribute color, HelpBox errorBox)
-        {
-            if (color.Color == GUIColor.Default && !color.UseRGB && string.IsNullOrEmpty(color.HexColor))
+        public static void ApplyColor(VisualElement visualElement, IColorAttribute color, HelpBox errorBox) {
+            if (color.Color == GUIColor.Default && !color.UseRGB && string.IsNullOrEmpty(color.HexColor)) {
                 return;
+            }
 
-            Color attributeColor = GetColorFromAttribute(color, errorBox);
+            var attributeColor = GetColorFromAttribute(color, errorBox);
             ApplyColor(visualElement, attributeColor);
         }
 
@@ -28,53 +26,51 @@ namespace EditorAttributes.Editor.Utility
         /// <param name="visualElement">The visual element to color</param>
         /// <param name="color">The color to apply</param>
         /// <param name="delay">How many milliseconds to delay before applying the color</param>
-        public static void ApplyColor(VisualElement visualElement, Color color, int delay = 50)
-        {
-            visualElement.schedule.Execute(() =>
-            {
+        public static void ApplyColor(VisualElement visualElement, Color color, int delay = 50) {
+            visualElement.schedule.Execute(() => {
                 var labels = visualElement.Query<Label>().ToList();
 
-                foreach (var label in labels)
+                foreach (var label in labels) {
                     label.style.color = color;
+                }
 
                 var textElements = visualElement.Query<TextElement>().ToList();
 
-                foreach (var textElement in textElements)
+                foreach (var textElement in textElements) {
                     textElement.style.color = color;
+                }
 
                 var scrollviews = visualElement.Query<ScrollView>(className: "unity-collection-view__scroll-view").ToList();
 
-                foreach (var scrollview in scrollviews)
+                foreach (var scrollview in scrollviews) {
                     scrollview.style.backgroundColor = color / 3f;
+                }
 
                 var inputFields = visualElement.Query(className: "unity-base-field__input").ToList();
 
-                foreach (var inputField in inputFields)
+                foreach (var inputField in inputFields) {
                     inputField.style.backgroundColor = color / 3f;
+                }
 
                 var checkMarks = visualElement.Query(className: "unity-toggle__checkmark").ToList();
 
-                foreach (var checkMark in checkMarks)
-                {
+                foreach (var checkMark in checkMarks) {
                     checkMark.style.unityBackgroundImageTintColor = color;
                     checkMark.parent.style.backgroundColor = StyleKeyword.Initial;
                 }
-
             }).ExecuteLater(delay);
         }
 
-        internal static Color? GetPropertyColor(SerializedProperty property) => GetPropertyColor(property, EditorExtension.GLOBAL_COLOR.a);
+        internal static Color? GetPropertyColor(SerializedProperty property) {
+            return GetPropertyColor(property, EditorExtension.GLOBAL_COLOR.a);
+        }
 
-        internal static Color? GetPropertyColor(SerializedProperty property, float customAlpha)
-        {
-            Color? propertyColor = GetColorFromProperty(property);
+        internal static Color? GetPropertyColor(SerializedProperty property, float customAlpha) {
+            var propertyColor = GetColorFromProperty(property);
 
-            if (propertyColor.HasValue)
-            {
+            if (propertyColor.HasValue) {
                 return new Color(propertyColor.Value.r, propertyColor.Value.g, propertyColor.Value.b, customAlpha);
-            }
-            else if (EditorExtension.GLOBAL_COLOR != EditorExtension.DEFAULT_GLOBAL_COLOR)
-            {
+            } else if (EditorExtension.GLOBAL_COLOR != EditorExtension.DEFAULT_GLOBAL_COLOR) {
                 return new Color(EditorExtension.GLOBAL_COLOR.r, EditorExtension.GLOBAL_COLOR.g, EditorExtension.GLOBAL_COLOR.b, customAlpha);
             }
 
@@ -86,9 +82,8 @@ namespace EditorAttributes.Editor.Utility
         /// </summary>
         /// <param name="property">The property to get the color from</param>
         /// <returns>The color from the attribute, null if the attribute is not found</returns>
-        public static Color? GetColorFromProperty(SerializedProperty property)
-        {
-            FieldInfo field = ReflectionUtils.FindField(property.name, property);
+        public static Color? GetColorFromProperty(SerializedProperty property) {
+            var field = ReflectionUtils.FindField(property.name, property);
 
             IColorAttribute colorAttribute = field?.GetCustomAttribute<GUIColorAttribute>();
 
@@ -104,7 +99,9 @@ namespace EditorAttributes.Editor.Utility
         /// <param name="attribute">The color attribute</param>
         /// <param name="errorBox">The error box to display any errors to</param>
         /// <returns>The color from the attribute</returns>
-        public static Color GetColorFromAttribute(IColorAttribute attribute, HelpBox errorBox) => GetColorFromAttribute(attribute, 1f, errorBox);
+        public static Color GetColorFromAttribute(IColorAttribute attribute, HelpBox errorBox) {
+            return GetColorFromAttribute(attribute, 1f, errorBox);
+        }
 
         /// <summary>
         /// Gets the color value from a color attribute with custom alpha
@@ -113,15 +110,11 @@ namespace EditorAttributes.Editor.Utility
         /// <param name="alpha">Custom transparency value</param>
         /// <param name="errorBox">The error box to display any errors to</param>
         /// <returns>The color from the attribute</returns>
-        public static Color GetColorFromAttribute(IColorAttribute attribute, float alpha, HelpBox errorBox)
-        {
-            if (ColorUtility.TryParseHtmlString(attribute.HexColor, out Color color))
-            {
+        public static Color GetColorFromAttribute(IColorAttribute attribute, float alpha, HelpBox errorBox) {
+            if (ColorUtility.TryParseHtmlString(attribute.HexColor, out var color)) {
                 color.a = alpha;
                 return color;
-            }
-            else if (!string.IsNullOrEmpty(attribute.HexColor))
-            {
+            } else if (!string.IsNullOrEmpty(attribute.HexColor)) {
                 errorBox.text = $"The provided value <b>{attribute.HexColor}</b> is not a valid Hex color";
             }
 
@@ -133,7 +126,9 @@ namespace EditorAttributes.Editor.Utility
         /// </summary>
         /// <param name="colorAttribute">The color attribute</param>
         /// <returns>The color value</returns>
-        public static Color ColorAttributeToColor(IColorAttribute colorAttribute) => ColorAttributeToColor(colorAttribute, 1f);
+        public static Color ColorAttributeToColor(IColorAttribute colorAttribute) {
+            return ColorAttributeToColor(colorAttribute, 1f);
+        }
 
         /// <summary>
         /// Converts the color attribute values from the color attribute to a color
@@ -141,10 +136,10 @@ namespace EditorAttributes.Editor.Utility
         /// <param name="colorAttribute">The color attribute</param>
         /// <param name="alpha">Custom transparency value</param>
         /// <returns>The color value</returns>
-        public static Color ColorAttributeToColor(IColorAttribute colorAttribute, float alpha)
-        {
-            if (colorAttribute.UseRGB)
+        public static Color ColorAttributeToColor(IColorAttribute colorAttribute, float alpha) {
+            if (colorAttribute.UseRGB) {
                 return new(colorAttribute.R / 255f, colorAttribute.G / 255f, colorAttribute.B / 255f, alpha);
+            }
 
             return GUIColorToColor(colorAttribute.Color, alpha);
         }
@@ -154,7 +149,9 @@ namespace EditorAttributes.Editor.Utility
         /// </summary>
         /// <param name="color">The GUIColor</param>
         /// <returns>The color value</returns>
-        public static Color GUIColorToColor(GUIColor color) => GUIColorToColor(color, 1f);
+        public static Color GUIColorToColor(GUIColor color) {
+            return GUIColorToColor(color, 1f);
+        }
 
         /// <summary>
         /// Converts the GUIColor value to a color
@@ -162,10 +159,8 @@ namespace EditorAttributes.Editor.Utility
         /// <param name="color">The GUIColor</param>
         /// <param name="alpha">Custom transparency value</param>
         /// <returns>The color value</returns>
-        public static Color GUIColorToColor(GUIColor color, float alpha)
-        {
-            return color switch
-            {
+        public static Color GUIColorToColor(GUIColor color, float alpha) {
+            return color switch {
                 GUIColor.White => new(Color.white.r, Color.white.g, Color.white.b, alpha),
                 GUIColor.Black => new(Color.black.r, Color.black.g, Color.black.b, alpha),
                 GUIColor.Gray => new(Color.gray.r, Color.gray.g, Color.gray.b, alpha),

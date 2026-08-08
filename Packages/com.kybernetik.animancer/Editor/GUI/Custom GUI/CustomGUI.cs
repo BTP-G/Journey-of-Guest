@@ -4,16 +4,14 @@
 
 using UnityEngine;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only] Draws a custom GUI for an object.</summary>
     /// <remarks>
     /// Every non-abstract type implementing this interface must have at least one <see cref="CustomGUIAttribute"/>.
     /// </remarks>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/ICustomGUI
     /// 
-    public interface ICustomGUI
-    {
+    public interface ICustomGUI {
         /************************************************************************************************************************/
 
         /// <summary>The optional label to draw in front of the field.</summary>
@@ -34,16 +32,14 @@ namespace Animancer.Editor
     /// </remarks>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/CustomGUI_1
     /// 
-    public abstract class CustomGUI<T> : ICustomGUI
-    {
+    public abstract class CustomGUI<T> : ICustomGUI {
         /************************************************************************************************************************/
 
         /// <summary>The object for which this GUI will be drawn.</summary>
         public T Value { get; protected set; }
 
         /// <inheritdoc/>
-        object ICustomGUI.Value
-        {
+        object ICustomGUI.Value {
             get => Value;
             set => Value = (T)value;
         }
@@ -64,8 +60,7 @@ namespace Animancer.Editor
     /// <summary>[Editor-Only] Extension methods for <see cref="ICustomGUI"/>.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/CustomGUIExtensions
     /// 
-    public static class CustomGUIExtensions
-    {
+    public static class CustomGUIExtensions {
         /************************************************************************************************************************/
 
         /// <summary>Sets the <see cref="ICustomGUI.Label"/>.</summary>
@@ -73,11 +68,11 @@ namespace Animancer.Editor
             this ICustomGUI customGUI,
             string text,
             string tooltip = null,
-            Texture image = null)
-        {
+            Texture image = null) {
             var label = customGUI.Label;
-            if (label == null || label == GUIContent.none)
+            if (label == null || label == GUIContent.none) {
                 customGUI.Label = label = new(text);
+            }
 
             label.text = text;
             label.tooltip = tooltip;

@@ -7,7 +7,7 @@ using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 using YooAsset.Editor;
-using AssetInfo = YooAsset.Editor.AssetInfo;
+using AssetInfo = YooAsset.Editor.EditorAssetInfo;
 using UIObjectField = UnityEditor.UIElements.ObjectField;
 
 namespace Xoderony.YooAsset.Editor {
@@ -29,8 +29,7 @@ namespace Xoderony.YooAsset.Editor {
             var packageProp = property.FindPropertyRelative("_packageName");
             if (string.IsNullOrWhiteSpace(packageProp.stringValue)) {
                 packageProp.stringValue = _packages.FirstOrDefault();
-                packageProp.serializedObject
-                           .ApplyModifiedProperties();
+                packageProp.serializedObject.ApplyModifiedProperties();
             }
             var row = new VisualElement {
                 style = {
@@ -52,8 +51,7 @@ namespace Xoderony.YooAsset.Editor {
             };
             Type elementType = null;
             if (fieldInfo.FieldType.HasElementType) {
-                elementType = fieldInfo.FieldType
-                                       .GetElementType();
+                elementType = fieldInfo.FieldType.GetElementType();
             } else {
                 elementType = fieldInfo.FieldType;
             }
@@ -141,7 +139,7 @@ namespace Xoderony.YooAsset.Editor {
             _pkgToAddress.Clear();
             _pkgToAssetInfo.Clear();
             _packages.Clear();
-            var setting = AssetBundleCollectorSettingData.Setting;
+            var setting = BundleCollectorSettingData.Setting;
             foreach (var pkg in setting.Packages) {
                 if (!pkg.EnableAddressable) {
                     pkg.EnableAddressable = true;
@@ -157,9 +155,8 @@ namespace Xoderony.YooAsset.Editor {
                     }
                 }
                 _packages.Add(pkg.PackageName);
-                var ignoreRule = AssetBundleCollectorSettingData.GetIgnoreRuleInstance(pkg.IgnoreRuleName);
+                var ignoreRule = BundleCollectorSettingData.GetAssetIgnoreRuleInstance(pkg.IgnoreRuleName);
                 var cmd = new CollectCommand(pkg.PackageName, ignoreRule) {
-                    SimulateBuild = true,
                     UniqueBundleName = setting.UniqueBundleName,
                     UseAssetDependencyDB = true,
                     EnableAddressable = pkg.EnableAddressable,
@@ -167,6 +164,7 @@ namespace Xoderony.YooAsset.Editor {
                     IncludeAssetGUID = pkg.IncludeAssetGUID,
                     AutoCollectShaders = pkg.AutoCollectShaders,
                 };
+                cmd.SetSimulateBuild(true);
                 var assets = pkg.GetCollectAssets(cmd);
                 var hashSet = new HashSet<string>(assets.Count);
                 var assetInfos = new List<AssetInfo>(assets.Count);
@@ -178,8 +176,6 @@ namespace Xoderony.YooAsset.Editor {
                 }
             }
         }
-
     }
-
 }
 #endif

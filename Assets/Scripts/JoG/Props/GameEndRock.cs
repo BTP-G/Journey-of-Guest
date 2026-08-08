@@ -1,13 +1,12 @@
 using Cysharp.Threading.Tasks;
-using Xoderony.Localization;
 using JoG.Interaction;
-using JoG.Localization;
 using JoG.Networking;
 using JoG.UI;
 using System.Text;
 using Unity.Netcode;
 using UnityEngine;
 using VContainer;
+using Xoderony.Localization;
 
 namespace JoG.Props {
 

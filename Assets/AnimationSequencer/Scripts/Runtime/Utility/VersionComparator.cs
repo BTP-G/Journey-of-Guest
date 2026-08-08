@@ -1,19 +1,16 @@
-﻿#if DOTWEEN_ENABLED
+#if DOTWEEN_ENABLED
 using UnityEngine;
 
-namespace BrunoMikoski.AnimationSequencer
-{
+namespace BrunoMikoski.AnimationSequencer {
     // Created by Pablo Huaxteco
     /// <summary>
     /// Provides methods for comparing software version numbers using Semantic Versioning(X.Y.Z).
     /// </summary>
-    public static class VersionComparator
-    {
+    public static class VersionComparator {
         /// <summary>
         /// Enum representing the result of a version comparison.
         /// </summary>
-        public enum VersionComparisonResult
-        {
+        public enum VersionComparisonResult {
             /// <summary>
             /// Indicates an incorrect version format.
             /// </summary>
@@ -38,51 +35,48 @@ namespace BrunoMikoski.AnimationSequencer
         /// <param name="versionA">The first version to compare.</param>
         /// <param name="versionB">The second version to compare.</param>
         /// <returns>The result of the version comparison.</returns>
-        public static VersionComparisonResult Compare(string versionA, string versionB)
-        {
+        public static VersionComparisonResult Compare(string versionA, string versionB) {
             // Validate the version format for versionA.
-            if (!IsValidVersionFormat(versionA))
-            {
+            if (!IsValidVersionFormat(versionA)) {
                 Debug.LogError("Version A has incorrect version format. It should be X.Y.Z");
                 return VersionComparisonResult.IncorrectFormat;
             }
 
             // Validate the version format for versionB.
-            if (!IsValidVersionFormat(versionB))
-            {
+            if (!IsValidVersionFormat(versionB)) {
                 Debug.LogError("Version B has incorrect version format. It should be X.Y.Z");
                 return VersionComparisonResult.IncorrectFormat;
             }
 
             // Split the versions into numbers.
-            string[] versionANumbers = versionA.Split('.');
-            string[] versionBNumbers = versionB.Split('.');
+            var versionANumbers = versionA.Split('.');
+            var versionBNumbers = versionB.Split('.');
 
             // Compare the versions.
-            for (int i = 0; i < 3; i++)
-            {
-                int versionANumber = int.Parse(versionANumbers[i]);
-                int versionBNumber = int.Parse(versionBNumbers[i]);
+            for (var i = 0; i < 3; i++) {
+                var versionANumber = int.Parse(versionANumbers[i]);
+                var versionBNumber = int.Parse(versionBNumbers[i]);
 
-                if (versionANumber < versionBNumber)
+                if (versionANumber < versionBNumber) {
                     return VersionComparisonResult.Lesser;
-                else if (versionANumber > versionBNumber)
+                } else if (versionANumber > versionBNumber) {
                     return VersionComparisonResult.Greater;
+                }
             }
 
             return VersionComparisonResult.Equal;
         }
 
-        private static bool IsValidVersionFormat(string version)
-        {
-            string[] versionNumbers = version.Split('.');
-            if (versionNumbers.Length != 3)
+        private static bool IsValidVersionFormat(string version) {
+            var versionNumbers = version.Split('.');
+            if (versionNumbers.Length != 3) {
                 return false;
+            }
 
-            foreach (string number in versionNumbers)
-            {
-                if (!int.TryParse(number, out int _))
+            foreach (var number in versionNumbers) {
+                if (!int.TryParse(number, out var _)) {
                     return false;
+                }
             }
 
             return true;

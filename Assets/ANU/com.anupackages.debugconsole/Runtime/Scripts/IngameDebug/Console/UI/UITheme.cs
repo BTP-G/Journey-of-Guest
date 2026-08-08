@@ -1,14 +1,10 @@
-﻿using UnityEngine;
+using ANU.IngameDebug.Utils;
+using System;
+using UnityEngine;
 
-namespace ANU.IngameDebug.Console
-{
-    using System;
-    using ANU.IngameDebug.Utils;
-    using UnityEngine;
-
+namespace ANU.IngameDebug.Console {
     [CreateAssetMenu(fileName = "ConsoleUITheme", menuName = "ANU/IngameDebug/Console/UITheme", order = 0)]
-    public class UITheme : ScriptableObject
-    {
+    public class UITheme : ScriptableObject {
         [field: SerializeField] public Color Input { get; private set; }
 
         [field: Space, Header("Messages - Default")]
@@ -103,7 +99,6 @@ namespace ANU.IngameDebug.Console
         [SerializeField] private Color _dashboardItem_Required;
         [SerializeField] private Color _dashboardItem_Toggle;
 
-
         public Color Message_Log => _message_Log.AsNullable() ?? Log;
         public Color Message_Warnings => _message_Warnings.AsNullable() ?? Warnings;
         public Color Message_Errors => _message_Errors.AsNullable() ?? Errors;
@@ -172,6 +167,8 @@ namespace ANU.IngameDebug.Console
 
         public event Action Changed;
 
-        private void OnValidate() => Changed?.Invoke();
+        private void OnValidate() {
+            Changed?.Invoke();
+        }
     }
 }

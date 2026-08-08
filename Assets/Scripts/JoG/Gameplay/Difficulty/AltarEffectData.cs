@@ -1,6 +1,6 @@
 using System;
-using Xoderony.GameplayEffects;
 using UnityEngine;
+using Xoderony.GameplayEffects;
 
 namespace JoG.Gameplay {
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -11,93 +11,87 @@ using UnityEngine;
 using UnityEngine.Networking;
 using Debug = UnityEngine.Debug;
 
-namespace ImpossibleRobert.Common
-{
-    public static class IOUtils
-    {
+namespace ImpossibleRobert.Common {
+    public static class IOUtils {
         private const string LONG_PATH_PREFIX = @"\\?\";
         private const string LONG_PATH_UNC_PREFIX = @"\\?\UNC\";
 
-        public static DriveInfo GetDriveInfoForPath(string folderPath)
-        {
-            if (string.IsNullOrEmpty(folderPath)) return null;
+        public static DriveInfo GetDriveInfoForPath(string folderPath) {
+            if (string.IsNullOrEmpty(folderPath)) {
+                return null;
+            }
+
             folderPath = ToShortPath(folderPath);
 
             folderPath = Path.GetFullPath(folderPath);
             DriveInfo bestMatch = null;
 
-            foreach (DriveInfo drive in DriveInfo.GetDrives())
-            {
-                string root = drive.RootDirectory.FullName;
-                if (folderPath.StartsWith(root, StringComparison.OrdinalIgnoreCase))
-                {
-                    if (bestMatch == null || root.Length > bestMatch.RootDirectory.FullName.Length)
-                    {
+            foreach (var drive in DriveInfo.GetDrives()) {
+                var root = drive.RootDirectory.FullName;
+                if (folderPath.StartsWith(root, StringComparison.OrdinalIgnoreCase)) {
+                    if (bestMatch == null || root.Length > bestMatch.RootDirectory.FullName.Length) {
                         bestMatch = drive;
                     }
                 }
             }
-            if (bestMatch == null) Debug.LogError($"No drive found for the given path: {folderPath}");
+            if (bestMatch == null) {
+                Debug.LogError($"No drive found for the given path: {folderPath}");
+            }
 
             return bestMatch;
         }
 
-        public static bool IsNetworkDrive(string folderPath)
-        {
-            DriveInfo drive = GetDriveInfoForPath(folderPath);
+        public static bool IsNetworkDrive(string folderPath) {
+            var drive = GetDriveInfoForPath(folderPath);
             return drive?.DriveType == DriveType.Network;
         }
 
-        public static bool IsSameDrive(string path1, string path2)
-        {
-            DriveInfo drive1 = GetDriveInfoForPath(path1);
-            DriveInfo drive2 = GetDriveInfoForPath(path2);
+        public static bool IsSameDrive(string path1, string path2) {
+            var drive1 = GetDriveInfoForPath(path1);
+            var drive2 = GetDriveInfoForPath(path2);
             return string.Equals(drive1.Name, drive2.Name, StringComparison.OrdinalIgnoreCase);
         }
 
-        public static long GetFreeSpace(string folderPath)
-        {
-            try
-            {
-                DriveInfo drive = GetDriveInfoForPath(folderPath);
-                if (drive == null) return -1;
+        public static long GetFreeSpace(string folderPath) {
+            try {
+                var drive = GetDriveInfoForPath(folderPath);
+                if (drive == null) {
+                    return -1;
+                }
+
                 return drive.AvailableFreeSpace;
-            }
-            catch (Exception)
-            {
+            } catch (Exception) {
                 return -1;
             }
         }
 
-        public static string NormalizeRelative(string path)
-        {
-            string[] parts = path.Split(new[] {'/', '\\'}, StringSplitOptions.RemoveEmptyEntries);
-            Stack<string> stack = new Stack<string>();
-            foreach (string part in parts)
-            {
-                if (part == "..")
-                {
+        public static string NormalizeRelative(string path) {
+            var parts = path.Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
+            var stack = new Stack<string>();
+            foreach (var part in parts) {
+                if (part == "..") {
                     stack.Pop();
-                }
-                else if (part != ".")
-                {
+                } else if (part != ".") {
                     stack.Push(part);
                 }
             }
             return string.Join("/", stack.Reverse());
         }
 
-        public static string ToLongPath(string path)
-        {
-            if (path == null) return null;
+        public static string ToLongPath(string path) {
+            if (path == null) {
+                return null;
+            }
 
 #if UNITY_EDITOR_WIN
             // see https://learn.microsoft.com/en-us/answers/questions/240603/c-app-long-path-support-on-windows-10-post-1607-ne
             path = path.Replace("/", "\\"); // in case later concatenations added /
-            if (path.StartsWith(LONG_PATH_PREFIX, StringComparison.Ordinal)) return path;
-            if (path.StartsWith(@"\\", StringComparison.Ordinal))
-            {
-                string withoutSlashes = path.Substring(2);
+            if (path.StartsWith(LONG_PATH_PREFIX, StringComparison.Ordinal)) {
+                return path;
+            }
+
+            if (path.StartsWith(@"\\", StringComparison.Ordinal)) {
+                var withoutSlashes = path[2..];
                 return $"{LONG_PATH_UNC_PREFIX}{withoutSlashes}";
             }
             return $"{LONG_PATH_PREFIX}{path}";
@@ -106,16 +100,16 @@ namespace ImpossibleRobert.Common
 #endif
         }
 
-        public static string ToShortPath(string path)
-        {
+        public static string ToShortPath(string path) {
 #if UNITY_EDITOR_WIN
-            if (path == null) return null;
+            if (path == null) {
+                return null;
+            }
 
             // handle UNC long-path prefix \\?\UNC\server\share\�
-            if (path.StartsWith(LONG_PATH_UNC_PREFIX, StringComparison.Ordinal))
-            {
-                string withoutUncPrefix = path.Substring(LONG_PATH_UNC_PREFIX.Length);
-                string uncPath = @"\\" + withoutUncPrefix;
+            if (path.StartsWith(LONG_PATH_UNC_PREFIX, StringComparison.Ordinal)) {
+                var withoutUncPrefix = path[LONG_PATH_UNC_PREFIX.Length..];
+                var uncPath = @"\\" + withoutUncPrefix;
                 return uncPath; // UNC paths must use backslashes
             }
             return path.Replace(LONG_PATH_PREFIX, string.Empty).Replace("\\", "/");
@@ -124,161 +118,141 @@ namespace ImpossibleRobert.Common
 #endif
         }
 
-        public static bool PathContainsInvalidChars(string path)
-        {
+        public static bool PathContainsInvalidChars(string path) {
             return !string.IsNullOrEmpty(path) && path.IndexOfAny(Path.GetInvalidPathChars()) >= 0;
         }
 
-        public static string RemoveInvalidChars(string path)
-        {
+        public static string RemoveInvalidChars(string path) {
             return string.Concat(path.Split(Path.GetInvalidFileNameChars()));
         }
 
-        public static string MakeProjectRelative(string path)
-        {
-            if (path.Replace("\\", "/").StartsWith(Application.dataPath.Replace("\\", "/")))
-            {
-                return "Assets" + path.Substring(Application.dataPath.Length);
+        public static string MakeProjectRelative(string path) {
+            if (path.Replace("\\", "/").StartsWith(Application.dataPath.Replace("\\", "/"))) {
+                return "Assets" + path[Application.dataPath.Length..];
             }
             return path;
         }
 
-        public static string CreateTempFolder()
-        {
-            string tempDirectoryPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+        public static string CreateTempFolder() {
+            var tempDirectoryPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
             Directory.CreateDirectory(tempDirectoryPath);
 
             return tempDirectoryPath;
         }
 
-        public static string CreateTempFolder(string name, bool deleteIfExists = false)
-        {
-            string tempDirectoryPath = Path.Combine(Path.GetTempPath(), name);
-            if (deleteIfExists && Directory.Exists(tempDirectoryPath)) Directory.Delete(tempDirectoryPath, true);
-            if (!Directory.Exists(tempDirectoryPath)) Directory.CreateDirectory(tempDirectoryPath);
+        public static string CreateTempFolder(string name, bool deleteIfExists = false) {
+            var tempDirectoryPath = Path.Combine(Path.GetTempPath(), name);
+            if (deleteIfExists && Directory.Exists(tempDirectoryPath)) {
+                Directory.Delete(tempDirectoryPath, true);
+            }
+
+            if (!Directory.Exists(tempDirectoryPath)) {
+                Directory.CreateDirectory(tempDirectoryPath);
+            }
 
             return tempDirectoryPath;
         }
 
-        public static async Task<List<string>> FindMatchesInBinaryFile(string filePath, IList<string> searchStrings, int bufferSize = 1 << 20)
-        {
-            int count = searchStrings.Count;
-            byte[][] patterns = new byte[count][];
-            for (int i = 0; i < count; i++)
-            {
+        public static async Task<List<string>> FindMatchesInBinaryFile(string filePath, IList<string> searchStrings, int bufferSize = 1 << 20) {
+            var count = searchStrings.Count;
+            var patterns = new byte[count][];
+            for (var i = 0; i < count; i++) {
                 patterns[i] = Encoding.UTF8.GetBytes(searchStrings[i]);
             }
 
-            AhoCorasick automaton = new AhoCorasick(patterns);
-            HashSet<int> foundIds = new HashSet<int>();
-            AhoCorasick.Node state = automaton.Root;
+            var automaton = new AhoCorasick(patterns);
+            var foundIds = new HashSet<int>();
+            var state = automaton.Root;
 
-            byte[] buffer = new byte[bufferSize];
+            var buffer = new byte[bufferSize];
 
-            using (FileStream fs = new FileStream(
+            using var fs = new FileStream(
                        filePath,
                        FileMode.Open,
                        FileAccess.Read,
                        FileShare.Read,
                        bufferSize,
-                       useAsync: true))
-            {
-                int bytesRead;
-                while (foundIds.Count < count && (bytesRead = await fs.ReadAsync(buffer, 0, buffer.Length)) > 0)
-                {
-                    automaton.Scan(buffer, bytesRead, foundIds, ref state);
-                }
-
-                List<string> result = new List<string>(foundIds.Count);
-                foreach (int id in foundIds)
-                {
-                    result.Add(searchStrings[id]);
-                }
-                return result;
+                       useAsync: true);
+            int bytesRead;
+            while (foundIds.Count < count && (bytesRead = await fs.ReadAsync(buffer, 0, buffer.Length)) > 0) {
+                automaton.Scan(buffer, bytesRead, foundIds, ref state);
             }
+
+            var result = new List<string>(foundIds.Count);
+            foreach (var id in foundIds) {
+                result.Add(searchStrings[id]);
+            }
+            return result;
         }
 
-        private static bool ContainsPattern(byte[] data, int dataLen, byte[] pattern)
-        {
-            int patLen = pattern.Length;
-            int end = dataLen - patLen;
+        private static bool ContainsPattern(byte[] data, int dataLen, byte[] pattern) {
+            var patLen = pattern.Length;
+            var end = dataLen - patLen;
 
-            for (int i = 0; i <= end; i++)
-            {
-                bool match = true;
-                for (int j = 0; j < patLen; j++)
-                {
-                    if (data[i + j] != pattern[j])
-                    {
+            for (var i = 0; i <= end; i++) {
+                var match = true;
+                for (var j = 0; j < patLen; j++) {
+                    if (data[i + j] != pattern[j]) {
                         match = false;
                         break;
                     }
                 }
-                if (match) return true;
+                if (match) {
+                    return true;
+                }
             }
 
             return false;
         }
 
-        public static string GetExtensionWithoutDot(string path)
-        {
-            if (string.IsNullOrWhiteSpace(path)) return string.Empty;
-            string ext = Path.GetExtension(path);
+        public static string GetExtensionWithoutDot(string path) {
+            if (string.IsNullOrWhiteSpace(path)) {
+                return string.Empty;
+            }
+
+            var ext = Path.GetExtension(path);
             return string.IsNullOrEmpty(ext) ? string.Empty : ext.TrimStart('.');
         }
 
-        public static string GetFileName(string path, bool returnOriginalOnError = true, bool quiet = true)
-        {
-            try
-            {
+        public static string GetFileName(string path, bool returnOriginalOnError = true, bool quiet = true) {
+            try {
                 return Path.GetFileName(path);
-            }
-            catch (Exception e)
-            {
-                if (!quiet) Debug.LogError($"Illegal characters in path '{path}': {e}");
+            } catch (Exception e) {
+                if (!quiet) {
+                    Debug.LogError($"Illegal characters in path '{path}': {e}");
+                }
+
                 return returnOriginalOnError ? path : null;
             }
         }
 
-        public static string ReadFirstLine(string path)
-        {
+        public static string ReadFirstLine(string path) {
             string result = null;
-            try
-            {
-                using (StreamReader reader = new StreamReader(ToLongPath(path)))
-                {
-                    result = reader.ReadLine();
-                }
-            }
-            catch (Exception e)
-            {
+            try {
+                using var reader = new StreamReader(ToLongPath(path));
+                result = reader.ReadLine();
+            } catch (Exception e) {
                 Debug.LogError($"Error reading file '{path}': {e.Message}");
             }
 
             return result;
         }
 
-        public static async Task<bool> TryCopyFile(string sourceFileName, string destFileName, bool overwrite, int retries = 5)
-        {
-            while (retries >= 0)
-            {
-                try
-                {
+        public static async Task<bool> TryCopyFile(string sourceFileName, string destFileName, bool overwrite, int retries = 5) {
+            while (retries >= 0) {
+                try {
                     File.Copy(sourceFileName, destFileName, overwrite);
                     return true;
-                }
-                catch (Exception e)
-                {
-                    string directoryName = Path.GetDirectoryName(destFileName);
-                    if (!Directory.Exists(directoryName)) Directory.CreateDirectory(directoryName);
+                } catch (Exception e) {
+                    var directoryName = Path.GetDirectoryName(destFileName);
+                    if (!Directory.Exists(directoryName)) {
+                        Directory.CreateDirectory(directoryName);
+                    }
 
                     retries--;
-                    if (retries >= 0)
-                    {
+                    if (retries >= 0) {
                         await Task.Delay(500);
-                    }
-                    else
-                    {
+                    } else {
                         Debug.LogError($"Could not copy file '{sourceFileName}' to '{destFileName}': {e.Message}");
                     }
                 }
@@ -291,42 +265,33 @@ namespace ImpossibleRobert.Common
         /// Reads all text from a file using FileShare.Read to avoid locking the file.
         /// Required for Unity cache files that may be accessed by multiple editors.
         /// </summary>
-        public static string ReadAllTextWithShare(string path)
-        {
-            using (FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
-            using (StreamReader reader = new StreamReader(stream))
-            {
-                return reader.ReadToEnd();
-            }
+        public static string ReadAllTextWithShare(string path) {
+            using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+            using var reader = new StreamReader(stream);
+            return reader.ReadToEnd();
         }
 
         /// <summary>
         /// Reads all bytes from a file using FileShare.Read to avoid locking the file.
         /// Required for Unity cache files that may be accessed by multiple editors.
         /// </summary>
-        public static byte[] ReadAllBytesWithShare(string path)
-        {
-            using (FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
-            {
-                byte[] buffer = new byte[stream.Length];
-                stream.Read(buffer, 0, buffer.Length);
-                return buffer;
-            }
+        public static byte[] ReadAllBytesWithShare(string path) {
+            using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+            var buffer = new byte[stream.Length];
+            stream.Read(buffer, 0, buffer.Length);
+            return buffer;
         }
 
         /// <summary>
         /// Reads all lines from a file using FileShare.Read to avoid locking the file.
         /// Required for Unity cache files that may be accessed by multiple editors.
         /// </summary>
-        public static string[] ReadAllLines(string path)
-        {
-            List<string> lines = new List<string>();
-            using (FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
-            using (StreamReader reader = new StreamReader(stream))
-            {
+        public static string[] ReadAllLines(string path) {
+            var lines = new List<string>();
+            using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (var reader = new StreamReader(stream)) {
                 string line;
-                while ((line = reader.ReadLine()) != null)
-                {
+                while ((line = reader.ReadLine()) != null) {
                     lines.Add(line);
                 }
             }
@@ -337,15 +302,12 @@ namespace ImpossibleRobert.Common
         /// Reads all lines from a file using FileShare.Read to avoid locking the file (async version).
         /// Required for Unity cache files that may be accessed by multiple editors.
         /// </summary>
-        public static async Task<string[]> ReadAllLinesAsync(string path)
-        {
-            List<string> lines = new List<string>();
-            using (FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 81920, useAsync: true))
-            using (StreamReader reader = new StreamReader(stream))
-            {
+        public static async Task<string[]> ReadAllLinesAsync(string path) {
+            var lines = new List<string>();
+            using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 81920, useAsync: true))
+            using (var reader = new StreamReader(stream)) {
                 string line;
-                while ((line = await reader.ReadLineAsync()) != null)
-                {
+                while ((line = await reader.ReadLineAsync()) != null) {
                     lines.Add(line);
                 }
             }
@@ -356,48 +318,33 @@ namespace ImpossibleRobert.Common
         /// Reads all lines from a file with retry logic to handle file locking issues during parallel operations.
         /// Uses FileShare.ReadWrite to allow concurrent access, particularly when Unity is auto-creating meta files.
         /// </summary>
-        public static async Task<string[]> TryReadAllLinesAsync(string path, int retries = 5)
-        {
-            string longPath = ToLongPath(path);
-            while (retries >= 0)
-            {
-                try
-                {
-                    List<string> lines = new List<string>();
-                    using (FileStream stream = new FileStream(longPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 81920, useAsync: true))
-                    using (StreamReader reader = new StreamReader(stream))
-                    {
+        public static async Task<string[]> TryReadAllLinesAsync(string path, int retries = 5) {
+            var longPath = ToLongPath(path);
+            while (retries >= 0) {
+                try {
+                    var lines = new List<string>();
+                    using (var stream = new FileStream(longPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 81920, useAsync: true))
+                    using (var reader = new StreamReader(stream)) {
                         string line;
-                        while ((line = await reader.ReadLineAsync()) != null)
-                        {
+                        while ((line = await reader.ReadLineAsync()) != null) {
                             lines.Add(line);
                         }
                     }
                     return lines.ToArray();
-                }
-                catch (IOException e)
-                {
+                } catch (IOException e) {
                     // Often due to file locks from parallel operations or Unity auto-creating meta files; wait and retry
                     retries--;
-                    if (retries >= 0)
-                    {
+                    if (retries >= 0) {
                         await Task.Delay(500);
-                    }
-                    else
-                    {
+                    } else {
                         Debug.LogError($"Could not read file '{path}': {e.Message}");
                         return Array.Empty<string>();
                     }
-                }
-                catch (Exception e)
-                {
+                } catch (Exception e) {
                     retries--;
-                    if (retries >= 0)
-                    {
+                    if (retries >= 0) {
                         await Task.Delay(500);
-                    }
-                    else
-                    {
+                    } else {
                         Debug.LogError($"Could not read file '{path}': {e.Message}");
                         return Array.Empty<string>();
                     }
@@ -411,26 +358,23 @@ namespace ImpossibleRobert.Common
         /// Copies a file using FileShare.Read to avoid locking the source file.
         /// Required for Unity cache files that may be accessed by multiple editors.
         /// </summary>
-        public static async Task<bool> CopyFileWithShare(string sourceFileName, string destFileName, bool overwrite, int retries = 5)
-        {
-            while (retries >= 0)
-            {
-                try
-                {
+        public static async Task<bool> CopyFileWithShare(string sourceFileName, string destFileName, bool overwrite, int retries = 5) {
+            while (retries >= 0) {
+                try {
                     // Ensure destination directory exists
-                    string directoryName = Path.GetDirectoryName(destFileName);
-                    if (!Directory.Exists(directoryName)) Directory.CreateDirectory(directoryName);
+                    var directoryName = Path.GetDirectoryName(destFileName);
+                    if (!Directory.Exists(directoryName)) {
+                        Directory.CreateDirectory(directoryName);
+                    }
 
                     // Check if destination exists and we're not overwriting
-                    if (File.Exists(destFileName) && !overwrite)
-                    {
+                    if (File.Exists(destFileName) && !overwrite) {
                         throw new IOException($"File already exists: {destFileName}");
                     }
 
                     // Copy file using FileStreams with FileShare.Read to avoid locking
-                    using (FileStream sourceStream = new FileStream(sourceFileName, FileMode.Open, FileAccess.Read, FileShare.Read, 81920, useAsync: true))
-                    using (FileStream destStream = new FileStream(destFileName, FileMode.Create, FileAccess.Write, FileShare.None, 81920, useAsync: true))
-                    {
+                    using (var sourceStream = new FileStream(sourceFileName, FileMode.Open, FileAccess.Read, FileShare.Read, 81920, useAsync: true))
+                    using (var destStream = new FileStream(destFileName, FileMode.Create, FileAccess.Write, FileShare.None, 81920, useAsync: true)) {
                         await sourceStream.CopyToAsync(destStream);
                     }
 
@@ -438,16 +382,11 @@ namespace ImpossibleRobert.Common
                     File.SetAttributes(destFileName, File.GetAttributes(sourceFileName));
 
                     return true;
-                }
-                catch (Exception e)
-                {
+                } catch (Exception e) {
                     retries--;
-                    if (retries >= 0)
-                    {
+                    if (retries >= 0) {
                         await Task.Delay(500);
-                    }
-                    else
-                    {
+                    } else {
                         Debug.LogError($"Could not copy file '{sourceFileName}' to '{destFileName}': {e.Message}");
                     }
                 }
@@ -460,51 +399,37 @@ namespace ImpossibleRobert.Common
         /// Writes all lines to a file using FileShare.ReadWrite to allow concurrent access.
         /// Implements retry logic to handle file locking issues during parallel operations.
         /// </summary>
-        public static async Task<bool> TryWriteAllLinesAsync(string path, IEnumerable<string> lines, int retries = 5)
-        {
-            string longPath = ToLongPath(path);
-            while (retries >= 0)
-            {
-                try
-                {
+        public static async Task<bool> TryWriteAllLinesAsync(string path, IEnumerable<string> lines, int retries = 5) {
+            var longPath = ToLongPath(path);
+            while (retries >= 0) {
+                try {
                     // Ensure destination directory exists
-                    string directoryName = Path.GetDirectoryName(longPath);
-                    if (!Directory.Exists(directoryName)) Directory.CreateDirectory(directoryName);
+                    var directoryName = Path.GetDirectoryName(longPath);
+                    if (!Directory.Exists(directoryName)) {
+                        Directory.CreateDirectory(directoryName);
+                    }
 
                     // Write file using FileStream with FileShare.ReadWrite to allow concurrent access
-                    using (FileStream stream = new FileStream(longPath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite, 81920, useAsync: true))
-                    using (StreamWriter writer = new StreamWriter(stream, Encoding.UTF8))
-                    {
-                        foreach (string line in lines)
-                        {
-                            await writer.WriteLineAsync(line);
-                        }
+                    using var stream = new FileStream(longPath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite, 81920, useAsync: true);
+                    using var writer = new StreamWriter(stream, Encoding.UTF8);
+                    foreach (var line in lines) {
+                        await writer.WriteLineAsync(line);
                     }
 
                     return true;
-                }
-                catch (IOException e)
-                {
+                } catch (IOException e) {
                     // Often due to file locks from parallel operations; wait and retry
                     retries--;
-                    if (retries >= 0)
-                    {
+                    if (retries >= 0) {
                         await Task.Delay(500);
-                    }
-                    else
-                    {
+                    } else {
                         Debug.LogError($"Could not write file '{path}': {e.Message}");
                     }
-                }
-                catch (Exception e)
-                {
+                } catch (Exception e) {
                     retries--;
-                    if (retries >= 0)
-                    {
+                    if (retries >= 0) {
                         await Task.Delay(500);
-                    }
-                    else
-                    {
+                    } else {
                         Debug.LogError($"Could not write file '{path}': {e.Message}");
                     }
                 }
@@ -517,51 +442,37 @@ namespace ImpossibleRobert.Common
         /// Writes all lines to a file using FileShare.ReadWrite to allow concurrent access.
         /// Implements retry logic to handle file locking issues during parallel operations.
         /// </summary>
-        public static bool TryWriteAllLines(string path, IEnumerable<string> lines, int retries = 5)
-        {
-            string longPath = ToLongPath(path);
-            while (retries >= 0)
-            {
-                try
-                {
+        public static bool TryWriteAllLines(string path, IEnumerable<string> lines, int retries = 5) {
+            var longPath = ToLongPath(path);
+            while (retries >= 0) {
+                try {
                     // Ensure destination directory exists
-                    string directoryName = Path.GetDirectoryName(longPath);
-                    if (!Directory.Exists(directoryName)) Directory.CreateDirectory(directoryName);
+                    var directoryName = Path.GetDirectoryName(longPath);
+                    if (!Directory.Exists(directoryName)) {
+                        Directory.CreateDirectory(directoryName);
+                    }
 
                     // Write file using FileStream with FileShare.ReadWrite to allow concurrent access
-                    using (FileStream stream = new FileStream(longPath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite, 81920))
-                    using (StreamWriter writer = new StreamWriter(stream, Encoding.UTF8))
-                    {
-                        foreach (string line in lines)
-                        {
-                            writer.WriteLine(line);
-                        }
+                    using var stream = new FileStream(longPath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite, 81920);
+                    using var writer = new StreamWriter(stream, Encoding.UTF8);
+                    foreach (var line in lines) {
+                        writer.WriteLine(line);
                     }
 
                     return true;
-                }
-                catch (IOException e)
-                {
+                } catch (IOException e) {
                     // Often due to file locks from parallel operations; wait and retry
                     retries--;
-                    if (retries >= 0)
-                    {
+                    if (retries >= 0) {
                         Thread.Sleep(500);
-                    }
-                    else
-                    {
+                    } else {
                         Debug.LogError($"Could not write file '{path}': {e.Message}");
                     }
-                }
-                catch (Exception e)
-                {
+                } catch (Exception e) {
                     retries--;
-                    if (retries >= 0)
-                    {
+                    if (retries >= 0) {
                         Thread.Sleep(500);
-                    }
-                    else
-                    {
+                    } else {
                         Debug.LogError($"Could not write file '{path}': {e.Message}");
                     }
                 }
@@ -570,21 +481,15 @@ namespace ImpossibleRobert.Common
             return false;
         }
 
-        public static bool TryDeleteFile(string path)
-        {
+        public static bool TryDeleteFile(string path) {
             // adjust attributes to ensure deletion
-            try { File.SetAttributes(path, FileAttributes.Normal); }
-            catch
-            { /* ignore */
+            try { File.SetAttributes(path, FileAttributes.Normal); } catch { /* ignore */
             }
 
-            try
-            {
+            try {
                 File.Delete(path);
                 return true;
-            }
-            catch (Exception)
-            {
+            } catch (Exception) {
                 return false;
             }
         }
@@ -593,28 +498,22 @@ namespace ImpossibleRobert.Common
         /// Attempts to delete a file with retry logic to handle file locking issues.
         /// Useful when Unity may have auto-created and locked a meta file.
         /// </summary>
-        public static async Task<bool> TryDeleteFileAsync(string path, int retries = 5)
-        {
-            if (!File.Exists(path)) return true;
+        public static async Task<bool> TryDeleteFileAsync(string path, int retries = 5) {
+            if (!File.Exists(path)) {
+                return true;
+            }
 
-            while (retries >= 0)
-            {
+            while (retries >= 0) {
                 // adjust attributes to ensure deletion
-                try { File.SetAttributes(path, FileAttributes.Normal); }
-                catch
-                { /* ignore */
+                try { File.SetAttributes(path, FileAttributes.Normal); } catch { /* ignore */
                 }
 
-                try
-                {
+                try {
                     File.Delete(path);
                     return true;
-                }
-                catch (Exception)
-                {
+                } catch (Exception) {
                     retries--;
-                    if (retries >= 0)
-                    {
+                    if (retries >= 0) {
                         await Task.Delay(200);
                     }
                 }
@@ -623,30 +522,25 @@ namespace ImpossibleRobert.Common
             return false;
         }
 
-        public static async Task<bool> DeleteFileOrDirectory(string path, int retries = 3)
-        {
-            if (string.IsNullOrWhiteSpace(path)) return true;
+        public static async Task<bool> DeleteFileOrDirectory(string path, int retries = 3) {
+            if (string.IsNullOrWhiteSpace(path)) {
+                return true;
+            }
 
-            string targetPath = ToLongPath(path);
+            var targetPath = ToLongPath(path);
 
-            while (retries >= 0)
-            {
-                try
-                {
+            while (retries >= 0) {
+                try {
                     // Delete file
-                    if (File.Exists(targetPath))
-                    {
-                        try { File.SetAttributes(targetPath, FileAttributes.Normal); }
-                        catch
-                        { /* ignore */
+                    if (File.Exists(targetPath)) {
+                        try { File.SetAttributes(targetPath, FileAttributes.Normal); } catch { /* ignore */
                         }
                         File.Delete(targetPath);
                         return true;
                     }
 
                     // Delete directory (recursive)
-                    if (Directory.Exists(targetPath))
-                    {
+                    if (Directory.Exists(targetPath)) {
                         ClearReadOnlyAttributes(targetPath);
                         Directory.Delete(targetPath, true);
                         return true;
@@ -654,30 +548,30 @@ namespace ImpossibleRobert.Common
 
                     // Path already gone
                     return true;
-                }
-                catch (UnauthorizedAccessException)
-                {
+                } catch (UnauthorizedAccessException) {
                     // Clear attributes and retry
-                    try
-                    {
-                        if (Directory.Exists(targetPath)) ClearReadOnlyAttributes(targetPath);
-                        if (File.Exists(targetPath)) File.SetAttributes(targetPath, FileAttributes.Normal);
-                    }
-                    catch
-                    { /* best effort */
+                    try {
+                        if (Directory.Exists(targetPath)) {
+                            ClearReadOnlyAttributes(targetPath);
+                        }
+
+                        if (File.Exists(targetPath)) {
+                            File.SetAttributes(targetPath, FileAttributes.Normal);
+                        }
+                    } catch { /* best effort */
                     }
 
                     retries--;
-                    if (retries >= 0) await Task.Delay(500);
-                }
-                catch (IOException)
-                {
+                    if (retries >= 0) {
+                        await Task.Delay(500);
+                    }
+                } catch (IOException) {
                     // Often due to file locks; wait and retry
                     retries--;
-                    if (retries >= 0) await Task.Delay(500);
-                }
-                catch
-                {
+                    if (retries >= 0) {
+                        await Task.Delay(500);
+                    }
+                } catch {
                     // Do not swallow unexpected exceptions endlessly
                     break;
                 }
@@ -686,169 +580,138 @@ namespace ImpossibleRobert.Common
             return !File.Exists(targetPath) && !Directory.Exists(targetPath);
         }
 
-        private static void ClearReadOnlyAttributes(string directoryPath)
-        {
+        private static void ClearReadOnlyAttributes(string directoryPath) {
             // Clear file attributes first
-            try
-            {
-                foreach (string file in Directory.EnumerateFiles(directoryPath, "*", SearchOption.AllDirectories))
-                {
-                    try { File.SetAttributes(file, FileAttributes.Normal); }
-                    catch
-                    { /* ignore */
+            try {
+                foreach (var file in Directory.EnumerateFiles(directoryPath, "*", SearchOption.AllDirectories)) {
+                    try { File.SetAttributes(file, FileAttributes.Normal); } catch { /* ignore */
                     }
                 }
-            }
-            catch
-            { /* ignore */
+            } catch { /* ignore */
             }
 
             // Clear directory attributes (including the root)
-            try
-            {
-                foreach (string dir in Directory.EnumerateDirectories(directoryPath, "*", SearchOption.AllDirectories))
-                {
-                    try { File.SetAttributes(dir, FileAttributes.Normal); }
-                    catch
-                    { /* ignore */
+            try {
+                foreach (var dir in Directory.EnumerateDirectories(directoryPath, "*", SearchOption.AllDirectories)) {
+                    try { File.SetAttributes(dir, FileAttributes.Normal); } catch { /* ignore */
                     }
                 }
-            }
-            catch
-            { /* ignore */
+            } catch { /* ignore */
             }
 
-            try { File.SetAttributes(directoryPath, FileAttributes.Normal); }
-            catch
-            { /* ignore */
+            try { File.SetAttributes(directoryPath, FileAttributes.Normal); } catch { /* ignore */
             }
         }
 
         // Regex version
-        public static IEnumerable<string> GetFiles(string path, string searchPatternExpression = "", SearchOption searchOption = SearchOption.TopDirectoryOnly)
-        {
-            Regex reSearchPattern = new Regex(searchPatternExpression, RegexOptions.IgnoreCase);
+        public static IEnumerable<string> GetFiles(string path, string searchPatternExpression = "", SearchOption searchOption = SearchOption.TopDirectoryOnly) {
+            var reSearchPattern = new Regex(searchPatternExpression, RegexOptions.IgnoreCase);
             return Directory.EnumerateFiles(path, "*", searchOption)
                 .Where(file => reSearchPattern.IsMatch(Path.GetExtension(file)));
         }
 
         // Takes multiple patterns and executes in parallel
-        public static IEnumerable<string> GetFiles(string path, IEnumerable<string> searchPatterns, SearchOption searchOption = SearchOption.TopDirectoryOnly, bool allowParallel = true)
-        {
-            if (path == null) return Enumerable.Empty<string>();
+        public static IEnumerable<string> GetFiles(string path, IEnumerable<string> searchPatterns, SearchOption searchOption = SearchOption.TopDirectoryOnly, bool allowParallel = true) {
+            if (path == null) {
+                return Enumerable.Empty<string>();
+            }
 
-            if (allowParallel)
-            {
+            if (allowParallel) {
                 return searchPatterns.AsParallel()
                     .SelectMany(searchPattern => Directory.EnumerateFiles(path, searchPattern, searchOption));
-            }
-            else
-            {
+            } else {
                 return searchPatterns
                     .SelectMany(searchPattern => Directory.EnumerateFiles(path, searchPattern, searchOption));
             }
         }
 
-        public static IEnumerable<string> GetFilesSafe(string rootPath, string searchPattern, SearchOption searchOption = SearchOption.AllDirectories)
-        {
-            Queue<string> dirs = new Queue<string>();
+        public static IEnumerable<string> GetFilesSafe(string rootPath, string searchPattern, SearchOption searchOption = SearchOption.AllDirectories) {
+            var dirs = new Queue<string>();
             dirs.Enqueue(rootPath);
 
-            while (dirs.Count > 0)
-            {
-                string currentDir = dirs.Dequeue();
+            while (dirs.Count > 0) {
+                var currentDir = dirs.Dequeue();
                 string[] subDirs;
                 string[] files;
 
                 // Try to get files in the current directory
-                try
-                {
+                try {
                     files = Directory.GetFiles(currentDir, searchPattern);
-                }
-                catch (Exception)
-                {
+                } catch (Exception) {
                     // Skip this directory if access is denied
                     // Skip if the directory is not found
                     // Skip if timeout happens
                     continue;
                 }
 
-                foreach (string file in files)
-                {
+                foreach (var file in files) {
                     yield return file;
                 }
 
-                if (searchOption == SearchOption.TopDirectoryOnly) continue;
-
-                // Try to get subdirectories
-                try
-                {
-                    subDirs = Directory.GetDirectories(currentDir);
-                }
-                catch (Exception)
-                {
+                if (searchOption == SearchOption.TopDirectoryOnly) {
                     continue;
                 }
 
-                foreach (string subDir in subDirs)
-                {
+                // Try to get subdirectories
+                try {
+                    subDirs = Directory.GetDirectories(currentDir);
+                } catch (Exception) {
+                    continue;
+                }
+
+                foreach (var subDir in subDirs) {
                     dirs.Enqueue(subDir);
                 }
             }
         }
 
-        public static bool IsDirectoryEmpty(string path)
-        {
-            if (path == null) return true;
+        public static bool IsDirectoryEmpty(string path) {
+            if (path == null) {
+                return true;
+            }
+
             return !Directory.EnumerateFileSystemEntries(path).Any();
         }
 
-        public static bool IsSameDirectory(string path1, string path2)
-        {
-            DirectoryInfo di1 = new DirectoryInfo(path1);
-            DirectoryInfo di2 = new DirectoryInfo(path2);
+        public static bool IsSameDirectory(string path1, string path2) {
+            var di1 = new DirectoryInfo(path1);
+            var di2 = new DirectoryInfo(path2);
 
             return string.Equals(di1.FullName, di2.FullName, StringComparison.OrdinalIgnoreCase);
         }
 
-        public static void CopyDirectory(string sourceDir, string destDir, bool includeSubDirs = true)
-        {
-            DirectoryInfo dir = new DirectoryInfo(sourceDir);
-            DirectoryInfo[] dirs = dir.GetDirectories();
+        public static void CopyDirectory(string sourceDir, string destDir, bool includeSubDirs = true) {
+            var dir = new DirectoryInfo(sourceDir);
+            var dirs = dir.GetDirectories();
             Directory.CreateDirectory(destDir);
 
-            FileInfo[] files = dir.GetFiles();
-            foreach (FileInfo file in files)
-            {
-                string tempPath = Path.Combine(destDir, file.Name);
+            var files = dir.GetFiles();
+            foreach (var file in files) {
+                var tempPath = Path.Combine(destDir, file.Name);
                 file.CopyTo(tempPath, true);
             }
 
-            if (includeSubDirs)
-            {
-                foreach (DirectoryInfo subDir in dirs)
-                {
-                    string tempPath = Path.Combine(destDir, subDir.Name);
+            if (includeSubDirs) {
+                foreach (var subDir in dirs) {
+                    var tempPath = Path.Combine(destDir, subDir.Name);
                     CopyDirectory(subDir.FullName, tempPath, includeSubDirs);
                 }
             }
         }
 
-        public static async Task<long> GetFolderSize(string folder, bool async = true)
-        {
-            if (!Directory.Exists(folder)) return 0;
-            DirectoryInfo dirInfo = new DirectoryInfo(folder);
-            try
-            {
-                if (async)
-                {
+        public static async Task<long> GetFolderSize(string folder, bool async = true) {
+            if (!Directory.Exists(folder)) {
+                return 0;
+            }
+
+            var dirInfo = new DirectoryInfo(folder);
+            try {
+                if (async) {
                     // FIXME: this can crash Unity
                     return await Task.Run(() => dirInfo.EnumerateFiles("*", SearchOption.AllDirectories).Sum(file => file.Length));
                 }
                 return dirInfo.EnumerateFiles("*", SearchOption.AllDirectories).Sum(file => file.Length);
-            }
-            catch
-            {
+            } catch {
                 return 0;
             }
         }
@@ -857,8 +720,7 @@ namespace ImpossibleRobert.Common
         /// Returns a combined path with unified slashes
         /// </summary>
         /// <returns></returns>
-        public static string PathCombine(params string[] path)
-        {
+        public static string PathCombine(params string[] path) {
             return Path.GetFullPath(Path.Combine(path));
         }
 
@@ -867,28 +729,26 @@ namespace ImpossibleRobert.Common
         /// Handles Windows drive roots (e.g., C:\, D:\), bare drive letters (e.g., E:),
         /// and Unix-style roots (/). UNC roots are treated as roots as well.
         /// </summary>
-        public static bool IsRootPath(string path)
-        {
-            if (string.IsNullOrWhiteSpace(path)) return false;
+        public static bool IsRootPath(string path) {
+            if (string.IsNullOrWhiteSpace(path)) {
+                return false;
+            }
 
-            try
-            {
+            try {
                 // Normalize to a full path when possible
-                string fullPath = Path.GetFullPath(path);
-                string rootPath = Path.GetPathRoot(fullPath);
+                var fullPath = Path.GetFullPath(path);
+                var rootPath = Path.GetPathRoot(fullPath);
 
-                bool isAtRoot = !string.IsNullOrEmpty(rootPath)
+                var isAtRoot = !string.IsNullOrEmpty(rootPath)
                     && string.Equals(fullPath.TrimEnd('\\', '/'), rootPath.TrimEnd('\\', '/'), StringComparison.OrdinalIgnoreCase);
 
                 // Also catch bare drive letters like "E:" (without trailing slash)
-                string normalizedRaw = path.Replace('/', '\\').TrimEnd('\\', '/');
-                bool isDriveLetterOnly = normalizedRaw.Length == 2 && normalizedRaw[1] == ':'
+                var normalizedRaw = path.Replace('/', '\\').TrimEnd('\\', '/');
+                var isDriveLetterOnly = normalizedRaw.Length == 2 && normalizedRaw[1] == ':'
                     && char.IsLetter(normalizedRaw[0]);
 
                 return isAtRoot || isDriveLetterOnly;
-            }
-            catch
-            {
+            } catch {
                 // If Path.GetFullPath throws (illegal chars), treat as not root
                 return false;
             }
@@ -902,8 +762,7 @@ namespace ImpossibleRobert.Common
         /// <param name="relativeTo">The source path the result should be relative to</param>
         /// <param name="path">The destination path</param>
         /// <returns>The relative path, or the original path if it can't be made relative</returns>
-        public static string GetRelativePath(string relativeTo, string path)
-        {
+        public static string GetRelativePath(string relativeTo, string path) {
             return Path.GetRelativePath(relativeTo, path);
         }
 
@@ -911,10 +770,8 @@ namespace ImpossibleRobert.Common
         /// Normalizes a remote path (FTP/SFTP) to use forward slashes.
         /// Returns "/" for empty or null paths.
         /// </summary>
-        public static string NormalizeRemotePath(string path)
-        {
-            if (string.IsNullOrEmpty(path))
-            {
+        public static string NormalizeRemotePath(string path) {
+            if (string.IsNullOrEmpty(path)) {
                 return "/";
             }
 
@@ -925,69 +782,62 @@ namespace ImpossibleRobert.Common
         /// Gets the parent path of a given remote path (FTP/SFTP).
         /// Returns null for root path, "/" for paths with no parent directory.
         /// </summary>
-        public static string GetRemoteParentPath(string path)
-        {
-            if (string.IsNullOrEmpty(path) || path == "/")
-            {
+        public static string GetRemoteParentPath(string path) {
+            if (string.IsNullOrEmpty(path) || path == "/") {
                 return null;
             }
 
             path = path.TrimEnd('/');
-            int lastSlash = path.LastIndexOf('/');
+            var lastSlash = path.LastIndexOf('/');
 
-            if (lastSlash <= 0)
-            {
+            if (lastSlash <= 0) {
                 return "/";
             }
 
-            return path.Substring(0, lastSlash);
+            return path[..lastSlash];
         }
 
-        public static string ExecuteCommand(string command, string arguments, string workingDirectory = "", bool waitForExit = true, bool createWindow = false)
-        {
-            ProcessStartInfo processStartInfo = new ProcessStartInfo(command, arguments)
-            {
+        public static string ExecuteCommand(string command, string arguments, string workingDirectory = "", bool waitForExit = true, bool createWindow = false) {
+            var processStartInfo = new ProcessStartInfo(command, arguments) {
                 RedirectStandardOutput = !createWindow,
                 UseShellExecute = createWindow,
                 CreateNoWindow = !createWindow,
                 WorkingDirectory = workingDirectory
             };
 
-            try
-            {
-                using (Process process = new Process {StartInfo = processStartInfo})
-                {
-                    process.Start();
-                    string result = null;
-                    if (!createWindow) result = process.StandardOutput.ReadToEnd();
-                    if (waitForExit) process.WaitForExit();
-                    return result;
+            try {
+                using var process = new Process { StartInfo = processStartInfo };
+                process.Start();
+                string result = null;
+                if (!createWindow) {
+                    result = process.StandardOutput.ReadToEnd();
                 }
-            }
-            catch (Exception e)
-            {
+
+                if (waitForExit) {
+                    process.WaitForExit();
+                }
+
+                return result;
+            } catch (Exception e) {
                 Debug.LogError($"Error executing command '{command}': {e.Message}");
                 return null;
             }
         }
 
-        public static async Task<bool> DownloadFile(Uri uri, string targetFile)
-        {
-            UnityWebRequest request = UnityWebRequest.Get(uri);
-            UnityWebRequestAsyncOperation operation = request.SendWebRequest();
+        public static async Task<bool> DownloadFile(Uri uri, string targetFile) {
+            var request = UnityWebRequest.Get(uri);
+            var operation = request.SendWebRequest();
 
-            while (!operation.isDone)
-            {
+            while (!operation.isDone) {
                 await Task.Yield();
             }
 
-            if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
-            {
+            if (request.result is UnityWebRequest.Result.ConnectionError or UnityWebRequest.Result.ProtocolError) {
                 Debug.LogError(request.error);
                 return false;
             }
 
-            byte[] data = request.downloadHandler.data;
+            var data = request.downloadHandler.data;
             await File.WriteAllBytesAsync(targetFile, data);
 
             return true;

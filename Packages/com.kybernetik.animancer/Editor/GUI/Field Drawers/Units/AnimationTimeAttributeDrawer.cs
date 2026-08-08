@@ -8,8 +8,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace Animancer.Units.Editor
-{
+namespace Animancer.Units.Editor {
     /// <summary>[Editor-Only]
     /// A <see cref="PropertyDrawer"/> for <see cref="float"/> fields with a <see cref="UnitsAttribute"/>
     /// which displays them using 3 fields: Normalized, Seconds, and Frames.
@@ -21,8 +20,7 @@ namespace Animancer.Units.Editor
     /// </remarks>
     /// https://kybernetik.com.au/animancer/api/Animancer.Units.Editor/AnimationTimeAttributeDrawer
     [CustomPropertyDrawer(typeof(AnimationTimeAttribute), true)]
-    public class AnimationTimeAttributeDrawer : UnitsAttributeDrawer
-    {
+    public class AnimationTimeAttributeDrawer : UnitsAttributeDrawer {
         /************************************************************************************************************************/
 
         /// <summary>
@@ -38,8 +36,7 @@ namespace Animancer.Units.Editor
         public static bool NextValueIsOptional { get; private set; }
 
         /// <summary>Sets the <see cref="NextDefaultValue"/> and <see cref="NextValueIsOptional"/>.</summary>
-        public static void SetNextDefaultValue(float defaultValue, bool isOptional)
-        {
+        public static void SetNextDefaultValue(float defaultValue, bool isOptional) {
             HasNextDefaultValue = true;
             NextDefaultValue = defaultValue;
             NextValueIsOptional = isOptional;
@@ -49,8 +46,7 @@ namespace Animancer.Units.Editor
         /// Sets the <see cref="NextDefaultValue"/>
         /// and the <see cref="NextValueIsOptional"/> is true if the value is not <see cref="float.NaN"/>.
         /// </summary>
-        public static void SetNextDefaultValue(float defaultValue)
-        {
+        public static void SetNextDefaultValue(float defaultValue) {
             HasNextDefaultValue = true;
             NextDefaultValue = defaultValue;
             NextValueIsOptional = !float.IsNaN(defaultValue);
@@ -59,16 +55,16 @@ namespace Animancer.Units.Editor
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override int GetLineCount(SerializedProperty property, GUIContent label)
-            => EditorGUIUtility.wideMode || TransitionDrawer.Context.Property == null
-            ? 1
-            : 2;
+        protected override int GetLineCount(SerializedProperty property, GUIContent label) {
+            return EditorGUIUtility.wideMode || TransitionDrawer.Context.Property == null
+                                                                                                       ? 1
+                                                                                                       : 2;
+        }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void OnGUI(Rect area, SerializedProperty property, GUIContent label)
-        {
+        public override void OnGUI(Rect area, SerializedProperty property, GUIContent label) {
             EditorGUI.BeginChangeCheck();
 
             var nextDefaultValue = NextDefaultValue;
@@ -77,8 +73,7 @@ namespace Animancer.Units.Editor
             OnGUI(area, label, ref value);
             EndProperty(area, property, ref value);
 
-            if (EditorGUI.EndChangeCheck())
-            {
+            if (EditorGUI.EndChangeCheck()) {
                 var index = (int)AnimationTimeAttribute.Units.Normalized;
                 TransitionPreviewWindow.PreviewNormalizedTime =
                     GetDisplayValue(value, nextDefaultValue) * Attribute.Multipliers[index];
@@ -88,39 +83,34 @@ namespace Animancer.Units.Editor
         /************************************************************************************************************************/
 
         /// <summary>Draws the GUI for this attribute.</summary>
-        public void OnGUI(Rect area, GUIContent label, ref float value)
-        {
-            try
-            {
+        public void OnGUI(Rect area, GUIContent label, ref float value) {
+            try {
                 Initialize();
 
                 var isOptional = Attribute.IsOptional;
                 var defaultValue = Attribute.DefaultValue;
 
-                try
-                {
-                    if (HasNextDefaultValue)
-                    {
+                try {
+                    if (HasNextDefaultValue) {
                         Attribute.IsOptional = NextValueIsOptional;
                         Attribute.DefaultValue = NextDefaultValue;
                     }
 
                     var context = TransitionDrawer.Context;
-                    if (context.Transition == null)
-                    {
+                    if (context.Transition == null) {
                         value = DoSpecialFloatField(area, label, value, DisplayConverters[Attribute.UnitIndex]);
                         return;
                     }
 
                     var length = context.MaximumLength;
-                    if (length <= 0)
+                    if (length <= 0) {
                         length = float.NaN;
+                    }
 
                     AnimancerUtilities.TryGetFrameRate(context.Transition, out var frameRate);
 
                     var multipliers = CalculateMultipliers(length, frameRate);
-                    if (multipliers == null)
-                    {
+                    if (multipliers == null) {
                         EditorGUI.LabelField(area, label.text, $"Invalid {nameof(Validate)}.{nameof(Validate.Value)}");
                         return;
                     }
@@ -128,25 +118,19 @@ namespace Animancer.Units.Editor
                     DoPreviewTimeButton(ref area, ref value, multipliers);
 
                     DoFieldGUI(area, label, ref value);
-                }
-                finally
-                {
+                } finally {
                     Attribute.IsOptional = isOptional;
                     Attribute.DefaultValue = defaultValue;
                 }
-            }
-            finally
-            {
+            } finally {
                 HasNextDefaultValue = false;
             }
         }
 
         /************************************************************************************************************************/
 
-        private float[] CalculateMultipliers(float length, float frameRate)
-        {
-            switch ((AnimationTimeAttribute.Units)Attribute.UnitIndex)
-            {
+        private float[] CalculateMultipliers(float length, float frameRate) {
+            switch ((AnimationTimeAttribute.Units)Attribute.UnitIndex) {
                 case AnimationTimeAttribute.Units.Normalized:
                     Attribute.Multipliers[(int)AnimationTimeAttribute.Units.Normalized] = 1;
                     Attribute.Multipliers[(int)AnimationTimeAttribute.Units.Seconds] = length;
@@ -174,14 +158,15 @@ namespace Animancer.Units.Editor
             ApplyVisibilitySetting(settings.showSeconds, AnimationTimeAttribute.Units.Seconds);
             ApplyVisibilitySetting(settings.showFrames, AnimationTimeAttribute.Units.Frames);
 
-            void ApplyVisibilitySetting(bool show, AnimationTimeAttribute.Units setting)
-            {
-                if (show)
+            void ApplyVisibilitySetting(bool show, AnimationTimeAttribute.Units setting) {
+                if (show) {
                     return;
+                }
 
                 var index = (int)setting;
-                if (Attribute.UnitIndex != index)
+                if (Attribute.UnitIndex != index) {
                     Attribute.Multipliers[index] = float.NaN;
+                }
             }
 
             return Attribute.Multipliers;
@@ -192,10 +177,10 @@ namespace Animancer.Units.Editor
         private void DoPreviewTimeButton(
             ref Rect area,
             ref float value,
-            float[] multipliers)
-        {
-            if (!TransitionPreviewWindow.IsPreviewingCurrentProperty())
+            float[] multipliers) {
+            if (!TransitionPreviewWindow.IsPreviewingCurrentProperty()) {
                 return;
+            }
 
             var previewTime = TransitionPreviewWindow.PreviewNormalizedTime;
 
@@ -211,17 +196,18 @@ namespace Animancer.Units.Editor
             var isCurrent = Mathf.Approximately(displayValue, previewTime);
 
             var buttonArea = area;
-            if (TransitionDrawer.DoPreviewButtonGUI(ref buttonArea, isCurrent, Tooltip))
-            {
-                if (Event.current.button != 1)
+            if (TransitionDrawer.DoPreviewButtonGUI(ref buttonArea, isCurrent, Tooltip)) {
+                if (Event.current.button != 1) {
                     TransitionPreviewWindow.PreviewNormalizedTime = displayValue;
-                else
+                } else {
                     value = previewTime / multiplier;
+                }
             }
 
             // Only steal the button area for single line fields.
-            if (area.height <= AnimancerGUI.LineHeight)
+            if (area.height <= AnimancerGUI.LineHeight) {
                 area = buttonArea;
+            }
         }
 
         /************************************************************************************************************************/
@@ -234,8 +220,7 @@ namespace Animancer.Units.Editor
     /// <summary>[Editor-Only] Options to determine how <see cref="AnimationTimeAttribute"/> displays.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Units.Editor/AnimationTimeAttributeSettings
     [Serializable, InternalSerializableType]
-    public class AnimationTimeAttributeSettings : AnimancerSettingsGroup
-    {
+    public class AnimationTimeAttributeSettings : AnimancerSettingsGroup {
         /************************************************************************************************************************/
 
         /// <inheritdoc/>

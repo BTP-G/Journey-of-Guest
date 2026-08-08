@@ -6,13 +6,11 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only] A static reference to a persistent setting stored in <see cref="AnimancerSettings"/>.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/AnimancerSettingsGroup_1
     public static class AnimancerSettingsGroup<T>
-        where T : AnimancerSettingsGroup, new()
-    {
+        where T : AnimancerSettingsGroup, new() {
         /************************************************************************************************************************/
 
         /// <summary>Gets or creates a <typeparamref name="T"/> in the <see cref="AnimancerSettings"/> asset.</summary>
@@ -25,8 +23,7 @@ namespace Animancer.Editor
     /// <summary>Base class for groups of fields that can be serialized inside <see cref="AnimancerSettings"/>.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/AnimancerSettingsGroup
     [Serializable, InternalSerializableType]
-    public abstract class AnimancerSettingsGroup : IComparable<AnimancerSettingsGroup>
-    {
+    public abstract class AnimancerSettingsGroup : IComparable<AnimancerSettingsGroup> {
         /************************************************************************************************************************/
 
         private int _DataIndex = -1;
@@ -43,10 +40,10 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Sets the index used to find <see cref="SerializedProperty"/> instances for this group.</summary>
-        internal void SetDataIndex(int index)
-        {
-            if (_DataIndex == index)
+        internal void SetDataIndex(int index) {
+            if (_DataIndex == index) {
                 return;
+            }
 
             _DataIndex = index;
             _BasePropertyPath = null;
@@ -55,8 +52,9 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Returns a <see cref="SerializedProperty"/> relative to the base of this group.</summary>
-        protected SerializedProperty GetSerializedProperty(string propertyPath)
-            => AnimancerSettings.GetSerializedProperty(_DataIndex, ref _BasePropertyPath, propertyPath);
+        protected SerializedProperty GetSerializedProperty(string propertyPath) {
+            return AnimancerSettings.GetSerializedProperty(_DataIndex, ref _BasePropertyPath, propertyPath);
+        }
 
         /************************************************************************************************************************/
 
@@ -64,8 +62,7 @@ namespace Animancer.Editor
         /// Draws a <see cref="EditorGUILayout.PropertyField(SerializedProperty, GUILayoutOption[])"/> for a
         /// property in this group.
         /// </summary>
-        protected SerializedProperty DoPropertyField(string propertyPath)
-        {
+        protected SerializedProperty DoPropertyField(string propertyPath) {
             var property = GetSerializedProperty(propertyPath);
             EditorGUILayout.PropertyField(property, true);
             return property;
@@ -74,8 +71,9 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Compares the <see cref="Index"/>.</summary>
-        public int CompareTo(AnimancerSettingsGroup other)
-            => Index.CompareTo(other.Index);
+        public int CompareTo(AnimancerSettingsGroup other) {
+            return Index.CompareTo(other.Index);
+        }
 
         /************************************************************************************************************************/
     }

@@ -1,14 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace DamageNumbersPro
-{
+namespace DamageNumbersPro {
     [System.Serializable]
-    public struct ScaleByNumberSettings
-    {
-        public ScaleByNumberSettings(float customDefault)
-        {
+    public struct ScaleByNumberSettings {
+        public ScaleByNumberSettings(float customDefault) {
             fromNumber = 0f;
             fromScale = 1f;
 

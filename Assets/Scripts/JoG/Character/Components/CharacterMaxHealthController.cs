@@ -23,7 +23,5 @@ namespace JoG.Character.Components {
         private void ApplyMaxHealth() {
             health.Max = maxHealth.Value;
         }
-
     }
-
 }

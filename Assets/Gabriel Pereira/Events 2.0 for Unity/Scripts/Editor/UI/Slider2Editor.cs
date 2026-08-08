@@ -1,87 +1,79 @@
-﻿using UnityEngine.UI;
+using UnityEngine.UI;
 
-namespace UnityEditor.UI
-{
-	[CustomEditor(typeof(Slider2), true)]
-	[CanEditMultipleObjects]
-	public class Slider2Editor : SelectableEditor
-	{
-		SerializedProperty m_Direction;
-		SerializedProperty m_FillRect;
-		SerializedProperty m_HandleRect;
-		SerializedProperty m_MinValue;
-		SerializedProperty m_MaxValue;
-		SerializedProperty m_WholeNumbers;
-		SerializedProperty m_Value;
-		SerializedProperty m_OnValueChanged;
+namespace UnityEditor.UI {
+    [CustomEditor(typeof(Slider2), true)]
+    [CanEditMultipleObjects]
+    public class Slider2Editor : SelectableEditor {
+        private SerializedProperty m_Direction;
+        private SerializedProperty m_FillRect;
+        private SerializedProperty m_HandleRect;
+        private SerializedProperty m_MinValue;
+        private SerializedProperty m_MaxValue;
+        private SerializedProperty m_WholeNumbers;
+        private SerializedProperty m_Value;
+        private SerializedProperty m_OnValueChanged;
 
-		protected override void OnEnable()
-		{
-			base.OnEnable();
-			m_FillRect = serializedObject.FindProperty("m_FillRect");
-			m_HandleRect = serializedObject.FindProperty("m_HandleRect");
-			m_Direction = serializedObject.FindProperty("m_Direction");
-			m_MinValue = serializedObject.FindProperty("m_MinValue");
-			m_MaxValue = serializedObject.FindProperty("m_MaxValue");
-			m_WholeNumbers = serializedObject.FindProperty("m_WholeNumbers");
-			m_Value = serializedObject.FindProperty("m_Value");
-			m_OnValueChanged = serializedObject.FindProperty("m_OnValueChanged");
-		}
+        protected override void OnEnable() {
+            base.OnEnable();
+            m_FillRect = serializedObject.FindProperty("m_FillRect");
+            m_HandleRect = serializedObject.FindProperty("m_HandleRect");
+            m_Direction = serializedObject.FindProperty("m_Direction");
+            m_MinValue = serializedObject.FindProperty("m_MinValue");
+            m_MaxValue = serializedObject.FindProperty("m_MaxValue");
+            m_WholeNumbers = serializedObject.FindProperty("m_WholeNumbers");
+            m_Value = serializedObject.FindProperty("m_Value");
+            m_OnValueChanged = serializedObject.FindProperty("m_OnValueChanged");
+        }
 
-		public override void OnInspectorGUI()
-		{
-			base.OnInspectorGUI();
-			
-			serializedObject.Update();
+        public override void OnInspectorGUI() {
+            base.OnInspectorGUI();
 
-			EditorGUILayout.Space();
+            serializedObject.Update();
 
-			EditorGUILayout.PropertyField(m_FillRect);
-			EditorGUILayout.PropertyField(m_HandleRect);
+            EditorGUILayout.Space();
 
-			if (m_FillRect.objectReferenceValue != null || m_HandleRect.objectReferenceValue != null)
-			{
-				EditorGUI.BeginChangeCheck();
-				EditorGUILayout.PropertyField(m_Direction);
-				if (EditorGUI.EndChangeCheck())
-				{
-					Slider.Direction direction = (Slider.Direction)m_Direction.enumValueIndex;
-					foreach (var obj in serializedObject.targetObjects)
-					{
-						Slider2 slider = obj as Slider2;
-						slider.SetDirection(direction, true);
-					}
-				}
+            EditorGUILayout.PropertyField(m_FillRect);
+            EditorGUILayout.PropertyField(m_HandleRect);
 
-				EditorGUILayout.PropertyField(m_MinValue);
-				EditorGUILayout.PropertyField(m_MaxValue);
-				EditorGUILayout.PropertyField(m_WholeNumbers);
-				EditorGUILayout.Slider(m_Value, m_MinValue.floatValue, m_MaxValue.floatValue);
+            if (m_FillRect.objectReferenceValue != null || m_HandleRect.objectReferenceValue != null) {
+                EditorGUI.BeginChangeCheck();
+                EditorGUILayout.PropertyField(m_Direction);
+                if (EditorGUI.EndChangeCheck()) {
+                    var direction = (Slider.Direction)m_Direction.enumValueIndex;
+                    foreach (var obj in serializedObject.targetObjects) {
+                        var slider = obj as Slider2;
+                        slider.SetDirection(direction, true);
+                    }
+                }
 
-				bool warning = false;
-				foreach (var obj in serializedObject.targetObjects)
-				{
-					Slider2 slider = obj as Slider2;
-					Slider.Direction dir = slider.direction;
-					if (dir == Slider.Direction.LeftToRight || dir == Slider.Direction.RightToLeft)
-						warning = (slider.navigation.mode != Navigation.Mode.Automatic && (slider.FindSelectableOnLeft() != null || slider.FindSelectableOnRight() != null));
-					else
-						warning = (slider.navigation.mode != Navigation.Mode.Automatic && (slider.FindSelectableOnDown() != null || slider.FindSelectableOnUp() != null));
-				}
+                EditorGUILayout.PropertyField(m_MinValue);
+                EditorGUILayout.PropertyField(m_MaxValue);
+                EditorGUILayout.PropertyField(m_WholeNumbers);
+                EditorGUILayout.Slider(m_Value, m_MinValue.floatValue, m_MaxValue.floatValue);
 
-				if (warning)
-					EditorGUILayout.HelpBox("The selected slider direction conflicts with navigation. Not all navigation options may work.", MessageType.Warning);
+                var warning = false;
+                foreach (var obj in serializedObject.targetObjects) {
+                    var slider = obj as Slider2;
+                    var dir = slider.direction;
+                    if (dir is Slider.Direction.LeftToRight or Slider.Direction.RightToLeft) {
+                        warning = slider.navigation.mode != Navigation.Mode.Automatic && (slider.FindSelectableOnLeft() != null || slider.FindSelectableOnRight() != null);
+                    } else {
+                        warning = slider.navigation.mode != Navigation.Mode.Automatic && (slider.FindSelectableOnDown() != null || slider.FindSelectableOnUp() != null);
+                    }
+                }
 
-				// Draw the event notification options
-				EditorGUILayout.Space();
-				EditorGUILayout.PropertyField(m_OnValueChanged);
-			}
-			else
-			{
-				EditorGUILayout.HelpBox("Specify a RectTransform for the slider fill or the slider handle or both. Each must have a parent RectTransform that it can slide within.", MessageType.Info);
-			}
+                if (warning) {
+                    EditorGUILayout.HelpBox("The selected slider direction conflicts with navigation. Not all navigation options may work.", MessageType.Warning);
+                }
 
-			serializedObject.ApplyModifiedProperties();
-		}
-	}
+                // Draw the event notification options
+                EditorGUILayout.Space();
+                EditorGUILayout.PropertyField(m_OnValueChanged);
+            } else {
+                EditorGUILayout.HelpBox("Specify a RectTransform for the slider fill or the slider handle or both. Each must have a parent RectTransform that it can slide within.", MessageType.Info);
+            }
+
+            serializedObject.ApplyModifiedProperties();
+        }
+    }
 }

@@ -1,13 +1,11 @@
-﻿using UnityEngine;
-using UnityEditor;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Linq;
-using System.Collections.Generic;
+using UnityEditor;
 
 public class CodeCollector : EditorWindow {
     [MenuItem("Tools/Collect Selected C# Scripts for Appendix")]
-    static void CollectSelectedScripts() {
+    private static void CollectSelectedScripts() {
         // 获取 Project 窗口中选中的对象
         var selectedObjects = Selection.objects;
         if (selectedObjects == null || selectedObjects.Length == 0) {
@@ -16,9 +14,9 @@ public class CodeCollector : EditorWindow {
         }
 
         // 获取所有选中资源的路径，并过滤出 .cs 文件
-        List<string> csFilePaths = new List<string>();
+        var csFilePaths = new List<string>();
         foreach (var obj in selectedObjects) {
-            string path = AssetDatabase.GetAssetPath(obj);
+            var path = AssetDatabase.GetAssetPath(obj);
             if (!string.IsNullOrEmpty(path) && path.EndsWith(".cs")) {
                 csFilePaths.Add(path);
             }
@@ -30,15 +28,17 @@ public class CodeCollector : EditorWindow {
         }
 
         // 让用户选择输出 txt 文件路径
-        string outputPath = EditorUtility.SaveFilePanel("保存 txt 文件", "", "Appendix_Scripts", "txt");
-        if (string.IsNullOrEmpty(outputPath)) return;
+        var outputPath = EditorUtility.SaveFilePanel("保存 txt 文件", "", "Appendix_Scripts", "txt");
+        if (string.IsNullOrEmpty(outputPath)) {
+            return;
+        }
 
-        StringBuilder sb = new StringBuilder();
-        int collectedCount = 0;
-        int skippedCount = 0;
-        List<string> skippedFiles = new List<string>();
+        var sb = new StringBuilder();
+        var collectedCount = 0;
+        var skippedCount = 0;
+        var skippedFiles = new List<string>();
 
-        foreach (string filePath in csFilePaths) {
+        foreach (var filePath in csFilePaths) {
             // 跳过全注释文件
             if (IsFileFullyCommented(filePath)) {
                 skippedCount++;
@@ -47,15 +47,16 @@ public class CodeCollector : EditorWindow {
             }
 
             collectedCount++;
-            string fileName = Path.GetFileName(filePath);
+            var fileName = Path.GetFileName(filePath);
             //sb.AppendLine($"// ===== 文件：{fileName} =====");
 
-            string content = ReadFileWithAutoEncoding(filePath);
+            var content = ReadFileWithAutoEncoding(filePath);
             // 去空行
             var lines = content.Split(new[] { "\r\n", "\n" }, System.StringSplitOptions.None);
-            foreach (string line in lines) {
-                if (!string.IsNullOrWhiteSpace(line))
+            foreach (var line in lines) {
+                if (!string.IsNullOrWhiteSpace(line)) {
                     sb.AppendLine(line);
+                }
             }
         }
 
@@ -67,7 +68,7 @@ public class CodeCollector : EditorWindow {
         File.WriteAllText(outputPath, sb.ToString(), new UTF8Encoding(true));
 
         // 完成提示
-        string msg = $"✅ 选中了 {csFilePaths.Count} 个脚本\n"
+        var msg = $"✅ 选中了 {csFilePaths.Count} 个脚本\n"
                    + $"📄 已收集 {collectedCount} 个有效文件（已去空行）\n"
                    + $"🚫 跳过 {skippedCount} 个全注释废弃文件\n\n"
                    + $"📁 保存位置：{outputPath}\n\n"
@@ -81,37 +82,46 @@ public class CodeCollector : EditorWindow {
             msg += "\n\n跳过的文件：\n" + string.Join("\n", skippedFiles);
         }
 
-        bool openFolder = EditorUtility.DisplayDialog("完成", msg, "打开文件夹", "关闭");
-        if (openFolder) EditorUtility.RevealInFinder(outputPath);
+        var openFolder = EditorUtility.DisplayDialog("完成", msg, "打开文件夹", "关闭");
+        if (openFolder) {
+            EditorUtility.RevealInFinder(outputPath);
+        }
     }
 
     /// <summary> 判断文件是否所有非空行都被 // 注释 </summary>
-    static bool IsFileFullyCommented(string filePath) {
+    private static bool IsFileFullyCommented(string filePath) {
         try {
-            string[] lines = File.ReadAllLines(filePath, Encoding.UTF8);
-            foreach (string line in lines) {
-                string trimmed = line.Trim();
-                if (string.IsNullOrEmpty(trimmed)) continue;
-                if (!trimmed.StartsWith("//")) return false;
+            var lines = File.ReadAllLines(filePath, Encoding.UTF8);
+            foreach (var line in lines) {
+                var trimmed = line.Trim();
+                if (string.IsNullOrEmpty(trimmed)) {
+                    continue;
+                }
+
+                if (!trimmed.StartsWith("//")) {
+                    return false;
+                }
             }
             return true;
         } catch { return false; }
     }
 
     /// <summary> 自动检测编码并读取文本 </summary>
-    static string ReadFileWithAutoEncoding(string filePath) {
-        byte[] raw = File.ReadAllBytes(filePath);
-        if (raw.Length >= 3 && raw[0] == 0xEF && raw[1] == 0xBB && raw[2] == 0xBF)
+    private static string ReadFileWithAutoEncoding(string filePath) {
+        var raw = File.ReadAllBytes(filePath);
+        if (raw.Length >= 3 && raw[0] == 0xEF && raw[1] == 0xBB && raw[2] == 0xBF) {
             return Encoding.UTF8.GetString(raw, 3, raw.Length - 3);
+        }
 
         try {
-            string utf8Str = Encoding.UTF8.GetString(raw);
-            if (!utf8Str.Contains('\uFFFD'))
+            var utf8Str = Encoding.UTF8.GetString(raw);
+            if (!utf8Str.Contains('\uFFFD')) {
                 return utf8Str;
+            }
         } catch { }
 
         try {
-            Encoding gb2312 = Encoding.GetEncoding("GB2312");
+            var gb2312 = Encoding.GetEncoding("GB2312");
             return gb2312.GetString(raw);
         } catch {
             return Encoding.Default.GetString(raw);

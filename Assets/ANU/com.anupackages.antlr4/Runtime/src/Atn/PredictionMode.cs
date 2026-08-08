@@ -1,14 +1,12 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-using System.Collections.Generic;
-using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
+using System.Collections.Generic;
 
-namespace Antlr4.Runtime.Atn
-{
+namespace Antlr4.Runtime.Atn {
     /// <summary>
     /// This enumeration defines the prediction modes available in ANTLR 4 along with
     /// utility methods for analyzing configuration sets for conflicts and/or
@@ -20,8 +18,7 @@ namespace Antlr4.Runtime.Atn
     /// ambiguities.
     /// </remarks>
     [System.Serializable]
-    public sealed class PredictionMode
-    {
+    public sealed class PredictionMode {
         /// <summary>The SLL(*) prediction mode.</summary>
         /// <remarks>
         /// The SLL(*) prediction mode. This prediction mode ignores the current
@@ -90,20 +87,16 @@ namespace Antlr4.Runtime.Atn
 
         /// <summary>A Map that uses just the state and the stack context as the key.</summary>
         /// <remarks>A Map that uses just the state and the stack context as the key.</remarks>
-        internal class AltAndContextMap : Dictionary<ATNConfig, BitSet>
-        {
+        internal class AltAndContextMap : Dictionary<ATNConfig, BitSet> {
             public AltAndContextMap()
-                : base(PredictionMode.AltAndContextConfigEqualityComparator.Instance)
-            {
+                : base(PredictionMode.AltAndContextConfigEqualityComparator.Instance) {
             }
         }
 
-        private sealed class AltAndContextConfigEqualityComparator : EqualityComparer<ATNConfig>
-        {
+        private sealed class AltAndContextConfigEqualityComparator : EqualityComparer<ATNConfig> {
             public static readonly PredictionMode.AltAndContextConfigEqualityComparator Instance = new PredictionMode.AltAndContextConfigEqualityComparator();
 
-            private AltAndContextConfigEqualityComparator()
-            {
+            private AltAndContextConfigEqualityComparator() {
             }
 
             /// <summary>
@@ -113,23 +106,19 @@ namespace Antlr4.Runtime.Atn
             /// <see cref="ATNConfig.context"/>
             /// .
             /// </summary>
-            public override int GetHashCode(ATNConfig o)
-            {
-                int hashCode = MurmurHash.Initialize(7);
+            public override int GetHashCode(ATNConfig o) {
+                var hashCode = MurmurHash.Initialize(7);
                 hashCode = MurmurHash.Update(hashCode, o.state.stateNumber);
                 hashCode = MurmurHash.Update(hashCode, o.context);
                 hashCode = MurmurHash.Finish(hashCode, 2);
                 return hashCode;
             }
 
-            public override bool Equals(ATNConfig a, ATNConfig b)
-            {
-                if (a == b)
-                {
+            public override bool Equals(ATNConfig a, ATNConfig b) {
+                if (a == b) {
                     return true;
                 }
-                if (a == null || b == null)
-                {
+                if (a == null || b == null) {
                     return false;
                 }
                 return a.state.stateNumber == b.state.stateNumber && a.context.Equals(b.context);
@@ -240,33 +229,28 @@ namespace Antlr4.Runtime.Atn
         /// <see cref="ATNConfigSet"/>
         /// will merge everything ignoring predicates.</p>
         /// </remarks>
-		public static bool HasSLLConflictTerminatingPrediction(PredictionMode mode, ATNConfigSet configSet)
-        {
-			if (AllConfigsInRuleStopStates(configSet.configs))
-            {
+		public static bool HasSLLConflictTerminatingPrediction(PredictionMode mode, ATNConfigSet configSet) {
+            if (AllConfigsInRuleStopStates(configSet.configs)) {
                 return true;
             }
             // pure SLL mode parsing
-            if (mode == PredictionMode.SLL)
-            {
+            if (mode == PredictionMode.SLL) {
                 // Don't bother with combining configs from different semantic
                 // contexts if we can fail over to full LL; costs more time
                 // since we'll often fail over anyway.
-                if (configSet.hasSemanticContext)
-                {
+                if (configSet.hasSemanticContext) {
                     // dup configs, tossing out semantic predicates
-                    ATNConfigSet dup = new ATNConfigSet();
-					foreach (ATNConfig c in configSet.configs)
-                    {
-						dup.Add(new ATNConfig(c, SemanticContext.Empty.Instance));
+                    var dup = new ATNConfigSet();
+                    foreach (var c in configSet.configs) {
+                        dup.Add(new ATNConfig(c, SemanticContext.Empty.Instance));
                     }
                     configSet = dup;
                 }
             }
             // now we have combined contexts for configs with dissimilar preds
             // pure SLL or combined SLL+LL mode parsing
-			ICollection<BitSet> altsets = GetConflictingAltSubsets(configSet.configs);
-			bool heuristic = HasConflictingAltSet(altsets) && !HasStateAssociatedWithOneAlt(configSet.configs);
+            var altsets = GetConflictingAltSubsets(configSet.configs);
+            var heuristic = HasConflictingAltSet(altsets) && !HasStateAssociatedWithOneAlt(configSet.configs);
             return heuristic;
         }
 
@@ -290,12 +274,9 @@ namespace Antlr4.Runtime.Atn
         /// , otherwise
         /// <see langword="false"/>
         /// </returns>
-        public static bool HasConfigInRuleStopState(IEnumerable<ATNConfig> configs)
-        {
-            foreach (ATNConfig c in configs)
-            {
-                if (c.state is RuleStopState)
-                {
+        public static bool HasConfigInRuleStopState(IEnumerable<ATNConfig> configs) {
+            foreach (var c in configs) {
+                if (c.state is RuleStopState) {
                     return true;
                 }
             }
@@ -322,12 +303,9 @@ namespace Antlr4.Runtime.Atn
         /// , otherwise
         /// <see langword="false"/>
         /// </returns>
-        public static bool AllConfigsInRuleStopStates(IEnumerable<ATNConfig> configs)
-        {
-            foreach (ATNConfig config in configs)
-            {
-                if (!(config.state is RuleStopState))
-                {
+        public static bool AllConfigsInRuleStopStates(IEnumerable<ATNConfig> configs) {
+            foreach (var config in configs) {
+                if (config.state is not RuleStopState) {
                     return false;
                 }
             }
@@ -624,8 +602,7 @@ namespace Antlr4.Runtime.Atn
         ///
         /// {1,2},{1,2}}}, etc...</p>
         /// </remarks>
-        public static int ResolvesToJustOneViableAlt(IEnumerable<BitSet> altsets)
-        {
+        public static int ResolvesToJustOneViableAlt(IEnumerable<BitSet> altsets) {
             return GetSingleViableAlt(altsets);
         }
 
@@ -648,8 +625,7 @@ namespace Antlr4.Runtime.Atn
         /// &gt; 1, otherwise
         /// <see langword="false"/>
         /// </returns>
-        public static bool AllSubsetsConflict(IEnumerable<BitSet> altsets)
-        {
+        public static bool AllSubsetsConflict(IEnumerable<BitSet> altsets) {
             return !HasNonConflictingAltSet(altsets);
         }
 
@@ -672,12 +648,9 @@ namespace Antlr4.Runtime.Atn
         /// 1, otherwise
         /// <see langword="false"/>
         /// </returns>
-        public static bool HasNonConflictingAltSet(IEnumerable<BitSet> altsets)
-        {
-            foreach (BitSet alts in altsets)
-            {
-                if (alts.Cardinality() == 1)
-                {
+        public static bool HasNonConflictingAltSet(IEnumerable<BitSet> altsets) {
+            foreach (var alts in altsets) {
+                if (alts.Cardinality() == 1) {
                     return true;
                 }
             }
@@ -703,12 +676,9 @@ namespace Antlr4.Runtime.Atn
         /// &gt; 1, otherwise
         /// <see langword="false"/>
         /// </returns>
-        public static bool HasConflictingAltSet(IEnumerable<BitSet> altsets)
-        {
-            foreach (BitSet alts in altsets)
-            {
-                if (alts.Cardinality() > 1)
-                {
+        public static bool HasConflictingAltSet(IEnumerable<BitSet> altsets) {
+            foreach (var alts in altsets) {
+                if (alts.Cardinality() > 1) {
                     return true;
                 }
             }
@@ -730,16 +700,13 @@ namespace Antlr4.Runtime.Atn
         /// others, otherwise
         /// <see langword="false"/>
         /// </returns>
-        public static bool AllSubsetsEqual(IEnumerable<BitSet> altsets)
-        {
-            IEnumerator<BitSet> it = altsets.GetEnumerator();
+        public static bool AllSubsetsEqual(IEnumerable<BitSet> altsets) {
+            var it = altsets.GetEnumerator();
             it.MoveNext();
-            BitSet first = it.Current;
-            while (it.MoveNext())
-            {
-                BitSet next = it.Current;
-                if (!next.Equals(first))
-                {
+            var first = it.Current;
+            while (it.MoveNext()) {
+                var next = it.Current;
+                if (!next.Equals(first)) {
                     return false;
                 }
             }
@@ -754,11 +721,9 @@ namespace Antlr4.Runtime.Atn
         /// .
         /// </summary>
         /// <param name="altsets">a collection of alternative subsets</param>
-        public static int GetUniqueAlt(IEnumerable<BitSet> altsets)
-        {
-            BitSet all = GetAlts(altsets);
-            if (all.Cardinality() == 1)
-            {
+        public static int GetUniqueAlt(IEnumerable<BitSet> altsets) {
+            var all = GetAlts(altsets);
+            if (all.Cardinality() == 1) {
                 return all.NextSetBit(0);
             }
             return ATN.INVALID_ALT_NUMBER;
@@ -781,11 +746,9 @@ namespace Antlr4.Runtime.Atn
         /// the set of represented alternatives in
         /// <paramref name="altsets"/>
         /// </returns>
-        public static BitSet GetAlts(IEnumerable<BitSet> altsets)
-        {
-            BitSet all = new BitSet();
-            foreach (BitSet alts in altsets)
-            {
+        public static BitSet GetAlts(IEnumerable<BitSet> altsets) {
+            var all = new BitSet();
+            foreach (var alts in altsets) {
                 all.Or(alts);
             }
             return all;
@@ -807,14 +770,10 @@ namespace Antlr4.Runtime.Atn
         /// </pre>
         /// </remarks>
         [return: NotNull]
-        public static ICollection<BitSet> GetConflictingAltSubsets(IEnumerable<ATNConfig> configs)
-        {
-            PredictionMode.AltAndContextMap configToAlts = new PredictionMode.AltAndContextMap();
-            foreach (ATNConfig c in configs)
-            {
-                BitSet alts;
-                if (!configToAlts.TryGetValue(c, out alts))
-                {
+        public static ICollection<BitSet> GetConflictingAltSubsets(IEnumerable<ATNConfig> configs) {
+            var configToAlts = new PredictionMode.AltAndContextMap();
+            foreach (var c in configs) {
+                if (!configToAlts.TryGetValue(c, out var alts)) {
                     alts = new BitSet();
                     configToAlts[c] = alts;
                 }
@@ -839,14 +798,10 @@ namespace Antlr4.Runtime.Atn
         /// </pre>
         /// </remarks>
         [return: NotNull]
-        public static IDictionary<ATNState, BitSet> GetStateToAltMap(IEnumerable<ATNConfig> configs)
-        {
+        public static IDictionary<ATNState, BitSet> GetStateToAltMap(IEnumerable<ATNConfig> configs) {
             IDictionary<ATNState, BitSet> m = new Dictionary<ATNState, BitSet>();
-            foreach (ATNConfig c in configs)
-            {
-                BitSet alts;
-                if (!m.TryGetValue(c.state, out alts))
-                {
+            foreach (var c in configs) {
+                if (!m.TryGetValue(c.state, out var alts)) {
                     alts = new BitSet();
                     m[c.state] = alts;
                 }
@@ -855,28 +810,22 @@ namespace Antlr4.Runtime.Atn
             return m;
         }
 
-        public static bool HasStateAssociatedWithOneAlt(IEnumerable<ATNConfig> configs)
-        {
-            IDictionary<ATNState, BitSet> x = GetStateToAltMap(configs);
-            foreach (BitSet alts in x.Values)
-            {
-                if (alts.Cardinality() == 1)
-                {
+        public static bool HasStateAssociatedWithOneAlt(IEnumerable<ATNConfig> configs) {
+            var x = GetStateToAltMap(configs);
+            foreach (var alts in x.Values) {
+                if (alts.Cardinality() == 1) {
                     return true;
                 }
             }
             return false;
         }
 
-        public static int GetSingleViableAlt(IEnumerable<BitSet> altsets)
-        {
-            BitSet viableAlts = new BitSet();
-            foreach (BitSet alts in altsets)
-            {
-                int minAlt = alts.NextSetBit(0);
+        public static int GetSingleViableAlt(IEnumerable<BitSet> altsets) {
+            var viableAlts = new BitSet();
+            foreach (var alts in altsets) {
+                var minAlt = alts.NextSetBit(0);
                 viableAlts.Set(minAlt);
-                if (viableAlts.Cardinality() > 1)
-                {
+                if (viableAlts.Cardinality() > 1) {
                     // more than 1 viable alt
                     return ATN.INVALID_ALT_NUMBER;
                 }

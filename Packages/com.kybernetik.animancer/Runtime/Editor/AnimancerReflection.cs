@@ -7,12 +7,10 @@ using System.Runtime.Serialization;
 using System.Text;
 using UnityEngine;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>Reflection utilities used throughout Animancer.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer/AnimancerReflection
-    public static class AnimancerReflection
-    {
+    public static class AnimancerReflection {
         /************************************************************************************************************************/
 
         /// <summary>Commonly used <see cref="BindingFlags"/> combinations.</summary>
@@ -27,15 +25,16 @@ namespace Animancer
         /// Creates a new instance of the `type` using its parameterless constructor if it has one or a fully
         /// uninitialized object if it doesn't. Or returns <c>null</c> if the <see cref="Type.IsAbstract"/>.
         /// </summary>
-        public static object CreateDefaultInstance(Type type)
-        {
+        public static object CreateDefaultInstance(Type type) {
             if (type == null ||
-                type.IsAbstract)
+                type.IsAbstract) {
                 return default;
+            }
 
             var constructor = type.GetConstructor(InstanceBindings, null, Type.EmptyTypes, null);
-            if (constructor != null)
+            if (constructor != null) {
                 return constructor.Invoke(null);
+            }
 
             return FormatterServices.GetUninitializedObject(type);
         }
@@ -44,8 +43,9 @@ namespace Animancer
         /// Creates a <typeparamref name="T"/> using its parameterless constructor if it has one or a fully
         /// uninitialized object if it doesn't. Or returns <c>null</c> if the <see cref="Type.IsAbstract"/>.
         /// </summary>
-        public static T CreateDefaultInstance<T>()
-            => (T)CreateDefaultInstance(typeof(T));
+        public static T CreateDefaultInstance<T>() {
+            return (T)CreateDefaultInstance(typeof(T));
+        }
 
         /************************************************************************************************************************/
 
@@ -56,8 +56,7 @@ namespace Animancer
         public static TAttribute GetAttribute<TAttribute>(
             this ICustomAttributeProvider member,
             bool inherit = false)
-            where TAttribute : class
-        {
+            where TAttribute : class {
             var type = typeof(TAttribute);
             return member.IsDefined(type, inherit)
                 ? (TAttribute)member.GetCustomAttributes(type, inherit)[0]
@@ -73,10 +72,10 @@ namespace Animancer
             string methodName,
             BindingFlags bindings = InstanceBindings | BindingFlags.FlattenHierarchy,
             Type[] parameterTypes = null,
-            object[] parameters = null)
-        {
-            if (obj == null)
+            object[] parameters = null) {
+            if (obj == null) {
                 return null;
+            }
 
             parameterTypes ??= Type.EmptyTypes;
 
@@ -92,8 +91,7 @@ namespace Animancer
         public static string ToStringDetailed<T>(
             this T method,
             bool includeType = false)
-            where T : Delegate
-        {
+            where T : Delegate {
             var text = StringBuilderPool.Instance.Acquire();
             text.AppendDelegate(method, includeType);
             return text.ReleaseToString();
@@ -104,14 +102,12 @@ namespace Animancer
             this StringBuilder text,
             T method,
             bool includeType = false)
-            where T : Delegate
-        {
+            where T : Delegate {
             var type = method != null
                 ? method.GetType()
                 : typeof(T);
 
-            if (method == null)
-            {
+            if (method == null) {
                 return includeType
                     ? text.Append("Null(")
                         .Append(type.GetNameCS())
@@ -119,24 +115,28 @@ namespace Animancer
                     : text.Append("Null");
             }
 
-            if (includeType)
+            if (includeType) {
                 text.Append(type.GetNameCS())
                     .Append('(');
+            }
 
-            if (method.Target != null)
+            if (method.Target != null) {
                 text.Append("Method: ");
+            }
 
             text.Append(method.Method.DeclaringType.GetNameCS())
                 .Append('.')
                 .Append(method.Method.Name);
 
-            if (method.Target != null)
+            if (method.Target != null) {
                 text.Append(", Target: '")
                     .Append(method.Target)
                     .Append("'");
+            }
 
-            if (includeType)
+            if (includeType) {
                 text.Append(')');
+            }
 
             return text;
         }
@@ -144,8 +144,9 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Returns the `method`'s <c>DeclaringType.Name</c>.</summary>
-        public static string GetFullName(MethodInfo method)
-            => $"{method.DeclaringType.Name}.{method.Name}";
+        public static string GetFullName(MethodInfo method) {
+            return $"{method.DeclaringType.Name}.{method.Name}";
+        }
 
         /************************************************************************************************************************/
 
@@ -162,16 +163,13 @@ namespace Animancer
         /// <item>If the delegate is multicast, this method this method returns <c>true</c> and outputs its invocation list.</item>
         /// </list>
         /// </summary>
-        public static bool TryGetInvocationListNonAlloc(MulticastDelegate multicast, out Delegate[] delegates)
-        {
-            if (multicast == null)
-            {
+        public static bool TryGetInvocationListNonAlloc(MulticastDelegate multicast, out Delegate[] delegates) {
+            if (multicast == null) {
                 delegates = null;
                 return false;
             }
 
-            if (!_GotDelegatesField)
-            {
+            if (!_GotDelegatesField) {
                 const string FieldName = "delegates";
 
                 _GotDelegatesField = true;
@@ -180,20 +178,19 @@ namespace Animancer
                     BindingFlags.NonPublic |
                     BindingFlags.Instance);
 
-                if (_DelegatesField != null && _DelegatesField.FieldType != typeof(Delegate[]))
+                if (_DelegatesField != null && _DelegatesField.FieldType != typeof(Delegate[])) {
                     _DelegatesField = null;
+                }
 
-                if (_DelegatesField == null)
+                if (_DelegatesField == null) {
                     Debug.LogError($"Unable to find {nameof(MulticastDelegate)}.{FieldName} field.");
+                }
             }
 
-            if (_DelegatesField == null)
-            {
+            if (_DelegatesField == null) {
                 delegates = null;
                 return false;
-            }
-            else
-            {
+            } else {
                 delegates = (Delegate[])_DelegatesField.GetValue(multicast);
                 return true;
             }
@@ -205,10 +202,11 @@ namespace Animancer
         /// Tries to use <see cref="TryGetInvocationListNonAlloc"/>.
         /// Otherwise uses the regular <see cref="MulticastDelegate.GetInvocationList"/>.
         /// </summary>
-        public static Delegate[] GetInvocationList(MulticastDelegate multicast)
-            => TryGetInvocationListNonAlloc(multicast, out var delegates) && delegates != null
-            ? delegates
-            : multicast?.GetInvocationList();
+        public static Delegate[] GetInvocationList(MulticastDelegate multicast) {
+            return TryGetInvocationListNonAlloc(multicast, out var delegates) && delegates != null
+                                                                                            ? delegates
+                                                                                            : multicast?.GetInvocationList();
+        }
 
         /************************************************************************************************************************/
         #endregion
@@ -255,18 +253,19 @@ namespace Animancer
         /// This method would instead return <c>System.Collections.Generic.List&lt;float&gt;</c> if `fullName` is <c>true</c>, or
         /// just <c>List&lt;float&gt;</c> if it is <c>false</c>.
         /// </remarks>
-        public static string GetNameCS(this Type type, bool fullName = true)
-        {
-            if (type == null)
+        public static string GetNameCS(this Type type, bool fullName = true) {
+            if (type == null) {
                 return "null";
+            }
 
             // Check if we have already got the name for that type.
             var names = fullName
                 ? FullTypeNames
                 : TypeNames;
 
-            if (names.TryGetValue(type, out var name))
+            if (names.TryGetValue(type, out var name)) {
                 return name;
+            }
 
             var text = StringBuilderPool.Instance.Acquire();
 
@@ -276,8 +275,10 @@ namespace Animancer
 
                 text.Append('[');
                 var dimensions = type.GetArrayRank();
-                while (dimensions-- > 1)
+                while (dimensions-- > 1) {
                     text.Append(',');
+                }
+
                 text.Append(']');
 
                 goto Return;
@@ -321,20 +322,19 @@ namespace Animancer
                 // Count the nesting level.
                 var nesting = 1;
                 var declaringType = type.DeclaringType;
-                while (declaringType.DeclaringType != null)
-                {
+                while (declaringType.DeclaringType != null) {
                     declaringType = declaringType.DeclaringType;
                     nesting++;
                 }
 
                 // Append the name of each outer type, starting from the outside.
-                while (nesting-- > 0)
-                {
+                while (nesting-- > 0) {
                     // Walk out to the current nesting level.
                     // This avoids the need to make a list of types in the nest or to insert type names instead of appending them.
                     declaringType = type;
-                    for (int i = nesting; i >= 0; i--)
+                    for (var i = nesting; i >= 0; i--) {
                         declaringType = declaringType.DeclaringType;
+                    }
 
                     // Nested Type Name.
                     genericArguments = AppendNameAndGenericArguments(text, declaringType, fullName, genericArguments);
@@ -345,7 +345,7 @@ namespace Animancer
             // Type Name.
             AppendNameAndGenericArguments(text, type, fullName, genericArguments);
 
-            Return:// Remember and return the name.
+        Return:// Remember and return the name.
             name = text.ReleaseToString();
             names.Add(type, name);
             return name;
@@ -354,40 +354,31 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Appends the generic arguments of `type` (after skipping the specified number).</summary>
-        public static int AppendNameAndGenericArguments(StringBuilder text, Type type, bool fullName = true, int skipGenericArguments = 0)
-        {
+        public static int AppendNameAndGenericArguments(StringBuilder text, Type type, bool fullName = true, int skipGenericArguments = 0) {
             var name = type.Name;
             text.Append(name);
 
-            if (type.IsGenericType)
-            {
+            if (type.IsGenericType) {
                 var backQuote = name.IndexOf('`');
-                if (backQuote >= 0)
-                {
+                if (backQuote >= 0) {
                     text.Length -= name.Length - backQuote;
 
                     var genericArguments = type.GetGenericArguments();
-                    if (skipGenericArguments < genericArguments.Length)
-                    {
+                    if (skipGenericArguments < genericArguments.Length) {
                         text.Append('<');
 
                         var firstArgument = genericArguments[skipGenericArguments];
                         skipGenericArguments++;
 
-                        if (firstArgument.IsGenericParameter)
-                        {
-                            while (skipGenericArguments < genericArguments.Length)
-                            {
+                        if (firstArgument.IsGenericParameter) {
+                            while (skipGenericArguments < genericArguments.Length) {
                                 text.Append(',');
                                 skipGenericArguments++;
                             }
-                        }
-                        else
-                        {
+                        } else {
                             text.Append(firstArgument.GetNameCS(fullName));
 
-                            while (skipGenericArguments < genericArguments.Length)
-                            {
+                            while (skipGenericArguments < genericArguments.Length) {
                                 text.Append(", ");
                                 text.Append(genericArguments[skipGenericArguments].GetNameCS(fullName));
                                 skipGenericArguments++;

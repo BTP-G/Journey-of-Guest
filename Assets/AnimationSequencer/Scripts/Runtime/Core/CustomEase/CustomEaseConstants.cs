@@ -1,10 +1,8 @@
-﻿#if DOTWEEN_ENABLED
+#if DOTWEEN_ENABLED
 using DG.Tweening;
 
-namespace BrunoMikoski.AnimationSequencer
-{
-    public partial class CustomEase
-    {
+namespace BrunoMikoski.AnimationSequencer {
+    public partial class CustomEase {
         public static CustomEase Linear => new CustomEase(Ease.Linear);
         public static CustomEase InSine => new CustomEase(Ease.InSine);
         public static CustomEase OutSine => new CustomEase(Ease.OutSine);

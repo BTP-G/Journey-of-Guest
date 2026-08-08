@@ -1,14 +1,10 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-using Antlr4.Runtime;
-using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Misc;
-using Antlr4.Runtime.Sharpen;
 
-namespace Antlr4.Runtime.Atn
-{
+namespace Antlr4.Runtime.Atn {
     /// <summary>
     /// This is the base class for gathering detailed information about prediction
     /// events which occur during parsing.
@@ -18,8 +14,7 @@ namespace Antlr4.Runtime.Atn
     /// events which occur during parsing.
     /// </remarks>
     /// <since>4.3</since>
-    public class DecisionEventInfo
-    {
+    public class DecisionEventInfo {
         /// <summary>The invoked decision number which this event is related to.</summary>
         /// <remarks>The invoked decision number which this event is related to.</remarks>
         /// <seealso cref="ATN.decisionToState"/>
@@ -64,8 +59,7 @@ namespace Antlr4.Runtime.Atn
         public DecisionEventInfo(int decision,
             ATNConfigSet configs,
             ITokenStream input, int startIndex, int stopIndex,
-            bool fullCtx)
-        {
+            bool fullCtx) {
             this.decision = decision;
             this.fullCtx = fullCtx;
             this.stopIndex = stopIndex;

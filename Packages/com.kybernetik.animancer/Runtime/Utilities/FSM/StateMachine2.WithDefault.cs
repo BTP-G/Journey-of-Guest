@@ -3,11 +3,9 @@
 using System;
 using UnityEngine;
 
-namespace Animancer.FSM
-{
+namespace Animancer.FSM {
     /// https://kybernetik.com.au/animancer/api/Animancer.FSM/StateMachine_2
-    partial class StateMachine<TKey, TState>
-    {
+    public partial class StateMachine<TKey, TState> {
         /// <summary>A <see cref="StateMachine{TKey, TState}"/> with a <see cref="DefaultKey"/>.</summary>
         /// <remarks>
         /// See <see cref="InitializeAfterDeserialize"/> if using this class in a serialized field.
@@ -19,8 +17,7 @@ namespace Animancer.FSM
         /// https://kybernetik.com.au/animancer/api/Animancer.FSM/WithDefault
         /// 
         [Serializable]
-        public new class WithDefault : StateMachine<TKey, TState>
-        {
+        public new class WithDefault : StateMachine<TKey, TState> {
             /************************************************************************************************************************/
 
             [SerializeField]
@@ -33,14 +30,13 @@ namespace Animancer.FSM
             /// <para></para>
             /// For a character, this would typically be their <em>Idle</em> state.
             /// </remarks>
-            public TKey DefaultKey
-            {
+            public TKey DefaultKey {
                 get => _DefaultKey;
-                set
-                {
+                set {
                     _DefaultKey = value;
-                    if (CurrentState == null && value != null)
+                    if (CurrentState == null && value != null) {
                         ForceSetState(value);
+                    }
                 }
             }
 
@@ -53,8 +49,7 @@ namespace Animancer.FSM
             /************************************************************************************************************************/
 
             /// <summary>Creates a new <see cref="WithDefault"/>.</summary>
-            public WithDefault()
-            {
+            public WithDefault() {
                 // Silly C# doesn't allow instance delegates to be assigned using field initializers.
                 ForceSetDefaultState = () => ForceSetState(_DefaultKey);
             }
@@ -63,8 +58,7 @@ namespace Animancer.FSM
 
             /// <summary>Creates a new <see cref="WithDefault"/> and sets the <see cref="DefaultKey"/>.</summary>
             public WithDefault(TKey defaultKey)
-                : this()
-            {
+                : this() {
                 _DefaultKey = defaultKey;
                 ForceSetState(defaultKey);
             }
@@ -72,16 +66,13 @@ namespace Animancer.FSM
             /************************************************************************************************************************/
 
             /// <inheritdoc/>
-            public override void InitializeAfterDeserialize()
-            {
-                if (CurrentState != null)
-                {
+            public override void InitializeAfterDeserialize() {
+                if (CurrentState != null) {
                     using (new KeyChange<TKey>(this, default, _DefaultKey))
-                    using (new StateChange<TState>(this, null, CurrentState))
+                    using (new StateChange<TState>(this, null, CurrentState)) {
                         CurrentState.OnEnterState();
-                }
-                else
-                {
+                    }
+                } else {
                     ForceSetState(_DefaultKey);
                 }
 
@@ -96,7 +87,9 @@ namespace Animancer.FSM
             /// <see cref="CurrentKey"/>. To allow directly re-entering the same state, use
             /// <see cref="TryResetDefaultState"/> instead.
             /// </remarks>
-            public TState TrySetDefaultState() => TrySetState(_DefaultKey);
+            public TState TrySetDefaultState() {
+                return TrySetState(_DefaultKey);
+            }
 
             /************************************************************************************************************************/
 
@@ -105,7 +98,9 @@ namespace Animancer.FSM
             /// This method does not check if the <see cref="DefaultKey"/> is already the <see cref="CurrentKey"/>.
             /// To do so, use <see cref="TrySetDefaultState"/> instead.
             /// </remarks>
-            public TState TryResetDefaultState() => TryResetState(_DefaultKey);
+            public TState TryResetDefaultState() {
+                return TryResetState(_DefaultKey);
+            }
 
             /************************************************************************************************************************/
 #if UNITY_EDITOR && UNITY_IMGUI
@@ -117,16 +112,16 @@ namespace Animancer.FSM
             /************************************************************************************************************************/
 
             /// <inheritdoc/>
-            public override void DoGUI(ref Rect area)
-            {
+            public override void DoGUI(ref Rect area) {
                 area.height = UnityEditor.EditorGUIUtility.singleLineHeight;
 
                 UnityEditor.EditorGUI.BeginChangeCheck();
 
                 var state = StateMachineUtilities.DoGenericField(area, "Default Key", DefaultKey);
 
-                if (UnityEditor.EditorGUI.EndChangeCheck())
+                if (UnityEditor.EditorGUI.EndChangeCheck()) {
                     DefaultKey = state;
+                }
 
                 StateMachineUtilities.NextVerticalArea(ref area);
 

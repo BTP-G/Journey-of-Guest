@@ -1,8 +1,7 @@
 using EditorAttributes;
-using Xoderony.Localization;
-using JoG.Localization;
 using Unity.Netcode;
 using UnityEngine;
+using Xoderony.Localization;
 
 namespace JoG.Character {
 

@@ -26,7 +26,5 @@ namespace JoG.StateMachines {
         public override void OnNetworkDespawn() {
             ApplyTransition(null);
         }
-
     }
-
 }

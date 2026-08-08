@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace Xoderony.Extensions {
@@ -14,7 +14,5 @@ namespace Xoderony.Extensions {
         public static T Clone<T>(this T obj) where T : Object {
             return Object.Instantiate(obj);
         }
-
     }
-
 }

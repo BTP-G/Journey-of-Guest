@@ -5,15 +5,13 @@
 using System;
 using System.Collections.Generic;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only]
     /// An assembly attribute for configuring how the <see cref="PolymorphicDrawer"/>
     /// displays a particular type.
     /// </summary>
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
-    public sealed class PolymorphicDrawerDetails : Attribute
-    {
+    public sealed class PolymorphicDrawerDetails : Attribute {
         /************************************************************************************************************************/
 
         /// <summary>A default instance.</summary>
@@ -26,8 +24,9 @@ namespace Animancer.Editor
         public readonly Type Type;
 
         /// <summary>Creates a new <see cref="PolymorphicDrawerDetails"/>.</summary>
-        public PolymorphicDrawerDetails(Type type)
-            => Type = type;
+        public PolymorphicDrawerDetails(Type type) {
+            Type = type;
+        }
 
         /************************************************************************************************************************/
 
@@ -43,18 +42,16 @@ namespace Animancer.Editor
             TypeToDetails = new();
 
         /// <summary>Gathers all instances of this attribute in all currently loaded assemblies.</summary>
-        static PolymorphicDrawerDetails()
-        {
+        static PolymorphicDrawerDetails() {
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            for (int iAssembly = 0; iAssembly < assemblies.Length; iAssembly++)
-            {
+            for (var iAssembly = 0; iAssembly < assemblies.Length; iAssembly++) {
                 var assembly = assemblies[iAssembly];
-                if (!assembly.IsDefined(typeof(PolymorphicDrawerDetails), false))
+                if (!assembly.IsDefined(typeof(PolymorphicDrawerDetails), false)) {
                     continue;
+                }
 
                 var attributes = assemblies[iAssembly].GetCustomAttributes(typeof(PolymorphicDrawerDetails), false);
-                for (int iAttribute = 0; iAttribute < attributes.Length; iAttribute++)
-                {
+                for (var iAttribute = 0; iAttribute < attributes.Length; iAttribute++) {
                     var attribute = (PolymorphicDrawerDetails)attributes[iAttribute];
                     TypeToDetails.Add(attribute.Type, attribute);
                 }
@@ -67,15 +64,16 @@ namespace Animancer.Editor
         /// Returns the <see cref="PolymorphicDrawerDetails"/> associated with the `type` or any of its base types.
         /// Returns <c>null</c> if none of them have any details.
         /// </summary>
-        public static PolymorphicDrawerDetails Get(Type type)
-        {
-            if (TypeToDetails.TryGetValue(type, out var details))
+        public static PolymorphicDrawerDetails Get(Type type) {
+            if (TypeToDetails.TryGetValue(type, out var details)) {
                 return details;
+            }
 
-            if (type.BaseType != null)
+            if (type.BaseType != null) {
                 details = Get(type.BaseType);
-            else
+            } else {
                 details = Default;
+            }
 
             TypeToDetails.Add(type, details);
             return details;
@@ -85,10 +83,11 @@ namespace Animancer.Editor
         /// Returns the <see cref="PolymorphicDrawerDetails"/> associated with the `obj` or any of its base types.
         /// Returns <c>null</c> if none of them have any details.
         /// </summary>
-        public static PolymorphicDrawerDetails Get(object obj)
-            => obj == null
-            ? Default
-            : Get(obj.GetType());
+        public static PolymorphicDrawerDetails Get(object obj) {
+            return obj == null
+                                                                           ? Default
+                                                                           : Get(obj.GetType());
+        }
 
         /************************************************************************************************************************/
     }

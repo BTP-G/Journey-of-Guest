@@ -2,8 +2,7 @@
 
 using UnityEngine.Playables;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>A utility for re-assigning Animancer's <see cref="PlayableOutput"/>.</summary>
     /// 
     /// <remarks>
@@ -42,8 +41,7 @@ namespace Animancer
     /// 
     /// https://kybernetik.com.au/animancer/api/Animancer/PlayableOutputRefresher
     /// 
-    public struct PlayableOutputRefresher
-    {
+    public struct PlayableOutputRefresher {
         /************************************************************************************************************************/
 
         /// <summary>The <see cref="PlayableOutput"/> of Animancer's <see cref="PlayableGraph"/>.</summary>
@@ -55,8 +53,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Creates a new <see cref="PlayableOutputRefresher"/>.</summary>
-        public PlayableOutputRefresher(PlayableOutput output)
-        {
+        public PlayableOutputRefresher(PlayableOutput output) {
             Output = output;
             Root = Output.GetSourcePlayable();
         }
@@ -65,21 +62,22 @@ namespace Animancer
 
         /// <summary>Creates a new <see cref="PlayableOutputRefresher"/>.</summary>
         public PlayableOutputRefresher(AnimancerGraph animancer)
-            : this(animancer.Output)
-        { }
+            : this(animancer.Output) { }
 
         /************************************************************************************************************************/
 
         /// <summary>Re-assigns the <see cref="Root"/> as the source playable of the <see cref="Output"/>.</summary>
-        public readonly void Refresh()
-            => Output.SetSourcePlayable(Root);
+        public readonly void Refresh() {
+            Output.SetSourcePlayable(Root);
+        }
 
         /************************************************************************************************************************/
 
         /// <summary>Re-acquires the <see cref="Root"/> from the <see cref="Output"/>.</summary>
         /// <remarks>Call this after <see cref="AnimancerGraph.InsertOutputPlayable"/>.</remarks>
-        public void OnSourcePlayableChanged()
-            => Root = Output.GetSourcePlayable();
+        public void OnSourcePlayableChanged() {
+            Root = Output.GetSourcePlayable();
+        }
 
         /************************************************************************************************************************/
     }

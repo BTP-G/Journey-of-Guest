@@ -2,13 +2,11 @@
 
 #if UNITY_EDITOR && UNITY_IMGUI
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <inheritdoc/>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/ClipStateDrawer
     [CustomGUI(typeof(ClipState))]
-    public class ClipStateDrawer : AnimancerStateDrawer<ClipState>
-    {
+    public class ClipStateDrawer : AnimancerStateDrawer<ClipState> {
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
@@ -18,8 +16,7 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override void AddContextMenuFunctions(UnityEditor.GenericMenu menu)
-        {
+        protected override void AddContextMenuFunctions(UnityEditor.GenericMenu menu) {
             menu.AddDisabledItem(new(
                 $"{DetailsPrefix}Animation Type: {AnimationBindings.GetAnimationType(Value.Clip)}"));
 

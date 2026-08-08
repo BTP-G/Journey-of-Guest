@@ -7,14 +7,12 @@ using System;
 using UnityEngine;
 using static Animancer.Editor.TransitionLibraries.TransitionLibrarySelection;
 
-namespace Animancer.Editor.TransitionLibraries
-{
+namespace Animancer.Editor.TransitionLibraries {
     /// <summary>[Editor-Only]
     /// Operations for modifying the order of items in a <see cref="TransitionLibraryAsset"/>.
     /// </summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor.TransitionLibraries/TransitionLibraryOrdering
-    public static class TransitionLibraryOrdering
-    {
+    public static class TransitionLibraryOrdering {
         /************************************************************************************************************************/
 
         /// <summary>Handles a drag and drop operation.</summary>
@@ -22,17 +20,17 @@ namespace Animancer.Editor.TransitionLibraries
             this TransitionLibraryWindow window,
             object item,
             ListTargetCalculation target,
-            SelectionType selectionType)
-        {
+            SelectionType selectionType) {
             window.RecordUndo();
             window.EditorData.TransitionSortMode = TransitionSortMode.Custom;
 
-            if (item is TransitionAssetBase transition)
+            if (item is TransitionAssetBase transition) {
                 OnDropTransition(window, transition, target, selectionType);
-            else if (item is TransitionGroup group)
+            } else if (item is TransitionGroup group) {
                 OnDropGroup(window, group, target);
-            else
+            } else {
                 Debug.LogWarning($"Unhandled item type: {item}");
+            }
         }
 
         /************************************************************************************************************************/
@@ -42,19 +40,18 @@ namespace Animancer.Editor.TransitionLibraries
             TransitionLibraryWindow window,
             TransitionAssetBase transition,
             ListTargetCalculation target,
-            SelectionType selectionType)
-        {
+            SelectionType selectionType) {
             var transitions = window.Data.Transitions;
             var fromTransitionIndex = Array.IndexOf(transitions, transition);
 
             var fromItemIndex = window.Items.IndexOf(transition);
             var fromGroup = window.Items.GetGroup(fromItemIndex);
             var fromIndexWithinGroup = int.MaxValue;
-            if (fromGroup != null)
-            {
+            if (fromGroup != null) {
                 fromIndexWithinGroup = fromGroup.TransitionIndices.IndexOf(fromTransitionIndex);
-                if (fromIndexWithinGroup >= 0)
+                if (fromIndexWithinGroup >= 0) {
                     fromGroup.TransitionIndices.RemoveAt(fromIndexWithinGroup);
+                }
             }
 
             var toGroup = window.Items.TryGet(target.Index, out var targetItem)
@@ -62,51 +59,50 @@ namespace Animancer.Editor.TransitionLibraries
                 : null;
 
             // If dropping onto the top half of a group, drop outside that group.
-            if (target.LocalOffset < 0.5f && ReferenceEquals(toGroup, targetItem))
-            {
+            if (target.LocalOffset < 0.5f && ReferenceEquals(toGroup, targetItem)) {
                 toGroup = null;
 
-                if (fromItemIndex < target.Index)
+                if (fromItemIndex < target.Index) {
                     target.Index--;
+                }
             }
 
             // Drop onto group or a transition in a group.
-            if (toGroup != null)
-            {
+            if (toGroup != null) {
                 var groupIndex = window.Items.IndexOf(toGroup);
                 var indexWithinGroup = target.Index - groupIndex;
 
                 // If dropping into the top half of an item, insert above that item instead of below.
-                if (target.LocalOffset < 0.5f)
+                if (target.LocalOffset < 0.5f) {
                     indexWithinGroup--;
+                }
 
                 // If this item was just removed from earlier in the same list, adjust the new index.
-                if (fromGroup == toGroup && fromIndexWithinGroup < indexWithinGroup)
+                if (fromGroup == toGroup && fromIndexWithinGroup < indexWithinGroup) {
                     indexWithinGroup--;
+                }
 
                 indexWithinGroup = Mathf.Clamp(indexWithinGroup, 0, toGroup.TransitionIndices.Count);
 
                 toGroup.TransitionIndices.Insert(indexWithinGroup, fromTransitionIndex);
-            }
-            else// Drop onto a transition with no group.
-            {
+            } else// Drop onto a transition with no group.
+              {
                 var toTransitionIndex = Array.IndexOf(transitions, targetItem);
-                if (toTransitionIndex >= 0)
-                {
+                if (toTransitionIndex >= 0) {
                     // If dropping into the top half of an item, insert above that item instead of below.
-                    if (target.LocalOffset >= 0.5f)
+                    if (target.LocalOffset >= 0.5f) {
                         toTransitionIndex++;
+                    }
 
                     // If this item was just removed from earlier in the transition list, adjust the new index.
-                    if (fromTransitionIndex < toTransitionIndex)
+                    if (fromTransitionIndex < toTransitionIndex) {
                         toTransitionIndex--;
-                }
-                else if (target.Index < 0)// Above everything.
-                {
+                    }
+                } else if (target.Index < 0)// Above everything.
+                  {
                     toTransitionIndex = 0;
-                }
-                else// Below everything.
-                {
+                } else// Below everything.
+                  {
                     toTransitionIndex = transitions.Length;
                 }
 
@@ -124,18 +120,19 @@ namespace Animancer.Editor.TransitionLibraries
         private static void OnDropGroup(
             TransitionLibraryWindow window,
             TransitionGroup group,
-            ListTargetCalculation target)
-        {
+            ListTargetCalculation target) {
             var fromItemIndex = window.Items.IndexOf(group);
 
-            if (target.LocalOffset > 0.5f)
+            if (target.LocalOffset > 0.5f) {
                 target.Index++;
+            }
 
             var previousIndex = group.Index;
             AdjustGroupIndices(window, fromItemIndex, target.Index);
 
-            if (target.Index > fromItemIndex)
+            if (target.Index > fromItemIndex) {
                 target.Index += group.Index - previousIndex;
+            }
 
             group.Index = window.Items.ItemToGroupIndex(target.Index);
 
@@ -150,18 +147,18 @@ namespace Animancer.Editor.TransitionLibraries
         private static void AdjustGroupIndices(
             TransitionLibraryWindow window,
             int movedFromItemIndex,
-            int movedToItemIndex)
-        {
+            int movedToItemIndex) {
             var direction = Math.Sign(movedToItemIndex - movedFromItemIndex);
             movedFromItemIndex = Mathf.Clamp(movedFromItemIndex, 0, window.Items.Count - 1);
             movedToItemIndex = Mathf.Clamp(movedToItemIndex, 0, window.Items.Count - 1);
-            while (true)
-            {
-                if (window.Items.GetItem(movedFromItemIndex) is TransitionGroup group)
+            while (true) {
+                if (window.Items.GetItem(movedFromItemIndex) is TransitionGroup group) {
                     group.Index -= direction;
+                }
 
-                if (movedFromItemIndex == movedToItemIndex)
+                if (movedFromItemIndex == movedToItemIndex) {
                     break;
+                }
 
                 movedFromItemIndex += direction;
             }

@@ -1,7 +1,6 @@
 // Animancer // https://kybernetik.com.au/animancer // Copyright 2018-2026 Kybernetik //
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>
     /// An object with a <see cref="Key"/> which can be used in dictionaries and hash sets.
     /// </summary>
@@ -11,8 +10,7 @@ namespace Animancer
     /// Keys</see>
     /// </remarks>
     /// https://kybernetik.com.au/animancer/api/Animancer/IHasKey
-    public interface IHasKey
-    {
+    public interface IHasKey {
         /************************************************************************************************************************/
 
         /// <summary>A key which can be used in dictionaries and hash sets.</summary>

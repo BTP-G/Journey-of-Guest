@@ -1,11 +1,11 @@
-using Xoderony.Extensions;
-using Xoderony.Logging;
 using JoG.Lobby.View;
 using Steamworks;
 using Steamworks.Data;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Xoderony.Extensions;
+using Xoderony.Logging;
 using SLobby = Steamworks.Data.Lobby;
 
 namespace JoG.Lobby.Controller {
@@ -36,7 +36,10 @@ namespace JoG.Lobby.Controller {
         }
 
         public async void Refresh() {
-            if (isRefreshing) return;
+            if (isRefreshing) {
+                return;
+            }
+
             isRefreshing = true;
             var lobbyQuery = SteamMatchmaking.LobbyList
                 .WithKeyValue("app_id", SteamClient.AppId.ToString())
@@ -113,7 +116,7 @@ namespace JoG.Lobby.Controller {
             while (_listItems.Count < _lobbies.Count) {
                 _listItems.Add(Instantiate(lobbyCardPrefab, lobbyCardsContent));
             }
-            for (int i = 0; i < _listItems.Count; i++) {
+            for (var i = 0; i < _listItems.Count; i++) {
                 if (i < _lobbies.Count) {
                     _listItems[i].gameObject.SetActive(true);
                     _listItems[i].UpdateView(_lobbies[i]);

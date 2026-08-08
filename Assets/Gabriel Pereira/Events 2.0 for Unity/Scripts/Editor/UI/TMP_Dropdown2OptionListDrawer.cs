@@ -1,4 +1,4 @@
-﻿#if TEXTMESHPRO
+#if TEXTMESHPRO
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.UI;

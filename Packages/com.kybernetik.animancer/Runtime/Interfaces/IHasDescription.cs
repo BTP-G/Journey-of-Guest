@@ -2,13 +2,11 @@
 
 using System.Text;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>An object which can give a detailed description of itself.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer/IHasDescription
     /// 
-    public interface IHasDescription
-    {
+    public interface IHasDescription {
         /************************************************************************************************************************/
 
         /// <summary>Appends a detailed descrption of the current details of this object.</summary>
@@ -23,8 +21,7 @@ namespace Animancer
 
     /// https://kybernetik.com.au/animancer/api/Animancer/AnimancerUtilities
     /// 
-    public static partial class AnimancerUtilities
-    {
+    public static partial class AnimancerUtilities {
         /************************************************************************************************************************/
 
         /// <summary>
@@ -32,10 +29,10 @@ namespace Animancer
         /// </summary>
         public static string GetDescription(
             this IHasDescription hasDescription,
-            string separator = "\n")
-        {
-            if (hasDescription == null)
+            string separator = "\n") {
+            if (hasDescription == null) {
                 return "Null";
+            }
 
             var text = StringBuilderPool.Instance.Acquire();
             hasDescription.AppendDescription(text, separator);
@@ -52,10 +49,11 @@ namespace Animancer
             this StringBuilder text,
             T maybeHasDescription,
             string separator = "\n",
-            bool fullNodeDescription = false)
-            => maybeHasDescription is IHasDescription hasDescription
-            ? text.AppendDescription(hasDescription, separator, fullNodeDescription)
-            : text.Append(ToStringOrNull(maybeHasDescription));
+            bool fullNodeDescription = false) {
+            return maybeHasDescription is IHasDescription hasDescription
+                                                          ? text.AppendDescription(hasDescription, separator, fullNodeDescription)
+                                                          : text.Append(ToStringOrNull(maybeHasDescription));
+        }
 
         /// <summary>
         /// Appends "Null" if `hasDescription` is null. Otherwise calls
@@ -65,13 +63,14 @@ namespace Animancer
             this StringBuilder text,
             IHasDescription hasDescription,
             string separator = "\n",
-            bool fullNodeDescription = false)
-        {
-            if (hasDescription == null)
+            bool fullNodeDescription = false) {
+            if (hasDescription == null) {
                 return text.Append("Null");
+            }
 
-            if (!fullNodeDescription && hasDescription is AnimancerNode node)
+            if (!fullNodeDescription && hasDescription is AnimancerNode node) {
                 return text.Append(node.GetPath());
+            }
 
             hasDescription.AppendDescription(text, separator);
             return text;
@@ -86,23 +85,24 @@ namespace Animancer
             string name,
             T value,
             string separator = "\n",
-            bool fullNodeDescription = false)
-            => text
-            .Append(prefix)
-            .Append(name)
-            .Append(": ")
-            .AppendDescription(value, separator, fullNodeDescription);
+            bool fullNodeDescription = false) {
+            return text
+                                                          .Append(prefix)
+                                                          .Append(name)
+                                                          .Append(": ")
+                                                          .AppendDescription(value, separator, fullNodeDescription);
+        }
 
         /************************************************************************************************************************/
 
         /// <summary>Does the `text` start with a new line character?</summary>
-        public static bool StartsWithNewLine(this string text)
-        {
-            if (text == null || text.Length == 0)
+        public static bool StartsWithNewLine(this string text) {
+            if (text == null || text.Length == 0) {
                 return false;
+            }
 
             var start = text[0];
-            return start == '\n' || start == '\r';
+            return start is '\n' or '\r';
         }
 
         /************************************************************************************************************************/

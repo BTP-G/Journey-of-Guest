@@ -2,13 +2,11 @@
 
 #if UNITY_EDITOR
 
-using System;
 using System.Collections;
 using UnityEditor;
 using UnityEngine;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only]
     /// Delegate for validating and responding to <see cref="DragAndDrop"/> operations.
     /// </summary>
@@ -41,8 +39,7 @@ namespace Animancer.Editor
         where T : class;
 
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/AnimancerGUI
-    public static partial class AnimancerGUI
-    {
+    public static partial class AnimancerGUI {
         /************************************************************************************************************************/
 
         /// <summary>Handles the current event.</summary>
@@ -51,13 +48,11 @@ namespace Animancer.Editor
             this DragAndDropHandler<T> handler,
             Rect area,
             DragAndDropVisualMode mode = DragAndDropVisualMode.Link)
-            where T : class
-        {
+            where T : class {
             var currentEvent = Event.current;
 
             bool isDrop;
-            switch (currentEvent.type)
-            {
+            switch (currentEvent.type) {
                 case EventType.DragUpdated:
                     isDrop = false;
                     break;
@@ -70,8 +65,9 @@ namespace Animancer.Editor
                     return false;
             }
 
-            if (!area.Contains(currentEvent.mousePosition))
+            if (!area.Contains(currentEvent.mousePosition)) {
                 return false;
+            }
 
             return handler.Handle(DragAndDrop.objectReferences, isDrop, mode);
         }
@@ -85,35 +81,33 @@ namespace Animancer.Editor
             IEnumerable dragging,
             bool isDrop,
             DragAndDropVisualMode mode = DragAndDropVisualMode.Link)
-            where T : class
-        {
-            if (dragging == null)
+            where T : class {
+            if (dragging == null) {
                 return false;
+            }
 
             var droppedAny = false;
 
-            foreach (var obj in dragging)
-            {
+            foreach (var obj in dragging) {
                 if (obj is not T t ||
-                    !handler(t, isDrop))
+                    !handler(t, isDrop)) {
                     continue;
+                }
 
                 Deselect();
                 Event.current.Use();
 
-                if (isDrop)
-                {
+                if (isDrop) {
                     droppedAny = true;
-                }
-                else
-                {
+                } else {
                     DragAndDrop.visualMode = mode;
                     return true;
                 }
             }
 
-            if (!droppedAny)
+            if (!droppedAny) {
                 return false;
+            }
 
             DragAndDrop.AcceptDrag();
             return true;

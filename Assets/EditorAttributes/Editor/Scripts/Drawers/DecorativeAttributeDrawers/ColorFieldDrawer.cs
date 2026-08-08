@@ -1,19 +1,15 @@
-﻿using UnityEditor;
-using UnityEditor.UIElements;
+using UnityEditor;
 using UnityEngine.UIElements;
 // using EditorAttributes.Editor.Utility;
 
-namespace EditorAttributes.Editor
-{
+namespace EditorAttributes.Editor {
 #pragma warning disable CS0618
     [CustomPropertyDrawer(typeof(ColorFieldAttribute))]
-    public class ColorFieldDrawer : PropertyDrawerBase
-    {
-        public override VisualElement CreatePropertyGUI(SerializedProperty property)
-        {
+    public class ColorFieldDrawer : PropertyDrawerBase {
+        public override VisualElement CreatePropertyGUI(SerializedProperty property) {
             // var colorFieldAttribute = attribute as ColorFieldAttribute;
 
-            PropertyField propertyField = CreatePropertyField(property);
+            var propertyField = CreatePropertyField(property);
 
             /*
 			HelpBox errorBox = new();

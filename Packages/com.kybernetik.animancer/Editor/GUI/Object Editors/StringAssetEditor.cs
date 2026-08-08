@@ -4,13 +4,11 @@
 
 using UnityEditor;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only] A custom Inspector for <see cref="StringAsset"/>s.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/StringAssetEditor
     [CustomEditor(typeof(StringAsset), true)]
-    public class StringAssetEditor : UnityEditor.Editor
-    {
+    public class StringAssetEditor : UnityEditor.Editor {
         /************************************************************************************************************************/
 
         private const string InfoMessage = "This is a String Asset." +
@@ -22,8 +20,7 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void OnInspectorGUI()
-        {
+        public override void OnInspectorGUI() {
             EditorGUILayout.HelpBox(InfoMessage, MessageType.Info);
 
             DrawDefaultInspector();

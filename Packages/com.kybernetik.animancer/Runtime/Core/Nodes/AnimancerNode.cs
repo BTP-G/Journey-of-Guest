@@ -9,8 +9,7 @@ using UnityEngine;
 using UnityEngine.Playables;
 using Object = UnityEngine.Object;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>Base class for <see cref="Playable"/> wrapper objects in an <see cref="AnimancerGraph"/>.</summary>
     /// <remarks>This is the base class of <see cref="AnimancerLayer"/> and <see cref="AnimancerState"/>.</remarks>
     /// https://kybernetik.com.au/animancer/api/Animancer/AnimancerNode
@@ -18,8 +17,7 @@ namespace Animancer
         ICopyable<AnimancerNode>,
         IEnumerable<AnimancerState>,
         IEnumerator,
-        IHasDescription
-    {
+        IHasDescription {
         /************************************************************************************************************************/
         #region Playable
         /************************************************************************************************************************/
@@ -33,11 +31,9 @@ namespace Animancer
 
         /// <summary>Creates and assigns the <see cref="Playable"/> managed by this node.</summary>
         /// <remarks>This method also applies the <see cref="AnimancerNodeBase.Speed"/> if it was set beforehand.</remarks>
-        protected virtual void CreatePlayable()
-        {
+        protected virtual void CreatePlayable() {
 #if UNITY_ASSERTIONS
-            if (Graph == null)
-            {
+            if (Graph == null) {
                 MarkAsUsed(this);
                 throw new InvalidOperationException($"{nameof(AnimancerNode)}.{nameof(Graph)}" +
                     $" is null when attempting to create its {nameof(Playable)}: {this}" +
@@ -45,22 +41,25 @@ namespace Animancer
                     $" so you probably just need to play it before trying to access it.");
             }
 
-            if (_Playable.IsValid())
+            if (_Playable.IsValid()) {
                 Debug.LogWarning($"{nameof(AnimancerNode)}.{nameof(CreatePlayable)}" +
                     $" was called before destroying the previous {nameof(Playable)}: {this}", Graph?.Component as Object);
+            }
 #endif
 
             CreatePlayable(out _Playable);
 
 #if UNITY_ASSERTIONS
-            if (!_Playable.IsValid())
+            if (!_Playable.IsValid()) {
                 throw new InvalidOperationException(
                     $"{nameof(AnimancerNode)}.{nameof(CreatePlayable)}" +
                     $" did not create a valid {nameof(Playable)} for {this}");
+            }
 #endif
 
-            if (Speed != 1)
+            if (Speed != 1) {
                 _Playable.SetSpeed(Speed);
+            }
         }
 
         /// <summary>Creates and assigns the <see cref="Playable"/> managed by this node.</summary>
@@ -69,35 +68,33 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Destroys the <see cref="Playable"/>.</summary>
-        public void DestroyPlayable()
-        {
-            if (_Playable.IsValid())
+        public void DestroyPlayable() {
+            if (_Playable.IsValid()) {
                 Graph._PlayableGraph.DestroyPlayable(_Playable);
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <summary>Calls <see cref="DestroyPlayable"/> and <see cref="CreatePlayable()"/>.</summary>
-        public virtual void RecreatePlayable()
-        {
+        public virtual void RecreatePlayable() {
             DestroyPlayable();
             CreatePlayable();
         }
 
         /// <summary>Calls <see cref="RecreatePlayable"/> on this node and all its children recursively.</summary>
-        public void RecreatePlayableRecursive()
-        {
+        public void RecreatePlayableRecursive() {
             RecreatePlayable();
 
-            for (int i = ChildCount - 1; i >= 0; i--)
+            for (var i = ChildCount - 1; i >= 0; i--) {
                 GetChild(i)?.RecreatePlayableRecursive();
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <summary>Copies the details of `copyFrom` into this node, replacing its previous contents.</summary>
-        public virtual void CopyFrom(AnimancerNode copyFrom, CloneContext context)
-        {
+        public virtual void CopyFrom(AnimancerNode copyFrom, CloneContext context) {
             SetWeight(copyFrom._Weight);
 
             FadeGroup = context.WillCloneUpdatables
@@ -138,11 +135,11 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Creates a new <see cref="AnimancerNode"/>.</summary>
-        protected AnimancerNode()
-        {
+        protected AnimancerNode() {
 #if UNITY_ASSERTIONS
-            if (TraceConstructor)
+            if (TraceConstructor) {
                 _ConstructorStackTrace = new(true);
+            }
 #endif
         }
 
@@ -167,35 +164,36 @@ namespace Animancer
         /// <summary>[Assert-Only]
         /// Returns the stack trace of the constructor (or null if <see cref="TraceConstructor"/> was false).
         /// </summary>
-        public static System.Diagnostics.StackTrace GetConstructorStackTrace(AnimancerNode node)
-            => node._ConstructorStackTrace;
+        public static System.Diagnostics.StackTrace GetConstructorStackTrace(AnimancerNode node) {
+            return node._ConstructorStackTrace;
+        }
 
         /************************************************************************************************************************/
 
         /// <summary>[Assert-Only] Checks <see cref="OptionalWarning.UnusedNode"/>.</summary>
-        ~AnimancerNode()
-        {
+        ~AnimancerNode() {
             if (Graph != null ||
                 Parent != null ||
-                OptionalWarning.UnusedNode.IsDisabled())
+                OptionalWarning.UnusedNode.IsDisabled()) {
                 return;
+            }
 
             // ToString might throw an exception since finalizers arn't run on the main thread.
             string name = null;
-            try { name = ToString(); }
-            catch { name = GetType().FullName; }
+            try { name = ToString(); } catch { name = GetType().FullName; }
 
             var message = $"The {nameof(Graph)} of '{name}'" +
                 $" is null during finalization (garbage collection)." +
                 $" This may have been caused by earlier exceptions, but otherwise it probably means" +
                 $" that this node was never used for anything and should not have been created.";
 
-            if (_ConstructorStackTrace != null)
+            if (_ConstructorStackTrace != null) {
                 message += "\n\nThis node was created at:\n" + _ConstructorStackTrace;
-            else
+            } else {
                 message += $"\n\nEnable {nameof(AnimancerNode)}.{nameof(TraceConstructor)} on startup" +
                     $" to allow this warning to include the {nameof(System.Diagnostics.StackTrace)}" +
                     $" of when the node was constructed.";
+            }
 
             OptionalWarning.UnusedNode.Log(message);
         }
@@ -206,11 +204,9 @@ namespace Animancer
 
         /// <summary>Connects the `child`'s <see cref="Playable"/> to this node.</summary>
         /// <remarks>This method is NOT safe to call if the child was already connected.</remarks>
-        protected internal void ConnectChildUnsafe(int index, AnimancerNode child)
-        {
+        protected internal void ConnectChildUnsafe(int index, AnimancerNode child) {
 #if UNITY_ASSERTIONS
-            if (index < 0)
-            {
+            if (index < 0) {
                 MarkAsUsed(this);
                 throw new InvalidOperationException(
                     $"Invalid {nameof(index)} when attempting to connect to its parent:" +
@@ -226,10 +222,10 @@ namespace Animancer
 
         /// <summary>Disconnects the <see cref="Playable"/> of the child at the specified `index` from this node.</summary>
         /// <remarks>This method is safe to call if the child was already disconnected.</remarks>
-        protected void DisconnectChildSafe(int index)
-        {
-            if (_Playable.GetInput(index).IsValid())
+        protected void DisconnectChildSafe(int index) {
+            if (_Playable.GetInput(index).IsValid()) {
                 Graph._PlayableGraph.Disconnect(_Playable, index);
+            }
         }
 
         /************************************************************************************************************************/
@@ -243,8 +239,9 @@ namespace Animancer
         /// </remarks>
         public abstract bool IsPlayingAndNotEnding();
 
-        bool IEnumerator.MoveNext()
-            => IsPlayingAndNotEnding();
+        bool IEnumerator.MoveNext() {
+            return IsPlayingAndNotEnding();
+        }
 
         object IEnumerator.Current
             => null;
@@ -258,14 +255,14 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected internal override AnimancerNode GetChildNode(int index)
-            => GetChild(index);
+        protected internal override AnimancerNode GetChildNode(int index) {
+            return GetChild(index);
+        }
 
         /// <summary>Returns the state connected to the specified `index` as a child of this node.</summary>
         /// <remarks>When overriding, don't call this base method because it throws an exception.</remarks>
         /// <exception cref="NotSupportedException">This node can't have children.</exception>
-        public virtual AnimancerState GetChild(int index)
-        {
+        public virtual AnimancerState GetChild(int index) {
             MarkAsUsed(this);
             throw new NotSupportedException(this + " can't have children.");
         }
@@ -273,8 +270,7 @@ namespace Animancer
         /// <summary>Called when a child is connected with this node as its <see cref="AnimancerNodeBase.Parent"/>.</summary>
         /// <remarks>When overriding, don't call this base method because it throws an exception.</remarks>
         /// <exception cref="NotSupportedException">This node can't have children.</exception>
-        protected internal virtual void OnAddChild(AnimancerState child)
-        {
+        protected internal virtual void OnAddChild(AnimancerState child) {
             MarkAsUsed(this);
             child.SetParentInternal(null);
             throw new NotSupportedException(this + " can't have children.");
@@ -285,14 +281,17 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Gets an enumerator for all of this node's child states.</summary>
-        public virtual FastEnumerator<AnimancerState> GetEnumerator()
-            => default;
+        public virtual FastEnumerator<AnimancerState> GetEnumerator() {
+            return default;
+        }
 
-        IEnumerator<AnimancerState> IEnumerable<AnimancerState>.GetEnumerator()
-            => GetEnumerator();
+        IEnumerator<AnimancerState> IEnumerable<AnimancerState>.GetEnumerator() {
+            return GetEnumerator();
+        }
 
-        IEnumerator IEnumerable.GetEnumerator()
-            => GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() {
+            return GetEnumerator();
+        }
 
         /************************************************************************************************************************/
         #endregion
@@ -328,12 +327,10 @@ namespace Animancer
         /// <see cref="TargetWeight"/> and <see cref="FadeSpeed"/>. Then every update each state's weight will move
         /// towards that target value at that speed.
         /// </example>
-        public float Weight
-        {
+        public float Weight {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => _Weight;
-            set
-            {
+            set {
                 FadeGroup = null;
                 SetWeight(value);
             }
@@ -349,22 +346,24 @@ namespace Animancer
         /// <para></para>
         /// <em>Animancer Lite only allows this value to be set to 0 or 1 in runtime builds.</em>
         /// </remarks>
-        public virtual void SetWeight(float value)
-            => SetWeightInternal(value);
+        public virtual void SetWeight(float value) {
+            SetWeightInternal(value);
+        }
 
         /// <summary>The internal non-<c>virtual</c> implementation of <see cref="SetWeight"/>.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void SetWeightInternal(float value)
-        {
-            if (_Weight == value)
+        private void SetWeightInternal(float value) {
+            if (_Weight == value) {
                 return;
+            }
 
             Validate.AssertSetWeight(this, value);
 
             _Weight = value;
 
-            if (Graph != null)
+            if (Graph != null) {
                 Parent?.Playable.ApplyChildWeight(this);
+            }
         }
 
         /************************************************************************************************************************/
@@ -377,15 +376,12 @@ namespace Animancer
         /// The <see cref="Weight"/> of this state multiplied by the <see cref="Weight"/> of each of its parents down
         /// the hierarchy to determine how much this state affects the final output.
         /// </summary>
-        public float EffectiveWeight
-        {
-            get
-            {
+        public float EffectiveWeight {
+            get {
                 var weight = Weight;
 
                 var parent = Parent;
-                while (parent != null)
-                {
+                while (parent != null) {
                     weight *= parent.BaseWeight;
                     parent = parent.Parent;
                 }
@@ -403,12 +399,10 @@ namespace Animancer
         internal FadeGroup _FadeGroup;
 
         /// <summary>The current fade being applied to this node (if any).</summary>
-        public FadeGroup FadeGroup
-        {
+        public FadeGroup FadeGroup {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => _FadeGroup;
-            internal set
-            {
+            internal set {
                 _FadeGroup?.Remove(this);
                 _FadeGroup = value;
             }
@@ -446,8 +440,9 @@ namespace Animancer
         /// immediately.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void StartFade(float targetWeight)
-            => StartFade(targetWeight, AnimancerGraph.DefaultFadeDuration);
+        public void StartFade(float targetWeight) {
+            StartFade(targetWeight, AnimancerGraph.DefaultFadeDuration);
+        }
 
         /// <summary>
         /// Calls <see cref="OnStartFade"/> and starts fading the <see cref="Weight"/>
@@ -462,20 +457,14 @@ namespace Animancer
         /// <em>Animancer Lite only allows a `targetWeight` of 0 or 1
         /// and the default `fadeDuration` (0.25 seconds) in runtime builds.</em>
         /// </remarks>
-        public void StartFade(float targetWeight, float fadeDuration)
-        {
-            if (Weight == targetWeight && FadeGroup == null)
-            {
+        public void StartFade(float targetWeight, float fadeDuration) {
+            if (Weight == targetWeight && FadeGroup == null) {
                 OnStartFade();
-            }
-            else if (fadeDuration > 0)
-            {
+            } else if (fadeDuration > 0) {
                 var fade = FadeGroup.Pool.Instance.Acquire();
                 fade.SetFadeIn(this);
                 fade.StartFade(targetWeight, 1 / fadeDuration);
-            }
-            else
-            {
+            } else {
                 Weight = targetWeight;
             }
         }
@@ -488,13 +477,13 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Removes this node from the <see cref="FadeGroup"/>.</summary>
-        public void CancelFade()
-            => _FadeGroup?.Remove(this);
+        public void CancelFade() {
+            _FadeGroup?.Remove(this);
+        }
 
         /// <summary>[Internal] Called by <see cref="FadeGroup.Remove"/>.</summary>
         /// <remarks>Not called when a fade fully completes.</remarks>
-        protected internal virtual void InternalClearFade()
-        {
+        protected internal virtual void InternalClearFade() {
             _FadeGroup = null;
         }
 
@@ -506,8 +495,7 @@ namespace Animancer
         /// <para></para>
         /// Note that playing something new will automatically stop the old animation.
         /// </remarks>
-        public void Stop()
-        {
+        public void Stop() {
             FadeGroup = null;
             SetWeightInternal(0);
             StopWithoutWeight();
@@ -545,38 +533,36 @@ namespace Animancer
         /// <item>If <see cref="ApplyParentFootIK"/> is true, copy <see cref="ApplyFootIK"/>.</item>
         /// </list>
         /// </summary>
-        public virtual void CopyIKFlags(AnimancerNodeBase copyFrom)
-        {
-            if (Graph == null)
+        public virtual void CopyIKFlags(AnimancerNodeBase copyFrom) {
+            if (Graph == null) {
                 return;
+            }
 
-            if (ApplyParentAnimatorIK)
+            if (ApplyParentAnimatorIK) {
                 ApplyAnimatorIK = copyFrom.ApplyAnimatorIK;
+            }
 
-            if (ApplyParentFootIK)
+            if (ApplyParentFootIK) {
                 ApplyFootIK = copyFrom.ApplyFootIK;
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override bool ApplyAnimatorIK
-        {
-            get
-            {
-                for (int i = ChildCount - 1; i >= 0; i--)
-                {
+        public override bool ApplyAnimatorIK {
+            get {
+                for (var i = ChildCount - 1; i >= 0; i--) {
                     var state = GetChild(i);
-                    if (state.ApplyAnimatorIK)
+                    if (state.ApplyAnimatorIK) {
                         return true;
+                    }
                 }
 
                 return false;
             }
-            set
-            {
-                for (int i = ChildCount - 1; i >= 0; i--)
-                {
+            set {
+                for (var i = ChildCount - 1; i >= 0; i--) {
                     var state = GetChild(i);
                     state.ApplyAnimatorIK = value;
                 }
@@ -586,23 +572,19 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override bool ApplyFootIK
-        {
-            get
-            {
-                for (int i = ChildCount - 1; i >= 0; i--)
-                {
+        public override bool ApplyFootIK {
+            get {
+                for (var i = ChildCount - 1; i >= 0; i--) {
                     var state = GetChild(i);
-                    if (state.ApplyFootIK)
+                    if (state.ApplyFootIK) {
                         return true;
+                    }
                 }
 
                 return false;
             }
-            set
-            {
-                for (int i = ChildCount - 1; i >= 0; i--)
-                {
+            set {
+                for (var i = ChildCount - 1; i >= 0; i--) {
                     var state = GetChild(i);
                     state.ApplyFootIK = value;
                 }
@@ -623,19 +605,18 @@ namespace Animancer
 
         /// <summary>[Assert-Conditional] Sets the <see cref="DebugName"/> to display in the Inspector.</summary>
         [System.Diagnostics.Conditional(Strings.Assertions)]
-        public void SetDebugName(object name)
-        {
+        public void SetDebugName(object name) {
 #if UNITY_ASSERTIONS
             DebugName = name;
 #endif
         }
 
         /// <summary>The Inspector display name of this node.</summary>
-        public override string ToString()
-        {
+        public override string ToString() {
 #if UNITY_ASSERTIONS
-            if (NameCache.TryToString(DebugName, out var name))
+            if (NameCache.TryToString(DebugName, out var name)) {
                 return name;
+            }
 #endif
 
             return base.ToString();
@@ -644,21 +625,18 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public void AppendDescription(StringBuilder text, string separator = "\n")
-        {
+        public void AppendDescription(StringBuilder text, string separator = "\n") {
 
             text.Append(ToString());
 
             AppendDetails(text, separator);
 
-            if (ChildCount > 0)
-            {
+            if (ChildCount > 0) {
                 text.AppendField(separator, nameof(ChildCount), ChildCount);
                 var indentedSeparator = separator + Strings.Indent;
 
                 var i = 0;
-                foreach (var child in this)
-                {
+                foreach (var child in this) {
                     text.Append(separator)
                         .Append('[')
                         .Append(i++)
@@ -671,8 +649,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Called by <see cref="AppendDescription"/> to append the details of this node.</summary>
-        protected virtual void AppendDetails(StringBuilder text, string separator)
-        {
+        protected virtual void AppendDetails(StringBuilder text, string separator) {
             text.AppendField(separator, "Playable", _Playable.IsValid()
                 ? _Playable.GetPlayableType().ToString()
                 : "Invalid");
@@ -685,8 +662,9 @@ namespace Animancer
             text.AppendField(separator, "Connected", isConnected);
 
             text.AppendField(separator, nameof(Index), Index);
-            if (Index < 0)
+            if (Index < 0) {
                 text.Append(" (No Parent)");
+            }
 
             text.AppendField(separator, nameof(Speed), Speed);
 
@@ -694,13 +672,13 @@ namespace Animancer
                 ? _Playable.GetSpeed()
                 : Speed;
 
-            if (realSpeed != Speed)
+            if (realSpeed != Speed) {
                 text.Append(" (Real ").Append(realSpeed).Append(')');
+            }
 
             text.AppendField(separator, nameof(Weight), Weight);
 
-            if (Weight != TargetWeight)
-            {
+            if (Weight != TargetWeight) {
                 text.AppendField(separator, nameof(TargetWeight), TargetWeight);
                 text.AppendField(separator, nameof(FadeSpeed), FadeSpeed);
             }
@@ -708,8 +686,9 @@ namespace Animancer
             AppendIKDetails(text, separator, this);
 
 #if UNITY_ASSERTIONS
-            if (_ConstructorStackTrace != null)
+            if (_ConstructorStackTrace != null) {
                 text.AppendField(separator, "ConstructorStackTrace", _ConstructorStackTrace);
+            }
 #endif
         }
 
@@ -719,26 +698,22 @@ namespace Animancer
         /// Appends the details of <see cref="AnimancerNodeBase.ApplyAnimatorIK"/> and
         /// <see cref="AnimancerNodeBase.ApplyFootIK"/>.
         /// </summary>
-        public static void AppendIKDetails(StringBuilder text, string separator, AnimancerNodeBase node)
-        {
-            if (!node.Playable.IsValid())
+        public static void AppendIKDetails(StringBuilder text, string separator, AnimancerNodeBase node) {
+            if (!node.Playable.IsValid()) {
                 return;
+            }
 
             text.Append(separator)
                 .Append("InverseKinematics: ");
 
-            if (node.ApplyAnimatorIK)
-            {
+            if (node.ApplyAnimatorIK) {
                 text.Append("OnAnimatorIK");
-                if (node.ApplyFootIK)
+                if (node.ApplyFootIK) {
                     text.Append(", FootIK");
-            }
-            else if (node.ApplyFootIK)
-            {
+                }
+            } else if (node.ApplyFootIK) {
                 text.Append("FootIK");
-            }
-            else
-            {
+            } else {
                 text.Append("None");
             }
         }
@@ -746,17 +721,13 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Returns the hierarchy path of this node through its <see cref="AnimancerNodeBase.Parent"/>s.</summary>
-        public string GetPath()
-        {
+        public string GetPath() {
             var path = StringBuilderPool.Instance.Acquire();
 
-            if (Parent is AnimancerNode parent)
-            {
+            if (Parent is AnimancerNode parent) {
                 AppendPath(path, parent);
                 AppendPortAndType(path);
-            }
-            else
-            {
+            } else {
                 AppendPortAndType(path);
             }
 
@@ -764,25 +735,17 @@ namespace Animancer
         }
 
         /// <summary>Appends the hierarchy path of this state through its <see cref="AnimancerNodeBase.Parent"/>s.</summary>
-        private static void AppendPath(StringBuilder path, AnimancerNode parent)
-        {
-            if (parent != null)
-            {
-                if (parent.Parent is AnimancerNode grandParent)
-                {
+        private static void AppendPath(StringBuilder path, AnimancerNode parent) {
+            if (parent != null) {
+                if (parent.Parent is AnimancerNode grandParent) {
                     AppendPath(path, grandParent);
-                }
-                else
-                {
+                } else {
                     var layer = parent.Layer;
-                    if (layer != null)
-                    {
+                    if (layer != null) {
                         path.Append("Layers[")
                             .Append(parent.Layer.Index)
                             .Append("].States");
-                    }
-                    else
-                    {
+                    } else {
                         path.Append("NoLayer -> ")
                             .Append(parent.ToString());
                     }
@@ -791,20 +754,16 @@ namespace Animancer
                 }
             }
 
-            if (parent is AnimancerState state)
-            {
+            if (parent is AnimancerState state) {
                 state.AppendPortAndType(path);
-            }
-            else
-            {
+            } else {
                 path.Append(" -> ")
                     .Append(parent.GetType());
             }
         }
 
         /// <summary>Appends "[Index] -> ToString()".</summary>
-        private void AppendPortAndType(StringBuilder path)
-        {
+        private void AppendPortAndType(StringBuilder path) {
             path.Append('[')
                 .Append(Index)
                 .Append("] -> ")

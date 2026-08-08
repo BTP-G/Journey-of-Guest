@@ -2,8 +2,7 @@
 
 using System;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>Determines how <see cref="AnimancerLayer.Play(AnimancerState, float, FadeMode)"/> works.</summary>
     /// 
     /// <remarks>
@@ -18,8 +17,7 @@ namespace Animancer
     /// 
     /// https://kybernetik.com.au/animancer/api/Animancer/FadeMode
     /// 
-    public enum FadeMode
-    {
+    public enum FadeMode {
         /************************************************************************************************************************/
 
         /// <summary>

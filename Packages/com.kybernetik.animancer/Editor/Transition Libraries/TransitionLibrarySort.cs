@@ -8,12 +8,10 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace Animancer.Editor.TransitionLibraries
-{
+namespace Animancer.Editor.TransitionLibraries {
     /// <summary>[Editor-Only] Utility for sorting a <see cref="TransitionLibraryAsset"/>.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor.TransitionLibraries/TransitionLibrarySort
-    public static class TransitionLibrarySort
-    {
+    public static class TransitionLibrarySort {
         /************************************************************************************************************************/
         #region Sort Modes
         /************************************************************************************************************************/
@@ -21,37 +19,39 @@ namespace Animancer.Editor.TransitionLibraries
         /// <summary>Applies the <see cref="TransitionLibraryEditorDataInternal.TransitionSortMode"/>.</summary>
         public static void Sort(
             TransitionLibraryAsset asset,
-            TransitionLibraryDefinition definition)
-        {
-            if (asset == null)
+            TransitionLibraryDefinition definition) {
+            if (asset == null) {
                 return;
+            }
 
             // Can't have editor data if not an asset, so the sort mode will be custom anyway.
-            if (!AssetDatabase.Contains(asset))
+            if (!AssetDatabase.Contains(asset)) {
                 return;
+            }
 
             var editorData = asset.GetOrCreateEditorData();
             Sort(definition, editorData.Data);
         }
 
         /// <summary>Applies the <see cref="TransitionLibraryEditorDataInternal.TransitionSortMode"/>.</summary>
-        public static void Sort(TransitionLibraryAsset asset)
-            => Sort(asset, asset.Definition);
+        public static void Sort(TransitionLibraryAsset asset) {
+            Sort(asset, asset.Definition);
+        }
 
         /************************************************************************************************************************/
 
         /// <summary>Compares the asset names then GUIDs.</summary>
-        private class CompareName : IComparer<TransitionAssetBase>
-        {
-            public int Compare(TransitionAssetBase a, TransitionAssetBase b)
-            {
+        private class CompareName : IComparer<TransitionAssetBase> {
+            public int Compare(TransitionAssetBase a, TransitionAssetBase b) {
                 var result = CompareNulls(a, b);
-                if (result != 0)
+                if (result != 0) {
                     return result;
+                }
 
                 result = CompareCachedNames(a, b);
-                if (result != 0)
+                if (result != 0) {
                     return result;
+                }
 
                 return CompareGUIDs(a, b);
             }
@@ -60,21 +60,22 @@ namespace Animancer.Editor.TransitionLibraries
         /************************************************************************************************************************/
 
         /// <summary>Compares the asset paths then GUIDs.</summary>
-        private class ComparePath : IComparer<TransitionAssetBase>
-        {
-            public int Compare(TransitionAssetBase a, TransitionAssetBase b)
-            {
+        private class ComparePath : IComparer<TransitionAssetBase> {
+            public int Compare(TransitionAssetBase a, TransitionAssetBase b) {
                 var result = CompareNulls(a, b);
-                if (result != 0)
+                if (result != 0) {
                     return result;
+                }
 
                 result = ComparePaths(a, b);
-                if (result != 0)
+                if (result != 0) {
                     return result;
+                }
 
                 result = CompareCachedNames(a, b);
-                if (result != 0)
+                if (result != 0) {
                     return result;
+                }
 
                 return CompareGUIDs(a, b);
             }
@@ -83,21 +84,22 @@ namespace Animancer.Editor.TransitionLibraries
         /************************************************************************************************************************/
 
         /// <summary>Compares the transition types then asset names then GUIDs.</summary>
-        private class CompareTypeThenName : IComparer<TransitionAssetBase>
-        {
-            public int Compare(TransitionAssetBase a, TransitionAssetBase b)
-            {
+        private class CompareTypeThenName : IComparer<TransitionAssetBase> {
+            public int Compare(TransitionAssetBase a, TransitionAssetBase b) {
                 var result = CompareNulls(a, b);
-                if (result != 0)
+                if (result != 0) {
                     return result;
+                }
 
                 result = CompareTypes(a, b);
-                if (result != 0)
+                if (result != 0) {
                     return result;
+                }
 
                 result = CompareCachedNames(a, b);
-                if (result != 0)
+                if (result != 0) {
                     return result;
+                }
 
                 return CompareGUIDs(a, b);
             }
@@ -106,25 +108,27 @@ namespace Animancer.Editor.TransitionLibraries
         /************************************************************************************************************************/
 
         /// <summary>Compares the transition types then asset paths then GUIDs.</summary>
-        private class CompareTypeThenPath : IComparer<TransitionAssetBase>
-        {
-            public int Compare(TransitionAssetBase a, TransitionAssetBase b)
-            {
+        private class CompareTypeThenPath : IComparer<TransitionAssetBase> {
+            public int Compare(TransitionAssetBase a, TransitionAssetBase b) {
                 var result = CompareNulls(a, b);
-                if (result != 0)
+                if (result != 0) {
                     return result;
+                }
 
                 result = CompareTypes(a, b);
-                if (result != 0)
+                if (result != 0) {
                     return result;
+                }
 
                 result = ComparePaths(a, b);
-                if (result != 0)
+                if (result != 0) {
                     return result;
+                }
 
                 result = CompareCachedNames(a, b);
-                if (result != 0)
+                if (result != 0) {
                     return result;
+                }
 
                 return CompareGUIDs(a, b);
             }
@@ -133,42 +137,45 @@ namespace Animancer.Editor.TransitionLibraries
         /************************************************************************************************************************/
 
         /// <summary>Compares objects to put null or destroyed ones at the end.</summary>
-        private static int CompareNulls(TransitionAssetBase a, TransitionAssetBase b)
-            => (a == null).CompareTo(b == null);
+        private static int CompareNulls(TransitionAssetBase a, TransitionAssetBase b) {
+            return (a == null).CompareTo(b == null);
+        }
 
         /// <summary>Compares the asset GUIDs.</summary>
-        private static int CompareGUIDs(TransitionAssetBase a, TransitionAssetBase b)
-        {
-            var gotA = AssetDatabase.TryGetGUIDAndLocalFileIdentifier(a, out var aGUID, out long aLocalID);
-            var gotB = AssetDatabase.TryGetGUIDAndLocalFileIdentifier(b, out var bGUID, out long bLocalID);
+        private static int CompareGUIDs(TransitionAssetBase a, TransitionAssetBase b) {
+            var gotA = AssetDatabase.TryGetGUIDAndLocalFileIdentifier(a, out var aGUID, out var aLocalID);
+            var gotB = AssetDatabase.TryGetGUIDAndLocalFileIdentifier(b, out var bGUID, out var bLocalID);
             var result = gotA.CompareTo(gotB);
-            if (result != 0)
+            if (result != 0) {
                 return result;
+            }
 
             result = aGUID.CompareTo(bGUID);
-            if (result != 0)
+            if (result != 0) {
                 return result;
+            }
 
             return aLocalID.CompareTo(bLocalID);
         }
 
         /// <summary>Compares the asset names.</summary>
-        private static int CompareCachedNames(TransitionAssetBase a, TransitionAssetBase b)
-            => a.GetCachedName().CompareTo(b.GetCachedName());
+        private static int CompareCachedNames(TransitionAssetBase a, TransitionAssetBase b) {
+            return a.GetCachedName().CompareTo(b.GetCachedName());
+        }
 
         /// <summary>Compares the asset paths.</summary>
-        private static int ComparePaths(TransitionAssetBase a, TransitionAssetBase b)
-            => AssetDatabase.GetAssetPath(a).CompareTo(AssetDatabase.GetAssetPath(b));
+        private static int ComparePaths(TransitionAssetBase a, TransitionAssetBase b) {
+            return AssetDatabase.GetAssetPath(a).CompareTo(AssetDatabase.GetAssetPath(b));
+        }
 
         /// <summary>Compares the transition types.</summary>
-        private static int CompareTypes(TransitionAssetBase a, TransitionAssetBase b)
-        {
+        private static int CompareTypes(TransitionAssetBase a, TransitionAssetBase b) {
             if (AnimancerUtilities.TryGetWrappedObject<ITransition>(a, out var transitionA) &&
-                AnimancerUtilities.TryGetWrappedObject<ITransition>(b, out var transitionB))
-            {
+                AnimancerUtilities.TryGetWrappedObject<ITransition>(b, out var transitionB)) {
                 var result = transitionA.GetType().GetNameCS().CompareTo(transitionB.GetType().GetNameCS());
-                if (result != 0)
+                if (result != 0) {
                     return result;
+                }
             }
 
             return a.GetType().GetNameCS().CompareTo(b.GetType().GetNameCS());
@@ -190,16 +197,15 @@ namespace Animancer.Editor.TransitionLibraries
         /// <summary>Sorts the <see cref="TransitionLibraryDefinition.Transitions"/>.</summary>
         public static void Sort(
             TransitionLibraryDefinition library,
-            TransitionLibraryEditorDataInternal editorData)
-        {
+            TransitionLibraryEditorDataInternal editorData) {
             var mode = editorData.TransitionSortMode;
-            if (mode == TransitionSortMode.Custom)
+            if (mode == TransitionSortMode.Custom) {
                 return;
+            }
 
             NameCache.Clear();
 
-            switch (mode)
-            {
+            switch (mode) {
                 case TransitionSortMode.Name:
                     Sort(library, editorData, Static<CompareName>.Instance);
                     break;
@@ -223,20 +229,19 @@ namespace Animancer.Editor.TransitionLibraries
         /// <summary>Sorts the <see cref="TransitionLibraryDefinition.Transitions"/>.</summary>
         public static void Sort(
             TransitionLibraryDefinition library,
-            Comparison<TransitionAssetBase> comparison)
-            => Sort(library, new Comparison<TransitionAssetBase>(comparison));
+            Comparison<TransitionAssetBase> comparison) {
+            Sort(library, new Comparison<TransitionAssetBase>(comparison));
+        }
 
         /// <summary>Sorts the <see cref="TransitionLibraryDefinition.Transitions"/>.</summary>
         public static void Sort(
             TransitionLibraryDefinition library,
             TransitionLibraryEditorDataInternal editorData,
-            IComparer<TransitionAssetBase> comparer)
-        {
+            IComparer<TransitionAssetBase> comparer) {
             var transitions = library.Transitions;
             var count = transitions.Length;
 
-            if (_SortingTransitions.Length < count)
-            {
+            if (_SortingTransitions.Length < count) {
                 var length = Mathf.NextPowerOfTwo(count);
                 _SortingTransitions = new TransitionAssetBase[length];
                 _OldIndexToNew = new int[length];
@@ -250,18 +255,21 @@ namespace Animancer.Editor.TransitionLibraries
             Array.Sort(_SortingTransitions, newIndexToOld, 0, count, comparer);
 
             // Remove nulls which should have been sorted to the end.
-            for (int i = count - 1; i >= 0; i--)
-                if (_SortingTransitions[i] == null)
+            for (var i = count - 1; i >= 0; i--) {
+                if (_SortingTransitions[i] == null) {
                     count--;
-                else
+                } else {
                     break;
+                }
+            }
 
             // _NewIndexToOld[x] is now the index that Transitions[x] was at previously.
             // We need to invert that so _OldIndexToNew[x] is the new index of whatever was previously at Transitions[x].
             // That allows the library to update any index references using a simple x = _OldIndexToNew[x];
 
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++) {
                 _OldIndexToNew[newIndexToOld[i]] = i;
+            }
 
             SetTransitions(library, editorData, _SortingTransitions, _OldIndexToNew, count);
         }
@@ -277,59 +285,56 @@ namespace Animancer.Editor.TransitionLibraries
             TransitionLibraryEditorDataInternal editorData,
             TransitionAssetBase[] newTransitions,
             int[] oldIndexToNew,
-            int count)
-        {
+            int count) {
             var libraryTransitions = library.Transitions;
-            if (libraryTransitions != newTransitions)
-            {
+            if (libraryTransitions != newTransitions) {
                 AnimancerUtilities.SetLength(ref libraryTransitions, count);
                 Array.Copy(newTransitions, libraryTransitions, count);
                 library.Transitions = libraryTransitions;
             }
 
             var modifiers = library.Modifiers;
-            for (int i = modifiers.Length - 1; i >= 0; i--)
-            {
+            for (var i = modifiers.Length - 1; i >= 0; i--) {
                 var modifier = modifiers[i];
                 var isValid = true;
                 var fromIndex = ConvertIndex(modifier.FromIndex, oldIndexToNew, count, ref isValid);
                 var toIndex = ConvertIndex(modifier.ToIndex, oldIndexToNew, count, ref isValid);
 
-                if (isValid)
+                if (isValid) {
                     modifiers[i] = modifier.WithIndices(fromIndex, toIndex);
-                else
+                } else {
                     AnimancerUtilities.RemoveAt(ref modifiers, i);
+                }
             }
 
             var aliases = library.Aliases;
-            for (int i = aliases.Length - 1; i >= 0; i--)
-            {
+            for (var i = aliases.Length - 1; i >= 0; i--) {
                 var alias = aliases[i];
                 var isValid = true;
                 var index = ConvertIndex(alias.Index, oldIndexToNew, count, ref isValid);
 
-                if (isValid)
+                if (isValid) {
                     aliases[i] = alias.With(index);
-                else
+                } else {
                     AnimancerUtilities.RemoveAt(ref aliases, i);
+                }
             }
 
             library.SortAliases();
 
             var groups = editorData.TransitionGroups;
-            for (int iGroup = 0; iGroup < groups.Count; iGroup++)
-            {
+            for (var iGroup = 0; iGroup < groups.Count; iGroup++) {
                 var group = groups[iGroup];
                 var transitionIndices = group.TransitionIndices;
-                for (int iTransition = transitionIndices.Count - 1; iTransition >= 0; iTransition--)
-                {
+                for (var iTransition = transitionIndices.Count - 1; iTransition >= 0; iTransition--) {
                     var index = transitionIndices[iTransition];
                     var isValid = true;
                     index = ConvertIndex(index, oldIndexToNew, count, ref isValid);
-                    if (isValid)
+                    if (isValid) {
                         transitionIndices[iTransition] = index;
-                    else
+                    } else {
                         transitionIndices.RemoveAt(iTransition);
+                    }
                 }
             }
         }
@@ -337,18 +342,15 @@ namespace Animancer.Editor.TransitionLibraries
         /************************************************************************************************************************/
 
         /// <summary>Converts an old index to a new one.</summary>
-        private static int ConvertIndex(int index, int[] oldIndexToNew, int count, ref bool isValid)
-        {
-            if ((uint)index >= (uint)count)
-            {
+        private static int ConvertIndex(int index, int[] oldIndexToNew, int count, ref bool isValid) {
+            if ((uint)index >= (uint)count) {
                 isValid = false;
                 return -1;
             }
 
             index = oldIndexToNew[index];
 
-            if ((uint)index >= (uint)count)
-            {
+            if ((uint)index >= (uint)count) {
                 isValid = false;
                 return -1;
             }
@@ -361,13 +363,14 @@ namespace Animancer.Editor.TransitionLibraries
         private static int[] _SequentialIndices = Array.Empty<int>();
 
         /// <summary>Returns a cached array containing sequential indices, i.e. <c>array[i] = i</c>.</summary>
-        public static int[] GetTempSequentialIndices(int count)
-        {
-            if (_SequentialIndices.Length < count)
+        public static int[] GetTempSequentialIndices(int count) {
+            if (_SequentialIndices.Length < count) {
                 _SequentialIndices = new int[Mathf.NextPowerOfTwo(count)];
+            }
 
-            for (int i = 0; i < _SequentialIndices.Length; i++)
+            for (var i = 0; i < _SequentialIndices.Length; i++) {
                 _SequentialIndices[i] = i;
+            }
 
             return _SequentialIndices;
         }
@@ -375,13 +378,13 @@ namespace Animancer.Editor.TransitionLibraries
         /************************************************************************************************************************/
 
         /// <summary>Changes the index of a transition.</summary>
-        public static void MoveTransition(TransitionLibraryWindow window, int from, int to)
-        {
+        public static void MoveTransition(TransitionLibraryWindow window, int from, int to) {
             var transitions = window.Data.Transitions;
 
             to = Mathf.Clamp(to, 0, transitions.Length - 1);
-            if (from == to)
+            if (from == to) {
                 return;
+            }
 
             var definition = window.RecordUndo();
 
@@ -395,9 +398,8 @@ namespace Animancer.Editor.TransitionLibraries
             {
                 Array.Copy(transitions, from + 1, transitions, from, to - from);
                 Array.Copy(indices, from, indices, from + 1, to - from);
-            }
-            else// Moving backwards.
-            {
+            } else// Moving backwards.
+              {
                 Array.Copy(transitions, to, transitions, to + 1, from - to);
                 Array.Copy(indices, to + 1, indices, to, from - to);
             }

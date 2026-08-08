@@ -1,9 +1,9 @@
-using Xoderony.Unity;
 using JoG.Health;
 using System;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
 using VContainer;
+using Xoderony.Unity;
 
 namespace JoG.Character.Components {
 
@@ -39,7 +39,5 @@ namespace JoG.Character.Components {
                 _regenBuffer = 0;
             }
         }
-
     }
-
 }

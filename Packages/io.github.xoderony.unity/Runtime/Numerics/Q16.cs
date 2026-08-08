@@ -28,7 +28,7 @@ namespace Xoderony.Numerics {
         }
 
         public Q16(int numerator, int denominator) {
-            _rawValue = ClampToInt32((((long)numerator) * Value2Raw) / denominator);
+            _rawValue = ClampToInt32(((long)numerator) * Value2Raw / denominator);
         }
 
         public Q16(float value) {
@@ -162,7 +162,5 @@ namespace Xoderony.Numerics {
         public static bool operator >=(Q16 left, Q16 right) {
             return left._rawValue >= right._rawValue;
         }
-
     }
-
 }

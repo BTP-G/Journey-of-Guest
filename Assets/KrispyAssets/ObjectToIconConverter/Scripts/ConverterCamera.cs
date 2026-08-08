@@ -1,9 +1,7 @@
-﻿using UnityEngine;
+using UnityEngine;
 
-namespace RRS.Converter
-{
-    public class ConverterCamera : MonoBehaviour
-    {
+namespace RRS.Converter {
+    public class ConverterCamera : MonoBehaviour {
 
     }
 }

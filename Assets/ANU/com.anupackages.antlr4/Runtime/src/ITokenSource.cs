@@ -1,13 +1,10 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-using Antlr4.Runtime;
 using Antlr4.Runtime.Misc;
-using Antlr4.Runtime.Sharpen;
 
-namespace Antlr4.Runtime
-{
+namespace Antlr4.Runtime {
     /// <summary>
     /// A source of tokens must provide a sequence of tokens via
     /// <see cref="NextToken()"/>
@@ -29,8 +26,7 @@ namespace Antlr4.Runtime
     /// token. Keep lexing until you get a valid one. Just report errors and keep
     /// going, looking for a valid token.</p>
     /// </summary>
-    public interface ITokenSource
-    {
+    public interface ITokenSource {
         /// <summary>
         /// Return a
         /// <see cref="IToken"/>
@@ -52,8 +48,7 @@ namespace Antlr4.Runtime
         /// The line number for the current position in the input stream, or
         /// 0 if the current token source does not track line numbers.
         /// </returns>
-        int Line
-        {
+        int Line {
             get;
         }
 
@@ -69,8 +64,7 @@ namespace Antlr4.Runtime
         /// The line number for the current position in the input stream, or
         /// -1 if the current token source does not track character positions.
         /// </returns>
-        int Column
-        {
+        int Column {
             get;
         }
 
@@ -89,8 +83,7 @@ namespace Antlr4.Runtime
         /// if no input stream is available for the token
         /// source.
         /// </returns>
-        ICharStream InputStream
-        {
+        ICharStream InputStream {
             get;
         }
 
@@ -102,8 +95,7 @@ namespace Antlr4.Runtime
         /// <see cref="IntStreamConstants.UnknownSourceName"/>
         /// .
         /// </remarks>
-        string SourceName
-        {
+        string SourceName {
             get;
         }
 
@@ -132,8 +124,7 @@ namespace Antlr4.Runtime
         /// <see cref="ITokenFactory"/>
         /// currently used by this token source.
         /// </returns>
-        ITokenFactory TokenFactory
-        {
+        ITokenFactory TokenFactory {
             get;
             set;
         }

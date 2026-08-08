@@ -1,7 +1,7 @@
-using Xoderony.Movement;
 using System;
 using UnityEngine;
 using VContainer;
+using Xoderony.Movement;
 
 namespace JoG.Character.Components {
 
@@ -25,7 +25,5 @@ namespace JoG.Character.Components {
         private void ResetTransform() {
             motor.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
         }
-
     }
-
 }

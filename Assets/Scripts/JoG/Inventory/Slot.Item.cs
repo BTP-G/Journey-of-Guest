@@ -20,7 +20,10 @@ namespace JoG.Inventory {
         public int ItemCount {
             get => _itemCount;
             internal set {
-                if (_itemCount == value) return;
+                if (_itemCount == value) {
+                    return;
+                }
+
                 _itemCount = value < 0 ? 0 : value;
                 countText.text = _itemCount.ToString();
             }

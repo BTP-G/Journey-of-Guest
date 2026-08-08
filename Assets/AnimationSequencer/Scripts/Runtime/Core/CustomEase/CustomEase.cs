@@ -1,17 +1,15 @@
-﻿#if DOTWEEN_ENABLED
-using System;
+#if DOTWEEN_ENABLED
 using BrunoMikoski.AnimationSequencer;
 using DG.Tweening;
 using DG.Tweening.Core.Easing;
 using JetBrains.Annotations;
+using System;
 using UnityEngine;
 
-namespace BrunoMikoski.AnimationSequencer
-{
+namespace BrunoMikoski.AnimationSequencer {
     // Modified by Pablo Huaxteco
     [Serializable]
-    public partial class CustomEase : IEquatable<CustomEase>
-    {
+    public partial class CustomEase : IEquatable<CustomEase> {
         [SerializeField]
         private Ease ease;
         public Ease Ease => ease;
@@ -21,107 +19,88 @@ namespace BrunoMikoski.AnimationSequencer
 
         public bool UseCustomCurve => ease == Ease.INTERNAL_Custom;
 
-        public CustomEase()
-        {
+        public CustomEase() {
             ease = Ease.InOutCirc;
         }
 
-        public CustomEase(Ease ease)
-        {
+        public CustomEase(Ease ease) {
             this.ease = ease;
             curve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
             easeFunction = new EaseCurve(curve).Evaluate;
         }
 
-        public CustomEase(AnimationCurve curve)
-        {
+        public CustomEase(AnimationCurve curve) {
             this.curve = curve;
             ease = Ease.INTERNAL_Custom;
             easeFunction = new EaseCurve(curve).Evaluate;
         }
-        
-        public float Lerp(float from, float to, float fraction)
-        {
+
+        public float Lerp(float from, float to, float fraction) {
             return Mathf.Lerp(from, to, Evaluate(fraction));
         }
 
-        public float LerpUnclamped(float from, float to, float fraction)
-        {
+        public float LerpUnclamped(float from, float to, float fraction) {
             return Mathf.LerpUnclamped(from, to, Evaluate(fraction));
         }
 
         [Pure]
         public float Evaluate(float time, float duration = 1f,
-            float overshootOrAmplitude = 1.70158f)
-        {
-            if (UseCustomCurve)
-            {
-                if (easeFunction == null)
-                    easeFunction = new EaseCurve(curve).Evaluate;
+            float overshootOrAmplitude = 1.70158f) {
+            if (UseCustomCurve) {
+                easeFunction ??= new EaseCurve(curve).Evaluate;
 
                 return EaseManager.Evaluate(Ease.INTERNAL_Custom, easeFunction, time, duration,
                     overshootOrAmplitude, DOTween.defaultEasePeriod);
-            }
-            else
-            {
+            } else {
                 return EaseManager.Evaluate(ease, null, time, duration,
                     overshootOrAmplitude, DOTween.defaultEasePeriod);
             }
         }
 
-        public void ApplyTo(TweenParams tweenParams)
-        {
-            if (UseCustomCurve)
+        public void ApplyTo(TweenParams tweenParams) {
+            if (UseCustomCurve) {
                 tweenParams.SetEase(curve);
-            else
+            } else {
                 tweenParams.SetEase(ease);
-
+            }
         }
 
-        public void ApplyTo<T>(T tween) where T : Tween
-        {
-            if (UseCustomCurve)
+        public void ApplyTo<T>(T tween) where T : Tween {
+            if (UseCustomCurve) {
                 tween.SetEase(curve);
-            else
+            } else {
                 tween.SetEase(ease);
+            }
         }
 
-        public bool Equals(CustomEase other)
-        {
+        public bool Equals(CustomEase other) {
             return ease == other.ease && (ease != Ease.INTERNAL_Custom || Equals(curve, other.curve));
         }
 
-        public override bool Equals(object obj)
-        {
+        public override bool Equals(object obj) {
             return obj is CustomEase other && Equals(other);
         }
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
+        public override int GetHashCode() {
+            unchecked {
                 return ((int)ease * 397) ^ ((ease == Ease.INTERNAL_Custom && curve != null) ? curve.GetHashCode() : 0);
             }
         }
     }
 }
 
-namespace DG.Tweening
-{
-    public static partial class CustomEaseExtensions
-    {
+namespace DG.Tweening {
+    public static partial class CustomEaseExtensions {
         /// <summary>Sets the ease of the tween using a custom ease function.
         /// <para>If applied to Sequences eases the whole sequence animation</para></summary>
-        public static TweenParams SetEase(this TweenParams tweenParams, CustomEase customEase)
-        {
+        public static TweenParams SetEase(this TweenParams tweenParams, CustomEase customEase) {
             customEase.ApplyTo(tweenParams);
             return tweenParams;
         }
 
         /// <summary>Sets the ease of the tween.
         /// <para>If applied to Sequences eases the whole sequence animation</para></summary>
-        public static T SetEase<T>(this T t, CustomEase customEase) where T : Tween
-        {
+        public static T SetEase<T>(this T t, CustomEase customEase) where T : Tween {
             customEase.ApplyTo(t);
             return t;
         }

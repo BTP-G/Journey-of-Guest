@@ -1,7 +1,6 @@
-using Xoderony.ObjectPool.Generic;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
+using Xoderony.ObjectPool.Generic;
 
 namespace JoG.UI.Menu {
 
@@ -10,7 +9,10 @@ namespace JoG.UI.Menu {
 
         public void OpenPanel(MenuPanel panel) {
             if (_activePanels.TryPeek(out var current)) {
-                if (current == panel) return;
+                if (current == panel) {
+                    return;
+                }
+
                 current.gameObject.SetActive(false);
                 current.InvokeOnClose();
             }

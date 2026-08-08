@@ -1,13 +1,10 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-using Antlr4.Runtime;
-using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Sharpen;
 
-namespace Antlr4.Runtime.Atn
-{
+namespace Antlr4.Runtime.Atn {
     /// <summary>This class represents profiling event information for an ambiguity.</summary>
     /// <remarks>
     /// This class represents profiling event information for an ambiguity.
@@ -39,8 +36,7 @@ namespace Antlr4.Runtime.Atn
     /// <seealso cref="ParserATNSimulator.ReportAmbiguity(Antlr4.Runtime.Dfa.DFA, Antlr4.Runtime.Dfa.DFAState, int, int, bool, Antlr4.Runtime.Sharpen.BitSet, ATNConfigSet)"/>
     /// <seealso cref="Antlr4.Runtime.IParserErrorListener.ReportAmbiguity(Antlr4.Runtime.Parser, Antlr4.Runtime.Dfa.DFA, int, int, bool, Antlr4.Runtime.Sharpen.BitSet, ATNConfigSet)"/>
     /// <since>4.3</since>
-    public class AmbiguityInfo : DecisionEventInfo
-    {
+    public class AmbiguityInfo : DecisionEventInfo {
         /** The set of alternative numbers for this decision event that lead to a valid parse. */
         public BitSet ambigAlts;
 
@@ -72,8 +68,7 @@ namespace Antlr4.Runtime.Atn
                  BitSet ambigAlts,
                  ITokenStream input, int startIndex, int stopIndex,
                  bool fullCtx)
-        : base(decision, configs, input, startIndex, stopIndex, fullCtx)
-        {
+        : base(decision, configs, input, startIndex, stopIndex, fullCtx) {
             this.ambigAlts = ambigAlts;
         }
     }

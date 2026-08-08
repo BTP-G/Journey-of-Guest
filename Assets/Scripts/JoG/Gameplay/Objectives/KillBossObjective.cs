@@ -1,12 +1,11 @@
-using JoG.Health;
-using EditorAttributes;
-using Xoderony.Localization;
 using JoG.Character;
+using JoG.Health;
 using JoG.Localization;
 using MessagePipe;
 using System;
 using Unity.Netcode;
 using VContainer;
+using Xoderony.Localization;
 
 namespace JoG.Gameplay.Objectives {
 

@@ -1,64 +1,55 @@
-﻿#if UNITY_EDITOR
-using UnityEngine;
+#if UNITY_EDITOR
 using UnityEditor;
+using UnityEngine;
 
-namespace DamageNumbersPro
-{
+namespace DamageNumbersPro {
     [CustomEditor(typeof(DamageNumberSprite), true), CanEditMultipleObjects]
-    public class DamageNumberSpriteEditor : Editor
-    {
-        public override void OnInspectorGUI()
-        {
+    public class DamageNumberSpriteEditor : Editor {
+        public override void OnInspectorGUI() {
             base.OnInspectorGUI();
 
-            Color previousColor = GUI.color;
-            GUIStyle descriptionTextStyle = new GUIStyle(GUI.skin.label);
-            descriptionTextStyle.richText = true;
-            descriptionTextStyle.wordWrap = true;
-            descriptionTextStyle.stretchHeight = true;
-            descriptionTextStyle.fixedHeight = 0;
+            var previousColor = GUI.color;
+            var descriptionTextStyle = new GUIStyle(GUI.skin.label) {
+                richText = true,
+                wordWrap = true,
+                stretchHeight = true,
+                fixedHeight = 0
+            };
 
-            DamageNumberSprite targetSprite = (DamageNumberSprite)target;
-            DamageNumber damageNumber = targetSprite.GetComponentInParent<DamageNumber>();
+            var targetSprite = (DamageNumberSprite)target;
+            var damageNumber = targetSprite.GetComponentInParent<DamageNumber>();
 
-            foreach (Object target in targets)
-            {
-                DamageNumberSprite dnpSprite = (DamageNumberSprite)target;
+            foreach (var target in targets) {
+                var dnpSprite = (DamageNumberSprite)target;
 
                 // Preview size
-                if (dnpSprite.matchTextSize)
-                {
-                    SpriteRenderer spriteR = dnpSprite.GetComponent<SpriteRenderer>();
-                    if (spriteR != null)
-                    {
+                if (dnpSprite.matchTextSize) {
+                    var spriteR = dnpSprite.GetComponent<SpriteRenderer>();
+                    if (spriteR != null) {
                         dnpSprite.UpdateSize(dnpSprite.GetComponentInParent<DamageNumber>(), spriteR);
                     }
 
-                    RectTransform rectTransform = dnpSprite.GetComponent<RectTransform>();
-                    if (rectTransform != null)
-                    {
+                    var rectTransform = dnpSprite.GetComponent<RectTransform>();
+                    if (rectTransform != null) {
                         dnpSprite.UpdateSize(dnpSprite.GetComponentInParent<DamageNumber>(), rectTransform);
                     }
                 }
             }
 
             // Check material
-            SpriteRenderer spriteRenderer = targetSprite.GetComponent<SpriteRenderer>();
-            if (damageNumber.enable3DGame && spriteRenderer != null && (spriteRenderer.sharedMaterial == null || spriteRenderer.sharedMaterial.shader.name.EndsWith("Overlay") == false))
-            {
+            var spriteRenderer = targetSprite.GetComponent<SpriteRenderer>();
+            if (damageNumber.enable3DGame && spriteRenderer != null && (spriteRenderer.sharedMaterial == null || spriteRenderer.sharedMaterial.shader.name.EndsWith("Overlay") == false)) {
                 GUI.color = new Color(1, 0.7f, 0.7f, 1);
                 EditorGUILayout.Space();
                 EditorGUILayout.BeginVertical("Helpbox");
                 EditorGUILayout.LabelField("Use the <b>Sprite Overlay</b> material if you want your sprite renderer to render in front of other objects.", descriptionTextStyle);
 
-                if(GUILayout.Button("Use Sprite Overlay Material"))
-                {
-                    string[] guids = AssetDatabase.FindAssets($"t:Material DNP Sprite Overlay");
+                if (GUILayout.Button("Use Sprite Overlay Material")) {
+                    var guids = AssetDatabase.FindAssets($"t:Material DNP Sprite Overlay");
 
-                    foreach (string guid in guids)
-                    {
-                        string path = AssetDatabase.GUIDToAssetPath(guid);
-                        Material mat = AssetDatabase.LoadAssetAtPath<Material>(path);
+                    foreach (var guid in guids) {
+                        var path = AssetDatabase.GUIDToAssetPath(guid);
+                        var mat = AssetDatabase.LoadAssetAtPath<Material>(path);
 
                         Undo.RecordObject(spriteRenderer, "Changed sprite renderer's material.");
                         spriteRenderer.sharedMaterial = mat;

@@ -1,31 +1,26 @@
-﻿using UnityEditor;
+using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace EditorAttributes.Editor
-{
+namespace EditorAttributes.Editor {
     [CustomPropertyDrawer(typeof(ToggleGroupAttribute))]
-    public class ToggleGroupDrawer : GroupDrawer
-    {
-        public override VisualElement CreatePropertyGUI(SerializedProperty property)
-        {
+    public class ToggleGroupDrawer : GroupDrawer {
+        public override VisualElement CreatePropertyGUI(SerializedProperty property) {
             var toggleGroup = attribute as ToggleGroupAttribute;
-            string foldoutSaveKey = CreatePropertySaveKey(property, "IsToggleGroupFolded");
-            string toggleSaveKey = CreatePropertySaveKey(property, "IsToggleGroupToggled");
+            var foldoutSaveKey = CreatePropertySaveKey(property, "IsToggleGroupFolded");
+            var toggleSaveKey = CreatePropertySaveKey(property, "IsToggleGroupToggled");
 
             VisualElement root = new();
 
-            Foldout foldout = new()
-            {
+            Foldout foldout = new() {
                 text = toggleGroup.GroupName,
                 tooltip = property.tooltip,
                 style = { unityFontStyleAndWeight = FontStyle.Bold },
                 value = EditorPrefs.GetBool(foldoutSaveKey)
             };
 
-            Toggle toggleBox = new()
-            {
+            Toggle toggleBox = new() {
                 text = "",
                 style = { marginRight = 10f },
                 value = property.propertyType == SerializedPropertyType.Boolean ? property.boolValue : EditorPrefs.GetBool(toggleSaveKey)
@@ -33,28 +28,24 @@ namespace EditorAttributes.Editor
 
             foldout.contentContainer.SetEnabled(toggleBox.value);
 
-            if (toggleGroup.DrawInBox)
+            if (toggleGroup.DrawInBox) {
                 ApplyBoxStyle(foldout.contentContainer);
+            }
 
             root.Add(toggleBox);
 
-            foreach (string variableName in toggleGroup.FieldsToGroup)
-            {
-                VisualElement groupProperty = CreateGroupProperty(variableName, property);
+            foreach (var variableName in toggleGroup.FieldsToGroup) {
+                var groupProperty = CreateGroupProperty(variableName, property);
                 groupProperty.style.unityFontStyleAndWeight = FontStyle.Normal;
 
                 foldout.Add(groupProperty);
             }
 
-            toggleBox.RegisterValueChangedCallback((callback) =>
-            {
-                if (property.propertyType == SerializedPropertyType.Boolean)
-                {
+            toggleBox.RegisterValueChangedCallback((callback) => {
+                if (property.propertyType == SerializedPropertyType.Boolean) {
                     property.boolValue = callback.newValue;
                     property.serializedObject.ApplyModifiedProperties();
-                }
-                else
-                {
+                } else {
                     EditorPrefs.SetBool(toggleSaveKey, callback.newValue); // The value is already serialized via the property, there is no point in saving it.
                 }
 
@@ -63,8 +54,7 @@ namespace EditorAttributes.Editor
 
             root.Add(foldout);
 
-            foldout.RegisterCallbackOnce<GeometryChangedEvent>((callback) =>
-            {
+            foldout.RegisterCallbackOnce<GeometryChangedEvent>((callback) => {
                 var toggle = foldout.Q<Toggle>();
 
                 toggle.style.backgroundColor = CanApplyGlobalColor ? EditorExtension.GLOBAL_COLOR / 3f : new Color(0.1f, 0.1f, 0.1f, 0.2f);
@@ -77,8 +67,9 @@ namespace EditorAttributes.Editor
                 foldout.RegisterValueChangedCallback((callback) => EditorPrefs.SetBool(foldoutSaveKey, callback.newValue));
             });
 
-            if (property.propertyType == SerializedPropertyType.Boolean)
+            if (property.propertyType == SerializedPropertyType.Boolean) {
                 toggleBox.TrackPropertyValue(property, (serializedProperty) => toggleBox.value = serializedProperty.boolValue);
+            }
 
             return root;
         }

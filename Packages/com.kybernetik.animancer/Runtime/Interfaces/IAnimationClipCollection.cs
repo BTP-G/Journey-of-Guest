@@ -5,8 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Playables;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>
     /// A variant of <see cref="IAnimationClipSource"/> which uses a <see cref="ICollection{T}"/>
     /// instead of a <see cref="List{T}"/> so that it can take a <see cref="HashSet{T}"/>
@@ -19,8 +18,7 @@ namespace Animancer
     /// </remarks>
     /// https://kybernetik.com.au/animancer/api/Animancer/IAnimationClipCollection
     /// 
-    public interface IAnimationClipCollection
-    {
+    public interface IAnimationClipCollection {
         /************************************************************************************************************************/
 
         /// <summary>Adds all the animations associated with this object to the `clips`.</summary>
@@ -32,17 +30,16 @@ namespace Animancer
     /************************************************************************************************************************/
 
     /// https://kybernetik.com.au/animancer/api/Animancer/AnimancerUtilities
-    public static partial class AnimancerUtilities
-    {
+    public static partial class AnimancerUtilities {
         /************************************************************************************************************************/
 
         /// <summary>[Animancer Extension]
         /// Adds the `clip` to the `clips` if it wasn't there already.
         /// </summary>
-        public static void Gather(this ICollection<AnimationClip> clips, AnimationClip clip)
-        {
-            if (clip != null && !clips.Contains(clip))
+        public static void Gather(this ICollection<AnimationClip> clips, AnimationClip clip) {
+            if (clip != null && !clips.Contains(clip)) {
                 clips.Add(clip);
+            }
         }
 
         /************************************************************************************************************************/
@@ -50,13 +47,14 @@ namespace Animancer
         /// <summary>[Animancer Extension]
         /// Calls <see cref="Gather(ICollection{AnimationClip}, AnimationClip)"/> for each of the `newClips`.
         /// </summary>
-        public static void Gather(this ICollection<AnimationClip> clips, IList<AnimationClip> gatherFrom)
-        {
-            if (gatherFrom == null)
+        public static void Gather(this ICollection<AnimationClip> clips, IList<AnimationClip> gatherFrom) {
+            if (gatherFrom == null) {
                 return;
+            }
 
-            for (int i = gatherFrom.Count - 1; i >= 0; i--)
+            for (var i = gatherFrom.Count - 1; i >= 0; i--) {
                 clips.Gather(gatherFrom[i]);
+            }
         }
 
         /************************************************************************************************************************/
@@ -64,13 +62,14 @@ namespace Animancer
         /// <summary>[Animancer Extension]
         /// Calls <see cref="Gather(ICollection{AnimationClip}, AnimationClip)"/> for each of the `newClips`.
         /// </summary>
-        public static void Gather(this ICollection<AnimationClip> clips, IEnumerable<AnimationClip> gatherFrom)
-        {
-            if (gatherFrom == null)
+        public static void Gather(this ICollection<AnimationClip> clips, IEnumerable<AnimationClip> gatherFrom) {
+            if (gatherFrom == null) {
                 return;
+            }
 
-            foreach (var clip in gatherFrom)
+            foreach (var clip in gatherFrom) {
                 clips.Gather(clip);
+            }
         }
 
         /************************************************************************************************************************/
@@ -78,10 +77,10 @@ namespace Animancer
         /// <summary>[Animancer Extension]
         /// Calls <see cref="Gather(ICollection{AnimationClip}, AnimationClip)"/> for each clip in the `asset`.
         /// </summary>
-        public static void GatherFromAsset(this ICollection<AnimationClip> clips, PlayableAsset asset)
-        {
-            if (asset == null)
+        public static void GatherFromAsset(this ICollection<AnimationClip> clips, PlayableAsset asset) {
+            if (asset == null) {
                 return;
+            }
 
             // We want to get the tracks out of a TimelineAsset without actually referencing that class directly
             // because it comes from an optional package and Animancer does not need to depend on that package.
@@ -89,8 +88,7 @@ namespace Animancer
             var method = asset.GetType().GetMethod("GetRootTracks");
             if (method != null &&
                 typeof(IEnumerable).IsAssignableFrom(method.ReturnType) &&
-                method.GetParameters().Length == 0)
-            {
+                method.GetParameters().Length == 0) {
                 var rootTracks = method.Invoke(asset, null);
                 GatherFromTracks(clips, rootTracks as IEnumerable);
             }
@@ -99,31 +97,27 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Gathers all the animations in the `tracks`.</summary>
-        private static void GatherFromTracks(ICollection<AnimationClip> clips, IEnumerable tracks)
-        {
-            if (tracks.IsNullOrDestroyed())
+        private static void GatherFromTracks(ICollection<AnimationClip> clips, IEnumerable tracks) {
+            if (tracks.IsNullOrDestroyed()) {
                 return;
+            }
 
-            foreach (var track in tracks)
-            {
-                if (track.IsNullOrDestroyed())
+            foreach (var track in tracks) {
+                if (track.IsNullOrDestroyed()) {
                     continue;
+                }
 
                 var trackType = track.GetType();
 
                 var getClips = trackType.GetMethod("GetClips");
                 if (getClips != null &&
                     typeof(IEnumerable).IsAssignableFrom(getClips.ReturnType) &&
-                    getClips.GetParameters().Length == 0)
-                {
-                    if (getClips.Invoke(track, null) is IEnumerable trackClips)
-                    {
-                        foreach (var clip in trackClips)
-                        {
+                    getClips.GetParameters().Length == 0) {
+                    if (getClips.Invoke(track, null) is IEnumerable trackClips) {
+                        foreach (var clip in trackClips) {
                             var animationClip = clip.GetType().GetProperty("animationClip");
                             if (animationClip != null &&
-                                animationClip.PropertyType == typeof(AnimationClip))
-                            {
+                                animationClip.PropertyType == typeof(AnimationClip)) {
                                 var getClip = animationClip.GetGetMethod();
                                 clips.Gather(getClip.Invoke(clip, null) as AnimationClip);
                             }
@@ -134,8 +128,7 @@ namespace Animancer
                 var getChildTracks = trackType.GetMethod("GetChildTracks");
                 if (getChildTracks != null &&
                     typeof(IEnumerable).IsAssignableFrom(getChildTracks.ReturnType) &&
-                    getChildTracks.GetParameters().Length == 0)
-                {
+                    getChildTracks.GetParameters().Length == 0) {
                     var childTracks = getChildTracks.Invoke(track, null);
                     GatherFromTracks(clips, childTracks as IEnumerable);
                 }
@@ -148,10 +141,10 @@ namespace Animancer
         /// Calls <see cref="Gather(ICollection{AnimationClip}, AnimationClip)"/>
         /// for each clip gathered by <see cref="IAnimationClipSource.GetAnimationClips"/>.
         /// </summary>
-        public static void GatherFromSource(this ICollection<AnimationClip> clips, IAnimationClipSource source)
-        {
-            if (source.IsNullOrDestroyed())
+        public static void GatherFromSource(this ICollection<AnimationClip> clips, IAnimationClipSource source) {
+            if (source.IsNullOrDestroyed()) {
                 return;
+            }
 
             var list = ListPool.Acquire<AnimationClip>();
             source.GetAnimationClips(list);
@@ -164,18 +157,20 @@ namespace Animancer
         /// <summary>[Animancer Extension]
         /// Calls <see cref="GatherFromSource(ICollection{AnimationClip}, object)"/> for each item in the `source`.
         /// </summary>
-        public static void GatherFromSource(this ICollection<AnimationClip> clips, IEnumerable source)
-        {
+        public static void GatherFromSource(this ICollection<AnimationClip> clips, IEnumerable source) {
             if (source.IsNullOrDestroyed() ||
-                AnimationGathererRecursionGuard.DontGatherFrom.Contains(source.GetType()))
+                AnimationGathererRecursionGuard.DontGatherFrom.Contains(source.GetType())) {
                 return;
+            }
 
             using var _ = AnimationGathererRecursionGuard.Begin();
-            if (AnimationGathererRecursionGuard.HasCheckedObject(source))
+            if (AnimationGathererRecursionGuard.HasCheckedObject(source)) {
                 return;
+            }
 
-            foreach (var item in source)
+            foreach (var item in source) {
                 clips.GatherFromSource(item);
+            }
         }
 
         /************************************************************************************************************************/
@@ -185,36 +180,33 @@ namespace Animancer
         /// for each clip in the `source`, supporting both
         /// <see cref="IAnimationClipSource"/> and <see cref="IAnimationClipCollection"/>.
         /// </summary>
-        public static bool GatherFromSource(this ICollection<AnimationClip> clips, object source)
-        {
+        public static bool GatherFromSource(this ICollection<AnimationClip> clips, object source) {
             if (source.IsNullOrDestroyed() ||
-                AnimationGathererRecursionGuard.DontGatherFrom.Contains(source.GetType()))
+                AnimationGathererRecursionGuard.DontGatherFrom.Contains(source.GetType())) {
                 return false;
+            }
 
             using var _ = AnimationGathererRecursionGuard.Begin();
-            if (AnimationGathererRecursionGuard.HasCheckedObject(source))
+            if (AnimationGathererRecursionGuard.HasCheckedObject(source)) {
                 return false;
+            }
 
-            if (TryGetWrappedObject(source, out AnimationClip clip))
-            {
+            if (TryGetWrappedObject(source, out AnimationClip clip)) {
                 clips.Gather(clip);
                 return true;
             }
 
-            if (TryGetWrappedObject(source, out IAnimationClipCollection collectionSource))
-            {
+            if (TryGetWrappedObject(source, out IAnimationClipCollection collectionSource)) {
                 collectionSource.GatherAnimationClips(clips);
                 return true;
             }
 
-            if (TryGetWrappedObject(source, out IAnimationClipSource listSource))
-            {
+            if (TryGetWrappedObject(source, out IAnimationClipSource listSource)) {
                 clips.GatherFromSource(listSource);
                 return true;
             }
 
-            if (TryGetWrappedObject(source, out IEnumerable enumerable))
-            {
+            if (TryGetWrappedObject(source, out IEnumerable enumerable)) {
                 clips.GatherFromSource(enumerable);
                 return true;
             }
@@ -229,27 +221,20 @@ namespace Animancer
         /// and returns true if successful. If it has multiple animations with different rates,
         /// this method returns false.
         /// </summary>
-        public static bool TryGetFrameRate(object clipSource, out float frameRate)
-        {
-            using (SetPool<AnimationClip>.Instance.Acquire(out var clips))
-            {
+        public static bool TryGetFrameRate(object clipSource, out float frameRate) {
+            using (SetPool<AnimationClip>.Instance.Acquire(out var clips)) {
                 clips.GatherFromSource(clipSource);
-                if (clips.Count == 0)
-                {
+                if (clips.Count == 0) {
                     frameRate = float.NaN;
                     return false;
                 }
 
                 frameRate = float.NaN;
 
-                foreach (var clip in clips)
-                {
-                    if (float.IsNaN(frameRate))
-                    {
+                foreach (var clip in clips) {
+                    if (float.IsNaN(frameRate)) {
                         frameRate = clip.frameRate;
-                    }
-                    else if (frameRate != clip.frameRate)
-                    {
+                    } else if (frameRate != clip.frameRate) {
                         frameRate = float.NaN;
                         return false;
                     }

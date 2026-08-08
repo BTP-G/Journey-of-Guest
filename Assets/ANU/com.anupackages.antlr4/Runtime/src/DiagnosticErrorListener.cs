@@ -1,15 +1,13 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-using Antlr4.Runtime;
 using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Dfa;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
-namespace Antlr4.Runtime
-{
+namespace Antlr4.Runtime {
     /// <summary>
     /// This implementation of
     /// <see cref="IAntlrErrorListener{Symbol}"/>
@@ -33,8 +31,7 @@ namespace Antlr4.Runtime
     /// </ul>
     /// </summary>
     /// <author>Sam Harwell</author>
-    public class DiagnosticErrorListener : BaseErrorListener
-    {
+    public class DiagnosticErrorListener : BaseErrorListener {
         /// <summary>
         /// When
         /// <see langword="true"/>
@@ -49,8 +46,7 @@ namespace Antlr4.Runtime
         /// reports exact ambiguities.
         /// </summary>
         public DiagnosticErrorListener()
-            : this(true)
-        {
+            : this(true) {
         }
 
         /// <summary>
@@ -66,55 +62,47 @@ namespace Antlr4.Runtime
         /// <see langword="false"/>
         /// to report all ambiguities.
         /// </param>
-        public DiagnosticErrorListener(bool exactOnly)
-        {
+        public DiagnosticErrorListener(bool exactOnly) {
             this.exactOnly = exactOnly;
         }
 
-        public override void ReportAmbiguity(Parser recognizer, DFA dfa, int startIndex, int stopIndex, bool exact, BitSet ambigAlts, ATNConfigSet configs)
-        {
-            if (exactOnly && !exact)
-            {
+        public override void ReportAmbiguity(Parser recognizer, DFA dfa, int startIndex, int stopIndex, bool exact, BitSet ambigAlts, ATNConfigSet configs) {
+            if (exactOnly && !exact) {
                 return;
             }
-            string format = "reportAmbiguity d={0}: ambigAlts={1}, input='{2}'";
-            string decision = GetDecisionDescription(recognizer, dfa);
-            BitSet conflictingAlts = GetConflictingAlts(ambigAlts, configs);
-            string text = ((ITokenStream)recognizer.InputStream).GetText(Interval.Of(startIndex, stopIndex));
-            string message = string.Format(format, decision, conflictingAlts, text);
+            var format = "reportAmbiguity d={0}: ambigAlts={1}, input='{2}'";
+            var decision = GetDecisionDescription(recognizer, dfa);
+            var conflictingAlts = GetConflictingAlts(ambigAlts, configs);
+            var text = ((ITokenStream)recognizer.InputStream).GetText(Interval.Of(startIndex, stopIndex));
+            var message = string.Format(format, decision, conflictingAlts, text);
             recognizer.NotifyErrorListeners(message);
         }
 
-        public override void ReportAttemptingFullContext(Parser recognizer, DFA dfa, int startIndex, int stopIndex, BitSet conflictingAlts, SimulatorState conflictState)
-        {
-            string format = "reportAttemptingFullContext d={0}, input='{1}'";
-            string decision = GetDecisionDescription(recognizer, dfa);
-            string text = ((ITokenStream)recognizer.InputStream).GetText(Interval.Of(startIndex, stopIndex));
-            string message = string.Format(format, decision, text);
+        public override void ReportAttemptingFullContext(Parser recognizer, DFA dfa, int startIndex, int stopIndex, BitSet conflictingAlts, SimulatorState conflictState) {
+            var format = "reportAttemptingFullContext d={0}, input='{1}'";
+            var decision = GetDecisionDescription(recognizer, dfa);
+            var text = ((ITokenStream)recognizer.InputStream).GetText(Interval.Of(startIndex, stopIndex));
+            var message = string.Format(format, decision, text);
             recognizer.NotifyErrorListeners(message);
         }
 
-        public override void ReportContextSensitivity(Parser recognizer, DFA dfa, int startIndex, int stopIndex, int prediction, SimulatorState acceptState)
-        {
-            string format = "reportContextSensitivity d={0}, input='{1}'";
-            string decision = GetDecisionDescription(recognizer, dfa);
-            string text = ((ITokenStream)recognizer.InputStream).GetText(Interval.Of(startIndex, stopIndex));
-            string message = string.Format(format, decision, text);
+        public override void ReportContextSensitivity(Parser recognizer, DFA dfa, int startIndex, int stopIndex, int prediction, SimulatorState acceptState) {
+            var format = "reportContextSensitivity d={0}, input='{1}'";
+            var decision = GetDecisionDescription(recognizer, dfa);
+            var text = ((ITokenStream)recognizer.InputStream).GetText(Interval.Of(startIndex, stopIndex));
+            var message = string.Format(format, decision, text);
             recognizer.NotifyErrorListeners(message);
         }
 
-        protected internal virtual string GetDecisionDescription(Parser recognizer, DFA dfa)
-        {
-            int decision = dfa.decision;
-            int ruleIndex = dfa.atnStartState.ruleIndex;
-            string[] ruleNames = recognizer.RuleNames;
-            if (ruleIndex < 0 || ruleIndex >= ruleNames.Length)
-            {
+        protected internal virtual string GetDecisionDescription(Parser recognizer, DFA dfa) {
+            var decision = dfa.decision;
+            var ruleIndex = dfa.atnStartState.ruleIndex;
+            var ruleNames = recognizer.RuleNames;
+            if (ruleIndex < 0 || ruleIndex >= ruleNames.Length) {
                 return decision.ToString();
             }
-            string ruleName = ruleNames[ruleIndex];
-            if (string.IsNullOrEmpty(ruleName))
-            {
+            var ruleName = ruleNames[ruleIndex];
+            if (string.IsNullOrEmpty(ruleName)) {
                 return decision.ToString();
             }
             return string.Format("{0} ({1})", decision, ruleName);
@@ -146,15 +134,12 @@ namespace Antlr4.Runtime
         /// .
         /// </returns>
         [return: NotNull]
-		protected internal virtual BitSet GetConflictingAlts(BitSet reportedAlts, ATNConfigSet configSet)
-        {
-            if (reportedAlts != null)
-            {
+        protected internal virtual BitSet GetConflictingAlts(BitSet reportedAlts, ATNConfigSet configSet) {
+            if (reportedAlts != null) {
                 return reportedAlts;
             }
-            BitSet result = new BitSet();
-			foreach (ATNConfig config in configSet.configs)
-            {
+            var result = new BitSet();
+            foreach (var config in configSet.configs) {
                 result.Set(config.alt);
             }
             return result;

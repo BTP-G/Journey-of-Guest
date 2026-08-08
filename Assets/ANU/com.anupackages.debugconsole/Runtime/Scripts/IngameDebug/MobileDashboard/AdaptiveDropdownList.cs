@@ -1,20 +1,21 @@
-﻿using System.Linq;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 
-namespace ANU.IngameDebug.Console.Dashboard
-{
+namespace ANU.IngameDebug.Console.Dashboard {
     [RequireComponent(typeof(RectTransform))]
-    public class AdaptiveDropdownList : MonoBehaviour
-    {
+    public class AdaptiveDropdownList : MonoBehaviour {
         private bool _lateUpdate;
 
-        private void OnEnable() => _lateUpdate = true;
+        private void OnEnable() {
+            _lateUpdate = true;
+        }
 
-        private void LateUpdate()
-        {
-            if (!_lateUpdate)
+        private void LateUpdate() {
+            if (!_lateUpdate) {
                 return;
+            }
+
             _lateUpdate = false;
 
             var text = GetComponentsInChildren<TMP_Text>();

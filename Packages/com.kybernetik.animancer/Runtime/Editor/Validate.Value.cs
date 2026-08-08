@@ -1,16 +1,13 @@
 // Animancer // https://kybernetik.com.au/animancer // Copyright 2018-2026 Kybernetik //
 
-namespace Animancer
-{
+namespace Animancer {
     /// https://kybernetik.com.au/animancer/api/Animancer/Validate
-    public static partial class Validate
-    {
+    public static partial class Validate {
         /************************************************************************************************************************/
 
         /// <summary>A rule that defines which values are valid.</summary>
         /// https://kybernetik.com.au/animancer/api/Animancer/Value
-        public enum Value
-        {
+        public enum Value {
             /// <summary>Any value is allowed.</summary>
             Any,
 
@@ -30,40 +27,48 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Enforces the `rule` on the `value`.</summary>
-        public static void ValueRule(ref float value, Value rule)
-        {
-            switch (rule)
-            {
+        public static void ValueRule(ref float value, Value rule) {
+            switch (rule) {
                 case Value.Any:
                 default:
                     return;
 
                 case Value.ZeroToOne:
                     if (!(value >= 0))// Reversed comparison to include NaN.
+{
                         value = 0;
-                    else if (value > 1)
+                    } else if (value > 1) {
                         value = 1;
+                    }
+
                     break;
 
                 case Value.IsNotNegative:
                     if (!(value >= 0))// Reversed comparison to include NaN.
+{
                         value = 0;
+                    }
+
                     break;
 
                 case Value.IsFinite:
-                    if (float.IsNaN(value))
+                    if (float.IsNaN(value)) {
                         value = 0;
-                    else if (float.IsPositiveInfinity(value))
+                    } else if (float.IsPositiveInfinity(value)) {
                         value = float.MaxValue;
-                    else if (float.IsNegativeInfinity(value))
+                    } else if (float.IsNegativeInfinity(value)) {
                         value = float.MinValue;
+                    }
+
                     break;
 
                 case Value.IsFiniteOrNaN:
-                    if (float.IsPositiveInfinity(value))
+                    if (float.IsPositiveInfinity(value)) {
                         value = float.MaxValue;
-                    else if (float.IsNegativeInfinity(value))
+                    } else if (float.IsNegativeInfinity(value)) {
                         value = float.MinValue;
+                    }
+
                     break;
             }
         }

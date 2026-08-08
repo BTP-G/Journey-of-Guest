@@ -1,15 +1,12 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
-using System;
-using Antlr4.Runtime;
 using Antlr4.Runtime.Misc;
-using Antlr4.Runtime.Sharpen;
+using System;
 
-namespace Antlr4.Runtime
-{
+namespace Antlr4.Runtime {
     /// <summary>The root of the ANTLR exception hierarchy.</summary>
     /// <remarks>
     /// The root of the ANTLR exception hierarchy. In general, ANTLR tracks just
@@ -19,8 +16,7 @@ namespace Antlr4.Runtime
     /// and what kind of problem occurred.
     /// </remarks>
     [System.Serializable]
-    public class RecognitionException : Exception
-    {
+    public class RecognitionException : Exception {
         private const long serialVersionUID = -3861826954750022374L;
 
         /// <summary>
@@ -49,33 +45,28 @@ namespace Antlr4.Runtime
 
         private int offendingState = -1;
 
-        public RecognitionException(Lexer lexer, ICharStream input)
-        {
-            this.recognizer = lexer;
+        public RecognitionException(Lexer lexer, ICharStream input) {
+            recognizer = lexer;
             this.input = input;
-            this.ctx = null;
+            ctx = null;
         }
 
-        public RecognitionException(IRecognizer recognizer, IIntStream input, ParserRuleContext ctx)
-        {
+        public RecognitionException(IRecognizer recognizer, IIntStream input, ParserRuleContext ctx) {
             this.recognizer = recognizer;
             this.input = input;
             this.ctx = ctx;
-            if (recognizer != null)
-            {
-                this.offendingState = recognizer.State;
+            if (recognizer != null) {
+                offendingState = recognizer.State;
             }
         }
 
         public RecognitionException(string message, IRecognizer recognizer, IIntStream input, ParserRuleContext ctx)
-            : base(message)
-        {
+            : base(message) {
             this.recognizer = recognizer;
             this.input = input;
             this.ctx = ctx;
-            if (recognizer != null)
-            {
-                this.offendingState = recognizer.State;
+            if (recognizer != null) {
+                offendingState = recognizer.State;
             }
         }
 
@@ -95,15 +86,12 @@ namespace Antlr4.Runtime
         /// edge we couldn't match.
         /// <p>If the state number is not known, this method returns -1.</p>
         /// </remarks>
-        public int OffendingState
-        {
-            get
-            {
+        public int OffendingState {
+            get {
                 return offendingState;
             }
-            protected set
-            {
-                int offendingState = value;
+            protected set {
+                var offendingState = value;
                 this.offendingState = offendingState;
             }
         }
@@ -127,10 +115,8 @@ namespace Antlr4.Runtime
         /// if the information is not available.
         /// </returns>
         [return: Nullable]
-        public virtual IntervalSet GetExpectedTokens()
-        {
-            if (recognizer != null)
-            {
+        public virtual IntervalSet GetExpectedTokens() {
+            if (recognizer != null) {
                 return recognizer.Atn.GetExpectedTokens(offendingState, ctx);
             }
             return null;
@@ -152,10 +138,8 @@ namespace Antlr4.Runtime
         /// <see langword="null"/>
         /// .
         /// </returns>
-        public virtual RuleContext Context
-        {
-            get
-            {
+        public virtual RuleContext Context {
+            get {
                 return ctx;
             }
         }
@@ -178,23 +162,18 @@ namespace Antlr4.Runtime
         /// if the stream is not
         /// available.
         /// </returns>
-        public virtual IIntStream InputStream
-        {
-            get
-            {
+        public virtual IIntStream InputStream {
+            get {
                 return input;
             }
         }
 
-        public IToken OffendingToken
-        {
-            get
-            {
+        public IToken OffendingToken {
+            get {
                 return offendingToken;
             }
-            protected set
-            {
-                IToken offendingToken = value;
+            protected set {
+                var offendingToken = value;
                 this.offendingToken = offendingToken;
             }
         }
@@ -213,10 +192,8 @@ namespace Antlr4.Runtime
         /// if
         /// the recognizer is not available.
         /// </returns>
-        public virtual IRecognizer Recognizer
-        {
-            get
-            {
+        public virtual IRecognizer Recognizer {
+            get {
                 return recognizer;
             }
         }

@@ -4,8 +4,7 @@ using System;
 using static UnityEngine.Mathf;
 using NormalizedDelegate = System.Func<float, float>;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>A set of common <see href="https://easings.net">easing functions</see>.</summary>
     /// <remarks>
     /// There are several different types of functions:
@@ -22,8 +21,7 @@ namespace Animancer
     /// </remarks>
     /// https://kybernetik.com.au/animancer/api/Animancer/Easing
     /// 
-    public static class Easing
-    {
+    public static class Easing {
         /************************************************************************************************************************/
         #region Delegates
         /************************************************************************************************************************/
@@ -42,8 +40,7 @@ namespace Animancer
         /// <remarks>The <see cref="Easing"/> class contains various extension methods for this enum.</remarks>
         /// https://kybernetik.com.au/animancer/api/Animancer/Function
         /// 
-        public enum Function
-        {
+        public enum Function {
             /// <summary><see cref="Easing.Linear(float)"/></summary>
             Linear,
 
@@ -128,23 +125,19 @@ namespace Animancer
         /// <summary>[Animancer Extension]
         /// Returns a cached delegate representing the specified `function` with a normalized range.
         /// </summary>
-        public static NormalizedDelegate GetDelegate(this Function function)
-        {
+        public static NormalizedDelegate GetDelegate(this Function function) {
             var i = (int)function;
 
-            if (_FunctionDelegates == null)
-            {
+            if (_FunctionDelegates == null) {
                 _FunctionDelegates = new NormalizedDelegate[FunctionCount];
-            }
-            else
-            {
+            } else {
                 var del = _FunctionDelegates[i];
-                if (del != null)
+                if (del != null) {
                     return del;
+                }
             }
 
-            return _FunctionDelegates[i] = function switch
-            {
+            return _FunctionDelegates[i] = function switch {
                 Function.Linear => Linear,
                 Function.QuadraticIn => Quadratic.In,
                 Function.QuadraticOut => Quadratic.Out,
@@ -187,23 +180,19 @@ namespace Animancer
         /// <summary>[Animancer Extension]
         /// Returns a cached delegate representing the derivative of the specified `function` with a normalized range.
         /// </summary>
-        public static NormalizedDelegate GetDerivativeDelegate(this Function function)
-        {
+        public static NormalizedDelegate GetDerivativeDelegate(this Function function) {
             var i = (int)function;
 
-            if (_DerivativeDelegates == null)
-            {
+            if (_DerivativeDelegates == null) {
                 _DerivativeDelegates = new NormalizedDelegate[FunctionCount];
-            }
-            else
-            {
+            } else {
                 var del = _DerivativeDelegates[i];
-                if (del != null)
+                if (del != null) {
                     return del;
+                }
             }
 
-            return _DerivativeDelegates[i] = function switch
-            {
+            return _DerivativeDelegates[i] = function switch {
                 Function.Linear => LinearDerivative,
                 Function.QuadraticIn => Quadratic.InDerivative,
                 Function.QuadraticOut => Quadratic.OutDerivative,
@@ -246,23 +235,19 @@ namespace Animancer
         /// <summary>[Animancer Extension]
         /// Returns a cached delegate representing the specified `function` with a custom range.
         /// </summary>
-        public static RangedDelegate GetRangedDelegate(this Function function)
-        {
+        public static RangedDelegate GetRangedDelegate(this Function function) {
             var i = (int)function;
 
-            if (_RangedFunctionDelegates == null)
-            {
+            if (_RangedFunctionDelegates == null) {
                 _RangedFunctionDelegates = new RangedDelegate[FunctionCount];
-            }
-            else
-            {
+            } else {
                 var del = _RangedFunctionDelegates[i];
-                if (del != null)
+                if (del != null) {
                     return del;
+                }
             }
 
-            return _RangedFunctionDelegates[i] = function switch
-            {
+            return _RangedFunctionDelegates[i] = function switch {
                 Function.Linear => Linear,
                 Function.QuadraticIn => Quadratic.In,
                 Function.QuadraticOut => Quadratic.Out,
@@ -305,23 +290,19 @@ namespace Animancer
         /// <summary>[Animancer Extension]
         /// Returns a cached delegate representing the derivative of the specified `function` with a custom range.
         /// </summary>
-        public static RangedDelegate GetRangedDerivativeDelegate(this Function function)
-        {
+        public static RangedDelegate GetRangedDerivativeDelegate(this Function function) {
             var i = (int)function;
 
-            if (_RangedDerivativeDelegates == null)
-            {
+            if (_RangedDerivativeDelegates == null) {
                 _RangedDerivativeDelegates = new RangedDelegate[FunctionCount];
-            }
-            else
-            {
+            } else {
                 var del = _RangedDerivativeDelegates[i];
-                if (del != null)
+                if (del != null) {
                     return del;
+                }
             }
 
-            return _RangedDerivativeDelegates[i] = function switch
-            {
+            return _RangedDerivativeDelegates[i] = function switch {
                 Function.Linear => LinearDerivative,
                 Function.QuadraticIn => Quadratic.InDerivative,
                 Function.QuadraticOut => Quadratic.OutDerivative,
@@ -368,7 +349,9 @@ namespace Animancer
         /// </list>
         /// This method is identical to <see cref="LerpUnclamped"/>.
         /// </remarks>
-        public static float Lerp(float start, float end, float value) => start + (end - start) * value;
+        public static float Lerp(float start, float end, float value) {
+            return start + ((end - start) * value);
+        }
 
         /// <summary>Returns a normalized value indicating how far the `value` is between the `start` and `end`.</summary>
         /// <remarks>
@@ -380,16 +363,18 @@ namespace Animancer
         /// </list>
         /// This method is like <see cref="InverseLerp"/> except that it doesn't clamp the result between 0 and 1.
         /// </remarks>
-        public static float UnLerp(float start, float end, float value)
-            => start == end
-            ? 0
-            : (value - start) / (end - start);
+        public static float UnLerp(float start, float end, float value) {
+            return start == end
+                                                                                    ? 0
+                                                                                    : (value - start) / (end - start);
+        }
 
         /************************************************************************************************************************/
 
         /// <summary>Re-scales the result of the `function` to use a custom range instead of 0 to 1.</summary>
-        public static float ReScale(float start, float end, float value, NormalizedDelegate function)
-            => Lerp(start, end, function(UnLerp(start, end, value)));
+        public static float ReScale(float start, float end, float value, NormalizedDelegate function) {
+            return Lerp(start, end, function(UnLerp(start, end, value)));
+        }
 
         /************************************************************************************************************************/
         #endregion
@@ -398,22 +383,30 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Directly returns the `value`. Interpolates the `value` based on the line <c>y = x</c>.</summary>
-        public static float Linear(float value) => value;
+        public static float Linear(float value) {
+            return value;
+        }
 
         /************************************************************************************************************************/
 
         /// <summary>Returns 1. The derivative of <see cref="Linear(float)"/>.</summary>
-        public static float LinearDerivative(float value) => 1;
+        public static float LinearDerivative(float value) {
+            return 1;
+        }
 
         /************************************************************************************************************************/
 
         /// <summary>Directly returns the `value`. Interpolates the `value` based on the line <c>y = x</c>.</summary>
-        public static float Linear(float start, float end, float value) => value;
+        public static float Linear(float start, float end, float value) {
+            return value;
+        }
 
         /************************************************************************************************************************/
 
         /// <summary>Returns <c>end - start</c>. The derivative of <see cref="Linear(float, float, float)"/>.</summary>
-        public static float LinearDerivative(float start, float end, float value) => end - start;
+        public static float LinearDerivative(float start, float end, float value) {
+            return end - start;
+        }
 
         /************************************************************************************************************************/
         #endregion
@@ -424,58 +417,54 @@ namespace Animancer
         /// <summary>Functions based on quadratic equations (<c>x^2</c>).</summary>
         /// https://kybernetik.com.au/animancer/api/Animancer/Quadratic
         /// 
-        public static class Quadratic
-        {
+        public static class Quadratic {
             /************************************************************************************************************************/
 
             /// <summary>Interpolates the `value` based on the line <c>y = x^2</c>.</summary>
             /// <remarks><see href="https://easings.net/#easeInQuad">Easings.net has a graph of this function.</see></remarks>
-            public static float In(float value) => value * value;
+            public static float In(float value) {
+                return value * value;
+            }
 
             /// <summary>Interpolates the `value` based on the line <c>y = 1 - (x - 1)^2</c>.</summary>
             /// <remarks><see href="https://easings.net/#easeOutQuad">Easings.net has a graph of this function.</see></remarks>
-            public static float Out(float value)
-            {
+            public static float Out(float value) {
                 value--;
-                return -value * value + 1;
+                return (-value * value) + 1;
             }
 
             /// <summary>Interpolate using <see cref="In"/> (0 to 0.5) or <see cref="Out"/> (0.5 to 1).</summary>
             /// <remarks><see href="https://easings.net/#easeInOutQuad">Easings.net has a graph of this function.</see></remarks>
-            public static float InOut(float value)
-            {
+            public static float InOut(float value) {
                 value *= 2;
-                if (value <= 1)
-                {
+                if (value <= 1) {
                     return 0.5f * value * value;
-                }
-                else
-                {
+                } else {
                     value -= 2;
-                    return 0.5f * (-value * value + 2);
+                    return 0.5f * ((-value * value) + 2);
                 }
             }
 
             /************************************************************************************************************************/
 
             /// <summary>Returns the derivative of <see cref="In(float)"/> (<c>y = 2x</c>).</summary>
-            public static float InDerivative(float value) => 2 * value;
+            public static float InDerivative(float value) {
+                return 2 * value;
+            }
 
             /// <summary>Returns the derivative of <see cref="Out(float)"/> (<c>y = -2x + 2</c>).</summary>
-            public static float OutDerivative(float value) => 2 - 2 * value;
+            public static float OutDerivative(float value) {
+                return 2 - (2 * value);
+            }
 
             /// <summary>Returns the derivative of <see cref="InOut(float)"/>.</summary>
-            public static float InOutDerivative(float value)
-            {
+            public static float InOutDerivative(float value) {
                 value *= 2;
-                if (value <= 1)
-                {
+                if (value <= 1) {
                     return 2 * value;
-                }
-                else
-                {
+                } else {
                     value--;
-                    return 2 - 2 * value;
+                    return 2 - (2 * value);
                 }
             }
 
@@ -484,18 +473,34 @@ namespace Animancer
             /************************************************************************************************************************/
 
             /// <summary>A variant of <see cref="In(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float In(float start, float end, float value) => Lerp(start, end, In(UnLerp(start, end, value)));
+            public static float In(float start, float end, float value) {
+                return Lerp(start, end, In(UnLerp(start, end, value)));
+            }
+
             /// <summary>A variant of <see cref="Out(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float Out(float start, float end, float value) => Lerp(start, end, Out(UnLerp(start, end, value)));
+            public static float Out(float start, float end, float value) {
+                return Lerp(start, end, Out(UnLerp(start, end, value)));
+            }
+
             /// <summary>A variant of <see cref="InOut(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float InOut(float start, float end, float value) => Lerp(start, end, InOut(UnLerp(start, end, value)));
+            public static float InOut(float start, float end, float value) {
+                return Lerp(start, end, InOut(UnLerp(start, end, value)));
+            }
 
             /// <summary>A variant of <see cref="InDerivative(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float InDerivative(float start, float end, float value) => InDerivative(UnLerp(start, end, value)) * (end - start);
+            public static float InDerivative(float start, float end, float value) {
+                return InDerivative(UnLerp(start, end, value)) * (end - start);
+            }
+
             /// <summary>A variant of <see cref="InDerivative(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float OutDerivative(float start, float end, float value) => OutDerivative(UnLerp(start, end, value)) * (end - start);
+            public static float OutDerivative(float start, float end, float value) {
+                return OutDerivative(UnLerp(start, end, value)) * (end - start);
+            }
+
             /// <summary>A variant of <see cref="InDerivative(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float InOutDerivative(float start, float end, float value) => InOutDerivative(UnLerp(start, end, value)) * (end - start);
+            public static float InOutDerivative(float start, float end, float value) {
+                return InOutDerivative(UnLerp(start, end, value)) * (end - start);
+            }
 
             /************************************************************************************************************************/
         }
@@ -509,60 +514,53 @@ namespace Animancer
         /// <summary>Functions based on cubic equations (<c>x^3</c>).</summary>
         /// https://kybernetik.com.au/animancer/api/Animancer/Cubic
         /// 
-        public static class Cubic
-        {
+        public static class Cubic {
             /************************************************************************************************************************/
 
             /// <summary>Interpolates the `value` based on the line <c>y = x^3</c>.</summary>
             /// <remarks><see href="https://easings.net/#easeInCubic">Easings.net has a graph of this function.</see></remarks>
-            public static float In(float value) => value * value * value;
+            public static float In(float value) {
+                return value * value * value;
+            }
 
             /// <summary>Interpolates the `value` based on the line <c>y = 1 + (x - 1)^3</c>.</summary>
             /// <remarks><see href="https://easings.net/#easeOutCubic">Easings.net has a graph of this function.</see></remarks>
-            public static float Out(float value)
-            {
+            public static float Out(float value) {
                 value--;
-                return value * value * value + 1;
+                return (value * value * value) + 1;
             }
 
             /// <summary>Interpolate using <see cref="In"/> (0 to 0.5) or <see cref="Out"/> (0.5 to 1).</summary>
             /// <remarks><see href="https://easings.net/#easeInOutCubic">Easings.net has a graph of this function.</see></remarks>
-            public static float InOut(float value)
-            {
+            public static float InOut(float value) {
                 value *= 2;
-                if (value <= 1)
-                {
+                if (value <= 1) {
                     return 0.5f * value * value * value;
-                }
-                else
-                {
+                } else {
                     value -= 2;
-                    return 0.5f * (value * value * value + 2);
+                    return 0.5f * ((value * value * value) + 2);
                 }
             }
 
             /************************************************************************************************************************/
 
             /// <summary>Returns the derivative of <see cref="In(float)"/> (<c>y = 3x</c>).</summary>
-            public static float InDerivative(float value) => 3 * value * value;
+            public static float InDerivative(float value) {
+                return 3 * value * value;
+            }
 
             /// <summary>Returns the derivative of <see cref="Out(float)"/> (<c>y = 3 * (x - 1)</c>).</summary>
-            public static float OutDerivative(float value)
-            {
+            public static float OutDerivative(float value) {
                 value--;
                 return 3 * value * value;
             }
 
             /// <summary>Returns the derivative of <see cref="InOut(float)"/>.</summary>
-            public static float InOutDerivative(float value)
-            {
+            public static float InOutDerivative(float value) {
                 value *= 2;
-                if (value <= 1)
-                {
+                if (value <= 1) {
                     return 3 * value * value;
-                }
-                else
-                {
+                } else {
                     value -= 2;
                     return 3 * value * value;
                 }
@@ -573,18 +571,34 @@ namespace Animancer
             /************************************************************************************************************************/
 
             /// <summary>A variant of <see cref="In(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float In(float start, float end, float value) => Lerp(start, end, In(UnLerp(start, end, value)));
+            public static float In(float start, float end, float value) {
+                return Lerp(start, end, In(UnLerp(start, end, value)));
+            }
+
             /// <summary>A variant of <see cref="Out(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float Out(float start, float end, float value) => Lerp(start, end, Out(UnLerp(start, end, value)));
+            public static float Out(float start, float end, float value) {
+                return Lerp(start, end, Out(UnLerp(start, end, value)));
+            }
+
             /// <summary>A variant of <see cref="InOut(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float InOut(float start, float end, float value) => Lerp(start, end, InOut(UnLerp(start, end, value)));
+            public static float InOut(float start, float end, float value) {
+                return Lerp(start, end, InOut(UnLerp(start, end, value)));
+            }
 
             /// <summary>A variant of <see cref="InDerivative(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float InDerivative(float start, float end, float value) => InDerivative(UnLerp(start, end, value)) * (end - start);
+            public static float InDerivative(float start, float end, float value) {
+                return InDerivative(UnLerp(start, end, value)) * (end - start);
+            }
+
             /// <summary>A variant of <see cref="InDerivative(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float OutDerivative(float start, float end, float value) => OutDerivative(UnLerp(start, end, value)) * (end - start);
+            public static float OutDerivative(float start, float end, float value) {
+                return OutDerivative(UnLerp(start, end, value)) * (end - start);
+            }
+
             /// <summary>A variant of <see cref="InDerivative(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float InOutDerivative(float start, float end, float value) => InOutDerivative(UnLerp(start, end, value)) * (end - start);
+            public static float InOutDerivative(float start, float end, float value) {
+                return InOutDerivative(UnLerp(start, end, value)) * (end - start);
+            }
 
             /************************************************************************************************************************/
         }
@@ -598,60 +612,53 @@ namespace Animancer
         /// <summary>Functions based on quartic equations (<c>x^4</c>).</summary>
         /// https://kybernetik.com.au/animancer/api/Animancer/Quartic
         /// 
-        public static class Quartic
-        {
+        public static class Quartic {
             /************************************************************************************************************************/
 
             /// <summary>Interpolates the `value` based on the line <c>y = x^4</c>.</summary>
             /// <remarks><see href="https://easings.net/#easeInQuart">Easings.net has a graph of this function.</see></remarks>
-            public static float In(float value) => value * value * value * value;
+            public static float In(float value) {
+                return value * value * value * value;
+            }
 
             /// <summary>Interpolates the `value` based on the line <c>y = 1 - (x - 1)^4</c>.</summary>
             /// <remarks><see href="https://easings.net/#easeOutQuart">Easings.net has a graph of this function.</see></remarks>
-            public static float Out(float value)
-            {
+            public static float Out(float value) {
                 value--;
-                return -value * value * value * value + 1;
+                return (-value * value * value * value) + 1;
             }
 
             /// <summary>Interpolate using <see cref="In"/> (0 to 0.5) or <see cref="Out"/> (0.5 to 1).</summary>
             /// <remarks><see href="https://easings.net/#easeInOutQuart">Easings.net has a graph of this function.</see></remarks>
-            public static float InOut(float value)
-            {
+            public static float InOut(float value) {
                 value *= 2;
-                if (value <= 1)
-                {
+                if (value <= 1) {
                     return 0.5f * value * value * value * value;
-                }
-                else
-                {
+                } else {
                     value -= 2;
-                    return 0.5f * (-value * value * value * value + 2);
+                    return 0.5f * ((-value * value * value * value) + 2);
                 }
             }
 
             /************************************************************************************************************************/
 
             /// <summary>Returns the derivative of <see cref="In(float)"/> (<c>y = 4x</c>).</summary>
-            public static float InDerivative(float value) => 4 * value * value * value;
+            public static float InDerivative(float value) {
+                return 4 * value * value * value;
+            }
 
             /// <summary>Returns the derivative of <see cref="Out(float)"/> (<c>y = -4 * (x - 1)</c>).</summary>
-            public static float OutDerivative(float value)
-            {
+            public static float OutDerivative(float value) {
                 value--;
                 return -4 * value * value * value;
             }
 
             /// <summary>Returns the derivative of <see cref="InOut(float)"/>.</summary>
-            public static float InOutDerivative(float value)
-            {
+            public static float InOutDerivative(float value) {
                 value *= 2;
-                if (value <= 1)
-                {
+                if (value <= 1) {
                     return 4 * value * value * value;
-                }
-                else
-                {
+                } else {
                     value -= 2;
                     return -4 * value * value * value;
                 }
@@ -662,18 +669,34 @@ namespace Animancer
             /************************************************************************************************************************/
 
             /// <summary>A variant of <see cref="In(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float In(float start, float end, float value) => Lerp(start, end, In(UnLerp(start, end, value)));
+            public static float In(float start, float end, float value) {
+                return Lerp(start, end, In(UnLerp(start, end, value)));
+            }
+
             /// <summary>A variant of <see cref="Out(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float Out(float start, float end, float value) => Lerp(start, end, Out(UnLerp(start, end, value)));
+            public static float Out(float start, float end, float value) {
+                return Lerp(start, end, Out(UnLerp(start, end, value)));
+            }
+
             /// <summary>A variant of <see cref="InOut(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float InOut(float start, float end, float value) => Lerp(start, end, InOut(UnLerp(start, end, value)));
+            public static float InOut(float start, float end, float value) {
+                return Lerp(start, end, InOut(UnLerp(start, end, value)));
+            }
 
             /// <summary>A variant of <see cref="InDerivative(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float InDerivative(float start, float end, float value) => InDerivative(UnLerp(start, end, value)) * (end - start);
+            public static float InDerivative(float start, float end, float value) {
+                return InDerivative(UnLerp(start, end, value)) * (end - start);
+            }
+
             /// <summary>A variant of <see cref="InDerivative(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float OutDerivative(float start, float end, float value) => OutDerivative(UnLerp(start, end, value)) * (end - start);
+            public static float OutDerivative(float start, float end, float value) {
+                return OutDerivative(UnLerp(start, end, value)) * (end - start);
+            }
+
             /// <summary>A variant of <see cref="InDerivative(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float InOutDerivative(float start, float end, float value) => InOutDerivative(UnLerp(start, end, value)) * (end - start);
+            public static float InOutDerivative(float start, float end, float value) {
+                return InOutDerivative(UnLerp(start, end, value)) * (end - start);
+            }
 
             /************************************************************************************************************************/
         }
@@ -687,60 +710,53 @@ namespace Animancer
         /// <summary>Functions based on quintic equations (<c>x^5</c>).</summary>
         /// https://kybernetik.com.au/animancer/api/Animancer/Quintic
         /// 
-        public static class Quintic
-        {
+        public static class Quintic {
             /************************************************************************************************************************/
 
             /// <summary>Interpolates the `value` based on the line <c>y = x^5</c>.</summary>
             /// <remarks><see href="https://easings.net/#easeInQuint">Easings.net has a graph of this function.</see></remarks>
-            public static float In(float value) => value * value * value * value * value;
+            public static float In(float value) {
+                return value * value * value * value * value;
+            }
 
             /// <summary>Interpolates the `value` based on the line <c>y = 1 + (x - 1)^5</c>.</summary>
             /// <remarks><see href="https://easings.net/#easeOutQuint">Easings.net has a graph of this function.</see></remarks>
-            public static float Out(float value)
-            {
+            public static float Out(float value) {
                 value--;
-                return value * value * value * value * value + 1;
+                return (value * value * value * value * value) + 1;
             }
 
             /// <summary>Interpolate using <see cref="In"/> (0 to 0.5) or <see cref="Out"/> (0.5 to 1).</summary>
             /// <remarks><see href="https://easings.net/#easeInOutQuint">Easings.net has a graph of this function.</see></remarks>
-            public static float InOut(float value)
-            {
+            public static float InOut(float value) {
                 value *= 2;
-                if (value <= 1)
-                {
+                if (value <= 1) {
                     return 0.5f * value * value * value * value * value;
-                }
-                else
-                {
+                } else {
                     value -= 2;
-                    return 0.5f * (value * value * value * value * value + 2);
+                    return 0.5f * ((value * value * value * value * value) + 2);
                 }
             }
 
             /************************************************************************************************************************/
 
             /// <summary>Returns the derivative of <see cref="In(float)"/> (<c>y = 5x</c>).</summary>
-            public static float InDerivative(float value) => 5 * value * value * value * value;
+            public static float InDerivative(float value) {
+                return 5 * value * value * value * value;
+            }
 
             /// <summary>Returns the derivative of <see cref="Out(float)"/> (<c>y = -5 * (x - 1)</c>).</summary>
-            public static float OutDerivative(float value)
-            {
+            public static float OutDerivative(float value) {
                 value--;
                 return 5 * value * value * value * value;
             }
 
             /// <summary>Returns the derivative of <see cref="InOut(float)"/>.</summary>
-            public static float InOutDerivative(float value)
-            {
+            public static float InOutDerivative(float value) {
                 value *= 2;
-                if (value <= 1)
-                {
+                if (value <= 1) {
                     return 5 * value * value * value * value;
-                }
-                else
-                {
+                } else {
                     value -= 2;
                     return 5 * value * value * value * value;
                 }
@@ -751,18 +767,34 @@ namespace Animancer
             /************************************************************************************************************************/
 
             /// <summary>A variant of <see cref="In(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float In(float start, float end, float value) => Lerp(start, end, In(UnLerp(start, end, value)));
+            public static float In(float start, float end, float value) {
+                return Lerp(start, end, In(UnLerp(start, end, value)));
+            }
+
             /// <summary>A variant of <see cref="Out(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float Out(float start, float end, float value) => Lerp(start, end, Out(UnLerp(start, end, value)));
+            public static float Out(float start, float end, float value) {
+                return Lerp(start, end, Out(UnLerp(start, end, value)));
+            }
+
             /// <summary>A variant of <see cref="InOut(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float InOut(float start, float end, float value) => Lerp(start, end, InOut(UnLerp(start, end, value)));
+            public static float InOut(float start, float end, float value) {
+                return Lerp(start, end, InOut(UnLerp(start, end, value)));
+            }
 
             /// <summary>A variant of <see cref="InDerivative(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float InDerivative(float start, float end, float value) => InDerivative(UnLerp(start, end, value)) * (end - start);
+            public static float InDerivative(float start, float end, float value) {
+                return InDerivative(UnLerp(start, end, value)) * (end - start);
+            }
+
             /// <summary>A variant of <see cref="InDerivative(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float OutDerivative(float start, float end, float value) => OutDerivative(UnLerp(start, end, value)) * (end - start);
+            public static float OutDerivative(float start, float end, float value) {
+                return OutDerivative(UnLerp(start, end, value)) * (end - start);
+            }
+
             /// <summary>A variant of <see cref="InDerivative(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float InOutDerivative(float start, float end, float value) => InOutDerivative(UnLerp(start, end, value)) * (end - start);
+            public static float InOutDerivative(float start, float end, float value) {
+                return InOutDerivative(UnLerp(start, end, value)) * (end - start);
+            }
 
             /************************************************************************************************************************/
         }
@@ -776,50 +808,77 @@ namespace Animancer
         /// <summary>Functions based on sinusoidal equations.</summary>
         /// https://kybernetik.com.au/animancer/api/Animancer/Sine
         /// 
-        public static class Sine
-        {
+        public static class Sine {
             /************************************************************************************************************************/
 
             /// <summary>Interpolates the `value` based on a quarter-cycle of a sine wave.</summary>
             /// <remarks><see href="https://easings.net/#easeInSine">Easings.net has a graph of this function.</see></remarks>
-            public static float In(float value) => -Cos(value * (PI * 0.5f)) + 1;
+            public static float In(float value) {
+                return -Cos(value * (PI * 0.5f)) + 1;
+            }
 
             /// <summary>Interpolates the `value` based on a quarter-cycle of a sine wave.</summary>
             /// <remarks><see href="https://easings.net/#easeOutSine">Easings.net has a graph of this function.</see></remarks>
-            public static float Out(float value) => Sin(value * (PI * 0.5f));
+            public static float Out(float value) {
+                return Sin(value * (PI * 0.5f));
+            }
 
             /// <summary>Interpolate using <see cref="In"/> (0 to 0.5) or <see cref="Out"/> (0.5 to 1).</summary>
             /// <remarks><see href="https://easings.net/#easeInOutSine">Easings.net has a graph of this function.</see></remarks>
-            public static float InOut(float value) => -0.5f * (Cos(PI * value) - 1);
+            public static float InOut(float value) {
+                return -0.5f * (Cos(PI * value) - 1);
+            }
 
             /************************************************************************************************************************/
 
             /// <summary>Returns the derivative of <see cref="In(float)"/>.</summary>
-            public static float InDerivative(float value) => 0.5f * PI * Sin(0.5f * PI * value);
+            public static float InDerivative(float value) {
+                return 0.5f * PI * Sin(0.5f * PI * value);
+            }
 
             /// <summary>Returns the derivative of <see cref="Out(float)"/>.</summary>
-            public static float OutDerivative(float value) => PI * 0.5f * Cos(value * (PI * 0.5f));
+            public static float OutDerivative(float value) {
+                return PI * 0.5f * Cos(value * (PI * 0.5f));
+            }
 
             /// <summary>Returns the derivative of <see cref="InOut(float)"/>.</summary>
-            public static float InOutDerivative(float value) => 0.5f * PI * Sin(PI * value);
+            public static float InOutDerivative(float value) {
+                return 0.5f * PI * Sin(PI * value);
+            }
 
             /************************************************************************************************************************/
             // Ranged Variants.
             /************************************************************************************************************************/
 
             /// <summary>A variant of <see cref="In(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float In(float start, float end, float value) => Lerp(start, end, In(UnLerp(start, end, value)));
+            public static float In(float start, float end, float value) {
+                return Lerp(start, end, In(UnLerp(start, end, value)));
+            }
+
             /// <summary>A variant of <see cref="Out(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float Out(float start, float end, float value) => Lerp(start, end, Out(UnLerp(start, end, value)));
+            public static float Out(float start, float end, float value) {
+                return Lerp(start, end, Out(UnLerp(start, end, value)));
+            }
+
             /// <summary>A variant of <see cref="InOut(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float InOut(float start, float end, float value) => Lerp(start, end, InOut(UnLerp(start, end, value)));
+            public static float InOut(float start, float end, float value) {
+                return Lerp(start, end, InOut(UnLerp(start, end, value)));
+            }
 
             /// <summary>A variant of <see cref="InDerivative(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float InDerivative(float start, float end, float value) => InDerivative(UnLerp(start, end, value)) * (end - start);
+            public static float InDerivative(float start, float end, float value) {
+                return InDerivative(UnLerp(start, end, value)) * (end - start);
+            }
+
             /// <summary>A variant of <see cref="InDerivative(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float OutDerivative(float start, float end, float value) => OutDerivative(UnLerp(start, end, value)) * (end - start);
+            public static float OutDerivative(float start, float end, float value) {
+                return OutDerivative(UnLerp(start, end, value)) * (end - start);
+            }
+
             /// <summary>A variant of <see cref="InDerivative(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float InOutDerivative(float start, float end, float value) => InOutDerivative(UnLerp(start, end, value)) * (end - start);
+            public static float InOutDerivative(float start, float end, float value) {
+                return InOutDerivative(UnLerp(start, end, value)) * (end - start);
+            }
 
             /************************************************************************************************************************/
         }
@@ -833,29 +892,28 @@ namespace Animancer
         /// <summary>Functions based on exponential equations (<c>2^(10(x))</c>).</summary>
         /// https://kybernetik.com.au/animancer/api/Animancer/Exponential
         /// 
-        public static class Exponential
-        {
+        public static class Exponential {
             /************************************************************************************************************************/
 
             /// <summary>Interpolates the `value` based on the line (<c>y = 2^(10 * (x - 1))</c>).</summary>
             /// <remarks><see href="https://easings.net/#easeInExpo">Easings.net has a graph of this function.</see></remarks>
-            public static float In(float value) => Pow(2, 10 * (value - 1));
+            public static float In(float value) {
+                return Pow(2, 10 * (value - 1));
+            }
 
             /// <summary>Interpolates the `value` based on the line (<c>y = -2^(-10x) + 1</c>).</summary>
             /// <remarks><see href="https://easings.net/#easeOutExpo">Easings.net has a graph of this function.</see></remarks>
-            public static float Out(float value) => -Pow(2, -10 * value) + 1;
+            public static float Out(float value) {
+                return -Pow(2, -10 * value) + 1;
+            }
 
             /// <summary>Interpolate using <see cref="In"/> (0 to 0.5) or <see cref="Out"/> (0.5 to 1).</summary>
             /// <remarks><see href="https://easings.net/#easeInOutExpo">Easings.net has a graph of this function.</see></remarks>
-            public static float InOut(float value)
-            {
+            public static float InOut(float value) {
                 value *= 2;
-                if (value <= 1)
-                {
+                if (value <= 1) {
                     return 0.5f * Pow(2, 10 * (value - 1));
-                }
-                else
-                {
+                } else {
                     value--;
                     return 0.5f * (-Pow(2, -10 * value) + 2);
                 }
@@ -864,23 +922,23 @@ namespace Animancer
             /************************************************************************************************************************/
 
             /// <summary>Returns the derivative of <see cref="In(float)"/> (<c>y = 10 * ln(2) * 2^(10 * (x - 1))</c>).</summary>
-            public static float InDerivative(float value) => 10 * Ln2 * Pow(2, 10 * (value - 1));
+            public static float InDerivative(float value) {
+                return 10 * Ln2 * Pow(2, 10 * (value - 1));
+            }
 
             /// <summary>Returns the derivative of <see cref="Out(float)"/> (<c>y = 5 * ln(2) * 2^(-10 * (x - 1) + 1)</c>).</summary>
-            public static float OutDerivative(float value) => 5 * Ln2 * Pow(2, 1 - 10 * value);
+            public static float OutDerivative(float value) {
+                return 5 * Ln2 * Pow(2, 1 - (10 * value));
+            }
 
             /// <summary>Returns the derivative of <see cref="InOut(float)"/>.</summary>
-            public static float InOutDerivative(float value)
-            {
+            public static float InOutDerivative(float value) {
                 value *= 2;
-                if (value <= 1)
-                {
+                if (value <= 1) {
                     return 10 * Ln2 * Pow(2, 10 * (value - 1));
-                }
-                else
-                {
+                } else {
                     value--;
-                    return 5 * Ln2 * Pow(2, 1 - 10 * value);
+                    return 5 * Ln2 * Pow(2, 1 - (10 * value));
                 }
             }
 
@@ -889,18 +947,34 @@ namespace Animancer
             /************************************************************************************************************************/
 
             /// <summary>A variant of <see cref="In(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float In(float start, float end, float value) => Lerp(start, end, In(UnLerp(start, end, value)));
+            public static float In(float start, float end, float value) {
+                return Lerp(start, end, In(UnLerp(start, end, value)));
+            }
+
             /// <summary>A variant of <see cref="Out(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float Out(float start, float end, float value) => Lerp(start, end, Out(UnLerp(start, end, value)));
+            public static float Out(float start, float end, float value) {
+                return Lerp(start, end, Out(UnLerp(start, end, value)));
+            }
+
             /// <summary>A variant of <see cref="InOut(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float InOut(float start, float end, float value) => Lerp(start, end, InOut(UnLerp(start, end, value)));
+            public static float InOut(float start, float end, float value) {
+                return Lerp(start, end, InOut(UnLerp(start, end, value)));
+            }
 
             /// <summary>A variant of <see cref="InDerivative(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float InDerivative(float start, float end, float value) => InDerivative(UnLerp(start, end, value)) * (end - start);
+            public static float InDerivative(float start, float end, float value) {
+                return InDerivative(UnLerp(start, end, value)) * (end - start);
+            }
+
             /// <summary>A variant of <see cref="InDerivative(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float OutDerivative(float start, float end, float value) => OutDerivative(UnLerp(start, end, value)) * (end - start);
+            public static float OutDerivative(float start, float end, float value) {
+                return OutDerivative(UnLerp(start, end, value)) * (end - start);
+            }
+
             /// <summary>A variant of <see cref="InDerivative(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float InOutDerivative(float start, float end, float value) => InOutDerivative(UnLerp(start, end, value)) * (end - start);
+            public static float InOutDerivative(float start, float end, float value) {
+                return InOutDerivative(UnLerp(start, end, value)) * (end - start);
+            }
 
             /************************************************************************************************************************/
         }
@@ -914,62 +988,55 @@ namespace Animancer
         /// <summary>Functions based on circular equations.</summary>
         /// https://kybernetik.com.au/animancer/api/Animancer/Circular
         /// 
-        public static class Circular
-        {
+        public static class Circular {
             /************************************************************************************************************************/
 
             /// <summary>Interpolates the `value` based on a shifted quadrant IV of a unit circle.</summary>
             /// <remarks><see href="https://easings.net/#easeInCirc">Easings.net has a graph of this function.</see></remarks>
-            public static float In(float value) => -(Sqrt(1 - value * value) - 1);
+            public static float In(float value) {
+                return -(Sqrt(1 - (value * value)) - 1);
+            }
 
             /// <summary>Interpolates the `value` based on a shifted quadrant II of a unit circle.</summary>
             /// <remarks><see href="https://easings.net/#easeOutCirc">Easings.net has a graph of this function.</see></remarks>
-            public static float Out(float value)
-            {
+            public static float Out(float value) {
                 value--;
-                return Sqrt(1 - value * value);
+                return Sqrt(1 - (value * value));
             }
 
             /// <summary>Interpolate using <see cref="In"/> (0 to 0.5) or <see cref="Out"/> (0.5 to 1).</summary>
             /// <remarks><see href="https://easings.net/#easeInOutCirc">Easings.net has a graph of this function.</see></remarks>
-            public static float InOut(float value)
-            {
+            public static float InOut(float value) {
                 value *= 2;
-                if (value <= 1)
-                {
-                    return -0.5f * (Sqrt(1 - value * value) - 1);
-                }
-                else
-                {
+                if (value <= 1) {
+                    return -0.5f * (Sqrt(1 - (value * value)) - 1);
+                } else {
                     value -= 2;
-                    return 0.5f * (Sqrt(1 - value * value) + 1);
+                    return 0.5f * (Sqrt(1 - (value * value)) + 1);
                 }
             }
 
             /************************************************************************************************************************/
 
             /// <summary>Returns the derivative of <see cref="In(float)"/>.</summary>
-            public static float InDerivative(float value) => value / Sqrt(1 - value * value);
+            public static float InDerivative(float value) {
+                return value / Sqrt(1 - (value * value));
+            }
 
             /// <summary>Returns the derivative of <see cref="Out(float)"/>.</summary>
-            public static float OutDerivative(float value)
-            {
+            public static float OutDerivative(float value) {
                 value--;
-                return -value / Sqrt(1 - value * value);
+                return -value / Sqrt(1 - (value * value));
             }
 
             /// <summary>Returns the derivative of <see cref="InOut(float)"/>.</summary>
-            public static float InOutDerivative(float value)
-            {
+            public static float InOutDerivative(float value) {
                 value *= 2;
-                if (value <= 1)
-                {
-                    return value / (2 * Sqrt(1 - value * value));
-                }
-                else
-                {
+                if (value <= 1) {
+                    return value / (2 * Sqrt(1 - (value * value)));
+                } else {
                     value -= 2;
-                    return -value / (2 * Sqrt(1 - value * value));
+                    return -value / (2 * Sqrt(1 - (value * value)));
                 }
             }
 
@@ -978,18 +1045,34 @@ namespace Animancer
             /************************************************************************************************************************/
 
             /// <summary>A variant of <see cref="In(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float In(float start, float end, float value) => Lerp(start, end, In(UnLerp(start, end, value)));
+            public static float In(float start, float end, float value) {
+                return Lerp(start, end, In(UnLerp(start, end, value)));
+            }
+
             /// <summary>A variant of <see cref="Out(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float Out(float start, float end, float value) => Lerp(start, end, Out(UnLerp(start, end, value)));
+            public static float Out(float start, float end, float value) {
+                return Lerp(start, end, Out(UnLerp(start, end, value)));
+            }
+
             /// <summary>A variant of <see cref="InOut(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float InOut(float start, float end, float value) => Lerp(start, end, InOut(UnLerp(start, end, value)));
+            public static float InOut(float start, float end, float value) {
+                return Lerp(start, end, InOut(UnLerp(start, end, value)));
+            }
 
             /// <summary>A variant of <see cref="InDerivative(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float InDerivative(float start, float end, float value) => InDerivative(UnLerp(start, end, value)) * (end - start);
+            public static float InDerivative(float start, float end, float value) {
+                return InDerivative(UnLerp(start, end, value)) * (end - start);
+            }
+
             /// <summary>A variant of <see cref="InDerivative(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float OutDerivative(float start, float end, float value) => OutDerivative(UnLerp(start, end, value)) * (end - start);
+            public static float OutDerivative(float start, float end, float value) {
+                return OutDerivative(UnLerp(start, end, value)) * (end - start);
+            }
+
             /// <summary>A variant of <see cref="InDerivative(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float InOutDerivative(float start, float end, float value) => InOutDerivative(UnLerp(start, end, value)) * (end - start);
+            public static float InOutDerivative(float start, float end, float value) {
+                return InOutDerivative(UnLerp(start, end, value)) * (end - start);
+            }
 
             /************************************************************************************************************************/
         }
@@ -1003,8 +1086,7 @@ namespace Animancer
         /// <summary>Functions based on equations which go out of bounds then come back.</summary>
         /// https://kybernetik.com.au/animancer/api/Animancer/Back
         /// 
-        public static class Back
-        {
+        public static class Back {
             /************************************************************************************************************************/
 
             private const float C = 1.758f;
@@ -1012,55 +1094,49 @@ namespace Animancer
             /************************************************************************************************************************/
 
             /// <remarks><see href="https://easings.net/#easeInBack">Easings.net has a graph of this function.</see></remarks>
-            public static float In(float value) => value * value * ((C + 1) * value - C);
+            public static float In(float value) {
+                return value * value * (((C + 1) * value) - C);
+            }
 
             /// <remarks><see href="https://easings.net/#easeOutBack">Easings.net has a graph of this function.</see></remarks>
-            public static float Out(float value)
-            {
+            public static float Out(float value) {
                 value -= 1;
-                return value * value * ((C + 1) * value + C) + 1;
+                return (value * value * (((C + 1) * value) + C)) + 1;
             }
 
             /// <summary>Interpolate using <see cref="In"/> (0 to 0.5) or <see cref="Out"/> (0.5 to 1).</summary>
             /// <remarks><see href="https://easings.net/#easeInOutBack">Easings.net has a graph of this function.</see></remarks>
-            public static float InOut(float value)
-            {
+            public static float InOut(float value) {
                 value *= 2;
-                if (value <= 1)
-                {
-                    return 0.5f * value * value * ((C + 1) * value - C);
-                }
-                else
-                {
+                if (value <= 1) {
+                    return 0.5f * value * value * (((C + 1) * value) - C);
+                } else {
                     value -= 2;
-                    return 0.5f * (value * value * ((C + 1) * value + C) + 2);
+                    return 0.5f * ((value * value * (((C + 1) * value) + C)) + 2);
                 }
             }
 
             /************************************************************************************************************************/
 
             /// <summary>Returns the derivative of <see cref="In(float)"/>.</summary>
-            public static float InDerivative(float value) => 3 * (C + 1) * value * value - 2 * C * value;
+            public static float InDerivative(float value) {
+                return (3 * (C + 1) * value * value) - (2 * C * value);
+            }
 
             /// <summary>Returns the derivative of <see cref="Out(float)"/>.</summary>
-            public static float OutDerivative(float value)
-            {
+            public static float OutDerivative(float value) {
                 value -= 1;
-                return (C + 1) * value * value + 2 * value * ((C + 1) * value + C);
+                return ((C + 1) * value * value) + (2 * value * (((C + 1) * value) + C));
             }
 
             /// <summary>Returns the derivative of <see cref="InOut(float)"/>.</summary>
-            public static float InOutDerivative(float value)
-            {
+            public static float InOutDerivative(float value) {
                 value *= 2;
-                if (value <= 1)
-                {
-                    return 3 * (C + 1) * value * value - 2 * C * value;
-                }
-                else
-                {
+                if (value <= 1) {
+                    return (3 * (C + 1) * value * value) - (2 * C * value);
+                } else {
                     value -= 2;
-                    return (C + 1) * value * value + 2 * value * ((C + 1) * value + C);
+                    return ((C + 1) * value * value) + (2 * value * (((C + 1) * value) + C));
                 }
             }
 
@@ -1069,18 +1145,34 @@ namespace Animancer
             /************************************************************************************************************************/
 
             /// <summary>A variant of <see cref="In(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float In(float start, float end, float value) => Lerp(start, end, In(UnLerp(start, end, value)));
+            public static float In(float start, float end, float value) {
+                return Lerp(start, end, In(UnLerp(start, end, value)));
+            }
+
             /// <summary>A variant of <see cref="Out(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float Out(float start, float end, float value) => Lerp(start, end, Out(UnLerp(start, end, value)));
+            public static float Out(float start, float end, float value) {
+                return Lerp(start, end, Out(UnLerp(start, end, value)));
+            }
+
             /// <summary>A variant of <see cref="InOut(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float InOut(float start, float end, float value) => Lerp(start, end, InOut(UnLerp(start, end, value)));
+            public static float InOut(float start, float end, float value) {
+                return Lerp(start, end, InOut(UnLerp(start, end, value)));
+            }
 
             /// <summary>A variant of <see cref="InDerivative(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float InDerivative(float start, float end, float value) => InDerivative(UnLerp(start, end, value)) * (end - start);
+            public static float InDerivative(float start, float end, float value) {
+                return InDerivative(UnLerp(start, end, value)) * (end - start);
+            }
+
             /// <summary>A variant of <see cref="InDerivative(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float OutDerivative(float start, float end, float value) => OutDerivative(UnLerp(start, end, value)) * (end - start);
+            public static float OutDerivative(float start, float end, float value) {
+                return OutDerivative(UnLerp(start, end, value)) * (end - start);
+            }
+
             /// <summary>A variant of <see cref="InDerivative(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float InOutDerivative(float start, float end, float value) => InOutDerivative(UnLerp(start, end, value)) * (end - start);
+            public static float InOutDerivative(float start, float end, float value) {
+                return InOutDerivative(UnLerp(start, end, value)) * (end - start);
+            }
 
             /************************************************************************************************************************/
         }
@@ -1094,93 +1186,76 @@ namespace Animancer
         /// <summary>Functions based on equations with sharp bounces.</summary>
         /// https://kybernetik.com.au/animancer/api/Animancer/Bounce
         /// 
-        public static class Bounce
-        {
+        public static class Bounce {
             /************************************************************************************************************************/
 
             /// <remarks><see href="https://easings.net/#easeInBounce">Easings.net has a graph of this function.</see></remarks>
-            public static float In(float value)
-            {
+            public static float In(float value) {
                 return 1 - Out(1 - value);
             }
 
             /// <remarks><see href="https://easings.net/#easeOutBounce">Easings.net has a graph of this function.</see></remarks>
-            public static float Out(float value)
-            {
-                switch (value)
-                {
+            public static float Out(float value) {
+                switch (value) {
                     case 0: return 0;
                     case 1: return 1;
                 }
 
-                if (value < (1f / 2.75f))
-                {
+                if (value < (1f / 2.75f)) {
                     return 7.5625f * value * value;
-                }
-                else if (value < (2f / 2.75f))
-                {
+                } else if (value < (2f / 2.75f)) {
                     value -= 1.5f / 2.75f;
-                    return 7.5625f * value * value + 0.75f;
-                }
-                else if (value < (2.5f / 2.75f))
-                {
+                    return (7.5625f * value * value) + 0.75f;
+                } else if (value < (2.5f / 2.75f)) {
                     value -= 2.25f / 2.75f;
-                    return 7.5625f * value * value + 0.9375f;
-                }
-                else
-                {
+                    return (7.5625f * value * value) + 0.9375f;
+                } else {
                     value -= 2.625f / 2.75f;
-                    return 7.5625f * value * value + 0.984375f;
+                    return (7.5625f * value * value) + 0.984375f;
                 }
             }
 
             /// <summary>Interpolate using <see cref="In"/> (0 to 0.5) or <see cref="Out"/> (0.5 to 1).</summary>
             /// <remarks><see href="https://easings.net/#easeInOutBounce">Easings.net has a graph of this function.</see></remarks>
-            public static float InOut(float value)
-            {
-                if (value < 0.5f)
+            public static float InOut(float value) {
+                if (value < 0.5f) {
                     return 0.5f * In(value * 2);
-                else
-                    return 0.5f + 0.5f * Out(value * 2 - 1);
+                } else {
+                    return 0.5f + (0.5f * Out((value * 2) - 1));
+                }
             }
 
             /************************************************************************************************************************/
 
             /// <summary>Returns the derivative of <see cref="In(float)"/>.</summary>
-            public static float InDerivative(float value) => OutDerivative(1 - value);
+            public static float InDerivative(float value) {
+                return OutDerivative(1 - value);
+            }
 
             /// <summary>Returns the derivative of <see cref="Out(float)"/>.</summary>
-            public static float OutDerivative(float value)
-            {
-                if (value < (1f / 2.75f))
-                {
+            public static float OutDerivative(float value) {
+                if (value < (1f / 2.75f)) {
                     return 2 * 7.5625f * value;
-                }
-                else if (value < (2f / 2.75f))
-                {
+                } else if (value < (2f / 2.75f)) {
                     value -= 1.5f / 2.75f;
                     return 2 * 7.5625f * value;
-                }
-                else if (value < (2.5f / 2.75f))
-                {
+                } else if (value < (2.5f / 2.75f)) {
                     value -= 2.25f / 2.75f;
                     return 2 * 7.5625f * value;
-                }
-                else
-                {
+                } else {
                     value -= 2.625f / 2.75f;
                     return 2 * 7.5625f * value;
                 }
             }
 
             /// <summary>Returns the derivative of <see cref="InOut(float)"/>.</summary>
-            public static float InOutDerivative(float value)
-            {
+            public static float InOutDerivative(float value) {
                 value *= 2;
-                if (value <= 1)
+                if (value <= 1) {
                     return OutDerivative(1 - value);
-                else
+                } else {
                     return OutDerivative(value - 1);
+                }
             }
 
             /************************************************************************************************************************/
@@ -1188,18 +1263,34 @@ namespace Animancer
             /************************************************************************************************************************/
 
             /// <summary>A variant of <see cref="In(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float In(float start, float end, float value) => Lerp(start, end, In(UnLerp(start, end, value)));
+            public static float In(float start, float end, float value) {
+                return Lerp(start, end, In(UnLerp(start, end, value)));
+            }
+
             /// <summary>A variant of <see cref="Out(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float Out(float start, float end, float value) => Lerp(start, end, Out(UnLerp(start, end, value)));
+            public static float Out(float start, float end, float value) {
+                return Lerp(start, end, Out(UnLerp(start, end, value)));
+            }
+
             /// <summary>A variant of <see cref="InOut(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float InOut(float start, float end, float value) => Lerp(start, end, InOut(UnLerp(start, end, value)));
+            public static float InOut(float start, float end, float value) {
+                return Lerp(start, end, InOut(UnLerp(start, end, value)));
+            }
 
             /// <summary>A variant of <see cref="InDerivative(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float InDerivative(float start, float end, float value) => InDerivative(UnLerp(start, end, value)) * (end - start);
+            public static float InDerivative(float start, float end, float value) {
+                return InDerivative(UnLerp(start, end, value)) * (end - start);
+            }
+
             /// <summary>A variant of <see cref="InDerivative(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float OutDerivative(float start, float end, float value) => OutDerivative(UnLerp(start, end, value)) * (end - start);
+            public static float OutDerivative(float start, float end, float value) {
+                return OutDerivative(UnLerp(start, end, value)) * (end - start);
+            }
+
             /// <summary>A variant of <see cref="InDerivative(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float InOutDerivative(float start, float end, float value) => InOutDerivative(UnLerp(start, end, value)) * (end - start);
+            public static float InOutDerivative(float start, float end, float value) {
+                return InOutDerivative(UnLerp(start, end, value)) * (end - start);
+            }
 
             /************************************************************************************************************************/
         }
@@ -1213,8 +1304,7 @@ namespace Animancer
         /// <summary>Functions based on equations with soft bounces.</summary>
         /// https://kybernetik.com.au/animancer/api/Animancer/Elastic
         /// 
-        public static class Elastic
-        {
+        public static class Elastic {
             /************************************************************************************************************************/
 
             /// <summary><c>2 / 3 * pi</c></summary>
@@ -1223,76 +1313,65 @@ namespace Animancer
             /************************************************************************************************************************/
 
             /// <remarks><see href="https://easings.net/#easeInElastic">Easings.net has a graph of this function.</see></remarks>
-            public static float In(float value)
-            {
-                return value switch
-                {
+            public static float In(float value) {
+                return value switch {
                     0 => 0,
                     1 => 1,
-                    _ => -Pow(2, 10 * value - 10) * Sin((value * 10 - 10.75f) * TwoThirdsPi),
+                    _ => -Pow(2, (10 * value) - 10) * Sin(((value * 10) - 10.75f) * TwoThirdsPi),
                 };
             }
 
             /// <remarks><see href="https://easings.net/#easeOutElastic">Easings.net has a graph of this function.</see></remarks>
-            public static float Out(float value)
-            {
-                return value switch
-                {
+            public static float Out(float value) {
+                return value switch {
                     0 => 0,
                     1 => 1,
-                    _ => 1 + Pow(2, -10 * value) * Sin((value * -10 - 0.75f) * TwoThirdsPi),
+                    _ => 1 + (Pow(2, -10 * value) * Sin(((value * -10) - 0.75f) * TwoThirdsPi)),
                 };
             }
 
             /// <summary>Interpolate using <see cref="In"/> (0 to 0.5) or <see cref="Out"/> (0.5 to 1).</summary>
             /// <remarks><see href="https://easings.net/#easeInOutElastic">Easings.net has a graph of this function.</see></remarks>
-            public static float InOut(float value)
-            {
-                switch (value)
-                {
+            public static float InOut(float value) {
+                switch (value) {
                     case 0: return 0;
                     case 0.5f: return 0.5f;
                     case 1: return 1;
                 }
 
                 value *= 2;
-                if (value <= 1)
-                {
-                    return 0.5f * (-Pow(2, 10 * value - 10) * Sin((value * 10 - 10.75f) * TwoThirdsPi));
-                }
-                else
-                {
+                if (value <= 1) {
+                    return 0.5f * (-Pow(2, (10 * value) - 10) * Sin(((value * 10) - 10.75f) * TwoThirdsPi));
+                } else {
                     value--;
-                    return 0.5f + 0.5f * (1 + Pow(2, -10 * value) * Sin((value * -10 - 0.75f) * TwoThirdsPi));
+                    return 0.5f + (0.5f * (1 + (Pow(2, -10 * value) * Sin(((value * -10) - 0.75f) * TwoThirdsPi))));
                 }
             }
 
             /************************************************************************************************************************/
 
             /// <summary>Returns the derivative of <see cref="In(float)"/>.</summary>
-            public static float InDerivative(float value)
-            {
-                return -(5 * Pow(2, 10 * value - 9) *
-                    (3 * Ln2 * Sin(PI * (40 * value - 43) / 6) +
-                    2 * PI * Cos(PI * (40 * value - 43) / 6))) / 3;
+            public static float InDerivative(float value) {
+                return -(5 * Pow(2, (10 * value) - 9) *
+                    ((3 * Ln2 * Sin(PI * ((40 * value) - 43) / 6)) +
+                    (2 * PI * Cos(PI * ((40 * value) - 43) / 6)))) / 3;
             }
 
             /// <summary>Returns the derivative of <see cref="Out(float)"/>.</summary>
-            public static float OutDerivative(float value)
-            {
-                return -(30 * Ln2 * Sin(2 * PI * (10 * value - 3f / 4f) / 3) -
-                    20 * PI * Cos(2 * PI * (10 * value - 3f / 4f) / 3)) /
+            public static float OutDerivative(float value) {
+                return -((30 * Ln2 * Sin(2 * PI * ((10 * value) - (3f / 4f)) / 3)) -
+                    (20 * PI * Cos(2 * PI * ((10 * value) - (3f / 4f)) / 3))) /
                     (3 * Pow(2, 10 * value));
             }
 
             /// <summary>Returns the derivative of <see cref="InOut(float)"/>.</summary>
-            public static float InOutDerivative(float value)
-            {
+            public static float InOutDerivative(float value) {
                 value *= 2;
-                if (value <= 1)
+                if (value <= 1) {
                     return OutDerivative(1 - value);
-                else
+                } else {
                     return OutDerivative(value - 1);
+                }
             }
 
             /************************************************************************************************************************/
@@ -1300,18 +1379,34 @@ namespace Animancer
             /************************************************************************************************************************/
 
             /// <summary>A variant of <see cref="In(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float In(float start, float end, float value) => Lerp(start, end, In(UnLerp(start, end, value)));
+            public static float In(float start, float end, float value) {
+                return Lerp(start, end, In(UnLerp(start, end, value)));
+            }
+
             /// <summary>A variant of <see cref="Out(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float Out(float start, float end, float value) => Lerp(start, end, Out(UnLerp(start, end, value)));
+            public static float Out(float start, float end, float value) {
+                return Lerp(start, end, Out(UnLerp(start, end, value)));
+            }
+
             /// <summary>A variant of <see cref="InOut(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float InOut(float start, float end, float value) => Lerp(start, end, InOut(UnLerp(start, end, value)));
+            public static float InOut(float start, float end, float value) {
+                return Lerp(start, end, InOut(UnLerp(start, end, value)));
+            }
 
             /// <summary>A variant of <see cref="InDerivative(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float InDerivative(float start, float end, float value) => InDerivative(UnLerp(start, end, value)) * (end - start);
+            public static float InDerivative(float start, float end, float value) {
+                return InDerivative(UnLerp(start, end, value)) * (end - start);
+            }
+
             /// <summary>A variant of <see cref="InDerivative(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float OutDerivative(float start, float end, float value) => OutDerivative(UnLerp(start, end, value)) * (end - start);
+            public static float OutDerivative(float start, float end, float value) {
+                return OutDerivative(UnLerp(start, end, value)) * (end - start);
+            }
+
             /// <summary>A variant of <see cref="InDerivative(float)"/> with a custom range instead of 0 to 1.</summary>
-            public static float InOutDerivative(float start, float end, float value) => InOutDerivative(UnLerp(start, end, value)) * (end - start);
+            public static float InOutDerivative(float start, float end, float value) {
+                return InOutDerivative(UnLerp(start, end, value)) * (end - start);
+            }
 
             /************************************************************************************************************************/
         }

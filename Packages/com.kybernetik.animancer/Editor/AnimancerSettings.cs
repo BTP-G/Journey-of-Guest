@@ -7,8 +7,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only] Persistent settings used by Animancer.</summary>
     /// <remarks>
     /// This asset automatically creates itself when first accessed.
@@ -22,8 +21,7 @@ namespace Animancer.Editor
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/AnimancerSettings
     /// 
     [AnimancerHelpUrl(typeof(AnimancerSettings))]
-    public class AnimancerSettings : ScriptableObject
-    {
+    public class AnimancerSettings : ScriptableObject {
         /************************************************************************************************************************/
 
         private static AnimancerSettings _Instance;
@@ -32,17 +30,17 @@ namespace Animancer.Editor
         /// Loads an existing <see cref="AnimancerSettings"/> if there is one anywhere in your project.
         /// Otherwise, creates a new one and saves it in the Assets folder.
         /// </summary>
-        public static AnimancerSettings Instance
-        {
-            get
-            {
-                if (_Instance != null)
+        public static AnimancerSettings Instance {
+            get {
+                if (_Instance != null) {
                     return _Instance;
+                }
 
                 _Instance = AnimancerEditorUtilities.FindAssetOfType<AnimancerSettings>();
 
-                if (_Instance != null)
+                if (_Instance != null) {
                     return _Instance;
+                }
 
                 _Instance = CreateInstance<AnimancerSettings>();
                 _Instance.name = "Animancer Settings";
@@ -60,10 +58,10 @@ namespace Animancer.Editor
 
         /// <summary>Finds an existing instance of this asset anywhere in the project.</summary>
         [InitializeOnLoadMethod]
-        private static void FindExistingInstance()
-        {
-            if (_Instance == null)
+        private static void FindExistingInstance() {
+            if (_Instance == null) {
                 _Instance = AnimancerEditorUtilities.FindAssetOfType<AnimancerSettings>();
+            }
         }
 
         /************************************************************************************************************************/
@@ -79,16 +77,15 @@ namespace Animancer.Editor
         private readonly List<Dictionary<string, SerializedProperty>>
             SerializedProperties = new();
 
-        private static SerializedProperty GetSerializedProperty(int index, string propertyPath)
-        {
-            while (index >= Instance.SerializedProperties.Count)
+        private static SerializedProperty GetSerializedProperty(int index, string propertyPath) {
+            while (index >= Instance.SerializedProperties.Count) {
                 Instance.SerializedProperties.Add(null);
+            }
 
             var properties = Instance.SerializedProperties[index];
             properties ??= Instance.SerializedProperties[index] = new();
 
-            if (!properties.TryGetValue(propertyPath, out var property))
-            {
+            if (!properties.TryGetValue(propertyPath, out var property)) {
                 property = SerializedObject.FindProperty(propertyPath);
                 properties.Add(propertyPath, property);
             }
@@ -100,16 +97,17 @@ namespace Animancer.Editor
         public static SerializedProperty GetSerializedProperty(
             int index,
             ref string basePropertyPath,
-            string propertyPath)
-        {
-            if (string.IsNullOrEmpty(basePropertyPath))
+            string propertyPath) {
+            if (string.IsNullOrEmpty(basePropertyPath)) {
                 basePropertyPath =
                     $"{nameof(_Data)}{Serialization.ArrayDataPrefix}{index}{Serialization.ArrayDataSuffix}";
+            }
 
-            if (string.IsNullOrEmpty(propertyPath))
+            if (string.IsNullOrEmpty(propertyPath)) {
                 propertyPath = basePropertyPath;
-            else
+            } else {
                 propertyPath = $"{basePropertyPath}.{propertyPath}";
+            }
 
             return GetSerializedProperty(index, propertyPath);
         }
@@ -121,14 +119,14 @@ namespace Animancer.Editor
 
         /// <summary>Returns a stored item of the specified type or creates a new one if necessary.</summary>
         public static T GetOrCreateData<T>()
-            where T : AnimancerSettingsGroup, new()
-        {
+            where T : AnimancerSettingsGroup, new() {
             ref var data = ref Instance._Data;
             data ??= new();
 
             var index = AnimancerEditorUtilities.IndexOfType(Instance._Data, typeof(T));
-            if (index >= 0)
+            if (index >= 0) {
                 return (T)data[index];
+            }
 
             var newT = new T();
             newT.SetDataIndex(data.Count);
@@ -140,28 +138,28 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Calls <see cref="EditorUtility.SetDirty"/> on the <see cref="Instance"/>.</summary>
-        public static new void SetDirty()
-            => EditorUtility.SetDirty(_Instance);
+        public static new void SetDirty() {
+            EditorUtility.SetDirty(_Instance);
+        }
 
         /************************************************************************************************************************/
 
         /// <summary>
         /// Ensures that there is an instance of each class derived from <see cref="AnimancerSettingsGroup"/>.
         /// </summary>
-        protected virtual void OnEnable()
-        {
+        protected virtual void OnEnable() {
             AnimancerEditorUtilities.InstantiateDerivedTypes(ref _Data);
 
-            for (int i = 0; i < _Data.Count; i++)
+            for (var i = 0; i < _Data.Count; i++) {
                 _Data[i].SetDataIndex(i);
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <summary>A custom Inspector for <see cref="AnimancerSettings"/>.</summary>
         [CustomEditor(typeof(AnimancerSettings), true), CanEditMultipleObjects]
-        public class Editor : UnityEditor.Editor
-        {
+        public class Editor : UnityEditor.Editor {
             /************************************************************************************************************************/
 
             [NonSerialized]
@@ -170,16 +168,14 @@ namespace Animancer.Editor
             /************************************************************************************************************************/
 
             /// <summary>Called when this object is first loaded.</summary>
-            protected virtual void OnEnable()
-            {
+            protected virtual void OnEnable() {
                 _Data = serializedObject.FindProperty(nameof(AnimancerSettings._Data));
             }
 
             /************************************************************************************************************************/
 
             /// <inheritdoc/>
-            public override void OnInspectorGUI()
-            {
+            public override void OnInspectorGUI() {
                 DoInfoGUI();
 
                 DoOptionalWarningsGUI();
@@ -187,8 +183,9 @@ namespace Animancer.Editor
                 serializedObject.Update();
 
                 var count = _Data.arraySize;
-                for (int i = 0; i < count; i++)
+                for (var i = 0; i < count; i++) {
                     DoDataGUI(_Data.GetArrayElementAtIndex(i), i);
+                }
 
                 serializedObject.ApplyModifiedProperties();
             }
@@ -200,14 +197,10 @@ namespace Animancer.Editor
             /// </summary>
             public static bool HideNextInfo { get; set; }
 
-            private void DoInfoGUI()
-            {
-                if (HideNextInfo)
-                {
+            private void DoInfoGUI() {
+                if (HideNextInfo) {
                     HideNextInfo = false;
-                }
-                else
-                {
+                } else {
                     EditorGUILayout.HelpBox(
                         "Feel free to move this asset anywhere in your project." +
                         "\n\nIt should generally not be in the Animancer folder" +
@@ -221,33 +214,28 @@ namespace Animancer.Editor
 
             /************************************************************************************************************************/
 
-            private void DoDataGUI(SerializedProperty property, int index)
-            {
-                if (property.managedReferenceValue is AnimancerSettingsGroup value)
-                {
+            private void DoDataGUI(SerializedProperty property, int index) {
+                if (property.managedReferenceValue is AnimancerSettingsGroup value) {
                     DoHeading(value.DisplayName);
 
                     var first = true;
                     var depth = property.depth;
-                    while (property.NextVisible(first) && property.depth > depth)
-                    {
+                    while (property.NextVisible(first) && property.depth > depth) {
                         first = false;
 
                         EditorGUILayout.PropertyField(property, true);
                     }
-                }
-                else
-                {
+                } else {
                     EditorGUILayout.BeginHorizontal();
 
                     DoHeading("Missing Type");
 
-                    if (GUILayout.Button("X", AnimancerGUI.MiniButtonStyle))
-                    {
+                    if (GUILayout.Button("X", AnimancerGUI.MiniButtonStyle)) {
                         var count = _Data.arraySize;
                         _Data.DeleteArrayElementAtIndex(index);
-                        if (count == _Data.arraySize)
+                        if (count == _Data.arraySize) {
                             _Data.DeleteArrayElementAtIndex(index);
+                        }
 
                         serializedObject.ApplyModifiedProperties();
                         GUIUtility.ExitGUI();
@@ -259,22 +247,22 @@ namespace Animancer.Editor
 
             /************************************************************************************************************************/
 
-            private void DoOptionalWarningsGUI()
-            {
+            private void DoOptionalWarningsGUI() {
                 DoHeading("Optional Warnings");
 
                 EditorGUILayout.BeginHorizontal();
 
-                using (var label = PooledGUIContent.Acquire("Disabled Warnings"))
-                {
+                using (var label = PooledGUIContent.Acquire("Disabled Warnings")) {
                     EditorGUI.BeginChangeCheck();
                     var value = EditorGUILayout.EnumFlagsField(label, Validate.PermanentlyDisabledWarnings);
-                    if (EditorGUI.EndChangeCheck())
+                    if (EditorGUI.EndChangeCheck()) {
                         Validate.PermanentlyDisabledWarnings = (OptionalWarning)value;
+                    }
                 }
 
-                if (GUILayout.Button("Help", EditorStyles.miniButton, AnimancerGUI.DontExpandWidth))
+                if (GUILayout.Button("Help", EditorStyles.miniButton, AnimancerGUI.DontExpandWidth)) {
                     Application.OpenURL(Strings.DocsURLs.OptionalWarning);
+                }
 
                 EditorGUILayout.EndHorizontal();
             }
@@ -284,27 +272,25 @@ namespace Animancer.Editor
             private static GUIStyle _HeadingStyle;
 
             /// <summary>Draws a heading label.</summary>
-            public static void DoHeading(string text)
-                => GUILayout.Label(text, _HeadingStyle ??= new(EditorStyles.largeLabel)
-                {
+            public static void DoHeading(string text) {
+                GUILayout.Label(text, _HeadingStyle ??= new(EditorStyles.largeLabel) {
                     fontSize = 18,
                 });
+            }
 
             /************************************************************************************************************************/
 
             /// <summary>Creates the Project Settings page.</summary>
             [SettingsProvider]
-            public static SettingsProvider CreateSettingsProvider()
-            {
+            public static SettingsProvider CreateSettingsProvider() {
                 UnityEditor.Editor editor = null;
 
-                return new("Project/" + Strings.ProductName, SettingsScope.Project)
-                {
+                return new("Project/" + Strings.ProductName, SettingsScope.Project) {
                     keywords = new HashSet<string>() { Strings.ProductName },
-                    guiHandler = searchContext =>
-                    {
-                        if (editor == null)
+                    guiHandler = searchContext => {
+                        if (editor == null) {
                             editor = CreateEditor(Instance);
+                        }
 
                         HideNextInfo = true;
 

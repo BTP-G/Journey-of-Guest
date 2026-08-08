@@ -1,24 +1,19 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 
-namespace ANU.IngameDebug.Console.Dashboard
-{
-    internal class ToggleArgumentPresenter : ArgumentPresenterBase
-    {
+namespace ANU.IngameDebug.Console.Dashboard {
+    internal class ToggleArgumentPresenter : ArgumentPresenterBase {
         [SerializeField] private Toggle _toggle;
 
         public override string Value => DebugConsole.Converters.ConvertToString(_toggle.isOn);
 
         protected override void Initialize() { }
 
-        protected override void PresentInternal()
-        {
+        protected override void PresentInternal() {
             var initValue = false;
-            try
-            {
+            try {
                 initValue = (bool)Parameter.DefaultValue;
-            }
-            catch { }
+            } catch { }
             _toggle.SetIsOnWithoutNotify(initValue);
         }
     }

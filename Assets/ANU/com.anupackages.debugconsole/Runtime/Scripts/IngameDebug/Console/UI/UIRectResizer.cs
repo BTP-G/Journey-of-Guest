@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace ANU.IngameDebug.Console
-{
+namespace ANU.IngameDebug.Console {
     [DebugCommandPrefix("console")]
-    public class UIRectResizer : MonoBehaviour, IDragHandler, IPointerDownHandler, IPointerUpHandler
-    {
+    public class UIRectResizer : MonoBehaviour, IDragHandler, IPointerDownHandler, IPointerUpHandler {
         [SerializeField] private RectTransform _rect;
 
         private const string PrefsSavePrefix = nameof(DebugConsole) + nameof(UIRectResizer);
@@ -25,31 +20,29 @@ namespace ANU.IngameDebug.Console
 
         private Vector3[] _corners = new Vector3[4];
 
-        private float SizeXVPort
-        {
+        private float SizeXVPort {
             get => PlayerPrefs.GetFloat(PrefsSaveUIScale_SizeXVPort, DefaultSize.x);
             set => PlayerPrefs.SetFloat(PrefsSaveUIScale_SizeXVPort, value);
         }
-        private float SizeYVPort
-        {
+        private float SizeYVPort {
             get => PlayerPrefs.GetFloat(PrefsSaveUIScale_SizeYVPort, DefaultSize.y);
             set => PlayerPrefs.SetFloat(PrefsSaveUIScale_SizeYVPort, value);
         }
 
         private Vector2 Delta { get; set; }
 
-        private void Awake() => RefreshConsoleSize();
+        private void Awake() {
+            RefreshConsoleSize();
+        }
 
-        void IPointerDownHandler.OnPointerDown(PointerEventData eventData)
-        {
+        void IPointerDownHandler.OnPointerDown(PointerEventData eventData) {
             RectTransformUtility.ScreenPointToLocalPointInRectangle(_rect, eventData.position, eventData.pressEventCamera, out var localPosition);
             Delta = _rect.sizeDelta - localPosition;
         }
 
         void IPointerUpHandler.OnPointerUp(PointerEventData eventData) { }
 
-        void IDragHandler.OnDrag(PointerEventData eventData)
-        {
+        void IDragHandler.OnDrag(PointerEventData eventData) {
             RectTransformUtility.ScreenPointToLocalPointInRectangle(_rect, eventData.position, eventData.pressEventCamera, out var localPosition);
 
             var size = localPosition;
@@ -59,8 +52,7 @@ namespace ANU.IngameDebug.Console
             InternalConsoleSize(size);
         }
 
-        private void InternalConsoleSize(Vector2 value)
-        {
+        private void InternalConsoleSize(Vector2 value) {
             var maxScreen = Camera.main.ViewportToScreenPoint(new Vector3(1, 1, Camera.main.nearClipPlane));
             var c = _rect.GetComponentInParent<Canvas>().rootCanvas;
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
@@ -83,10 +75,12 @@ namespace ANU.IngameDebug.Console
         }
 
         [DebugCommand(Name = "refresh-size", DisplayOptions = CommandDisplayOptions.All & ~CommandDisplayOptions.Dashboard)]
-        public void RefreshConsoleSize() => ConsoleSize(new Vector2Int(
+        public void RefreshConsoleSize() {
+            ConsoleSize(new Vector2Int(
             Mathf.RoundToInt(SizeXVPort * 100f),
             Mathf.RoundToInt(SizeYVPort * 100f)
         ));
+        }
 
         [DebugCommand(Name = "size", Description = "Set console rect size relative to viewport. Values is Vector2Int in range [0, 100]")]
         private void ConsoleSize(
@@ -94,8 +88,7 @@ namespace ANU.IngameDebug.Console
             [OptDesc("in range [10,100]")]
             [OptVal("[50, 50]", "[70, 70]", "[100, 100]")]
             Vector2Int value
-        )
-        {
+        ) {
             Canvas.ForceUpdateCanvases();
 
             var x = Mathf.Clamp(value.x, 10, 100) / 100f;

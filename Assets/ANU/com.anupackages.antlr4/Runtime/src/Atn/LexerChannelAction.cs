@@ -1,14 +1,10 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-using Antlr4.Runtime;
-using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Misc;
-using Antlr4.Runtime.Sharpen;
 
-namespace Antlr4.Runtime.Atn
-{
+namespace Antlr4.Runtime.Atn {
     /// <summary>
     /// Implements the
     /// <c>channel</c>
@@ -18,8 +14,7 @@ namespace Antlr4.Runtime.Atn
     /// </summary>
     /// <author>Sam Harwell</author>
     /// <since>4.2</since>
-    public sealed class LexerChannelAction : ILexerAction
-    {
+    public sealed class LexerChannelAction : ILexerAction {
         private readonly int channel;
 
         /// <summary>
@@ -32,8 +27,7 @@ namespace Antlr4.Runtime.Atn
         /// <see cref="Lexer.Channel"/>
         /// .
         /// </param>
-        public LexerChannelAction(int channel)
-        {
+        public LexerChannelAction(int channel) {
             this.channel = channel;
         }
 
@@ -47,10 +41,8 @@ namespace Antlr4.Runtime.Atn
         /// <see cref="Antlr4.Runtime.IToken"/>
         /// created by the lexer.
         /// </returns>
-        public int Channel
-        {
-            get
-            {
+        public int Channel {
+            get {
                 return channel;
             }
         }
@@ -61,10 +53,8 @@ namespace Antlr4.Runtime.Atn
         /// <see cref="LexerActionType.Channel"/>
         /// .
         /// </returns>
-        public LexerActionType ActionType
-        {
-            get
-            {
+        public LexerActionType ActionType {
+            get {
                 return LexerActionType.Channel;
             }
         }
@@ -75,10 +65,8 @@ namespace Antlr4.Runtime.Atn
         /// <see langword="false"/>
         /// .
         /// </returns>
-        public bool IsPositionDependent
-        {
-            get
-            {
+        public bool IsPositionDependent {
+            get {
                 return false;
             }
         }
@@ -92,37 +80,29 @@ namespace Antlr4.Runtime.Atn
         /// <see cref="Channel()"/>
         /// .</p>
         /// </summary>
-        public void Execute(Lexer lexer)
-        {
+        public void Execute(Lexer lexer) {
             lexer.Channel = channel;
         }
 
-        public override int GetHashCode()
-        {
-            int hash = MurmurHash.Initialize();
-            hash = MurmurHash.Update(hash, (int)(ActionType));
+        public override int GetHashCode() {
+            var hash = MurmurHash.Initialize();
+            hash = MurmurHash.Update(hash, (int)ActionType);
             hash = MurmurHash.Update(hash, channel);
             return MurmurHash.Finish(hash, 2);
         }
 
-        public override bool Equals(object obj)
-        {
-            if (obj == this)
-            {
+        public override bool Equals(object obj) {
+            if (obj == this) {
                 return true;
-            }
-            else
-            {
-                if (!(obj is Antlr4.Runtime.Atn.LexerChannelAction))
-                {
+            } else {
+                if (obj is not LexerChannelAction) {
                     return false;
                 }
             }
             return channel == ((Antlr4.Runtime.Atn.LexerChannelAction)obj).channel;
         }
 
-        public override string ToString()
-        {
+        public override string ToString() {
             return string.Format("channel({0})", channel);
         }
     }

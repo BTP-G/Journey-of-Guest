@@ -5,15 +5,13 @@
 using System;
 using UnityEngine;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <inheritdoc/>
     /// https://kybernetik.com.au/animancer/api/Animancer/MixerTransition_2
     [Serializable]
     public abstract class MixerTransition<TMixer, TParameter> : ManualMixerTransition<TMixer>,
         ICopyable<MixerTransition<TMixer, TParameter>>
-        where TMixer : MixerState<TParameter>
-    {
+        where TMixer : MixerState<TParameter> {
         /************************************************************************************************************************/
 
         [SerializeField]
@@ -45,8 +43,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void InitializeState()
-        {
+        public override void InitializeState() {
             base.InitializeState();
 
             State.SetThresholds(_Thresholds);
@@ -56,12 +53,12 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public sealed override void CopyFrom(ManualMixerTransition<TMixer> copyFrom, CloneContext context)
-            => this.CopyFromBase(copyFrom, context);
+        public sealed override void CopyFrom(ManualMixerTransition<TMixer> copyFrom, CloneContext context) {
+            this.CopyFromBase(copyFrom, context);
+        }
 
         /// <inheritdoc/>
-        public virtual void CopyFrom(MixerTransition<TMixer, TParameter> copyFrom, CloneContext context)
-        {
+        public virtual void CopyFrom(MixerTransition<TMixer, TParameter> copyFrom, CloneContext context) {
             base.CopyFrom(copyFrom, context);
 
             _DefaultParameter = copyFrom._DefaultParameter;

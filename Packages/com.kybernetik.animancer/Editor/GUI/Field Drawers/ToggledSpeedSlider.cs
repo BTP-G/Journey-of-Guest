@@ -6,12 +6,10 @@ using UnityEditor;
 using UnityEngine;
 using static Animancer.Editor.AnimancerGUI;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only] Utility for a toggle which can show and hide a speed slider.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/ToggledSpeedSlider
-    public class ToggledSpeedSlider
-    {
+    public class ToggledSpeedSlider {
         /************************************************************************************************************************/
 
         /// <summary>The content displayed on the toggle.</summary>
@@ -26,13 +24,12 @@ namespace Animancer.Editor
         private float _Speed = float.NaN;
 
         /// <summary>The current speed value.</summary>
-        public float Speed
-        {
+        public float Speed {
             get => _Speed;
-            set
-            {
-                if (_Speed == value)
+            set {
+                if (_Speed == value) {
                     return;
+                }
 
                 _Speed = value;
                 GUIContent.text = _Speed.ToString("0.0x");
@@ -46,16 +43,14 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Creates a new <see cref="ToggledSpeedSlider"/>.</summary>
-        public ToggledSpeedSlider(string prefKey)
-        {
+        public ToggledSpeedSlider(string prefKey) {
             IsOn = new(prefKey);
         }
 
         /************************************************************************************************************************/
 
         /// <summary>Draws a toggle to show or hide the speed slider.</summary>
-        public virtual bool DoToggleGUI(Rect area, GUIStyle style)
-        {
+        public virtual bool DoToggleGUI(Rect area, GUIStyle style) {
             HandleResetClick(area);
 
             style ??= GUI.skin.toggle;
@@ -70,23 +65,25 @@ namespace Animancer.Editor
         private static float _SpeedLabelWidth;
 
         /// <summary>Draws a slider to control the <see cref="Speed"/>.</summary>
-        public float DoSpeedSlider(ref Rect area, GUIStyle backgroundStyle = null)
-        {
-            if (!IsOn)
+        public float DoSpeedSlider(ref Rect area, GUIStyle backgroundStyle = null) {
+            if (!IsOn) {
                 return Speed;
+            }
 
             var sliderArea = StealLineFromTop(ref area);
             sliderArea = sliderArea.Expand(-StandardSpacing, 0);
 
-            if (backgroundStyle != null)
+            if (backgroundStyle != null) {
                 GUI.Label(sliderArea, GUIContent.none, backgroundStyle);
+            }
 
             HandleResetClick(sliderArea);
 
             var label = "Speed";
 
-            if (_SpeedLabelWidth == 0)
+            if (_SpeedLabelWidth == 0) {
                 _SpeedLabelWidth = CalculateLabelWidth(label);
+            }
 
             var labelWidth = EditorGUIUtility.labelWidth;
             EditorGUIUtility.labelWidth = _SpeedLabelWidth;
@@ -95,8 +92,9 @@ namespace Animancer.Editor
 
             var speed = EditorGUI.Slider(sliderArea, label, Speed, 0.1f, 2);
 
-            if (EditorGUI.EndChangeCheck())
+            if (EditorGUI.EndChangeCheck()) {
                 Speed = speed;
+            }
 
             EditorGUIUtility.labelWidth = labelWidth;
 
@@ -106,20 +104,20 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Handles Right or Middle Clicking in the `area` to reset the <see cref="Speed"/>.</summary>
-        public void HandleResetClick(Rect area)
-        {
-            if (!TryUseClickEvent(area, 1) && !TryUseClickEvent(area, 2))
+        public void HandleResetClick(Rect area) {
+            if (!TryUseClickEvent(area, 1) && !TryUseClickEvent(area, 2)) {
                 return;
+            }
 
-            if (Speed != 1)
+            if (Speed != 1) {
                 Speed = 1;
-            else
+            } else {
                 Speed = 0.5f;
+            }
         }
 
         /************************************************************************************************************************/
     }
-
 }
 
 #endif

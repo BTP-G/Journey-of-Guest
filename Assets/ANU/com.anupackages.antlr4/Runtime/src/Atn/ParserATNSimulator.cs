@@ -1,17 +1,16 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-using System;
-using System.Collections.Generic;
 using Antlr4.Runtime.Dfa;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
+using System;
+using System.Collections.Generic;
 
-namespace Antlr4.Runtime.Atn
-{
+namespace Antlr4.Runtime.Atn {
 
-	/**
+    /**
 	 * The embodiment of the adaptive LL(*), ALL(*), parsing strategy.
 	 *
 	 * <p>
@@ -238,22 +237,20 @@ namespace Antlr4.Runtime.Atn
 	 * both SLL and LL parsing. Erroneous input will therefore require 2 passes over
 	 * the input.</p>
 	 */
-	public class ParserATNSimulator : ATNSimulator
-	{
-		public static readonly bool debug = false;
-		public static bool trace_atn_sim = false;
-		public static readonly bool dfa_debug = false;
-		public static readonly bool retry_debug = false;
+    public class ParserATNSimulator : ATNSimulator {
+        public static readonly bool debug = false;
+        public static bool trace_atn_sim = false;
+        public static readonly bool dfa_debug = false;
+        public static readonly bool retry_debug = false;
 
-		protected readonly Parser parser;
+        protected readonly Parser parser;
 
-		public readonly DFA[] decisionToDFA;
+        public readonly DFA[] decisionToDFA;
 
-		/** SLL, LL, or LL + exact ambig detection? */
+        /** SLL, LL, or LL + exact ambig detection? */
+        private PredictionMode mode = PredictionMode.LL;
 
-		private PredictionMode mode = PredictionMode.LL;
-
-		/** Each prediction operation uses a cache for merge of prediction contexts.
+        /** Each prediction operation uses a cache for merge of prediction contexts.
 		 *  Don't keep around as it wastes huge amounts of memory. DoubleKeyMap
 		 *  isn't synchronized but we're ok since two threads shouldn't reuse same
 		 *  parser/atnsim object because it can only handle one input at a time.
@@ -261,131 +258,116 @@ namespace Antlr4.Runtime.Atn
 		 *  the merge if we ever see a and b again.  Note that (b,a)→c should
 		 *  also be examined during cache lookup.
 		 */
-		protected MergeCache mergeCache;
+        protected MergeCache mergeCache;
 
-		// LAME globals to avoid parameters!!!!! I need these down deep in predTransition
-		protected ITokenStream input;
-		protected int startIndex;
-		protected ParserRuleContext context;
-		protected DFA thisDfa;
+        // LAME globals to avoid parameters!!!!! I need these down deep in predTransition
+        protected ITokenStream input;
+        protected int startIndex;
+        protected ParserRuleContext context;
+        protected DFA thisDfa;
 
-		/** Testing only! */
-		public ParserATNSimulator(ATN atn, DFA[] decisionToDFA,
-								  PredictionContextCache sharedContextCache)
+        /** Testing only! */
+        public ParserATNSimulator(ATN atn, DFA[] decisionToDFA,
+                                  PredictionContextCache sharedContextCache)
 
-		: this(null, atn, decisionToDFA, sharedContextCache)
-		{ }
+        : this(null, atn, decisionToDFA, sharedContextCache) { }
 
-		public ParserATNSimulator(Parser parser, ATN atn,
-								  DFA[] decisionToDFA,
-								  PredictionContextCache sharedContextCache)
-			: base(atn, sharedContextCache)
-		{
-			this.parser = parser;
-			this.decisionToDFA = decisionToDFA;
-			//		DOTGenerator dot = new DOTGenerator(null);
-			//		Console.WriteLine(dot.getDOT(atn.rules.get(0), parser.getRuleNames()));
-			//		Console.WriteLine(dot.getDOT(atn.rules.get(1), parser.getRuleNames()));
-		}
+        public ParserATNSimulator(Parser parser, ATN atn,
+                                  DFA[] decisionToDFA,
+                                  PredictionContextCache sharedContextCache)
+            : base(atn, sharedContextCache) {
+            this.parser = parser;
+            this.decisionToDFA = decisionToDFA;
+            //		DOTGenerator dot = new DOTGenerator(null);
+            //		Console.WriteLine(dot.getDOT(atn.rules.get(0), parser.getRuleNames()));
+            //		Console.WriteLine(dot.getDOT(atn.rules.get(1), parser.getRuleNames()));
+        }
 
-		public override void Reset()
-		{
-		}
+        public override void Reset() {
+        }
 
+        public override void ClearDFA() {
+            for (var d = 0; d < decisionToDFA.Length; d++) {
+                decisionToDFA[d] = new DFA(atn.GetDecisionState(d), d);
+            }
+        }
 
-		public override void ClearDFA()
-		{
-			for (int d = 0; d < decisionToDFA.Length; d++)
-			{
-				decisionToDFA[d] = new DFA(atn.GetDecisionState(d), d);
-			}
-		}
+        public virtual int AdaptivePredict(ITokenStream input, int decision,
+                                   ParserRuleContext outerContext) {
+            if (debug || trace_atn_sim) {
+                Console.WriteLine("adaptivePredict decision " + decision +
+                                       " exec LA(1)==" + GetLookaheadName(input) +
+                                  " line " + input.LT(1).Line + ":" + input.LT(1).Column);
+            }
 
-		public virtual int AdaptivePredict(ITokenStream input, int decision,
-								   ParserRuleContext outerContext)
-		{
-			if (debug || trace_atn_sim)
-			{
-				Console.WriteLine("adaptivePredict decision " + decision +
-									   " exec LA(1)==" + GetLookaheadName(input) +
-								  " line " + input.LT(1).Line + ":" + input.LT(1).Column);
-			}
+            this.input = input;
+            startIndex = input.Index;
+            context = outerContext;
+            var dfa = decisionToDFA[decision];
+            thisDfa = dfa;
 
-			this.input = input;
-			startIndex = input.Index;
-			context = outerContext;
-			DFA dfa = decisionToDFA[decision];
-			thisDfa = dfa;
+            var m = input.Mark();
+            var index = startIndex;
 
-			int m = input.Mark();
-			int index = startIndex;
+            // Now we are certain to have a specific decision's DFA
+            // But, do we still need an initial state?
+            try {
+                DFAState s0;
+                if (dfa.IsPrecedenceDfa) {
+                    // the start state for a precedence DFA depends on the current
+                    // parser precedence, and is provided by a DFA method.
+                    s0 = dfa.GetPrecedenceStartState(parser.Precedence);
+                } else {
+                    // the start state for a "regular" DFA is just s0
+                    s0 = dfa.s0;
+                }
 
-			// Now we are certain to have a specific decision's DFA
-			// But, do we still need an initial state?
-			try
-			{
-				DFAState s0;
-				if (dfa.IsPrecedenceDfa)
-				{
-					// the start state for a precedence DFA depends on the current
-					// parser precedence, and is provided by a DFA method.
-					s0 = dfa.GetPrecedenceStartState(parser.Precedence);
-				}
-				else {
-					// the start state for a "regular" DFA is just s0
-					s0 = dfa.s0;
-				}
+                if (s0 == null) {
+                    outerContext ??= ParserRuleContext.EmptyContext;
+                    if (debug) {
+                        Console.WriteLine("predictATN decision " + dfa.decision +
+                                           " exec LA(1)==" + GetLookaheadName(input) +
+                                           ", outerContext=" + outerContext.ToString(parser));
+                    }
 
-				if (s0 == null)
-				{
-					if (outerContext == null) outerContext = ParserRuleContext.EmptyContext;
-					if (debug)
-					{
-						Console.WriteLine("predictATN decision " + dfa.decision +
-										   " exec LA(1)==" + GetLookaheadName(input) +
-										   ", outerContext=" + outerContext.ToString(parser));
-					}
+                    var fullCtx = false;
+                    var s0_closure =
+                        ComputeStartState(dfa.atnStartState,
+                                          ParserRuleContext.EmptyContext,
+                                          fullCtx);
 
-					bool fullCtx = false;
-					ATNConfigSet s0_closure =
-						ComputeStartState(dfa.atnStartState,
-										  ParserRuleContext.EmptyContext,
-										  fullCtx);
-
-					if (dfa.IsPrecedenceDfa)
-					{
-						/* If this is a precedence DFA, we use applyPrecedenceFilter
+                    if (dfa.IsPrecedenceDfa) {
+                        /* If this is a precedence DFA, we use applyPrecedenceFilter
 						 * to convert the computed start state to a precedence start
 						 * state. We then use DFA.setPrecedenceStartState to set the
 						 * appropriate start state for the precedence level rather
 						 * than simply setting DFA.s0.
 						 */
-						dfa.s0.configSet = s0_closure; // not used for prediction but useful to know start configs anyway
-						s0_closure = ApplyPrecedenceFilter(s0_closure);
-						s0 = AddDFAState(dfa, new DFAState(s0_closure));
-						dfa.SetPrecedenceStartState(parser.Precedence, s0);
-					}
-					else {
-						s0 = AddDFAState(dfa, new DFAState(s0_closure));
-						dfa.s0 = s0;
-					}
-				}
+                        dfa.s0.configSet = s0_closure; // not used for prediction but useful to know start configs anyway
+                        s0_closure = ApplyPrecedenceFilter(s0_closure);
+                        s0 = AddDFAState(dfa, new DFAState(s0_closure));
+                        dfa.SetPrecedenceStartState(parser.Precedence, s0);
+                    } else {
+                        s0 = AddDFAState(dfa, new DFAState(s0_closure));
+                        dfa.s0 = s0;
+                    }
+                }
 
-				int alt = ExecATN(dfa, s0, input, index, outerContext);
-				if (debug)
-					Console.WriteLine("DFA after predictATN: " + dfa.ToString(parser.Vocabulary));
-				return alt;
-			}
-			finally
-			{
-				mergeCache = null; // wack cache after each prediction
-				thisDfa = null;
-				input.Seek(index);
-				input.Release(m);
-			}
-		}
+                var alt = ExecATN(dfa, s0, input, index, outerContext);
+                if (debug) {
+                    Console.WriteLine("DFA after predictATN: " + dfa.ToString(parser.Vocabulary));
+                }
 
-		/** Performs ATN simulation to compute a predicted alternative based
+                return alt;
+            } finally {
+                mergeCache = null; // wack cache after each prediction
+                thisDfa = null;
+                input.Seek(index);
+                input.Release(m);
+            }
+        }
+
+        /** Performs ATN simulation to compute a predicted alternative based
 		 *  upon the remaining input, but also updates the DFA cache to avoid
 		 *  having to traverse the ATN again for the same input sequence.
 
@@ -415,129 +397,123 @@ namespace Antlr4.Runtime.Atn
 			conflict
 			conflict + preds
 		 */
-		protected int ExecATN(DFA dfa, DFAState s0,
-						   ITokenStream input, int startIndex,
-						   ParserRuleContext outerContext)
-		{
-			if (debug || trace_atn_sim)
-			{
-				Console.WriteLine("execATN decision " + dfa.decision +
-				                  ", DFA state " + s0 +
-								  ", LA(1)==" + GetLookaheadName(input) +
-								  " line " + input.LT(1).Line + ":" + input.LT(1).Column);
-			}
+        protected int ExecATN(DFA dfa, DFAState s0,
+                           ITokenStream input, int startIndex,
+                           ParserRuleContext outerContext) {
+            if (debug || trace_atn_sim) {
+                Console.WriteLine("execATN decision " + dfa.decision +
+                                  ", DFA state " + s0 +
+                                  ", LA(1)==" + GetLookaheadName(input) +
+                                  " line " + input.LT(1).Line + ":" + input.LT(1).Column);
+            }
 
-			DFAState previousD = s0;
+            var previousD = s0;
 
-			if (debug) Console.WriteLine("s0 = " + s0);
+            if (debug) {
+                Console.WriteLine("s0 = " + s0);
+            }
 
-			int t = input.LA(1);
+            var t = input.LA(1);
 
-			while (true)
-			{ // while more work
-				DFAState D = GetExistingTargetState(previousD, t);
-				if (D == null)
-				{
-					D = ComputeTargetState(dfa, previousD, t);
-				}
+            while (true) { // while more work
+                var D = GetExistingTargetState(previousD, t);
+                D ??= ComputeTargetState(dfa, previousD, t);
 
-				if (D == ERROR)
-				{
-					// if any configs in previous dipped into outer context, that
-					// means that input up to t actually finished entry rule
-					// at least for SLL decision. Full LL doesn't dip into outer
-					// so don't need special case.
-					// We will get an error no matter what so delay until after
-					// decision; better error message. Also, no reachable target
-					// ATN states in SLL implies LL will also get nowhere.
-					// If conflict in states that dip out, choose min since we
-					// will get error no matter what.
-					NoViableAltException e = NoViableAlt(input, outerContext, previousD.configSet, startIndex);
-					input.Seek(startIndex);
-					int alt = GetSynValidOrSemInvalidAltThatFinishedDecisionEntryRule(previousD.configSet, outerContext);
-					if (alt != ATN.INVALID_ALT_NUMBER)
-					{
-						return alt;
-					}
-					throw e;
-				}
+                if (D == ERROR) {
+                    // if any configs in previous dipped into outer context, that
+                    // means that input up to t actually finished entry rule
+                    // at least for SLL decision. Full LL doesn't dip into outer
+                    // so don't need special case.
+                    // We will get an error no matter what so delay until after
+                    // decision; better error message. Also, no reachable target
+                    // ATN states in SLL implies LL will also get nowhere.
+                    // If conflict in states that dip out, choose min since we
+                    // will get error no matter what.
+                    var e = NoViableAlt(input, outerContext, previousD.configSet, startIndex);
+                    input.Seek(startIndex);
+                    var alt = GetSynValidOrSemInvalidAltThatFinishedDecisionEntryRule(previousD.configSet, outerContext);
+                    if (alt != ATN.INVALID_ALT_NUMBER) {
+                        return alt;
+                    }
+                    throw e;
+                }
 
-				if (D.requiresFullContext && mode != PredictionMode.SLL)
-				{
-					// IF PREDS, MIGHT RESOLVE TO SINGLE ALT => SLL (or syntax error)
-					BitSet conflictingAlts = D.configSet.conflictingAlts;
-					if (D.predicates != null)
-					{
-						if (debug) Console.WriteLine("DFA state has preds in DFA sim LL failover");
-						int conflictIndex = input.Index;
-						if (conflictIndex != startIndex)
-						{
-							input.Seek(startIndex);
-						}
+                if (D.requiresFullContext && mode != PredictionMode.SLL) {
+                    // IF PREDS, MIGHT RESOLVE TO SINGLE ALT => SLL (or syntax error)
+                    var conflictingAlts = D.configSet.conflictingAlts;
+                    if (D.predicates != null) {
+                        if (debug) {
+                            Console.WriteLine("DFA state has preds in DFA sim LL failover");
+                        }
 
-						conflictingAlts = EvalSemanticContext(D.predicates, outerContext, true);
-						if (conflictingAlts.Cardinality() == 1)
-						{
-							if (debug) Console.WriteLine("Full LL avoided");
-							return conflictingAlts.NextSetBit(0);
-						}
+                        var conflictIndex = input.Index;
+                        if (conflictIndex != startIndex) {
+                            input.Seek(startIndex);
+                        }
 
-						if (conflictIndex != startIndex)
-						{
-							// restore the index so reporting the fallback to full
-							// context occurs with the index at the correct spot
-							input.Seek(conflictIndex);
-						}
-					}
+                        conflictingAlts = EvalSemanticContext(D.predicates, outerContext, true);
+                        if (conflictingAlts.Cardinality() == 1) {
+                            if (debug) {
+                                Console.WriteLine("Full LL avoided");
+                            }
 
-					if (dfa_debug) Console.WriteLine("ctx sensitive state " + outerContext + " in " + D);
-					bool fullCtx = true;
-					ATNConfigSet s0_closure =
-						ComputeStartState(dfa.atnStartState, outerContext, fullCtx);
-					ReportAttemptingFullContext(dfa, conflictingAlts, D.configSet, startIndex, input.Index);
-					int alt = ExecATNWithFullContext(dfa, D, s0_closure,
-													 input, startIndex,
-													 outerContext);
-					return alt;
-				}
+                            return conflictingAlts.NextSetBit(0);
+                        }
 
-				if (D.isAcceptState)
-				{
-					if (D.predicates == null)
-					{
-						return D.prediction;
-					}
+                        if (conflictIndex != startIndex) {
+                            // restore the index so reporting the fallback to full
+                            // context occurs with the index at the correct spot
+                            input.Seek(conflictIndex);
+                        }
+                    }
 
-					int stopIndex = input.Index;
-					input.Seek(startIndex);
-					BitSet alts = EvalSemanticContext(D.predicates, outerContext, true);
-					switch (alts.Cardinality())
-					{
-						case 0:
-							throw NoViableAlt(input, outerContext, D.configSet, startIndex);
+                    if (dfa_debug) {
+                        Console.WriteLine("ctx sensitive state " + outerContext + " in " + D);
+                    }
 
-						case 1:
-							return alts.NextSetBit(0);
+                    var fullCtx = true;
+                    var s0_closure =
+                        ComputeStartState(dfa.atnStartState, outerContext, fullCtx);
+                    ReportAttemptingFullContext(dfa, conflictingAlts, D.configSet, startIndex, input.Index);
+                    var alt = ExecATNWithFullContext(dfa, D, s0_closure,
+                                                     input, startIndex,
+                                                     outerContext);
+                    return alt;
+                }
 
-						default:
-							// report ambiguity after predicate evaluation to make sure the correct
-							// set of ambig alts is reported.
-							ReportAmbiguity(dfa, D, startIndex, stopIndex, false, alts, D.configSet);
-							return alts.NextSetBit(0);
-					}
-				}
+                if (D.isAcceptState) {
+                    if (D.predicates == null) {
+                        return D.prediction;
+                    }
 
-				previousD = D;
+                    var stopIndex = input.Index;
+                    input.Seek(startIndex);
+                    var alts = EvalSemanticContext(D.predicates, outerContext, true);
+                    switch (alts.Cardinality()) {
+                        case 0:
+                            throw NoViableAlt(input, outerContext, D.configSet, startIndex);
 
-				if (t != IntStreamConstants.EOF)
-				{
-					input.Consume();
-					t = input.LA(1);
-				}
-			}
-		}
+                        case 1:
+                            return alts.NextSetBit(0);
 
-		/**
+                        default:
+                            // report ambiguity after predicate evaluation to make sure the correct
+                            // set of ambig alts is reported.
+                            ReportAmbiguity(dfa, D, startIndex, stopIndex, false, alts, D.configSet);
+                            return alts.NextSetBit(0);
+                    }
+                }
+
+                previousD = D;
+
+                if (t != IntStreamConstants.EOF) {
+                    input.Consume();
+                    t = input.LA(1);
+                }
+            }
+        }
+
+        /**
 		 * Get an existing target state for an edge in the DFA. If the target state
 		 * for the edge has not yet been computed or is otherwise not available,
 		 * this method returns {@code null}.
@@ -548,18 +524,16 @@ namespace Antlr4.Runtime.Atn
 		 * {@code t}, or {@code null} if the target state for this edge is not
 		 * already cached
 		 */
-		protected virtual DFAState GetExistingTargetState(DFAState previousD, int t)
-		{
-			DFAState[] edges = previousD.edges;
-			if (edges == null || t + 1 < 0 || t + 1 >= edges.Length)
-			{
-				return null;
-			}
+        protected virtual DFAState GetExistingTargetState(DFAState previousD, int t) {
+            var edges = previousD.edges;
+            if (edges == null || t + 1 < 0 || t + 1 >= edges.Length) {
+                return null;
+            }
 
-			return edges[t + 1];
-		}
+            return edges[t + 1];
+        }
 
-		/**
+        /**
 		 * Compute a target state for an edge in the DFA, and attempt to add the
 		 * computed state and corresponding edge to the DFA.
 		 *
@@ -571,190 +545,166 @@ namespace Antlr4.Runtime.Atn
 		 * {@code t}. If {@code t} does not lead to a valid DFA state, this method
 		 * returns {@link #ERROR}.
 		 */
-		protected virtual DFAState ComputeTargetState(DFA dfa, DFAState previousD, int t)
-		{
-			ATNConfigSet reach = ComputeReachSet(previousD.configSet, t, false);
-			if (reach == null)
-			{
-				AddDFAEdge(dfa, previousD, t, ERROR);
-				return ERROR;
-			}
+        protected virtual DFAState ComputeTargetState(DFA dfa, DFAState previousD, int t) {
+            var reach = ComputeReachSet(previousD.configSet, t, false);
+            if (reach == null) {
+                AddDFAEdge(dfa, previousD, t, ERROR);
+                return ERROR;
+            }
 
-			// create new target state; we'll add to DFA after it's complete
-			DFAState D = new DFAState(reach);
+            // create new target state; we'll add to DFA after it's complete
+            var D = new DFAState(reach);
 
-			int predictedAlt = GetUniqueAlt(reach);
+            var predictedAlt = GetUniqueAlt(reach);
 
-			if (debug)
-			{
-				ICollection<BitSet> altSubSets = PredictionMode.GetConflictingAltSubsets(reach.configs);
-				Console.WriteLine("SLL altSubSets=" + StaticUtils.ToString(altSubSets) +
-								   ", configs=" + reach +
-								   ", predict=" + predictedAlt + ", allSubsetsConflict=" +
-									   PredictionMode.AllSubsetsConflict(altSubSets) + ", conflictingAlts=" +
-								   GetConflictingAlts(reach));
-			}
+            if (debug) {
+                var altSubSets = PredictionMode.GetConflictingAltSubsets(reach.configs);
+                Console.WriteLine("SLL altSubSets=" + StaticUtils.ToString(altSubSets) +
+                                   ", configs=" + reach +
+                                   ", predict=" + predictedAlt + ", allSubsetsConflict=" +
+                                       PredictionMode.AllSubsetsConflict(altSubSets) + ", conflictingAlts=" +
+                                   GetConflictingAlts(reach));
+            }
 
-			if (predictedAlt != ATN.INVALID_ALT_NUMBER)
-			{
-				// NO CONFLICT, UNIQUELY PREDICTED ALT
-				D.isAcceptState = true;
-				D.configSet.uniqueAlt = predictedAlt;
-				D.prediction = predictedAlt;
-			}
-			else if (PredictionMode.HasSLLConflictTerminatingPrediction(mode, reach))
-			{
-				// MORE THAN ONE VIABLE ALTERNATIVE
-				D.configSet.conflictingAlts = GetConflictingAlts(reach);
-				D.requiresFullContext = true;
-				// in SLL-only mode, we will stop at this state and return the minimum alt
-				D.isAcceptState = true;
-				D.prediction = D.configSet.conflictingAlts.NextSetBit(0);
-			}
+            if (predictedAlt != ATN.INVALID_ALT_NUMBER) {
+                // NO CONFLICT, UNIQUELY PREDICTED ALT
+                D.isAcceptState = true;
+                D.configSet.uniqueAlt = predictedAlt;
+                D.prediction = predictedAlt;
+            } else if (PredictionMode.HasSLLConflictTerminatingPrediction(mode, reach)) {
+                // MORE THAN ONE VIABLE ALTERNATIVE
+                D.configSet.conflictingAlts = GetConflictingAlts(reach);
+                D.requiresFullContext = true;
+                // in SLL-only mode, we will stop at this state and return the minimum alt
+                D.isAcceptState = true;
+                D.prediction = D.configSet.conflictingAlts.NextSetBit(0);
+            }
 
-			if (D.isAcceptState && D.configSet.hasSemanticContext)
-			{
-				PredicateDFAState(D, atn.GetDecisionState(dfa.decision));
-				if (D.predicates != null)
-				{
-					D.prediction = ATN.INVALID_ALT_NUMBER;
-				}
-			}
+            if (D.isAcceptState && D.configSet.hasSemanticContext) {
+                PredicateDFAState(D, atn.GetDecisionState(dfa.decision));
+                if (D.predicates != null) {
+                    D.prediction = ATN.INVALID_ALT_NUMBER;
+                }
+            }
 
-			// all adds to dfa are done after we've created full D state
-			D = AddDFAEdge(dfa, previousD, t, D);
-			return D;
-		}
+            // all adds to dfa are done after we've created full D state
+            D = AddDFAEdge(dfa, previousD, t, D);
+            return D;
+        }
 
-		protected void PredicateDFAState(DFAState dfaState, DecisionState decisionState)
-		{
-			// We need to test all predicates, even in DFA states that
-			// uniquely predict alternative.
-			int nalts = decisionState.NumberOfTransitions;
-			// Update DFA so reach becomes accept state with (predicate,alt)
-			// pairs if preds found for conflicting alts
-			BitSet altsToCollectPredsFrom = GetConflictingAltsOrUniqueAlt(dfaState.configSet);
-			SemanticContext[] altToPred = GetPredsForAmbigAlts(altsToCollectPredsFrom, dfaState.configSet, nalts);
-			if (altToPred != null)
-			{
-				dfaState.predicates = GetPredicatePredictions(altsToCollectPredsFrom, altToPred);
-				dfaState.prediction = ATN.INVALID_ALT_NUMBER; // make sure we use preds
-			}
-			else {
-				// There are preds in configs but they might go away
-				// when OR'd together like {p}? || NONE == NONE. If neither
-				// alt has preds, resolve to min alt
-				dfaState.prediction = altsToCollectPredsFrom.NextSetBit(0);
-			}
-		}
+        protected void PredicateDFAState(DFAState dfaState, DecisionState decisionState) {
+            // We need to test all predicates, even in DFA states that
+            // uniquely predict alternative.
+            var nalts = decisionState.NumberOfTransitions;
+            // Update DFA so reach becomes accept state with (predicate,alt)
+            // pairs if preds found for conflicting alts
+            var altsToCollectPredsFrom = GetConflictingAltsOrUniqueAlt(dfaState.configSet);
+            var altToPred = GetPredsForAmbigAlts(altsToCollectPredsFrom, dfaState.configSet, nalts);
+            if (altToPred != null) {
+                dfaState.predicates = GetPredicatePredictions(altsToCollectPredsFrom, altToPred);
+                dfaState.prediction = ATN.INVALID_ALT_NUMBER; // make sure we use preds
+            } else {
+                // There are preds in configs but they might go away
+                // when OR'd together like {p}? || NONE == NONE. If neither
+                // alt has preds, resolve to min alt
+                dfaState.prediction = altsToCollectPredsFrom.NextSetBit(0);
+            }
+        }
 
-		// comes back with reach.UniqueAlt set to a valid alt
-		protected int ExecATNWithFullContext(DFA dfa,
-											 DFAState D, // how far we got in SLL DFA before failing over
-											 ATNConfigSet s0,
-											 ITokenStream input, int startIndex,
-											 ParserRuleContext outerContext)
-		{
-			if (debug || trace_atn_sim)
-			{
-				Console.WriteLine("execATNWithFullContext " + s0);
-			}
-			bool fullCtx = true;
-			bool foundExactAmbig = false;
-			ATNConfigSet reach = null;
-			ATNConfigSet previous = s0;
-			input.Seek(startIndex);
-			int t = input.LA(1);
-			int predictedAlt;
-			while (true)
-			{ // while more work
-			  //			Console.WriteLine("LL REACH "+GetLookaheadName(input)+
-			  //							   " from configs.size="+previous.size()+
-			  //							   " line "+input.LT(1)Line+":"+input.LT(1).Column);
-				reach = ComputeReachSet(previous, t, fullCtx);
-				if (reach == null)
-				{
-					// if any configs in previous dipped into outer context, that
-					// means that input up to t actually finished entry rule
-					// at least for LL decision. Full LL doesn't dip into outer
-					// so don't need special case.
-					// We will get an error no matter what so delay until after
-					// decision; better error message. Also, no reachable target
-					// ATN states in SLL implies LL will also get nowhere.
-					// If conflict in states that dip out, choose min since we
-					// will get error no matter what.
-					NoViableAltException e = NoViableAlt(input, outerContext, previous, startIndex);
-					input.Seek(startIndex);
-					int alt = GetSynValidOrSemInvalidAltThatFinishedDecisionEntryRule(previous, outerContext);
-					if (alt != ATN.INVALID_ALT_NUMBER)
-					{
-						return alt;
-					}
-					throw e;
-				}
+        // comes back with reach.UniqueAlt set to a valid alt
+        protected int ExecATNWithFullContext(DFA dfa,
+                                             DFAState D, // how far we got in SLL DFA before failing over
+                                             ATNConfigSet s0,
+                                             ITokenStream input, int startIndex,
+                                             ParserRuleContext outerContext) {
+            if (debug || trace_atn_sim) {
+                Console.WriteLine("execATNWithFullContext " + s0);
+            }
+            var fullCtx = true;
+            var foundExactAmbig = false;
+            ATNConfigSet reach = null;
+            var previous = s0;
+            input.Seek(startIndex);
+            var t = input.LA(1);
+            int predictedAlt;
+            while (true) { // while more work
+                           //			Console.WriteLine("LL REACH "+GetLookaheadName(input)+
+                           //							   " from configs.size="+previous.size()+
+                           //							   " line "+input.LT(1)Line+":"+input.LT(1).Column);
+                reach = ComputeReachSet(previous, t, fullCtx);
+                if (reach == null) {
+                    // if any configs in previous dipped into outer context, that
+                    // means that input up to t actually finished entry rule
+                    // at least for LL decision. Full LL doesn't dip into outer
+                    // so don't need special case.
+                    // We will get an error no matter what so delay until after
+                    // decision; better error message. Also, no reachable target
+                    // ATN states in SLL implies LL will also get nowhere.
+                    // If conflict in states that dip out, choose min since we
+                    // will get error no matter what.
+                    var e = NoViableAlt(input, outerContext, previous, startIndex);
+                    input.Seek(startIndex);
+                    var alt = GetSynValidOrSemInvalidAltThatFinishedDecisionEntryRule(previous, outerContext);
+                    if (alt != ATN.INVALID_ALT_NUMBER) {
+                        return alt;
+                    }
+                    throw e;
+                }
 
-				ICollection<BitSet> altSubSets = PredictionMode.GetConflictingAltSubsets(reach.configs);
-				if (debug)
-				{
-					Console.WriteLine("LL altSubSets=" + altSubSets +
-									   ", predict=" + PredictionMode.GetUniqueAlt(altSubSets) +
-									   ", ResolvesToJustOneViableAlt=" +
-										   PredictionMode.ResolvesToJustOneViableAlt(altSubSets));
-				}
+                var altSubSets = PredictionMode.GetConflictingAltSubsets(reach.configs);
+                if (debug) {
+                    Console.WriteLine("LL altSubSets=" + altSubSets +
+                                       ", predict=" + PredictionMode.GetUniqueAlt(altSubSets) +
+                                       ", ResolvesToJustOneViableAlt=" +
+                                           PredictionMode.ResolvesToJustOneViableAlt(altSubSets));
+                }
 
-				//			Console.WriteLine("altSubSets: "+altSubSets);
-				//			System.err.println("reach="+reach+", "+reach.conflictingAlts);
-				reach.uniqueAlt = GetUniqueAlt(reach);
-				// unique prediction?
-				if (reach.uniqueAlt != ATN.INVALID_ALT_NUMBER)
-				{
-					predictedAlt = reach.uniqueAlt;
-					break;
-				}
-				if (mode != PredictionMode.LL_EXACT_AMBIG_DETECTION)
-				{
-					predictedAlt = PredictionMode.ResolvesToJustOneViableAlt(altSubSets);
-					if (predictedAlt != ATN.INVALID_ALT_NUMBER)
-					{
-						break;
-					}
-				}
-				else {
-					// In exact ambiguity mode, we never try to terminate early.
-					// Just keeps scarfing until we know what the conflict is
-					if (PredictionMode.AllSubsetsConflict(altSubSets) &&
-						 PredictionMode.AllSubsetsEqual(altSubSets))
-					{
-						foundExactAmbig = true;
-						predictedAlt = PredictionMode.GetSingleViableAlt(altSubSets);
-						break;
-					}
-					// else there are multiple non-conflicting subsets or
-					// we're not sure what the ambiguity is yet.
-					// So, keep going.
-				}
+                //			Console.WriteLine("altSubSets: "+altSubSets);
+                //			System.err.println("reach="+reach+", "+reach.conflictingAlts);
+                reach.uniqueAlt = GetUniqueAlt(reach);
+                // unique prediction?
+                if (reach.uniqueAlt != ATN.INVALID_ALT_NUMBER) {
+                    predictedAlt = reach.uniqueAlt;
+                    break;
+                }
+                if (mode != PredictionMode.LL_EXACT_AMBIG_DETECTION) {
+                    predictedAlt = PredictionMode.ResolvesToJustOneViableAlt(altSubSets);
+                    if (predictedAlt != ATN.INVALID_ALT_NUMBER) {
+                        break;
+                    }
+                } else {
+                    // In exact ambiguity mode, we never try to terminate early.
+                    // Just keeps scarfing until we know what the conflict is
+                    if (PredictionMode.AllSubsetsConflict(altSubSets) &&
+                         PredictionMode.AllSubsetsEqual(altSubSets)) {
+                        foundExactAmbig = true;
+                        predictedAlt = PredictionMode.GetSingleViableAlt(altSubSets);
+                        break;
+                    }
+                    // else there are multiple non-conflicting subsets or
+                    // we're not sure what the ambiguity is yet.
+                    // So, keep going.
+                }
 
-				previous = reach;
-				if (t != IntStreamConstants.EOF)
-				{
-					input.Consume();
-					t = input.LA(1);
-				}
-			}
+                previous = reach;
+                if (t != IntStreamConstants.EOF) {
+                    input.Consume();
+                    t = input.LA(1);
+                }
+            }
 
-			// If the configuration set uniquely predicts an alternative,
-			// without conflict, then we know that it's a full LL decision
-			// not SLL.
-			if (reach.uniqueAlt != ATN.INVALID_ALT_NUMBER)
-			{
-				ReportContextSensitivity(dfa, predictedAlt, reach, startIndex, input.Index);
-				return predictedAlt;
-			}
+            // If the configuration set uniquely predicts an alternative,
+            // without conflict, then we know that it's a full LL decision
+            // not SLL.
+            if (reach.uniqueAlt != ATN.INVALID_ALT_NUMBER) {
+                ReportContextSensitivity(dfa, predictedAlt, reach, startIndex, input.Index);
+                return predictedAlt;
+            }
 
-			// We do not check predicates here because we have checked them
-			// on-the-fly when doing full context prediction.
+            // We do not check predicates here because we have checked them
+            // on-the-fly when doing full context prediction.
 
-			/*
+            /*
 			In non-exact ambiguity detection mode, we might	actually be able to
 			detect an exact ambiguity, but I'm not going to spend the cycles
 			needed to check. We only emit ambiguity warnings in exact ambiguity
@@ -778,24 +728,21 @@ namespace Antlr4.Runtime.Atn
 			the fact that we should predict alternative 1.  We just can't say for
 			sure that there is an ambiguity without looking further.
 			*/
-			ReportAmbiguity(dfa, D, startIndex, input.Index, foundExactAmbig, reach.GetAlts(), reach);
+            ReportAmbiguity(dfa, D, startIndex, input.Index, foundExactAmbig, reach.GetAlts(), reach);
 
-			return predictedAlt;
-		}
+            return predictedAlt;
+        }
 
-		protected virtual ATNConfigSet ComputeReachSet(ATNConfigSet closure, int t, bool fullCtx)
-		{
-			if (debug)
-				Console.WriteLine("in computeReachSet, starting closure: " + closure);
+        protected virtual ATNConfigSet ComputeReachSet(ATNConfigSet closure, int t, bool fullCtx) {
+            if (debug) {
+                Console.WriteLine("in computeReachSet, starting closure: " + closure);
+            }
 
-			if (mergeCache == null)
-			{
-				mergeCache = new MergeCache();
-			}
+            mergeCache ??= new MergeCache();
 
-			ATNConfigSet intermediate = new ATNConfigSet(fullCtx);
+            var intermediate = new ATNConfigSet(fullCtx);
 
-			/* Configurations already in a rule stop state indicate reaching the end
+            /* Configurations already in a rule stop state indicate reaching the end
 			 * of the decision rule (local context) or end of the start rule (full
 			 * context). Once reached, these configurations are never updated by a
 			 * closure operation, so they are handled separately for the performance
@@ -805,45 +752,39 @@ namespace Antlr4.Runtime.Atn
 			 * ensure that the alternative matching the longest overall sequence is
 			 * chosen when multiple such configurations can match the input.
 			 */
-			List<ATNConfig> skippedStopStates = null;
+            List<ATNConfig> skippedStopStates = null;
 
-			// First figure out where we can reach on input t
-			foreach (ATNConfig c in closure.configs)
-			{
-				if (debug) Console.WriteLine("testing " + GetTokenName(t) + " at " + c.ToString());
+            // First figure out where we can reach on input t
+            foreach (var c in closure.configs) {
+                if (debug) {
+                    Console.WriteLine("testing " + GetTokenName(t) + " at " + c.ToString());
+                }
 
-				if (c.state is RuleStopState)
-				{
-					if (fullCtx || t == IntStreamConstants.EOF)
-					{
-						if (skippedStopStates == null)
-						{
-							skippedStopStates = new List<ATNConfig>();
-						}
+                if (c.state is RuleStopState) {
+                    if (fullCtx || t == IntStreamConstants.EOF) {
+                        skippedStopStates ??= new List<ATNConfig>();
 
-						skippedStopStates.Add(c);
-					}
+                        skippedStopStates.Add(c);
+                    }
 
-					continue;
-				}
+                    continue;
+                }
 
-				int n = c.state.NumberOfTransitions;
-				for (int ti = 0; ti < n; ti++)
-				{               // for each transition
-					Transition trans = c.state.Transition(ti);
-					ATNState target = GetReachableTarget(trans, t);
-					if (target != null)
-					{
-						intermediate.Add(new ATNConfig(c, target), mergeCache);
-					}
-				}
-			}
+                var n = c.state.NumberOfTransitions;
+                for (var ti = 0; ti < n; ti++) {               // for each transition
+                    var trans = c.state.Transition(ti);
+                    var target = GetReachableTarget(trans, t);
+                    if (target != null) {
+                        intermediate.Add(new ATNConfig(c, target), mergeCache);
+                    }
+                }
+            }
 
-			// Now figure out where the reach operation can take us...
+            // Now figure out where the reach operation can take us...
 
-			ATNConfigSet reach = null;
+            ATNConfigSet reach = null;
 
-			/* This block optimizes the reach operation for intermediate sets which
+            /* This block optimizes the reach operation for intermediate sets which
 			 * trivially indicate a termination state for the overall
 			 * adaptivePredict operation.
 			 *
@@ -852,41 +793,34 @@ namespace Antlr4.Runtime.Atn
 			 * condition is not true when one or more configurations have been
 			 * withheld in skippedStopStates, or when the current symbol is EOF.
 			 */
-			if (skippedStopStates == null && t != TokenConstants.EOF)
-			{
-				if (intermediate.Count == 1)
-				{
-					// Don't pursue the closure if there is just one state.
-					// It can only have one alternative; just add to result
-					// Also don't pursue the closure if there is unique alternative
-					// among the configurations.
-					reach = intermediate;
-				}
-				else if (GetUniqueAlt(intermediate) != ATN.INVALID_ALT_NUMBER)
-				{
-					// Also don't pursue the closure if there is unique alternative
-					// among the configurations.
-					reach = intermediate;
-				}
-			}
+            if (skippedStopStates == null && t != TokenConstants.EOF) {
+                if (intermediate.Count == 1) {
+                    // Don't pursue the closure if there is just one state.
+                    // It can only have one alternative; just add to result
+                    // Also don't pursue the closure if there is unique alternative
+                    // among the configurations.
+                    reach = intermediate;
+                } else if (GetUniqueAlt(intermediate) != ATN.INVALID_ALT_NUMBER) {
+                    // Also don't pursue the closure if there is unique alternative
+                    // among the configurations.
+                    reach = intermediate;
+                }
+            }
 
-			/* If the reach set could not be trivially determined, perform a closure
+            /* If the reach set could not be trivially determined, perform a closure
 			 * operation on the intermediate set to compute its initial value.
 			 */
-			if (reach == null)
-			{
-				reach = new ATNConfigSet(fullCtx);
-				HashSet<ATNConfig> closureBusy = new HashSet<ATNConfig>();
-				bool treatEofAsEpsilon = t == TokenConstants.EOF;
-				foreach (ATNConfig c in intermediate.configs)
-				{
-					Closure(c, reach, closureBusy, false, fullCtx, treatEofAsEpsilon);
-				}
-			}
+            if (reach == null) {
+                reach = new ATNConfigSet(fullCtx);
+                var closureBusy = new HashSet<ATNConfig>();
+                var treatEofAsEpsilon = t == TokenConstants.EOF;
+                foreach (var c in intermediate.configs) {
+                    Closure(c, reach, closureBusy, false, fullCtx, treatEofAsEpsilon);
+                }
+            }
 
-			if (t == IntStreamConstants.EOF)
-			{
-				/* After consuming EOF no additional input is possible, so we are
+            if (t == IntStreamConstants.EOF) {
+                /* After consuming EOF no additional input is possible, so we are
 				 * only interested in configurations which reached the end of the
 				 * decision rule (local context) or end of the start rule (full
 				 * context). Update reach to contain only these configurations. This
@@ -903,10 +837,10 @@ namespace Antlr4.Runtime.Atn
 				 * already guaranteed to meet this condition whether or not it's
 				 * required.
 				 */
-				reach = RemoveAllConfigsNotInRuleStopState(reach, reach == intermediate);
-			}
+                reach = RemoveAllConfigsNotInRuleStopState(reach, reach == intermediate);
+            }
 
-			/* If skippedStopStates is not null, then it contains at least one
+            /* If skippedStopStates is not null, then it contains at least one
 			 * configuration. For full-context reach operations, these
 			 * configurations reached the end of the start rule, in which case we
 			 * only add them back to reach if no configuration during the current
@@ -914,24 +848,24 @@ namespace Antlr4.Runtime.Atn
 			 * chooses an alternative matching the longest overall sequence when
 			 * multiple alternatives are viable.
 			 */
-			if (skippedStopStates != null && (!fullCtx || !PredictionMode.HasConfigInRuleStopState(reach.configs)))
-			{
-				foreach (ATNConfig c in skippedStopStates)
-				{
-					reach.Add(c, mergeCache);
-				}
-			}
-
-            if ( trace_atn_sim ) {
-                Console.WriteLine("computeReachSet "+closure+" -> "+reach);
+            if (skippedStopStates != null && (!fullCtx || !PredictionMode.HasConfigInRuleStopState(reach.configs))) {
+                foreach (var c in skippedStopStates) {
+                    reach.Add(c, mergeCache);
+                }
             }
 
-    		if (reach.Empty)
-				return null;
-			return reach;
-		}
+            if (trace_atn_sim) {
+                Console.WriteLine("computeReachSet " + closure + " -> " + reach);
+            }
 
-		/**
+            if (reach.Empty) {
+                return null;
+            }
+
+            return reach;
+        }
+
+        /**
 		 * Return a configuration set containing only the configurations from
 		 * {@code configs} which are in a {@link RuleStopState}. If all
 		 * configurations in {@code configs} are already in a rule stop state, this
@@ -951,62 +885,52 @@ namespace Antlr4.Runtime.Atn
 		 * rule stop state, otherwise return a new configuration set containing only
 		 * the configurations from {@code configs} which are in a rule stop state
 		 */
-		protected ATNConfigSet RemoveAllConfigsNotInRuleStopState(ATNConfigSet configSet, bool lookToEndOfRule)
-		{
-			if (PredictionMode.AllConfigsInRuleStopStates(configSet.configs))
-			{
-				return configSet;
-			}
-
-			ATNConfigSet result = new ATNConfigSet(configSet.fullCtx);
-			foreach (ATNConfig config in configSet.configs)
-			{
-				if (config.state is RuleStopState)
-				{
-					result.Add(config, mergeCache);
-					continue;
-				}
-
-				if (lookToEndOfRule && config.state.OnlyHasEpsilonTransitions)
-				{
-					IntervalSet nextTokens = atn.NextTokens(config.state);
-					if (nextTokens.Contains(TokenConstants.EPSILON))
-					{
-						ATNState endOfRuleState = atn.ruleToStopState[config.state.ruleIndex];
-						result.Add(new ATNConfig(config, endOfRuleState), mergeCache);
-					}
-				}
-			}
-
-			return result;
-		}
-
-
-		protected ATNConfigSet ComputeStartState(ATNState p,
-											  RuleContext ctx,
-											  bool fullCtx)
-		{
-			// always at least the implicit call to start rule
-			PredictionContext initialContext = PredictionContext.FromRuleContext(atn, ctx);
-			ATNConfigSet configs = new ATNConfigSet(fullCtx);
-
-            if ( trace_atn_sim )  {
-                Console.WriteLine("computeStartState from ATN state "+p+" initialContext="+initialContext);
+        protected ATNConfigSet RemoveAllConfigsNotInRuleStopState(ATNConfigSet configSet, bool lookToEndOfRule) {
+            if (PredictionMode.AllConfigsInRuleStopStates(configSet.configs)) {
+                return configSet;
             }
 
+            var result = new ATNConfigSet(configSet.fullCtx);
+            foreach (var config in configSet.configs) {
+                if (config.state is RuleStopState) {
+                    result.Add(config, mergeCache);
+                    continue;
+                }
 
-			for (int i = 0; i < p.NumberOfTransitions; i++)
-			{
-				ATNState target = p.Transition(i).target;
-				ATNConfig c = new ATNConfig(target, i + 1, initialContext);
-				HashSet<ATNConfig> closureBusy = new HashSet<ATNConfig>();
-				Closure(c, configs, closureBusy, true, fullCtx, false);
-			}
+                if (lookToEndOfRule && config.state.OnlyHasEpsilonTransitions) {
+                    var nextTokens = atn.NextTokens(config.state);
+                    if (nextTokens.Contains(TokenConstants.EPSILON)) {
+                        ATNState endOfRuleState = atn.ruleToStopState[config.state.ruleIndex];
+                        result.Add(new ATNConfig(config, endOfRuleState), mergeCache);
+                    }
+                }
+            }
 
-			return configs;
-		}
+            return result;
+        }
 
-		/* parrt internal source braindump that doesn't mess up
+        protected ATNConfigSet ComputeStartState(ATNState p,
+                                              RuleContext ctx,
+                                              bool fullCtx) {
+            // always at least the implicit call to start rule
+            var initialContext = PredictionContext.FromRuleContext(atn, ctx);
+            var configs = new ATNConfigSet(fullCtx);
+
+            if (trace_atn_sim) {
+                Console.WriteLine("computeStartState from ATN state " + p + " initialContext=" + initialContext);
+            }
+
+            for (var i = 0; i < p.NumberOfTransitions; i++) {
+                var target = p.Transition(i).target;
+                var c = new ATNConfig(target, i + 1, initialContext);
+                var closureBusy = new HashSet<ATNConfig>();
+                Closure(c, configs, closureBusy, true, fullCtx, false);
+            }
+
+            return configs;
+        }
+
+        /* parrt internal source braindump that doesn't mess up
 		 * external API spec.
 			context-sensitive in that they can only be properly evaluated
 			in the context of the proper prec argument. Without pruning,
@@ -1109,7 +1033,7 @@ namespace Antlr4.Runtime.Atn
 			level 0"
 		 */
 
-		/**
+        /**
 		 * This method transforms the start state computed by
 		 * {@link #computeStartState} to the special start state used by a
 		 * precedence DFA for a particular precedence value. The transformation
@@ -1169,83 +1093,67 @@ namespace Antlr4.Runtime.Atn
 		 * for a precedence DFA at a particular precedence level (determined by
 		 * calling {@link Parser#getPrecedence}).
 		 */
+        protected ATNConfigSet ApplyPrecedenceFilter(ATNConfigSet configSet) {
+            var statesFromAlt1 = new Dictionary<int, PredictionContext>();
+            var result = new ATNConfigSet(configSet.fullCtx);
+            foreach (var config in configSet.configs) {
+                // handle alt 1 first
+                if (config.alt != 1) {
+                    continue;
+                }
 
-		protected ATNConfigSet ApplyPrecedenceFilter(ATNConfigSet configSet)
-		{
-			Dictionary<int, PredictionContext> statesFromAlt1 = new Dictionary<int, PredictionContext>();
-			ATNConfigSet result = new ATNConfigSet(configSet.fullCtx);
-			foreach (ATNConfig config in configSet.configs)
-			{
-				// handle alt 1 first
-				if (config.alt != 1)
-				{
-					continue;
-				}
+                var updatedContext = config.semanticContext.EvalPrecedence(parser, context);
+                if (updatedContext == null) {
+                    // the configuration was eliminated
+                    continue;
+                }
 
-				SemanticContext updatedContext = config.semanticContext.EvalPrecedence(parser, context);
-				if (updatedContext == null)
-				{
-					// the configuration was eliminated
-					continue;
-				}
+                statesFromAlt1[config.state.stateNumber] = config.context;
+                if (updatedContext != config.semanticContext) {
+                    result.Add(new ATNConfig(config, updatedContext), mergeCache);
+                } else {
+                    result.Add(config, mergeCache);
+                }
+            }
 
-				statesFromAlt1[config.state.stateNumber] = config.context;
-				if (updatedContext != config.semanticContext)
-				{
-					result.Add(new ATNConfig(config, updatedContext), mergeCache);
-				}
-				else {
-					result.Add(config, mergeCache);
-				}
-			}
+            foreach (var config in configSet.configs) {
+                if (config.alt == 1) {
+                    // already handled
+                    continue;
+                }
 
-			foreach (ATNConfig config in configSet.configs)
-			{
-				if (config.alt == 1)
-				{
-					// already handled
-					continue;
-				}
-
-				if (!config.IsPrecedenceFilterSuppressed)
-				{
-					/* In the future, this elimination step could be updated to also
+                if (!config.IsPrecedenceFilterSuppressed) {
+                    /* In the future, this elimination step could be updated to also
 					 * filter the prediction context for alternatives predicting alt>1
 					 * (basically a graph subtraction algorithm).
 					 */
-					PredictionContext ctx;
-					if (statesFromAlt1.TryGetValue(config.state.stateNumber, out ctx))
-					{
-						if (ctx != null && ctx.Equals(config.context))
-						{
-							// eliminated
-							continue;
-						}
-					}
-				}
+                    if (statesFromAlt1.TryGetValue(config.state.stateNumber, out var ctx)) {
+                        if (ctx != null && ctx.Equals(config.context)) {
+                            // eliminated
+                            continue;
+                        }
+                    }
+                }
 
-				result.Add(config, mergeCache);
-			}
+                result.Add(config, mergeCache);
+            }
 
-			return result;
-		}
+            return result;
+        }
 
-		protected ATNState GetReachableTarget(Transition trans, int ttype)
-		{
-			if (trans.Matches(ttype, 0, atn.maxTokenType))
-			{
-				return trans.target;
-			}
+        protected ATNState GetReachableTarget(Transition trans, int ttype) {
+            if (trans.Matches(ttype, 0, atn.maxTokenType)) {
+                return trans.target;
+            }
 
-			return null;
-		}
+            return null;
+        }
 
-		protected SemanticContext[] GetPredsForAmbigAlts(BitSet ambigAlts,
-														 ATNConfigSet configSet,
-													  int nalts)
-		{
-			// REACH=[1|1|[]|0:0, 1|2|[]|0:1]
-			/* altToPred starts as an array of all null contexts. The entry at index i
+        protected SemanticContext[] GetPredsForAmbigAlts(BitSet ambigAlts,
+                                                         ATNConfigSet configSet,
+                                                      int nalts) {
+            // REACH=[1|1|[]|0:0, 1|2|[]|0:1]
+            /* altToPred starts as an array of all null contexts. The entry at index i
 			 * corresponds to alternative i. altToPred[i] may have one of three values:
 			 *   1. null: no ATNConfig c is found such that c.alt==i
 			 *   2. SemanticContext.Empty.Instance: At least one ATNConfig c exists such that
@@ -1256,67 +1164,65 @@ namespace Antlr4.Runtime.Atn
 			 *
 			 * From this, it is clear that NONE||anything==NONE.
 			 */
-			SemanticContext[] altToPred = new SemanticContext[nalts + 1];
-			foreach (ATNConfig c in configSet.configs)
-			{
-				if (ambigAlts[c.alt])
-				{
-					altToPred[c.alt] = SemanticContext.OrOp(altToPred[c.alt], c.semanticContext);
-				}
-			}
+            var altToPred = new SemanticContext[nalts + 1];
+            foreach (var c in configSet.configs) {
+                if (ambigAlts[c.alt]) {
+                    altToPred[c.alt] = SemanticContext.OrOp(altToPred[c.alt], c.semanticContext);
+                }
+            }
 
-			int nPredAlts = 0;
-			for (int i = 1; i <= nalts; i++)
-			{
-				if (altToPred[i] == null)
-				{
-					altToPred[i] = SemanticContext.Empty.Instance;
-				}
-				else if (altToPred[i] != SemanticContext.Empty.Instance)
-				{
-					nPredAlts++;
-				}
-			}
+            var nPredAlts = 0;
+            for (var i = 1; i <= nalts; i++) {
+                if (altToPred[i] == null) {
+                    altToPred[i] = SemanticContext.Empty.Instance;
+                } else if (altToPred[i] != SemanticContext.Empty.Instance) {
+                    nPredAlts++;
+                }
+            }
 
-			//		// Optimize away p||p and p&&p TODO: optimize() was a no-op
-			//		for (int i = 0; i < altToPred.length; i++) {
-			//			altToPred[i] = altToPred[i].optimize();
-			//		}
+            //		// Optimize away p||p and p&&p TODO: optimize() was a no-op
+            //		for (int i = 0; i < altToPred.length; i++) {
+            //			altToPred[i] = altToPred[i].optimize();
+            //		}
 
-			// nonambig alts are null in altToPred
-			if (nPredAlts == 0) altToPred = null;
-			if (debug) Console.WriteLine("getPredsForAmbigAlts result " + Arrays.ToString(altToPred));
-			return altToPred;
-		}
+            // nonambig alts are null in altToPred
+            if (nPredAlts == 0) {
+                altToPred = null;
+            }
 
-		protected PredPrediction[] GetPredicatePredictions(BitSet ambigAlts,
-																 SemanticContext[] altToPred)
-		{
-			List<PredPrediction> pairs = new List<PredPrediction>();
-			bool containsPredicate = false;
-			for (int i = 1; i < altToPred.Length; i++)
-			{
-				SemanticContext pred = altToPred[i];
+            if (debug) {
+                Console.WriteLine("getPredsForAmbigAlts result " + Arrays.ToString(altToPred));
+            }
 
-				// unpredicated is indicated by SemanticContext.Empty.Instance
+            return altToPred;
+        }
 
-				if (ambigAlts != null && ambigAlts[i])
-				{
-					pairs.Add(new PredPrediction(pred, i));
-				}
-				if (pred != SemanticContext.Empty.Instance) containsPredicate = true;
-			}
+        protected PredPrediction[] GetPredicatePredictions(BitSet ambigAlts,
+                                                                 SemanticContext[] altToPred) {
+            var pairs = new List<PredPrediction>();
+            var containsPredicate = false;
+            for (var i = 1; i < altToPred.Length; i++) {
+                var pred = altToPred[i];
 
-			if (!containsPredicate)
-			{
-				return null;
-			}
+                // unpredicated is indicated by SemanticContext.Empty.Instance
 
-			//		Console.WriteLine(Arrays.toString(altToPred)+"->"+pairs);
-			return pairs.ToArray();
-		}
+                if (ambigAlts != null && ambigAlts[i]) {
+                    pairs.Add(new PredPrediction(pred, i));
+                }
+                if (pred != SemanticContext.Empty.Instance) {
+                    containsPredicate = true;
+                }
+            }
 
-		/**
+            if (!containsPredicate) {
+                return null;
+            }
+
+            //		Console.WriteLine(Arrays.toString(altToPred)+"->"+pairs);
+            return pairs.ToArray();
+        }
+
+        /**
 		 * This method is used to improve the localization of error messages by
 		 * choosing an alternative rather than throwing a
 		 * {@link NoViableAltException} in particular prediction scenarios where the
@@ -1362,45 +1268,41 @@ namespace Antlr4.Runtime.Atn
 		 * {@link ATN#INVALID_ALT_NUMBER} if a suitable alternative was not
 		 * identified and {@link #adaptivePredict} should report an error instead.
 		 */
-		protected int GetSynValidOrSemInvalidAltThatFinishedDecisionEntryRule(ATNConfigSet configs,
-																			  ParserRuleContext outerContext)
-		{
-			Pair<ATNConfigSet, ATNConfigSet> sets =
-				SplitAccordingToSemanticValidity(configs, outerContext);
-			ATNConfigSet semValidConfigs = sets.a;
-			ATNConfigSet semInvalidConfigs = sets.b;
-			int alt = getAltThatFinishedDecisionEntryRule(semValidConfigs);
-			if (alt != ATN.INVALID_ALT_NUMBER)
-			{ // semantically/syntactically viable path exists
-				return alt;
-			}
-			// Is there a syntactically valid path with a failed pred?
-			if (semInvalidConfigs.Count > 0)
-			{
-				alt = getAltThatFinishedDecisionEntryRule(semInvalidConfigs);
-				if (alt != ATN.INVALID_ALT_NUMBER)
-				{ // syntactically viable path exists
-					return alt;
-				}
-			}
-			return ATN.INVALID_ALT_NUMBER;
-		}
+        protected int GetSynValidOrSemInvalidAltThatFinishedDecisionEntryRule(ATNConfigSet configs,
+                                                                              ParserRuleContext outerContext) {
+            var sets =
+                SplitAccordingToSemanticValidity(configs, outerContext);
+            var semValidConfigs = sets.a;
+            var semInvalidConfigs = sets.b;
+            var alt = getAltThatFinishedDecisionEntryRule(semValidConfigs);
+            if (alt != ATN.INVALID_ALT_NUMBER) { // semantically/syntactically viable path exists
+                return alt;
+            }
+            // Is there a syntactically valid path with a failed pred?
+            if (semInvalidConfigs.Count > 0) {
+                alt = getAltThatFinishedDecisionEntryRule(semInvalidConfigs);
+                if (alt != ATN.INVALID_ALT_NUMBER) { // syntactically viable path exists
+                    return alt;
+                }
+            }
+            return ATN.INVALID_ALT_NUMBER;
+        }
 
-		protected int getAltThatFinishedDecisionEntryRule(ATNConfigSet configSet)
-		{
-			IntervalSet alts = new IntervalSet();
-			foreach (ATNConfig c in configSet.configs)
-			{
-				if (c.OuterContextDepth > 0 || (c.state is RuleStopState && c.context.HasEmptyPath))
-				{
-					alts.Add(c.alt);
-				}
-			}
-			if (alts.Count == 0) return ATN.INVALID_ALT_NUMBER;
-			return alts.MinElement;
-		}
+        protected int getAltThatFinishedDecisionEntryRule(ATNConfigSet configSet) {
+            var alts = new IntervalSet();
+            foreach (var c in configSet.configs) {
+                if (c.OuterContextDepth > 0 || (c.state is RuleStopState && c.context.HasEmptyPath)) {
+                    alts.Add(c.alt);
+                }
+            }
+            if (alts.Count == 0) {
+                return ATN.INVALID_ALT_NUMBER;
+            }
 
-		/** Walk the list of configurations and split them according to
+            return alts.MinElement;
+        }
+
+        /** Walk the list of configurations and split them according to
 		 *  those that have preds evaluating to true/false.  If no pred, assume
 		 *  true pred and include in succeeded set.  Returns Pair of sets.
 		 *
@@ -1409,77 +1311,67 @@ namespace Antlr4.Runtime.Atn
 		 *  Assumption: the input stream has been restored to the starting point
 		 *  prediction, which is where predicates need to evaluate.
 		 */
-		protected Pair<ATNConfigSet, ATNConfigSet> SplitAccordingToSemanticValidity(
-												  ATNConfigSet configSet,
-			ParserRuleContext outerContext)
-		{
-			ATNConfigSet succeeded = new ATNConfigSet(configSet.fullCtx);
-			ATNConfigSet failed = new ATNConfigSet(configSet.fullCtx);
-			foreach (ATNConfig c in configSet.configs)
-			{
-				if (c.semanticContext != SemanticContext.Empty.Instance)
-				{
-					bool predicateEvaluationResult = EvalSemanticContext(c.semanticContext, outerContext, c.alt, configSet.fullCtx);
-					if (predicateEvaluationResult)
-					{
-						succeeded.Add(c);
-					}
-					else {
-						failed.Add(c);
-					}
-				}
-				else {
-					succeeded.Add(c);
-				}
-			}
-			return new Pair<ATNConfigSet, ATNConfigSet>(succeeded, failed);
-		}
+        protected Pair<ATNConfigSet, ATNConfigSet> SplitAccordingToSemanticValidity(
+                                                  ATNConfigSet configSet,
+            ParserRuleContext outerContext) {
+            var succeeded = new ATNConfigSet(configSet.fullCtx);
+            var failed = new ATNConfigSet(configSet.fullCtx);
+            foreach (var c in configSet.configs) {
+                if (c.semanticContext != SemanticContext.Empty.Instance) {
+                    var predicateEvaluationResult = EvalSemanticContext(c.semanticContext, outerContext, c.alt, configSet.fullCtx);
+                    if (predicateEvaluationResult) {
+                        succeeded.Add(c);
+                    } else {
+                        failed.Add(c);
+                    }
+                } else {
+                    succeeded.Add(c);
+                }
+            }
+            return new Pair<ATNConfigSet, ATNConfigSet>(succeeded, failed);
+        }
 
-		/** Look through a list of predicate/alt pairs, returning alts for the
+        /** Look through a list of predicate/alt pairs, returning alts for the
 		 *  pairs that win. A {@code NONE} predicate indicates an alt containing an
 		 *  unpredicated config which behaves as "always true." If !complete
 		 *  then we stop at the first predicate that evaluates to true. This
 		 *  includes pairs with null predicates.
 		 */
-		protected virtual BitSet EvalSemanticContext(PredPrediction[] predPredictions,
-										  ParserRuleContext outerContext,
-										  bool complete)
-		{
-			BitSet predictions = new BitSet();
-			foreach (PredPrediction pair in predPredictions)
-			{
-				if (pair.pred == SemanticContext.Empty.Instance)
-				{
-					predictions[pair.alt] = true;
-					if (!complete)
-					{
-						break;
-					}
-					continue;
-				}
+        protected virtual BitSet EvalSemanticContext(PredPrediction[] predPredictions,
+                                          ParserRuleContext outerContext,
+                                          bool complete) {
+            var predictions = new BitSet();
+            foreach (var pair in predPredictions) {
+                if (pair.pred == SemanticContext.Empty.Instance) {
+                    predictions[pair.alt] = true;
+                    if (!complete) {
+                        break;
+                    }
+                    continue;
+                }
 
-				bool fullCtx = false; // in dfa
-				bool predicateEvaluationResult = EvalSemanticContext(pair.pred, outerContext, pair.alt, fullCtx);
-				if (debug || dfa_debug)
-				{
-					Console.WriteLine("eval pred " + pair + "=" + predicateEvaluationResult);
-				}
+                var fullCtx = false; // in dfa
+                var predicateEvaluationResult = EvalSemanticContext(pair.pred, outerContext, pair.alt, fullCtx);
+                if (debug || dfa_debug) {
+                    Console.WriteLine("eval pred " + pair + "=" + predicateEvaluationResult);
+                }
 
-				if (predicateEvaluationResult)
-				{
-					if (debug || dfa_debug) Console.WriteLine("PREDICT " + pair.alt);
-					predictions[pair.alt] = true;
-					if (!complete)
-					{
-						break;
-					}
-				}
-			}
+                if (predicateEvaluationResult) {
+                    if (debug || dfa_debug) {
+                        Console.WriteLine("PREDICT " + pair.alt);
+                    }
 
-			return predictions;
-		}
+                    predictions[pair.alt] = true;
+                    if (!complete) {
+                        break;
+                    }
+                }
+            }
 
-		/**
+            return predictions;
+        }
+
+        /**
 		 * Evaluate a semantic context within a specific parser context.
 		 *
 		 * <p>
@@ -1509,184 +1401,169 @@ namespace Antlr4.Runtime.Atn
 		 *
 		 * @since 4.3
 		 */
-		protected virtual bool EvalSemanticContext(SemanticContext pred, ParserRuleContext parserCallStack, int alt, bool fullCtx)
-		{
-			return pred.Eval(parser, parserCallStack);
-		}
+        protected virtual bool EvalSemanticContext(SemanticContext pred, ParserRuleContext parserCallStack, int alt, bool fullCtx) {
+            return pred.Eval(parser, parserCallStack);
+        }
 
-		/* TODO: If we are doing predicates, there is no point in pursuing
+        /* TODO: If we are doing predicates, there is no point in pursuing
 			 closure operations if we reach a DFA state that uniquely predicts
 			 alternative. We will not be caching that DFA state and it is a
 			 waste to pursue the closure. Might have to advance when we do
 			 ambig detection thought :(
 			  */
 
-		protected void Closure(ATNConfig config,
-							   ATNConfigSet configs,
-							   HashSet<ATNConfig> closureBusy,
-							   bool collectPredicates,
-							   bool fullCtx,
-							   bool treatEofAsEpsilon)
-		{
-			int initialDepth = 0;
-			ClosureCheckingStopState(config, configs, closureBusy, collectPredicates,
-									 fullCtx,
-									 initialDepth, treatEofAsEpsilon);
-		}
+        protected void Closure(ATNConfig config,
+                               ATNConfigSet configs,
+                               HashSet<ATNConfig> closureBusy,
+                               bool collectPredicates,
+                               bool fullCtx,
+                               bool treatEofAsEpsilon) {
+            var initialDepth = 0;
+            ClosureCheckingStopState(config, configs, closureBusy, collectPredicates,
+                                     fullCtx,
+                                     initialDepth, treatEofAsEpsilon);
+        }
 
-		protected void ClosureCheckingStopState(ATNConfig config,
-												ATNConfigSet configSet,
-												HashSet<ATNConfig> closureBusy,
-												bool collectPredicates,
-												bool fullCtx,
-												int depth,
-												bool treatEofAsEpsilon)
-		{
-			if (trace_atn_sim)
-				Console.WriteLine("closure(" + config.ToString(parser, true) + ")");
+        protected void ClosureCheckingStopState(ATNConfig config,
+                                                ATNConfigSet configSet,
+                                                HashSet<ATNConfig> closureBusy,
+                                                bool collectPredicates,
+                                                bool fullCtx,
+                                                int depth,
+                                                bool treatEofAsEpsilon) {
+            if (trace_atn_sim) {
+                Console.WriteLine("closure(" + config.ToString(parser, true) + ")");
+            }
 
-			if (config.state is RuleStopState)
-			{
-				// We hit rule end. If we have context info, use it
-				// run thru all possible stack tops in ctx
-				if (!config.context.IsEmpty)
-				{
-					for (int i = 0; i < config.context.Size; i++)
-					{
-						if (config.context.GetReturnState(i) == PredictionContext.EMPTY_RETURN_STATE)
-						{
-							if (fullCtx)
-							{
-								configSet.Add(new ATNConfig(config, config.state, EmptyPredictionContext.Instance), mergeCache);
-								continue;
-							}
-							else {
-								// we have no context info, just chase follow links (if greedy)
-								if (debug) Console.WriteLine("FALLING off rule " +
-															  GetRuleName(config.state.ruleIndex));
-								Closure_(config, configSet, closureBusy, collectPredicates,
-										 fullCtx, depth, treatEofAsEpsilon);
-							}
-							continue;
-						}
-						ATNState returnState = atn.states[config.context.GetReturnState(i)];
-						PredictionContext newContext = config.context.GetParent(i); // "pop" return state
-						ATNConfig c = new ATNConfig(returnState, config.alt, newContext, config.semanticContext);
-						// While we have context to pop back from, we may have
-						// gotten that context AFTER having falling off a rule.
-						// Make sure we track that we are now out of context.
-						//
-						// This assignment also propagates the
-						// isPrecedenceFilterSuppressed() value to the new
-						// configuration.
-						c.reachesIntoOuterContext = config.OuterContextDepth;
-						ClosureCheckingStopState(c, configSet, closureBusy, collectPredicates,
-												 fullCtx, depth - 1, treatEofAsEpsilon);
-					}
-					return;
-				}
-				else if (fullCtx)
-				{
-					// reached end of start rule
-					configSet.Add(config, mergeCache);
-					return;
-				}
-				else {
-					// else if we have no context info, just chase follow links (if greedy)
-					if (debug) Console.WriteLine("FALLING off rule " +
-												  GetRuleName(config.state.ruleIndex));
-				}
-			}
+            if (config.state is RuleStopState) {
+                // We hit rule end. If we have context info, use it
+                // run thru all possible stack tops in ctx
+                if (!config.context.IsEmpty) {
+                    for (var i = 0; i < config.context.Size; i++) {
+                        if (config.context.GetReturnState(i) == PredictionContext.EMPTY_RETURN_STATE) {
+                            if (fullCtx) {
+                                configSet.Add(new ATNConfig(config, config.state, EmptyPredictionContext.Instance), mergeCache);
+                                continue;
+                            } else {
+                                // we have no context info, just chase follow links (if greedy)
+                                if (debug) {
+                                    Console.WriteLine("FALLING off rule " +
+                                                              GetRuleName(config.state.ruleIndex));
+                                }
 
-			Closure_(config, configSet, closureBusy, collectPredicates,
-					 fullCtx, depth, treatEofAsEpsilon);
-		}
+                                Closure_(config, configSet, closureBusy, collectPredicates,
+                                         fullCtx, depth, treatEofAsEpsilon);
+                            }
+                            continue;
+                        }
+                        var returnState = atn.states[config.context.GetReturnState(i)];
+                        var newContext = config.context.GetParent(i); // "pop" return state
+                        var c = new ATNConfig(returnState, config.alt, newContext, config.semanticContext) {
+                            // While we have context to pop back from, we may have
+                            // gotten that context AFTER having falling off a rule.
+                            // Make sure we track that we are now out of context.
+                            //
+                            // This assignment also propagates the
+                            // isPrecedenceFilterSuppressed() value to the new
+                            // configuration.
+                            reachesIntoOuterContext = config.OuterContextDepth
+                        };
+                        ClosureCheckingStopState(c, configSet, closureBusy, collectPredicates,
+                                                 fullCtx, depth - 1, treatEofAsEpsilon);
+                    }
+                    return;
+                } else if (fullCtx) {
+                    // reached end of start rule
+                    configSet.Add(config, mergeCache);
+                    return;
+                } else {
+                    // else if we have no context info, just chase follow links (if greedy)
+                    if (debug) {
+                        Console.WriteLine("FALLING off rule " +
+                                                  GetRuleName(config.state.ruleIndex));
+                    }
+                }
+            }
 
-		/** Do the actual work of walking epsilon edges */
-		protected void Closure_(ATNConfig config,
-								ATNConfigSet configs,
-								HashSet<ATNConfig> closureBusy,
-								bool collectPredicates,
-								bool fullCtx,
-								int depth,
-								bool treatEofAsEpsilon)
-		{
-			ATNState p = config.state;
-			// optimization
-			if (!p.OnlyHasEpsilonTransitions)
-			{
-				configs.Add(config, mergeCache);
-				// make sure to not return here, because EOF transitions can act as
-				// both epsilon transitions and non-epsilon transitions.
-				//            if ( debug ) Console.WriteLine("added config "+configs);
-			}
+            Closure_(config, configSet, closureBusy, collectPredicates,
+                     fullCtx, depth, treatEofAsEpsilon);
+        }
 
-			for (int i = 0; i < p.NumberOfTransitions; i++)
-			{
-				if (i == 0 && CanDropLoopEntryEdgeInLeftRecursiveRule(config)) continue;
+        /** Do the actual work of walking epsilon edges */
+        protected void Closure_(ATNConfig config,
+                                ATNConfigSet configs,
+                                HashSet<ATNConfig> closureBusy,
+                                bool collectPredicates,
+                                bool fullCtx,
+                                int depth,
+                                bool treatEofAsEpsilon) {
+            var p = config.state;
+            // optimization
+            if (!p.OnlyHasEpsilonTransitions) {
+                configs.Add(config, mergeCache);
+                // make sure to not return here, because EOF transitions can act as
+                // both epsilon transitions and non-epsilon transitions.
+                //            if ( debug ) Console.WriteLine("added config "+configs);
+            }
 
-				Transition t = p.Transition(i);
-				bool continueCollecting =
-					!(t is ActionTransition) && collectPredicates;
-				ATNConfig c = GetEpsilonTarget(config, t, continueCollecting,
-											   depth == 0, fullCtx, treatEofAsEpsilon);
-				if (c != null)
-				{
-					int newDepth = depth;
-					if (config.state is RuleStopState)
-					{
-						// target fell off end of rule; mark resulting c as having dipped into outer context
-						// We can't get here if incoming config was rule stop and we had context
-						// track how far we dip into outer context.  Might
-						// come in handy and we avoid evaluating context dependent
-						// preds if this is > 0.
+            for (var i = 0; i < p.NumberOfTransitions; i++) {
+                if (i == 0 && CanDropLoopEntryEdgeInLeftRecursiveRule(config)) {
+                    continue;
+                }
 
-						if (thisDfa != null && thisDfa.IsPrecedenceDfa)
-						{
-							int outermostPrecedenceReturn = ((EpsilonTransition)t).OutermostPrecedenceReturn;
-							if (outermostPrecedenceReturn == thisDfa.atnStartState.ruleIndex)
-							{
-								c.SetPrecedenceFilterSuppressed(true);
-							}
-						}
+                var t = p.Transition(i);
+                var continueCollecting =
+                    t is not Atn.ActionTransition && collectPredicates;
+                var c = GetEpsilonTarget(config, t, continueCollecting,
+                                               depth == 0, fullCtx, treatEofAsEpsilon);
+                if (c != null) {
+                    var newDepth = depth;
+                    if (config.state is RuleStopState) {
+                        // target fell off end of rule; mark resulting c as having dipped into outer context
+                        // We can't get here if incoming config was rule stop and we had context
+                        // track how far we dip into outer context.  Might
+                        // come in handy and we avoid evaluating context dependent
+                        // preds if this is > 0.
 
-						c.reachesIntoOuterContext++;
-						if (!closureBusy.Add(c))
-						{
-							// avoid infinite recursion for right-recursive rules
-							continue;
-						}
+                        if (thisDfa != null && thisDfa.IsPrecedenceDfa) {
+                            var outermostPrecedenceReturn = ((EpsilonTransition)t).OutermostPrecedenceReturn;
+                            if (outermostPrecedenceReturn == thisDfa.atnStartState.ruleIndex) {
+                                c.SetPrecedenceFilterSuppressed(true);
+                            }
+                        }
 
-						configs.dipsIntoOuterContext = true; // TODO: can remove? only care when we add to set per middle of this method
-						newDepth--;
-						if (debug)
-							Console.WriteLine("dips into outer ctx: " + c);
-					}
-					else
-					{
+                        c.reachesIntoOuterContext++;
+                        if (!closureBusy.Add(c)) {
+                            // avoid infinite recursion for right-recursive rules
+                            continue;
+                        }
 
-						if (!t.IsEpsilon && !closureBusy.Add(c))
-						{
-							// avoid infinite recursion for EOF* and EOF+
-							continue;
-						}
-						if (t is RuleTransition)
-						{
-							// latch when newDepth goes negative - once we step out of the entry context we can't return
-							if (newDepth >= 0)
-							{
-								newDepth++;
-							}
-						}
-					}
+                        configs.dipsIntoOuterContext = true; // TODO: can remove? only care when we add to set per middle of this method
+                        newDepth--;
+                        if (debug) {
+                            Console.WriteLine("dips into outer ctx: " + c);
+                        }
+                    } else {
 
-					ClosureCheckingStopState(c, configs, closureBusy, continueCollecting,
-											 fullCtx, newDepth, treatEofAsEpsilon);
-				}
-			}
-		}
+                        if (!t.IsEpsilon && !closureBusy.Add(c)) {
+                            // avoid infinite recursion for EOF* and EOF+
+                            continue;
+                        }
+                        if (t is RuleTransition) {
+                            // latch when newDepth goes negative - once we step out of the entry context we can't return
+                            if (newDepth >= 0) {
+                                newDepth++;
+                            }
+                        }
+                    }
 
-		/** Implements first-edge (loop entry) elimination as an optimization
+                    ClosureCheckingStopState(c, configs, closureBusy, continueCollecting,
+                                             fullCtx, newDepth, treatEofAsEpsilon);
+                }
+            }
+        }
+
+        /** Implements first-edge (loop entry) elimination as an optimization
 		 *  during closure operations.  See antlr/antlr4#1398.
 		 *
 		 * The optimization is to avoid adding the loop entry config when
@@ -1774,261 +1651,236 @@ namespace Antlr4.Runtime.Atn
 		 *
 		 * @since 4.6
 		 */
-		protected bool CanDropLoopEntryEdgeInLeftRecursiveRule(ATNConfig config)
-		{
-			ATNState p = config.state;
-			// First check to see if we are in StarLoopEntryState generated during
-			// left-recursion elimination. For efficiency, also check if
-			// the context has an empty stack case. If so, it would mean
-			// global FOLLOW so we can't perform optimization
-			if (p.StateType != StateType.StarLoopEntry ||
-			    !((StarLoopEntryState)p).isPrecedenceDecision || // Are we the special loop entry/exit state?
-				 config.context.IsEmpty ||                      // If SLL wildcard
-				 config.context.HasEmptyPath)
-			{
-				return false;
-			}
+        protected bool CanDropLoopEntryEdgeInLeftRecursiveRule(ATNConfig config) {
+            var p = config.state;
+            // First check to see if we are in StarLoopEntryState generated during
+            // left-recursion elimination. For efficiency, also check if
+            // the context has an empty stack case. If so, it would mean
+            // global FOLLOW so we can't perform optimization
+            if (p.StateType != StateType.StarLoopEntry ||
+                !((StarLoopEntryState)p).isPrecedenceDecision || // Are we the special loop entry/exit state?
+                 config.context.IsEmpty ||                      // If SLL wildcard
+                 config.context.HasEmptyPath) {
+                return false;
+            }
 
-			// Require all return states to return back to the same rule
-			// that p is in.
-			int numCtxs = config.context.Size;
-			for (int i = 0; i < numCtxs; i++)
-			{ // for each stack context
-				ATNState returnState = atn.states[config.context.GetReturnState(i)];
-				if (returnState.ruleIndex != p.ruleIndex) return false;
-			}
+            // Require all return states to return back to the same rule
+            // that p is in.
+            var numCtxs = config.context.Size;
+            for (var i = 0; i < numCtxs; i++) { // for each stack context
+                var returnState = atn.states[config.context.GetReturnState(i)];
+                if (returnState.ruleIndex != p.ruleIndex) {
+                    return false;
+                }
+            }
 
-			BlockStartState decisionStartState = (BlockStartState)p.Transition(0).target;
-			int blockEndStateNum = decisionStartState.endState.stateNumber;
-			BlockEndState blockEndState = (BlockEndState)atn.states[blockEndStateNum];
+            var decisionStartState = (BlockStartState)p.Transition(0).target;
+            var blockEndStateNum = decisionStartState.endState.stateNumber;
+            var blockEndState = (BlockEndState)atn.states[blockEndStateNum];
 
-			// Verify that the top of each stack context leads to loop entry/exit
-			// state through epsilon edges and w/o leaving rule.
-			for (int i = 0; i < numCtxs; i++)
-			{                           // for each stack context
-				int returnStateNumber = config.context.GetReturnState(i);
-				ATNState returnState = atn.states[returnStateNumber];
-				// all states must have single outgoing epsilon edge
-				if (returnState.NumberOfTransitions != 1 ||
-					!returnState.Transition(0).IsEpsilon)
-				{
-					return false;
-				}
-				// Look for prefix op case like 'not expr', (' type ')' expr
-				ATNState returnStateTarget = returnState.Transition(0).target;
-				if (returnState.StateType == StateType.BlockEnd && returnStateTarget == p)
-				{
-					continue;
-				}
-				// Look for 'expr op expr' or case where expr's return state is block end
-				// of (...)* internal block; the block end points to loop back
-				// which points to p but we don't need to check that
-				if (returnState == blockEndState)
-				{
-					continue;
-				}
-				// Look for ternary expr ? expr : expr. The return state points at block end,
-				// which points at loop entry state
-				if (returnStateTarget == blockEndState)
-				{
-					continue;
-				}
-				// Look for complex prefix 'between expr and expr' case where 2nd expr's
-				// return state points at block end state of (...)* internal block
-				if (returnStateTarget.StateType == StateType.BlockEnd &&
-					 returnStateTarget.NumberOfTransitions == 1 &&
-					 returnStateTarget.Transition(0).IsEpsilon &&
-					 returnStateTarget.Transition(0).target == p)
-				{
-					continue;
-				}
+            // Verify that the top of each stack context leads to loop entry/exit
+            // state through epsilon edges and w/o leaving rule.
+            for (var i = 0; i < numCtxs; i++) {                           // for each stack context
+                var returnStateNumber = config.context.GetReturnState(i);
+                var returnState = atn.states[returnStateNumber];
+                // all states must have single outgoing epsilon edge
+                if (returnState.NumberOfTransitions != 1 ||
+                    !returnState.Transition(0).IsEpsilon) {
+                    return false;
+                }
+                // Look for prefix op case like 'not expr', (' type ')' expr
+                var returnStateTarget = returnState.Transition(0).target;
+                if (returnState.StateType == StateType.BlockEnd && returnStateTarget == p) {
+                    continue;
+                }
+                // Look for 'expr op expr' or case where expr's return state is block end
+                // of (...)* internal block; the block end points to loop back
+                // which points to p but we don't need to check that
+                if (returnState == blockEndState) {
+                    continue;
+                }
+                // Look for ternary expr ? expr : expr. The return state points at block end,
+                // which points at loop entry state
+                if (returnStateTarget == blockEndState) {
+                    continue;
+                }
+                // Look for complex prefix 'between expr and expr' case where 2nd expr's
+                // return state points at block end state of (...)* internal block
+                if (returnStateTarget.StateType == StateType.BlockEnd &&
+                     returnStateTarget.NumberOfTransitions == 1 &&
+                     returnStateTarget.Transition(0).IsEpsilon &&
+                     returnStateTarget.Transition(0).target == p) {
+                    continue;
+                }
 
-				// anything else ain't conforming
-				return false;
-			}
+                // anything else ain't conforming
+                return false;
+            }
 
-			return true;
-		}
+            return true;
+        }
 
+        public string GetRuleName(int index) {
+            if (parser != null && index >= 0) {
+                return parser.RuleNames[index];
+            }
 
-		public string GetRuleName(int index)
-		{
-			if (parser != null && index >= 0) return parser.RuleNames[index];
-			return "<rule " + index + ">";
-		}
+            return "<rule " + index + ">";
+        }
 
+        protected ATNConfig GetEpsilonTarget(ATNConfig config,
+                                          Transition t,
+                                          bool collectPredicates,
+                                          bool inContext,
+                                          bool fullCtx,
+                                          bool treatEofAsEpsilon) {
+            switch (t.TransitionType) {
+                case TransitionType.RULE:
+                    return RuleTransition(config, (RuleTransition)t);
 
-		protected ATNConfig GetEpsilonTarget(ATNConfig config,
-										  Transition t,
-										  bool collectPredicates,
-										  bool inContext,
-										  bool fullCtx,
-										  bool treatEofAsEpsilon)
-		{
-			switch (t.TransitionType)
-			{
-				case TransitionType.RULE:
-					return RuleTransition(config, (RuleTransition)t);
+                case TransitionType.PRECEDENCE:
+                    return PrecedenceTransition(config, (PrecedencePredicateTransition)t, collectPredicates, inContext, fullCtx);
 
-				case TransitionType.PRECEDENCE:
-					return PrecedenceTransition(config, (PrecedencePredicateTransition)t, collectPredicates, inContext, fullCtx);
+                case TransitionType.PREDICATE:
+                    return PredTransition(config, (PredicateTransition)t,
+                                          collectPredicates,
+                                          inContext,
+                                          fullCtx);
 
-				case TransitionType.PREDICATE:
-					return PredTransition(config, (PredicateTransition)t,
-										  collectPredicates,
-										  inContext,
-										  fullCtx);
+                case TransitionType.ACTION:
+                    return ActionTransition(config, (ActionTransition)t);
 
-				case TransitionType.ACTION:
-					return ActionTransition(config, (ActionTransition)t);
+                case TransitionType.EPSILON:
+                    return new ATNConfig(config, t.target);
 
-				case TransitionType.EPSILON:
-					return new ATNConfig(config, t.target);
+                case TransitionType.ATOM:
+                case TransitionType.RANGE:
+                case TransitionType.SET:
+                    // EOF transitions act like epsilon transitions after the first EOF
+                    // transition is traversed
+                    if (treatEofAsEpsilon) {
+                        if (t.Matches(TokenConstants.EOF, 0, 1)) {
+                            return new ATNConfig(config, t.target);
+                        }
+                    }
 
-				case TransitionType.ATOM:
-				case TransitionType.RANGE:
-				case TransitionType.SET:
-					// EOF transitions act like epsilon transitions after the first EOF
-					// transition is traversed
-					if (treatEofAsEpsilon)
-					{
-						if (t.Matches(TokenConstants.EOF, 0, 1))
-						{
-							return new ATNConfig(config, t.target);
-						}
-					}
+                    return null;
 
-					return null;
+                default:
+                    return null;
+            }
+        }
 
-				default:
-					return null;
-			}
-		}
+        protected ATNConfig ActionTransition(ATNConfig config, ActionTransition t) {
+            if (debug) {
+                Console.WriteLine("ACTION edge " + t.ruleIndex + ":" + t.actionIndex);
+            }
 
+            return new ATNConfig(config, t.target);
+        }
 
-		protected ATNConfig ActionTransition(ATNConfig config, ActionTransition t)
-		{
-			if (debug) Console.WriteLine("ACTION edge " + t.ruleIndex + ":" + t.actionIndex);
-			return new ATNConfig(config, t.target);
-		}
+        public ATNConfig PrecedenceTransition(ATNConfig config,
+                                        PrecedencePredicateTransition pt,
+                                        bool collectPredicates,
+                                        bool inContext,
+                                        bool fullCtx) {
+            if (debug) {
+                Console.WriteLine("PRED (collectPredicates=" + collectPredicates + ") " +
+                        pt.precedence + ">=_p" +
+                        ", ctx dependent=true");
+                if (parser != null) {
+                    Console.WriteLine("context surrounding pred is " +
+                                       StaticUtils.ToString(parser.GetRuleInvocationStack()));
+                }
+            }
 
+            ATNConfig c = null;
+            if (collectPredicates && inContext) {
+                if (fullCtx) {
+                    // In full context mode, we can evaluate predicates on-the-fly
+                    // during closure, which dramatically reduces the size of
+                    // the config sets. It also obviates the need to test predicates
+                    // later during conflict resolution.
+                    var currentPosition = input.Index;
+                    input.Seek(startIndex);
+                    var predSucceeds = EvalSemanticContext(pt.Predicate, context, config.alt, fullCtx);
+                    input.Seek(currentPosition);
+                    if (predSucceeds) {
+                        c = new ATNConfig(config, pt.target); // no pred context
+                    }
+                } else {
+                    var newSemCtx = SemanticContext.AndOp(config.semanticContext, pt.Predicate);
+                    c = new ATNConfig(config, pt.target, newSemCtx);
+                }
+            } else {
+                c = new ATNConfig(config, pt.target);
+            }
 
-		public ATNConfig PrecedenceTransition(ATNConfig config,
-										PrecedencePredicateTransition pt,
-										bool collectPredicates,
-										bool inContext,
-										bool fullCtx)
-		{
-			if (debug)
-			{
-				Console.WriteLine("PRED (collectPredicates=" + collectPredicates + ") " +
-						pt.precedence + ">=_p" +
-						", ctx dependent=true");
-				if (parser != null)
-				{
-					Console.WriteLine("context surrounding pred is " +
-									   StaticUtils.ToString(parser.GetRuleInvocationStack()));
-				}
-			}
+            if (debug) {
+                Console.WriteLine("config from pred transition=" + c);
+            }
 
-			ATNConfig c = null;
-			if (collectPredicates && inContext)
-			{
-				if (fullCtx)
-				{
-					// In full context mode, we can evaluate predicates on-the-fly
-					// during closure, which dramatically reduces the size of
-					// the config sets. It also obviates the need to test predicates
-					// later during conflict resolution.
-					int currentPosition = input.Index;
-					input.Seek(startIndex);
-					bool predSucceeds = EvalSemanticContext(pt.Predicate, context, config.alt, fullCtx);
-					input.Seek(currentPosition);
-					if (predSucceeds)
-					{
-						c = new ATNConfig(config, pt.target); // no pred context
-					}
-				}
-				else {
-					SemanticContext newSemCtx = SemanticContext.AndOp(config.semanticContext, pt.Predicate);
-					c = new ATNConfig(config, pt.target, newSemCtx);
-				}
-			}
-			else {
-				c = new ATNConfig(config, pt.target);
-			}
+            return c;
+        }
 
-			if (debug) Console.WriteLine("config from pred transition=" + c);
-			return c;
-		}
+        protected ATNConfig PredTransition(ATNConfig config,
+                                        PredicateTransition pt,
+                                        bool collectPredicates,
+                                        bool inContext,
+                                        bool fullCtx) {
+            if (debug) {
+                Console.WriteLine("PRED (collectPredicates=" + collectPredicates + ") " +
+                        pt.ruleIndex + ":" + pt.predIndex +
+                        ", ctx dependent=" + pt.isCtxDependent);
+                if (parser != null) {
+                    Console.WriteLine("context surrounding pred is " +
+                                       StaticUtils.ToString(parser.GetRuleInvocationStack()));
+                }
+            }
 
+            ATNConfig c = null;
+            if (collectPredicates &&
+                 (!pt.isCtxDependent || (pt.isCtxDependent && inContext))) {
+                if (fullCtx) {
+                    // In full context mode, we can evaluate predicates on-the-fly
+                    // during closure, which dramatically reduces the size of
+                    // the config sets. It also obviates the need to test predicates
+                    // later during conflict resolution.
+                    var currentPosition = input.Index;
+                    input.Seek(startIndex);
+                    var predSucceeds = EvalSemanticContext(pt.Predicate, context, config.alt, fullCtx);
+                    input.Seek(currentPosition);
+                    if (predSucceeds) {
+                        c = new ATNConfig(config, pt.target); // no pred context
+                    }
+                } else {
+                    var newSemCtx = SemanticContext.AndOp(config.semanticContext, pt.Predicate);
+                    c = new ATNConfig(config, pt.target, newSemCtx);
+                }
+            } else {
+                c = new ATNConfig(config, pt.target);
+            }
 
-		protected ATNConfig PredTransition(ATNConfig config,
-										PredicateTransition pt,
-										bool collectPredicates,
-										bool inContext,
-										bool fullCtx)
-		{
-			if (debug)
-			{
-				Console.WriteLine("PRED (collectPredicates=" + collectPredicates + ") " +
-						pt.ruleIndex + ":" + pt.predIndex +
-						", ctx dependent=" + pt.isCtxDependent);
-				if (parser != null)
-				{
-					Console.WriteLine("context surrounding pred is " +
-									   StaticUtils.ToString(parser.GetRuleInvocationStack()));
-				}
-			}
+            if (debug) {
+                Console.WriteLine("config from pred transition=" + c);
+            }
 
-			ATNConfig c = null;
-			if (collectPredicates &&
-				 (!pt.isCtxDependent || (pt.isCtxDependent && inContext)))
-			{
-				if (fullCtx)
-				{
-					// In full context mode, we can evaluate predicates on-the-fly
-					// during closure, which dramatically reduces the size of
-					// the config sets. It also obviates the need to test predicates
-					// later during conflict resolution.
-					int currentPosition = input.Index;
-					input.Seek(startIndex);
-					bool predSucceeds = EvalSemanticContext(pt.Predicate, context, config.alt, fullCtx);
-					input.Seek(currentPosition);
-					if (predSucceeds)
-					{
-						c = new ATNConfig(config, pt.target); // no pred context
-					}
-				}
-				else {
-					SemanticContext newSemCtx = SemanticContext.AndOp(config.semanticContext, pt.Predicate);
-					c = new ATNConfig(config, pt.target, newSemCtx);
-				}
-			}
-			else {
-				c = new ATNConfig(config, pt.target);
-			}
+            return c;
+        }
 
-			if (debug) Console.WriteLine("config from pred transition=" + c);
-			return c;
-		}
+        protected ATNConfig RuleTransition(ATNConfig config, RuleTransition t) {
+            if (debug) {
+                Console.WriteLine("CALL rule " + GetRuleName(t.target.ruleIndex) +
+                                   ", ctx=" + config.context);
+            }
 
+            var returnState = t.followState;
+            var newContext =
+                SingletonPredictionContext.Create(config.context, returnState.stateNumber);
+            return new ATNConfig(config, t.target, newContext);
+        }
 
-		protected ATNConfig RuleTransition(ATNConfig config, RuleTransition t)
-		{
-			if (debug)
-			{
-				Console.WriteLine("CALL rule " + GetRuleName(t.target.ruleIndex) +
-								   ", ctx=" + config.context);
-			}
-
-			ATNState returnState = t.followState;
-			PredictionContext newContext =
-				SingletonPredictionContext.Create(config.context, returnState.stateNumber);
-			return new ATNConfig(config, t.target, newContext);
-		}
-
-		/**
+        /**
 		 * Gets a {@link BitSet} containing the alternatives in {@code configs}
 		 * which are part of one or more conflicting alternative subsets.
 		 *
@@ -2037,13 +1889,12 @@ namespace Antlr4.Runtime.Atn
 		 * conflicting alternative subsets. If {@code configs} does not contain any
 		 * conflicting subsets, this method returns an empty {@link BitSet}.
 		 */
-		protected BitSet GetConflictingAlts(ATNConfigSet configSet)
-		{
-			ICollection<BitSet> altsets = PredictionMode.GetConflictingAltSubsets(configSet.configs);
-			return PredictionMode.GetAlts(altsets);
-		}
+        protected BitSet GetConflictingAlts(ATNConfigSet configSet) {
+            var altsets = PredictionMode.GetConflictingAltSubsets(configSet.configs);
+            return PredictionMode.GetAlts(altsets);
+        }
 
-		/**
+        /**
 		 Sam pointed out a problem with the previous definition, v3, of
 		 ambiguous states. If we have another state associated with conflicting
 		 alternatives, we should keep going. For example, the following grammar
@@ -2079,103 +1930,80 @@ namespace Antlr4.Runtime.Atn
 		 ignore a set of conflicting alts when we have an alternative
 		 that we still need to pursue.
 		 */
-		protected BitSet GetConflictingAltsOrUniqueAlt(ATNConfigSet configSet)
-		{
-			BitSet conflictingAlts;
-			if (configSet.uniqueAlt != ATN.INVALID_ALT_NUMBER)
-			{
-				conflictingAlts = new BitSet();
-				conflictingAlts[configSet.uniqueAlt] = true;
-			}
-			else {
-				conflictingAlts = configSet.conflictingAlts;
-			}
-			return conflictingAlts;
-		}
+        protected BitSet GetConflictingAltsOrUniqueAlt(ATNConfigSet configSet) {
+            BitSet conflictingAlts;
+            if (configSet.uniqueAlt != ATN.INVALID_ALT_NUMBER) {
+                conflictingAlts = new BitSet();
+                conflictingAlts[configSet.uniqueAlt] = true;
+            } else {
+                conflictingAlts = configSet.conflictingAlts;
+            }
+            return conflictingAlts;
+        }
 
+        public string GetTokenName(int t) {
+            if (t == TokenConstants.EOF) {
+                return "EOF";
+            }
 
-		public string GetTokenName(int t)
-		{
-			if (t == TokenConstants.EOF)
-			{
-				return "EOF";
-			}
+            var vocabulary = parser != null ? parser.Vocabulary : Vocabulary.EmptyVocabulary;
+            var displayName = vocabulary.GetDisplayName(t);
+            if (displayName.Equals(t.ToString())) {
+                return displayName;
+            }
 
-			IVocabulary vocabulary = parser != null ? parser.Vocabulary : Vocabulary.EmptyVocabulary;
-			String displayName = vocabulary.GetDisplayName(t);
-			if (displayName.Equals(t.ToString()))
-			{
-				return displayName;
-			}
+            return displayName + "<" + t + ">";
+        }
 
-			return displayName + "<" + t + ">";
-		}
+        public string GetLookaheadName(ITokenStream input) {
+            return GetTokenName(input.LA(1));
+        }
 
-		public string GetLookaheadName(ITokenStream input)
-		{
-			return GetTokenName(input.LA(1));
-		}
-
-		/** Used for debugging in adaptivePredict around execATN but I cut
+        /** Used for debugging in adaptivePredict around execATN but I cut
 		 *  it out for clarity now that alg. works well. We can leave this
 		 *  "dead" code for a bit.
 		 */
-		public void DumpDeadEndConfigs(NoViableAltException nvae)
-		{
+        public void DumpDeadEndConfigs(NoViableAltException nvae) {
             System.Console.Error.WriteLine("dead end configs: ");
-            foreach (ATNConfig c in nvae.DeadEndConfigs.configs)
-			{
-				String trans = "no edges";
-				if (c.state.NumberOfTransitions > 0)
-				{
-					Transition t = c.state.Transition(0);
-					if (t is AtomTransition)
-					{
-						AtomTransition at = (AtomTransition)t;
-						trans = "Atom " + GetTokenName(at.token);
-					}
-					else if (t is SetTransition)
-					{
-						SetTransition st = (SetTransition)t;
-						bool not = st is NotSetTransition;
-						trans = (not ? "~" : "") + "Set " + st.set.ToString();
-					}
-				}
+            foreach (var c in nvae.DeadEndConfigs.configs) {
+                var trans = "no edges";
+                if (c.state.NumberOfTransitions > 0) {
+                    var t = c.state.Transition(0);
+                    if (t is AtomTransition at) {
+                        trans = "Atom " + GetTokenName(at.token);
+                    } else if (t is SetTransition st) {
+                        var not = st is NotSetTransition;
+                        trans = (not ? "~" : "") + "Set " + st.set.ToString();
+                    }
+                }
 
                 System.Console.Error.WriteLine(c.ToString(parser, true) + ":" + trans);
-			}
-		}
+            }
+        }
 
+        protected NoViableAltException NoViableAlt(ITokenStream input,
+                                                ParserRuleContext outerContext,
+                                                ATNConfigSet configs,
+                                                int startIndex) {
+            return new NoViableAltException(parser, input,
+                                                input.Get(startIndex),
+                                                input.LT(1),
+                                                configs, outerContext);
+        }
 
-		protected NoViableAltException NoViableAlt(ITokenStream input,
-												ParserRuleContext outerContext,
-												ATNConfigSet configs,
-												int startIndex)
-		{
-			return new NoViableAltException(parser, input,
-												input.Get(startIndex),
-												input.LT(1),
-												configs, outerContext);
-		}
+        protected static int GetUniqueAlt(ATNConfigSet configSet) {
+            var alt = ATN.INVALID_ALT_NUMBER;
+            foreach (var c in configSet.configs) {
+                if (alt == ATN.INVALID_ALT_NUMBER) {
+                    alt = c.alt; // found first alt
+                } else if (c.alt != alt) {
+                    return ATN.INVALID_ALT_NUMBER;
+                }
+            }
+            return alt;
+        }
 
-		protected static int GetUniqueAlt(ATNConfigSet configSet)
-		{
-			int alt = ATN.INVALID_ALT_NUMBER;
-			foreach (ATNConfig c in configSet.configs)
-			{
-				if (alt == ATN.INVALID_ALT_NUMBER)
-				{
-					alt = c.alt; // found first alt
-				}
-				else if (c.alt != alt)
-				{
-					return ATN.INVALID_ALT_NUMBER;
-				}
-			}
-			return alt;
-		}
-
-		/**
+        /**
 		 * Add an edge to the DFA, if possible. This method calls
 		 * {@link #addDFAState} to ensure the {@code to} state is present in the
 		 * DFA. If {@code from} is {@code null}, or if {@code t} is outside the
@@ -2195,46 +2023,37 @@ namespace Antlr4.Runtime.Atn
 		 * otherwise this method returns the result of calling {@link #addDFAState}
 		 * on {@code to}
 		 */
-		protected DFAState AddDFAEdge(DFA dfa,
-									  DFAState from,
-									  int t,
-									  DFAState to)
-		{
-			if (debug)
-			{
-				Console.WriteLine("EDGE " + from + " -> " + to + " upon " + GetTokenName(t));
-			}
+        protected DFAState AddDFAEdge(DFA dfa,
+                                      DFAState from,
+                                      int t,
+                                      DFAState to) {
+            if (debug) {
+                Console.WriteLine("EDGE " + from + " -> " + to + " upon " + GetTokenName(t));
+            }
 
-			if (to == null)
-			{
-				return null;
-			}
+            if (to == null) {
+                return null;
+            }
 
-			to = AddDFAState(dfa, to); // used existing if possible not incoming
-			if (from == null || t < -1 || t > atn.maxTokenType)
-			{
-				return to;
-			}
+            to = AddDFAState(dfa, to); // used existing if possible not incoming
+            if (from == null || t < -1 || t > atn.maxTokenType) {
+                return to;
+            }
 
-			lock (from)
-			{
-				if (from.edges == null)
-				{
-					from.edges = new DFAState[atn.maxTokenType + 1 + 1];
-				}
+            lock (from) {
+                from.edges ??= new DFAState[atn.maxTokenType + 1 + 1];
 
-				from.edges[t + 1] = to; // connect
-			}
+                from.edges[t + 1] = to; // connect
+            }
 
-			if (debug)
-			{
-				Console.WriteLine("DFA=\n" + dfa.ToString(parser != null ? parser.Vocabulary : Vocabulary.EmptyVocabulary));
-			}
+            if (debug) {
+                Console.WriteLine("DFA=\n" + dfa.ToString(parser != null ? parser.Vocabulary : Vocabulary.EmptyVocabulary));
+            }
 
-			return to;
-		}
+            return to;
+        }
 
-		/**
+        /**
 		 * Add state {@code D} to the DFA if it is not already present, and return
 		 * the actual instance stored in the DFA. If a state equivalent to {@code D}
 		 * is already in the DFA, the existing state is returned. Otherwise this
@@ -2249,93 +2068,83 @@ namespace Antlr4.Runtime.Atn
 		 * state if {@code D} is already in the DFA, or {@code D} itself if the
 		 * state was not already present.
 		 */
-		protected DFAState AddDFAState(DFA dfa, DFAState D)
-		{
-			if (D == ERROR)
-			{
-				return D;
-			}
+        protected DFAState AddDFAState(DFA dfa, DFAState D) {
+            if (D == ERROR) {
+                return D;
+            }
 
-			lock (dfa.states)
-			{
-				DFAState existing = dfa.states.Get(D);
-				if (existing != null) {
-    				if ( trace_atn_sim ) Console.WriteLine("addDFAState " + D + " exists");
-    				return existing;
-				}
+            lock (dfa.states) {
+                var existing = dfa.states.Get(D);
+                if (existing != null) {
+                    if (trace_atn_sim) {
+                        Console.WriteLine("addDFAState " + D + " exists");
+                    }
 
-				D.stateNumber = dfa.states.Count;
-				if (!D.configSet.IsReadOnly)
-				{
-					D.configSet.OptimizeConfigs(this);
-					D.configSet.IsReadOnly = true;
-				}
-				dfa.states.Put(D, D);
+                    return existing;
+                }
 
-  				if ( trace_atn_sim ) Console.WriteLine("addDFAState new " + D);
-				return D;
-			}
-		}
+                D.stateNumber = dfa.states.Count;
+                if (!D.configSet.IsReadOnly) {
+                    D.configSet.OptimizeConfigs(this);
+                    D.configSet.IsReadOnly = true;
+                }
+                dfa.states.Put(D, D);
 
-		protected virtual void ReportAttemptingFullContext(DFA dfa, BitSet conflictingAlts, ATNConfigSet configs, int startIndex, int stopIndex)
-		{
-			if (debug || retry_debug)
-			{
-				Interval interval = Interval.Of(startIndex, stopIndex);
-				Console.WriteLine("reportAttemptingFullContext decision=" + dfa.decision + ":" + configs +
-								   ", input=" + parser.TokenStream.GetText(interval));
-			}
-			if (parser != null)
-				parser.ErrorListenerDispatch.ReportAttemptingFullContext(parser, dfa, startIndex, stopIndex, conflictingAlts, null /*configs*/);
-		}
+                if (trace_atn_sim) {
+                    Console.WriteLine("addDFAState new " + D);
+                }
 
-		protected virtual void ReportContextSensitivity(DFA dfa, int prediction, ATNConfigSet configs, int startIndex, int stopIndex)
-		{
-			if (debug || retry_debug)
-			{
-				Interval interval = Interval.Of(startIndex, stopIndex);
-				Console.WriteLine("ReportContextSensitivity decision=" + dfa.decision + ":" + configs +
-								   ", input=" + parser.TokenStream.GetText(interval));
-			}
-			if (parser != null) parser.ErrorListenerDispatch.ReportContextSensitivity(parser, dfa, startIndex, stopIndex, prediction, null /*configs*/);
-		}
+                return D;
+            }
+        }
 
-		/** If context sensitive parsing, we know it's ambiguity not conflict */
-		protected virtual void ReportAmbiguity(DFA dfa,
-									   DFAState D, // the DFA state from execATN() that had SLL conflicts
-									   int startIndex, int stopIndex,
-									   bool exact,
-									   BitSet ambigAlts,
-									   ATNConfigSet configs) // configs that LL not SLL considered conflicting
-		{
-			if (debug || retry_debug)
-			{
-				Interval interval = Interval.Of(startIndex, stopIndex);
-				Console.WriteLine("ReportAmbiguity " +
-								   ambigAlts + ":" + configs +
-								   ", input=" + parser.TokenStream.GetText(interval));
-			}
-			if (parser != null) parser.ErrorListenerDispatch.ReportAmbiguity(parser, dfa, startIndex, stopIndex,
-																				  exact, ambigAlts, configs);
-		}
+        protected virtual void ReportAttemptingFullContext(DFA dfa, BitSet conflictingAlts, ATNConfigSet configs, int startIndex, int stopIndex) {
+            if (debug || retry_debug) {
+                var interval = Interval.Of(startIndex, stopIndex);
+                Console.WriteLine("reportAttemptingFullContext decision=" + dfa.decision + ":" + configs +
+                                   ", input=" + parser.TokenStream.GetText(interval));
+            }
+            parser?.ErrorListenerDispatch.ReportAttemptingFullContext(parser, dfa, startIndex, stopIndex, conflictingAlts, null /*configs*/);
+        }
 
-		public PredictionMode PredictionMode
-		{
-			get
-			{
-				return this.mode;
-			}
-			set
-			{
-				this.mode = value;
-			}
-		}
+        protected virtual void ReportContextSensitivity(DFA dfa, int prediction, ATNConfigSet configs, int startIndex, int stopIndex) {
+            if (debug || retry_debug) {
+                var interval = Interval.Of(startIndex, stopIndex);
+                Console.WriteLine("ReportContextSensitivity decision=" + dfa.decision + ":" + configs +
+                                   ", input=" + parser.TokenStream.GetText(interval));
+            }
+            parser?.ErrorListenerDispatch.ReportContextSensitivity(parser, dfa, startIndex, stopIndex, prediction, null /*configs*/);
+        }
 
+        /** If context sensitive parsing, we know it's ambiguity not conflict */
+        protected virtual void ReportAmbiguity(DFA dfa,
+                                       DFAState D, // the DFA state from execATN() that had SLL conflicts
+                                       int startIndex, int stopIndex,
+                                       bool exact,
+                                       BitSet ambigAlts,
+                                       ATNConfigSet configs) // configs that LL not SLL considered conflicting
+        {
+            if (debug || retry_debug) {
+                var interval = Interval.Of(startIndex, stopIndex);
+                Console.WriteLine("ReportAmbiguity " +
+                                   ambigAlts + ":" + configs +
+                                   ", input=" + parser.TokenStream.GetText(interval));
+            }
+            parser?.ErrorListenerDispatch.ReportAmbiguity(parser, dfa, startIndex, stopIndex,
+                                                                                  exact, ambigAlts, configs);
+        }
 
-		public Parser getParser()
-		{
-			return parser;
-		}
-	}
+        public PredictionMode PredictionMode {
+            get {
+                return mode;
+            }
+            set {
+                mode = value;
+            }
+        }
 
+        public Parser getParser() {
+            return parser;
+        }
+    }
 }

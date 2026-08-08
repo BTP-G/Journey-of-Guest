@@ -8,6 +8,13 @@ namespace Xoderony.YooAsset {
     [Serializable]
     public class YooAssetReference<T> : IDisposable where T : UObject {
 
+#if UNITY_EDITOR
+
+        [SerializeField]
+        private T _assetCache;
+
+#endif
+
         [SerializeField]
         private string _location;
 
@@ -36,8 +43,7 @@ namespace Xoderony.YooAsset {
                 Debug.LogError($"[YooAssetReference] 资源已经加载！");
                 return;
             }
-            var rp = YooAssets.TryGetPackage(_packageName);
-            if (rp is null) {
+            if (!YooAssets.TryGetPackage(_packageName, out var package)) {
                 Debug.LogError($"[YooAssetReference] 资源包不存在：{_packageName}");
                 return;
             }
@@ -46,9 +52,9 @@ namespace Xoderony.YooAsset {
                 return;
             }
             if (async) {
-                _assetHandleCache = rp.LoadAssetAsync<T>(_location);
+                _assetHandleCache = package.LoadAssetAsync<T>(_location);
             } else {
-                _assetHandleCache = rp.LoadAssetSync<T>(_location);
+                _assetHandleCache = package.LoadAssetSync<T>(_location);
             }
         }
 
@@ -56,25 +62,13 @@ namespace Xoderony.YooAsset {
         /// 释放资源
         /// </summary>
         public void Unload() {
-            if (_assetHandleCache is not null) {
-                _assetHandleCache.Dispose();
-                _assetHandleCache = null;
-            }
+            _assetHandleCache?.Dispose();
+            _assetHandleCache = null;
         }
 
         void IDisposable.Dispose() {
-            if (_assetHandleCache is not null) {
-                _assetHandleCache.Dispose();
-                _assetHandleCache = null;
-            }
+            _assetHandleCache?.Dispose();
+            _assetHandleCache = null;
         }
-
-#if UNITY_EDITOR
-
-        [SerializeField]
-        private T _assetCache;
-
-#endif
     }
-
 }

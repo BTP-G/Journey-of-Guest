@@ -1,8 +1,8 @@
 using EditorAttributes;
-using Xoderony.Extensions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Xoderony.Extensions;
 
 namespace JoG.Lobby.View {
 

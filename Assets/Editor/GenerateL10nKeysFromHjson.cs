@@ -1,4 +1,4 @@
-﻿using Hjson; // ← 使用你已导入的 Hjson 插件
+using Hjson; // ← 使用你已导入的 Hjson 插件
 using System.IO;
 using System.Text;
 using UnityEditor;
@@ -12,7 +12,7 @@ public class GenerateL10nKeysFromHjson {
 
     [MenuItem("Tools/Localization/Generate L10nKeys from Hjson")]
     public static void Generate() {
-        string hjsonFullPath = Path.Combine(Application.dataPath, FilePath);
+        var hjsonFullPath = Path.Combine(Application.dataPath, FilePath);
         if (!File.Exists(hjsonFullPath)) {
             Debug.LogError($"❌ Hjson file not found: {hjsonFullPath}");
             return;
@@ -39,7 +39,7 @@ public class GenerateL10nKeysFromHjson {
             sb.AppendLine("    }");
             sb.AppendLine("}");
 
-            string outputFullPath = Path.Combine(Application.dataPath, OutputPath);
+            var outputFullPath = Path.Combine(Application.dataPath, OutputPath);
             Directory.CreateDirectory(Path.GetDirectoryName(outputFullPath));
             File.WriteAllText(outputFullPath, sb.ToString(), Encoding.UTF8);
             AssetDatabase.Refresh();
@@ -54,15 +54,15 @@ public class GenerateL10nKeysFromHjson {
         var indent = new string(' ', indentLevel * 4);
 
         foreach (var kvp in obj) {
-            string key = kvp.Key;
-            JsonValue value = kvp.Value;
-            string newPath = string.IsNullOrEmpty(currentPath) ? key : $"{currentPath}.{key}";
+            var key = kvp.Key;
+            var value = kvp.Value;
+            var newPath = string.IsNullOrEmpty(currentPath) ? key : $"{currentPath}.{key}";
 
             if (value.JsonType == JsonType.String) {
-                string fieldName = ToPascalCase(key);
+                var fieldName = ToPascalCase(key);
                 sb.AppendLine($"{indent}public const string {fieldName} = \"{newPath}\";");
             } else if (value.JsonType == JsonType.Object) {
-                string className = ToPascalCase(key);
+                var className = ToPascalCase(key);
                 sb.AppendLine($"{indent}public static class {className}");
                 sb.AppendLine($"{indent}{{");
                 BuildClassFromHjson(value as JsonObject, newPath, sb, indentLevel + 1);
@@ -74,15 +74,17 @@ public class GenerateL10nKeysFromHjson {
 
     // 辅助：将任意命名风格转为 PascalCase
     private static string ToPascalCase(string input) {
-        if (string.IsNullOrEmpty(input)) return "Empty";
+        if (string.IsNullOrEmpty(input)) {
+            return "Empty";
+        }
 
         // 支持: bootstrap_loading → BootstrapLoading
         //       bootstrap-loading → BootstrapLoading
         //       bootstrap.loading → BootstrapLoading
         input = input.Replace('-', '_').Replace('.', '_');
-        string[] parts = input.Split('_', System.StringSplitOptions.RemoveEmptyEntries);
-        for (int i = 0; i < parts.Length; i++) {
-            string part = parts[i];
+        var parts = input.Split('_', System.StringSplitOptions.RemoveEmptyEntries);
+        for (var i = 0; i < parts.Length; i++) {
+            var part = parts[i];
             parts[i] = char.ToUpper(part[0]) + (part.Length > 1 ? part[1..].ToLower() : "");
         }
         return string.Join("", parts);

@@ -1,4 +1,4 @@
-﻿#if TEXTMESHPRO
+#if TEXTMESHPRO
 using System.Collections.Generic;
 
 namespace TMPro

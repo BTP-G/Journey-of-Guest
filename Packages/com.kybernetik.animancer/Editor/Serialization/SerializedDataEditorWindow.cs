@@ -8,8 +8,7 @@ using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only]
     /// A window for managing a copy of some serialized data and applying or reverting it.
     /// </summary>
@@ -20,8 +19,7 @@ namespace Animancer.Editor
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/SerializedDataEditorWindow_2
     public abstract class SerializedDataEditorWindow<TObject, TData> : EditorWindow
         where TObject : Object
-        where TData : class, ICopyable<TData>, IEquatable<TData>, new()
-    {
+        where TData : class, ICopyable<TData>, IEquatable<TData>, new() {
         /************************************************************************************************************************/
 
         [SerializeField]
@@ -29,8 +27,7 @@ namespace Animancer.Editor
 
         /// <summary>The object which contains the data this class manages.</summary>
         /// <remarks><see cref="SetAndCaptureSource"/> should generally be used instead of setting this property directly.</remarks>
-        public virtual TObject SourceObject
-        {
+        public virtual TObject SourceObject {
             get => _SourceObject;
             protected set => _SourceObject = value;
         }
@@ -52,20 +49,16 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Is the <see cref="Data"/> managed by this window different to the <see cref="SourceData"/>?</summary>
-        public virtual bool HasDataChanged
-        {
-            get
-            {
-                try
-                {
-                    if (_Data == null)
+        public virtual bool HasDataChanged {
+            get {
+                try {
+                    if (_Data == null) {
                         return false;
+                    }
 
                     var sourceData = SourceData;
                     return sourceData != null && !_Data.Equals(sourceData);
-                }
-                catch (Exception exception)
-                {
+                } catch (Exception exception) {
                     Debug.LogException(exception);
                     return false;
                 }
@@ -75,16 +68,14 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Initializes this window.</summary>
-        protected virtual void OnEnable()
-        {
+        protected virtual void OnEnable() {
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
             EditorApplication.wantsToQuit += OnTryCloseEditor;
             Undo.undoRedoPerformed += Repaint;
         }
 
         /// <summary>Cleans up this window.</summary>
-        protected virtual void OnDisable()
-        {
+        protected virtual void OnDisable() {
             EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
             EditorApplication.wantsToQuit -= OnTryCloseEditor;
             Undo.undoRedoPerformed -= Repaint;
@@ -96,20 +87,19 @@ namespace Animancer.Editor
         /// Prompts the user to <see cref="Apply"/> or <see cref="Revert"/>
         /// if there are changes in the <see cref="Data"/> when this window is closed.
         /// </summary>
-        protected virtual void OnDestroy()
-        {
+        protected virtual void OnDestroy() {
             var sourceObject = SourceObject;
             if (sourceObject == null ||
                 !HasDataChanged ||
-                titleContent == null)
+                titleContent == null) {
                 return;
+            }
 
             if (EditorUtility.DisplayDialog(
                 titleContent.text,
                 $"Apply unsaved changes to '{sourceObject.name}'?",
                 "Apply",
-                "Revert"))
-            {
+                "Revert")) {
                 Apply();
             }
         }
@@ -117,13 +107,13 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Called before closing the Unity Editor to confirm that un-saved data is applied.</summary>
-        private bool OnTryCloseEditor()
-        {
+        private bool OnTryCloseEditor() {
             var sourceObject = SourceObject;
             if (sourceObject == null ||
                 !HasDataChanged ||
-                titleContent == null)
+                titleContent == null) {
                 return true;
+            }
 
             var option = EditorUtility.DisplayDialogComplex(
                 titleContent.text,
@@ -132,8 +122,7 @@ namespace Animancer.Editor
                 "Cancel",
                 "Revert");
 
-            switch (option)
-            {
+            switch (option) {
                 case 0:// Apply.
                     Apply();
                     return true;
@@ -154,8 +143,7 @@ namespace Animancer.Editor
         /// Sets the <see cref="SourceObject"/> and captures the <see cref="Data"/>
         /// as a copy of its <see cref="SourceData"/>.
         /// </summary>
-        protected void SetAndCaptureSource(TObject sourceObject)
-        {
+        protected void SetAndCaptureSource(TObject sourceObject) {
             _SourceObject = sourceObject;
             CaptureData();
             Repaint();
@@ -173,24 +161,24 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Saves the edited <see cref="Data"/> into the <see cref="SourceObject"/>.</summary>
-        public virtual void Apply()
-        {
+        public virtual void Apply() {
             var sourceObject = SourceObject;
-            if (sourceObject == null)
+            if (sourceObject == null) {
                 return;
+            }
 
-            using (new ModifySerializedField(sourceObject, name, SourceObjectMightBePrefab))
-            {
+            using (new ModifySerializedField(sourceObject, name, SourceObjectMightBePrefab)) {
                 SourceData = _Data.CopyableClone();
 
-                if (EditorUtility.IsPersistent(SourceObject))
-                {
+                if (EditorUtility.IsPersistent(SourceObject)) {
                     var objects = SetPool.Acquire<Object>();
                     GatherObjectReferences(sourceObject, objects);
 
-                    foreach (var obj in objects)
-                        if (!EditorUtility.IsPersistent(obj))
+                    foreach (var obj in objects) {
+                        if (!EditorUtility.IsPersistent(obj)) {
                             AssetDatabase.AddObjectToAsset(obj, SourceObject);
+                        }
+                    }
 
                     SetPool.Release(objects);
                 }
@@ -203,17 +191,15 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Gathers all objects referenced by the `root`.</summary>
-        public static void GatherObjectReferences(Object root, HashSet<Object> objects)
-        {
+        public static void GatherObjectReferences(Object root, HashSet<Object> objects) {
             using var serializedObject = new SerializedObject(root);
             var property = serializedObject.GetIterator();
-            while (property.Next(true))
-            {
-                if (property.propertyType == SerializedPropertyType.ObjectReference)
-                {
+            while (property.Next(true)) {
+                if (property.propertyType == SerializedPropertyType.ObjectReference) {
                     var value = property.objectReferenceValue;
-                    if (value != null)
+                    if (value != null) {
                         objects.Add(value);
+                    }
                 }
             }
         }
@@ -221,8 +207,7 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Restores the <see cref="Data"/> to the original values from the <see cref="SourceData"/>.</summary>
-        public virtual void Revert()
-        {
+        public virtual void Revert() {
             RecordUndo();
             CaptureData();
         }
@@ -230,8 +215,7 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Stores a copy of the <see cref="SourceData"/> in the <see cref="Data"/>.</summary>
-        protected virtual void CaptureData()
-        {
+        protected virtual void CaptureData() {
             _Data = SourceData?.CopyableClone() ?? new();
             AnimancerReflection.TryInvoke(_Data, "OnValidate");
         }
@@ -239,12 +223,12 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Records the current state of this window so it can be undone later.</summary>
-        public TData RecordUndo()
-            => RecordUndo(titleContent.text);
+        public TData RecordUndo() {
+            return RecordUndo(titleContent.text);
+        }
 
         /// <summary>Records the current state of this window so it can be undone later.</summary>
-        public virtual TData RecordUndo(string name)
-        {
+        public virtual TData RecordUndo(string name) {
             Undo.RecordObject(this, name);
             Repaint();
             return _Data;
@@ -260,14 +244,10 @@ namespace Animancer.Editor
             TObject sourceObject,
             bool onlyOneWindow = false,
             params Type[] desiredDockNextTo)
-            where TWindow : SerializedDataEditorWindow<TObject, TData>
-        {
-            if (!onlyOneWindow)
-            {
-                foreach (var window in Resources.FindObjectsOfTypeAll<TWindow>())
-                {
-                    if (window.SourceObject == sourceObject)
-                    {
+            where TWindow : SerializedDataEditorWindow<TObject, TData> {
+            if (!onlyOneWindow) {
+                foreach (var window in Resources.FindObjectsOfTypeAll<TWindow>()) {
+                    if (window.SourceObject == sourceObject) {
                         window.Show();
                         window.SetAndCaptureSource(sourceObject);
                         window.Focus();
@@ -299,20 +279,16 @@ namespace Animancer.Editor
         private bool _EnabledAutoApplyInPlayMode;
 
         /// <summary>Should changes be automatically applied as soon as they're made?</summary>
-        public bool AutoApply
-        {
-            get
-            {
-                if (!_HasLoadedAutoApply)
-                {
+        public bool AutoApply {
+            get {
+                if (!_HasLoadedAutoApply) {
                     _HasLoadedAutoApply = true;
                     _AutoApply = EditorPrefs.GetBool(AutoApplyPref);
                 }
 
                 return _AutoApply;
             }
-            set
-            {
+            set {
                 _HasLoadedAutoApply = true;
                 _AutoApply = value;
                 _EnabledAutoApplyInPlayMode = _AutoApply && EditorApplication.isPlayingOrWillChangePlaymode;
@@ -323,18 +299,20 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Handles entering and exiting Play Mode.</summary>
-        protected virtual void OnPlayModeStateChanged(PlayModeStateChange change)
-        {
-            switch (change)
-            {
+        protected virtual void OnPlayModeStateChanged(PlayModeStateChange change) {
+            switch (change) {
                 case PlayModeStateChange.EnteredPlayMode:
-                    if (HasDataChanged && focusedWindow != null)
+                    if (HasDataChanged && focusedWindow != null) {
                         focusedWindow.ShowNotification(new($"{titleContent.text} window has un-applied changes"));
+                    }
+
                     break;
 
                 case PlayModeStateChange.ExitingPlayMode:
-                    if (_EnabledAutoApplyInPlayMode)
+                    if (_EnabledAutoApplyInPlayMode) {
                         AutoApply = false;
+                    }
+
                     break;
             }
         }
@@ -363,8 +341,7 @@ namespace Animancer.Editor
         /// Calculates the pixel width required for
         /// <see cref="DoApplyRevertGUI(Rect, Rect, Rect, ButtonGroupStyles)"/>.
         /// </summary>
-        public float CalculateApplyRevertWidth(ButtonGroupStyles styles = default)
-        {
+        public float CalculateApplyRevertWidth(ButtonGroupStyles styles = default) {
             styles.CopyMissingStyles(ButtonGroupStyles.Button);
             return
                 styles.left.CalculateWidth(RevertLabel) + 1 +
@@ -375,8 +352,7 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Draws GUI controls for <see cref="Revert"/>, <see cref="Apply"/>, and <see cref="AutoApply"/>.</summary>
-        public void DoApplyRevertGUI(ButtonGroupStyles styles = default)
-        {
+        public void DoApplyRevertGUI(ButtonGroupStyles styles = default) {
             styles.CopyMissingStyles(ButtonGroupStyles.Button);
 
             GUILayout.BeginHorizontal();
@@ -393,8 +369,7 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Draws GUI controls for <see cref="Revert"/>, <see cref="Apply"/>, and <see cref="AutoApply"/>.</summary>
-        public void DoApplyRevertGUI(Rect area, ButtonGroupStyles styles = default)
-        {
+        public void DoApplyRevertGUI(Rect area, ButtonGroupStyles styles = default) {
             styles.CopyMissingStyles(ButtonGroupStyles.Button);
 
             var leftArea = AnimancerGUI.StealFromLeft(ref area, styles.left.CalculateWidth(RevertLabel) + 1);
@@ -410,30 +385,33 @@ namespace Animancer.Editor
             Rect leftArea,
             Rect middleArea,
             Rect rightArea,
-            ButtonGroupStyles styles = default)
-        {
+            ButtonGroupStyles styles = default) {
             styles.CopyMissingStyles(ButtonGroupStyles.Button);
 
             var enabled = GUI.enabled;
             GUI.enabled = SourceObject != null && HasDataChanged;
 
             // Revert.
-            if (GUI.Button(leftArea, RevertLabel, styles.left))
+            if (GUI.Button(leftArea, RevertLabel, styles.left)) {
                 Revert();
+            }
 
             // Apply.
-            if (GUI.Button(middleArea, ApplyLabel, styles.middle))
+            if (GUI.Button(middleArea, ApplyLabel, styles.middle)) {
                 Apply();
+            }
 
             // Auto Apply.
             var autoApply = AutoApply;
-            if (autoApply && GUI.enabled)
+            if (autoApply && GUI.enabled) {
                 Apply();
+            }
 
             GUI.enabled = enabled;
 
-            if (autoApply != GUI.Toggle(rightArea, autoApply, AutoApplyLabel, styles.right))
+            if (autoApply != GUI.Toggle(rightArea, autoApply, AutoApplyLabel, styles.right)) {
                 AutoApply = !autoApply;
+            }
         }
 
         /************************************************************************************************************************/

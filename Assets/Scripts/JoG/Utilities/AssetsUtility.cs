@@ -1,13 +1,13 @@
-using Xoderony.Extensions;
 using Hjson;
 using JoG.Character;
-using JoG.Gameplay.Effects;
-using Xoderony.GameplayEffects;
+using JoG.GameplayEffects;
 using JoG.Item;
 using System;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using Xoderony.Extensions;
+using Xoderony.GameplayEffects;
 using YooAsset;
 
 namespace JoG.Utilities {
@@ -26,8 +26,8 @@ namespace JoG.Utilities {
                 AssetHandle ah = null;
                 try {
                     ah = package.LoadAssetSync(assetInfo);
-                    if (ah.Status != EOperationStatus.Succeed) {
-                        throw new Exception($"[{nameof(AssetsUtility)}: Loaded asset '{assetInfo.AssetPath}' from package '{package.PackageName}' failed: {ah.LastError}");
+                    if (ah.Status != EOperationStatus.Succeeded) {
+                        throw new Exception($"[{nameof(AssetsUtility)}: Loaded asset '{assetInfo.AssetPath}' from package '{package.PackageName}' failed: {ah.Error}");
                     }
                     if (ah.AssetObject is ItemData itemData) {
                         GameplayEffectDefinitionRegistry.Shared.Add(itemData);

@@ -1,23 +1,17 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ImpossibleRobert.Common
-{
-    public static class ListUtils
-    {
-        public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
-        {
-            foreach (T element in source)
-            {
+namespace ImpossibleRobert.Common {
+    public static class ListUtils {
+        public static void ForEach<T>(this IEnumerable<T> source, Action<T> action) {
+            foreach (var element in source) {
                 action(element);
             }
         }
 
-        public static void Populate<T>(this T[] arr, T value)
-        {
-            for (int i = 0; i < arr.Length; i++)
-            {
+        public static void Populate<T>(this T[] arr, T value) {
+            for (var i = 0; i < arr.Length; i++) {
                 arr[i] = value;
             }
         }
@@ -26,8 +20,7 @@ namespace ImpossibleRobert.Common
             this IEnumerable<TSource> source,
             Func<TSource, TKey> keySelector,
             bool ascending,
-            IComparer<TKey> comparer = null)
-        {
+            IComparer<TKey> comparer = null) {
             return ascending
                 ? source.OrderBy(keySelector, comparer)
                 : source.OrderByDescending(keySelector, comparer);
@@ -37,8 +30,7 @@ namespace ImpossibleRobert.Common
             this IOrderedEnumerable<TSource> source,
             Func<TSource, TKey> keySelector,
             bool ascending,
-            IComparer<TKey> comparer = null)
-        {
+            IComparer<TKey> comparer = null) {
             return ascending
                 ? source.ThenBy(keySelector, comparer)
                 : source.ThenByDescending(keySelector, comparer);

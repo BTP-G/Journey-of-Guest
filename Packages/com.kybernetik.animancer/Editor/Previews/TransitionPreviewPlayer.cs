@@ -6,13 +6,11 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace Animancer.Editor.Previews
-{
+namespace Animancer.Editor.Previews {
     /// <summary>[Editor-Only] Utility for playing through transition previews.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor.Previews/TransitionPreviewPlayer
     [Serializable]
-    public class TransitionPreviewPlayer : IDisposable
-    {
+    public class TransitionPreviewPlayer : IDisposable {
         /************************************************************************************************************************/
 
         [SerializeReference] private ITransition _FromTransition;
@@ -31,11 +29,9 @@ namespace Animancer.Editor.Previews
         private AnimancerGraph _Graph;
 
         /// <summary>The graph used to play the animations.</summary>
-        public AnimancerGraph Graph
-        {
+        public AnimancerGraph Graph {
             get => _Graph;
-            set
-            {
+            set {
                 _Graph = value;
                 Evaluate();
             }
@@ -64,8 +60,7 @@ namespace Animancer.Editor.Previews
 
         /// <summary>The <see cref="ITransition.FadeDuration"/>.</summary>
         /// <remarks><see cref="float.NaN"/> uses the value from the <see cref="ToTransition"/>.</remarks>
-        public float FadeDuration
-        {
+        public float FadeDuration {
             get => float.IsNaN(_FadeDuration) && ToTransition.IsValid()
                 ? ToTransition.FadeDuration
                 : _FadeDuration;
@@ -78,8 +73,7 @@ namespace Animancer.Editor.Previews
 
         /// <summary>The <see cref="ITransition.NormalizedStartTime"/>.</summary>
         /// <remarks><see cref="float.NaN"/> uses the value from the <see cref="ToTransition"/>.</remarks>
-        public float NormalizedStartTime
-        {
+        public float NormalizedStartTime {
             get => float.IsNaN(_NormalizedStartTime) && ToTransition.IsValid()
                 ? ToTransition.NormalizedStartTime
                 : _NormalizedStartTime;
@@ -105,34 +99,38 @@ namespace Animancer.Editor.Previews
         /************************************************************************************************************************/
 
         /// <summary>Recalculated the <see cref="MinTime"/> and <see cref="MaxTime"/>.</summary>
-        public void RecalculateTimeBounds()
-        {
+        public void RecalculateTimeBounds() {
             MinTime = -FromDuration;
 
             if (_FromTransition.IsValid() &&
-                AnimancerUtilities.TryCalculateDuration(_FromTransition, out var duration))
+                AnimancerUtilities.TryCalculateDuration(_FromTransition, out var duration)) {
                 MinTime = Math.Min(MinTime, -duration);
+            }
 
             MaxTime = ToDuration;
 
             var fadeDuration = FadeDuration;
-            if (!float.IsNaN(fadeDuration))
+            if (!float.IsNaN(fadeDuration)) {
                 MaxTime = Math.Max(ToDuration, fadeDuration);
+            }
 
             if (_ToTransition.IsValid() &&
-                AnimancerUtilities.TryCalculateDuration(_ToTransition, out duration))
+                AnimancerUtilities.TryCalculateDuration(_ToTransition, out duration)) {
                 MaxTime = Math.Max(MaxTime, duration);
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <summary>Converts normalized time to seconds.</summary>
-        public float LerpTimeUnclamped(float normalizedTime)
-            => Mathf.LerpUnclamped(MinTime, MaxTime, normalizedTime);
+        public float LerpTimeUnclamped(float normalizedTime) {
+            return Mathf.LerpUnclamped(MinTime, MaxTime, normalizedTime);
+        }
 
         /// <summary>Converts seconds to normalized time.</summary>
-        public float InverseLerpTimeUnclamped(float time)
-            => AnimancerUtilities.InverseLerpUnclamped(MinTime, MaxTime, time);
+        public float InverseLerpTimeUnclamped(float time) {
+            return AnimancerUtilities.InverseLerpUnclamped(MinTime, MaxTime, time);
+        }
 
         /************************************************************************************************************************/
 
@@ -140,13 +138,11 @@ namespace Animancer.Editor.Previews
 
         /// <summary>The amount of time that has passed since the <see cref="ToTransition"/> started (in seconds).</summary>
         /// <remarks>This value goes from the <see cref="MinTime"/> to the <see cref="MaxTime"/>.</remarks>
-        public float CurrentTime
-        {
+        public float CurrentTime {
             get => float.IsNaN(_CurrentTime)
                 ? MinTime
                 : _CurrentTime;
-            set
-            {
+            set {
                 _CurrentTime = value;
                 Evaluate();
             }
@@ -154,8 +150,7 @@ namespace Animancer.Editor.Previews
 
         /// <summary>The amount of time that has passed since the <see cref="ToTransition"/> started (normalized).</summary>
         /// <remarks>0 is at the <see cref="MinTime"/> and 1 is at the <see cref="MaxTime"/>.</remarks>
-        public float NormalizedTime
-        {
+        public float NormalizedTime {
             get => InverseLerpTimeUnclamped(CurrentTime);
             set => CurrentTime = LerpTimeUnclamped(value);
         }
@@ -165,32 +160,29 @@ namespace Animancer.Editor.Previews
         private bool _IsPlaying;
 
         /// <summary>Is the preview currently playing?</summary>
-        public bool IsPlaying
-        {
+        public bool IsPlaying {
             get => _IsPlaying;
-            set
-            {
-                if (_IsPlaying == value)
+            set {
+                if (_IsPlaying == value) {
                     return;
+                }
 
                 _IsPlaying = value;
 
-                if (_IsPlaying)
-                {
+                if (_IsPlaying) {
                     _LastUpdateTime = TimeSinceStartup;
 
                     EditorApplication.update += Update;
-                }
-                else
-                {
+                } else {
                     EditorApplication.update -= Update;
                 }
             }
         }
 
         /// <summary>Cleans up this player.</summary>
-        public void Dispose()
-            => IsPlaying = false;
+        public void Dispose() {
+            IsPlaying = false;
+        }
 
         /************************************************************************************************************************/
 
@@ -201,10 +193,8 @@ namespace Animancer.Editor.Previews
         private double _LastUpdateTime;
 
         /// <summary>Updates the preview time while playing.</summary>
-        private void Update()
-        {
-            if (Graph == null || !Graph.IsValidOrDispose())
-            {
+        private void Update() {
+            if (Graph == null || !Graph.IsValidOrDispose()) {
                 EditorApplication.update -= Update;
                 return;
             }
@@ -221,32 +211,27 @@ namespace Animancer.Editor.Previews
         /************************************************************************************************************************/
 
         /// <summary>Applies the animations at the <see cref="CurrentTime"/>.</summary>
-        private void Evaluate()
-        {
-            if (Graph == null)
+        private void Evaluate() {
+            if (Graph == null) {
                 return;
+            }
 
             Graph.PauseGraph();
             Graph.Stop();
 
-            if (_FromTransition.IsValid())
-            {
-                if (_ToTransition.IsValid())
-                {
+            if (_FromTransition.IsValid()) {
+                if (_ToTransition.IsValid()) {
                     Apply(CurrentTime, _FromTransition, _ToTransition);
-                }
-                else
-                {
+                } else {
                     var minTime = MinTime;
                     Apply(CurrentTime - minTime, -minTime, _FromTransition, false);
                 }
-            }
-            else
-            {
-                if (_ToTransition.IsValid())
+            } else {
+                if (_ToTransition.IsValid()) {
                     Apply(CurrentTime, MaxTime, _ToTransition, true);
-                else
+                } else {
                     return;
+                }
             }
 
             Graph.Evaluate();
@@ -258,55 +243,51 @@ namespace Animancer.Editor.Previews
         private void Apply(
             float currentTime,
             ITransition from,
-            ITransition to)
-        {
+            ITransition to) {
             var layer = Graph.Layers[0];
 
             // Playing From.
-            if (currentTime < 0)
-            {
+            if (currentTime < 0) {
                 var state = layer.Play(from);
-                state.Time += state.NormalizedEndTime * state.Length + currentTime;
+                state.Time += (state.NormalizedEndTime * state.Length) + currentTime;
                 return;
             }
 
             var maxTime = MaxTime;
 
             // Fading.
-            if (currentTime < maxTime)
-            {
+            if (currentTime < maxTime) {
                 var state = layer.Play(from);
-                state.Time += state.NormalizedEndTime * state.Length + currentTime;
+                state.Time += (state.NormalizedEndTime * state.Length) + currentTime;
 
                 state = layer.Play(to, FadeDuration, to.FadeMode);
 
                 var normalizedStartTime = NormalizedStartTime;
-                if (!float.IsNaN(normalizedStartTime))
+                if (!float.IsNaN(normalizedStartTime)) {
                     state.NormalizedTime = normalizedStartTime;
+                }
 
                 state.Time += currentTime;
 
                 var fade = state.FadeGroup;
-                if (fade != null)
-                {
+                if (fade != null) {
                     fade.NormalizedTime += currentTime * fade.FadeSpeed;
                     fade.ApplyWeights();
                 }
             }
             // Playing To.
-            else
-            {
+            else {
                 var state = layer.Play(to);
 
                 var normalizedStartTime = NormalizedStartTime;
-                if (!float.IsNaN(normalizedStartTime))
+                if (!float.IsNaN(normalizedStartTime)) {
                     state.NormalizedTime = normalizedStartTime;
+                }
 
                 state.Time += currentTime;
 
                 // Finished.
-                if (currentTime >= maxTime)
-                {
+                if (currentTime >= maxTime) {
                     _CurrentTime = MinTime;
                     state.Time = _CurrentTime;
                 }
@@ -320,23 +301,21 @@ namespace Animancer.Editor.Previews
             float currentTime,
             float endTime,
             ITransition transition,
-            bool applyNormalizedStartTime)
-        {
+            bool applyNormalizedStartTime) {
             var state = Graph.Layers[0].Play(transition);
 
             if (currentTime < endTime)// Playing.
             {
                 state.Time = currentTime;
 
-                if (applyNormalizedStartTime)
-                {
+                if (applyNormalizedStartTime) {
                     var normalizedStartTime = NormalizedStartTime;
-                    if (!float.IsNaN(normalizedStartTime))
+                    if (!float.IsNaN(normalizedStartTime)) {
                         state.NormalizedTime += normalizedStartTime;
+                    }
                 }
-            }
-            else// Finished.
-            {
+            } else// Finished.
+              {
                 _CurrentTime = MinTime;
                 state.Time = _CurrentTime;
             }

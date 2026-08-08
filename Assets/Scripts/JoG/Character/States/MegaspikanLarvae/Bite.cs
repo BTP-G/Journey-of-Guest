@@ -1,10 +1,10 @@
 using JoG.Health;
-using Xoderony;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
+using Xoderony;
 
 namespace JoG.Character.States.MegaspikanLarvae {
 

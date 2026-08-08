@@ -1,28 +1,23 @@
-﻿using System;
-using System.Text;
+using System;
 using System.Globalization;
+using System.Text;
 
-namespace NCalc.Domain
-{
-    public class SerializationVisitor : LogicalExpressionVisitor
-    {
+namespace NCalc.Domain {
+    public class SerializationVisitor : LogicalExpressionVisitor {
         private readonly NumberFormatInfo _numberFormatInfo;
 
-        public SerializationVisitor()
-        {
+        public SerializationVisitor() {
             Result = new StringBuilder();
-            _numberFormatInfo = new NumberFormatInfo {NumberDecimalSeparator = "."};
+            _numberFormatInfo = new NumberFormatInfo { NumberDecimalSeparator = "." };
         }
 
         public StringBuilder Result { get; protected set; }
 
-        public override void Visit(LogicalExpression expression)
-        {
+        public override void Visit(LogicalExpression expression) {
             throw new Exception("The method or operation is not implemented.");
         }
 
-        public override void Visit(TernaryExpression expression)
-        {
+        public override void Visit(TernaryExpression expression) {
             EncapsulateNoValue(expression.LeftExpression);
 
             Result.Append("? ");
@@ -34,12 +29,10 @@ namespace NCalc.Domain
             EncapsulateNoValue(expression.RightExpression);
         }
 
-        public override void Visit(BinaryExpression expression)
-        {
+        public override void Visit(BinaryExpression expression) {
             EncapsulateNoValue(expression.LeftExpression);
 
-            switch (expression.Type)
-            {
+            switch (expression.Type) {
                 case BinaryExpressionType.And:
                     Result.Append("and ");
                     break;
@@ -116,10 +109,8 @@ namespace NCalc.Domain
             EncapsulateNoValue(expression.RightExpression);
         }
 
-        public override void Visit(UnaryExpression expression)
-        {
-            switch (expression.Type)
-            {
+        public override void Visit(UnaryExpression expression) {
+            switch (expression.Type) {
                 case UnaryExpressionType.Not:
                     Result.Append("!");
                     break;
@@ -136,10 +127,8 @@ namespace NCalc.Domain
             EncapsulateNoValue(expression.Expression);
         }
 
-        public override void Visit(ValueExpression expression)
-        {
-            switch (expression.Type)
-            {
+        public override void Visit(ValueExpression expression) {
+            switch (expression.Type) {
                 case ValueType.Boolean:
                     Result.Append(expression.Value.ToString()).Append(" ");
                     break;
@@ -162,49 +151,43 @@ namespace NCalc.Domain
             }
         }
 
-        public override void Visit(Function function)
-        {
+        public override void Visit(Function function) {
             Result.Append(function.Identifier.Name);
 
             Result.Append("(");
 
-            for(int i=0; i<function.Expressions.Length; i++)
-            {
+            for (var i = 0; i < function.Expressions.Length; i++) {
                 function.Expressions[i].Accept(this);
-                if (i < function.Expressions.Length-1)
-                {
+                if (i < function.Expressions.Length - 1) {
                     Result.Remove(Result.Length - 1, 1);
                     Result.Append(", ");
                 }
             }
 
             // trim spaces before adding a closing paren
-            while (Result[Result.Length - 1] == ' ')
+            while (Result[^1] == ' ') {
                 Result.Remove(Result.Length - 1, 1);
+            }
 
             Result.Append(") ");
         }
 
-        public override void Visit(Identifier parameter)
-        {
+        public override void Visit(Identifier parameter) {
             Result.Append("[").Append(parameter.Name).Append("] ");
         }
 
-        protected void EncapsulateNoValue(LogicalExpression expression)
-        {
-            if (expression is ValueExpression)
-            {
+        protected void EncapsulateNoValue(LogicalExpression expression) {
+            if (expression is ValueExpression) {
                 expression.Accept(this);
-            }
-            else
-            {
+            } else {
                 Result.Append("(");
                 expression.Accept(this);
-                
+
                 // trim spaces before adding a closing paren
-                while(Result[Result.Length - 1] == ' ')
+                while (Result[^1] == ' ') {
                     Result.Remove(Result.Length - 1, 1);
-                
+                }
+
                 Result.Append(") ");
             }
         }

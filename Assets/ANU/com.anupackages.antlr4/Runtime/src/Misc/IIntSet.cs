@@ -1,16 +1,14 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 using System.Collections.Generic;
 
-namespace Antlr4.Runtime.Misc
-{
+namespace Antlr4.Runtime.Misc {
     /// <summary>A generic set of integers.</summary>
     /// <remarks>A generic set of integers.</remarks>
     /// <seealso cref="IntervalSet"/>
-    public interface IIntSet
-    {
+    public interface IIntSet {
         /// <summary>Adds the specified value to the current set.</summary>
         /// <remarks>Adds the specified value to the current set.</remarks>
         /// <param name="el">the value to add</param>
@@ -193,8 +191,7 @@ namespace Antlr4.Runtime.Misc
         /// the total number of elements represented by the current set,
         /// regardless of the manner in which the elements are stored.
         /// </returns>
-        int Count
-        {
+        int Count {
             get;
         }
 
@@ -210,8 +207,7 @@ namespace Antlr4.Runtime.Misc
         /// <see langword="false"/>
         /// .
         /// </returns>
-        bool IsNil
-        {
+        bool IsNil {
             get;
         }
 
@@ -234,8 +230,7 @@ namespace Antlr4.Runtime.Misc
         /// <see cref="TokenConstants.InvalidType"/>
         /// .
         /// </returns>
-        int SingleElement
-        {
+        int SingleElement {
             get;
         }
 

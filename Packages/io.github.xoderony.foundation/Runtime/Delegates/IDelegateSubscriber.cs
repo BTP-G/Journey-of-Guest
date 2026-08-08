@@ -9,5 +9,4 @@ namespace Xoderony {
         void Unsubscribe(TDelegate handler);
 
     }
-
 }

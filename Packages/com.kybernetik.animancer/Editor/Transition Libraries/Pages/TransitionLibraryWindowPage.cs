@@ -5,15 +5,13 @@
 using System;
 using UnityEngine;
 
-namespace Animancer.Editor.TransitionLibraries
-{
+namespace Animancer.Editor.TransitionLibraries {
     /// <summary>[Editor-Only]
     /// Manages the selection of pages in the <see cref="TransitionLibraryWindow"/>.
     /// </summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor.TransitionLibraries/TransitionLibraryWindowPage
     [Serializable]
-    public abstract class TransitionLibraryWindowPage : IComparable<TransitionLibraryWindowPage>
-    {
+    public abstract class TransitionLibraryWindowPage : IComparable<TransitionLibraryWindowPage> {
         /************************************************************************************************************************/
 
         /// <summary>The window containing this page.</summary>
@@ -33,8 +31,9 @@ namespace Animancer.Editor.TransitionLibraries
         public abstract int Index { get; }
 
         /// <summary>Compares the <see cref="Index"/>.</summary>
-        public int CompareTo(TransitionLibraryWindowPage other)
-            => Index.CompareTo(other.Index);
+        public int CompareTo(TransitionLibraryWindowPage other) {
+            return Index.CompareTo(other.Index);
+        }
 
         /************************************************************************************************************************/
 

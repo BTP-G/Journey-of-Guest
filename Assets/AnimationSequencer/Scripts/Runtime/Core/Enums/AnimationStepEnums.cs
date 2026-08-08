@@ -1,7 +1,5 @@
-﻿namespace BrunoMikoski.AnimationSequencer
-{
-    public enum FlowType
-    {
+namespace BrunoMikoski.AnimationSequencer {
+    public enum FlowType {
         Append,
         Join
     }

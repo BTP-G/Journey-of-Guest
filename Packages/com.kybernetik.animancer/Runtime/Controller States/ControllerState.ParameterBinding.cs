@@ -4,31 +4,27 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Animancer
-{
+namespace Animancer {
     /// https://kybernetik.com.au/animancer/api/Animancer/ControllerState
-    partial class ControllerState
-    {
+    public partial class ControllerState {
         /************************************************************************************************************************/
 
         private SerializableParameterBindings _SerializedParameterBindings;
 
         /// <summary>Serialized data used to create <see cref="ParameterBinding{T}"/>s at runtime.</summary>
-        public SerializableParameterBindings SerializedParameterBindings
-        {
+        public SerializableParameterBindings SerializedParameterBindings {
             get => _SerializedParameterBindings;
-            set
-            {
+            set {
                 _SerializedParameterBindings = value;
                 DeserializeParameterBindings();
             }
         }
 
         /// <summary>Deserializes the <see cref="SerializedParameterBindings"/>.</summary>
-        private void DeserializeParameterBindings()
-        {
-            if (Graph == null)
+        private void DeserializeParameterBindings() {
+            if (Graph == null) {
                 return;
+            }
 
             DisposeParameterBindings();
             _SerializedParameterBindings?.Deserialize(this);
@@ -42,20 +38,20 @@ namespace Animancer
         /// Adds an object to a list for <see cref="IDisposable.Dispose"/>
         /// to be called in <see cref="Destroy"/>.
         /// </summary>
-        private void AddParameterBinding(IDisposable disposable)
-        {
+        private void AddParameterBinding(IDisposable disposable) {
             _ParameterBindings ??= new();
             _ParameterBindings.Add(disposable);
         }
 
         /// <summary>Disposes everything added by <see cref="AddParameterBinding"/>.</summary>
-        private void DisposeParameterBindings()
-        {
-            if (_ParameterBindings == null)
+        private void DisposeParameterBindings() {
+            if (_ParameterBindings == null) {
                 return;
+            }
 
-            for (int i = _ParameterBindings.Count - 1; i >= 0; i--)
+            for (var i = _ParameterBindings.Count - 1; i >= 0; i--) {
                 _ParameterBindings[i].Dispose();
+            }
 
             _ParameterBindings.Clear();
         }
@@ -66,11 +62,9 @@ namespace Animancer
         /// Configures all parameters in the <see cref="Controller"/>
         /// to follow the value of a parameter with the same name in the <see cref="AnimancerGraph.Parameters"/>.
         /// </summary>
-        public void BindAllParameters()
-        {
+        public void BindAllParameters() {
             var count = Playable.GetParameterCount();
-            for (int i = 0; i < count; i++)
-            {
+            for (var i = 0; i < count; i++) {
                 var parameter = Playable.GetParameter(i);
                 BindParameter(parameter.name, parameter);
             }
@@ -82,28 +76,27 @@ namespace Animancer
         /// Configures a parameter in the <see cref="Controller"/>
         /// to follow the value of a parameter with the same name in the <see cref="AnimancerGraph.Parameters"/>.
         /// </summary>
-        public void BindParameter(StringReference name)
-            => BindParameter(name, name);
+        public void BindParameter(StringReference name) {
+            BindParameter(name, name);
+        }
 
         /// <summary>
         /// Configures a parameter in the <see cref="Controller"/>
         /// to follow the value of a parameter in the <see cref="AnimancerGraph.Parameters"/>.
         /// </summary>
-        public void BindParameter(StringReference animancerParameter, string controllerParameterName)
-            => BindParameter(animancerParameter, Animator.StringToHash(controllerParameterName));
+        public void BindParameter(StringReference animancerParameter, string controllerParameterName) {
+            BindParameter(animancerParameter, Animator.StringToHash(controllerParameterName));
+        }
 
         /// <summary>
         /// Configures a parameter in the <see cref="Controller"/>
         /// to follow the value of a parameter in the <see cref="AnimancerGraph.Parameters"/>.
         /// </summary>
-        public void BindParameter(StringReference animancerParameter, int controllerParameterHash)
-        {
+        public void BindParameter(StringReference animancerParameter, int controllerParameterHash) {
             var count = Playable.GetParameterCount();
-            for (int i = 0; i < count; i++)
-            {
+            for (var i = 0; i < count; i++) {
                 var parameter = Playable.GetParameter(i);
-                if (parameter.nameHash == controllerParameterHash)
-                {
+                if (parameter.nameHash == controllerParameterHash) {
                     BindParameter(animancerParameter, parameter);
                     break;
                 }
@@ -118,10 +111,8 @@ namespace Animancer
         /// </summary>
         public void BindParameter(
             StringReference animancerParameter,
-            AnimatorControllerParameter controllerParameter)
-        {
-            switch (controllerParameter.type)
-            {
+            AnimatorControllerParameter controllerParameter) {
+            switch (controllerParameter.type) {
                 case AnimatorControllerParameterType.Float:
                     BindFloat(animancerParameter, controllerParameter.nameHash);
                     break;
@@ -143,22 +134,23 @@ namespace Animancer
         /// Configures a parameter in the <see cref="Controller"/>
         /// to follow the value of a parameter with the same name in the <see cref="AnimancerGraph.Parameters"/>.
         /// </summary>
-        public ParameterBinding<bool> BindBool(StringReference name)
-            => BindBool(name, name);
+        public ParameterBinding<bool> BindBool(StringReference name) {
+            return BindBool(name, name);
+        }
 
         /// <summary>
         /// Configures a parameter in the <see cref="Controller"/>
         /// to follow the value of a parameter in the <see cref="AnimancerGraph.Parameters"/>.
         /// </summary>
-        public ParameterBinding<bool> BindBool(StringReference animancerParameter, string controllerParameterName)
-            => BindBool(animancerParameter, Animator.StringToHash(controllerParameterName));
+        public ParameterBinding<bool> BindBool(StringReference animancerParameter, string controllerParameterName) {
+            return BindBool(animancerParameter, Animator.StringToHash(controllerParameterName));
+        }
 
         /// <summary>
         /// Configures a parameter in the <see cref="Controller"/>
         /// to follow the value of a parameter in the <see cref="AnimancerGraph.Parameters"/>.
         /// </summary>
-        public ParameterBinding<bool> BindBool(StringReference animancerParameter, int controllerParameterHash)
-        {
+        public ParameterBinding<bool> BindBool(StringReference animancerParameter, int controllerParameterHash) {
             var parameter = Graph.Parameters.GetOrCreate<bool>(animancerParameter);
             var binding = new ParameterBinding<bool>(
                 parameter,
@@ -173,22 +165,23 @@ namespace Animancer
         /// Configures a parameter in the <see cref="Controller"/>
         /// to follow the value of a parameter with the same name in the <see cref="AnimancerGraph.Parameters"/>.
         /// </summary>
-        public ParameterBinding<float> BindFloat(StringReference name)
-            => BindFloat(name, name);
+        public ParameterBinding<float> BindFloat(StringReference name) {
+            return BindFloat(name, name);
+        }
 
         /// <summary>
         /// Configures a parameter in the <see cref="Controller"/>
         /// to follow the value of a parameter in the <see cref="AnimancerGraph.Parameters"/>.
         /// </summary>
-        public ParameterBinding<float> BindFloat(StringReference animancerParameter, string controllerParameterName)
-            => BindFloat(animancerParameter, Animator.StringToHash(controllerParameterName));
+        public ParameterBinding<float> BindFloat(StringReference animancerParameter, string controllerParameterName) {
+            return BindFloat(animancerParameter, Animator.StringToHash(controllerParameterName));
+        }
 
         /// <summary>
         /// Configures a parameter in the <see cref="Controller"/>
         /// to follow the value of a parameter in the <see cref="AnimancerGraph.Parameters"/>.
         /// </summary>
-        public ParameterBinding<float> BindFloat(StringReference animancerParameter, int controllerParameterHash)
-        {
+        public ParameterBinding<float> BindFloat(StringReference animancerParameter, int controllerParameterHash) {
             var parameter = Graph.Parameters.GetOrCreate<float>(animancerParameter);
             var binding = new ParameterBinding<float>(
                 parameter,
@@ -203,22 +196,23 @@ namespace Animancer
         /// Configures a parameter in the <see cref="Controller"/>
         /// to follow the value of a parameter with the same name in the <see cref="AnimancerGraph.Parameters"/>.
         /// </summary>
-        public ParameterBinding<int> BindInt(StringReference name)
-            => BindInt(name, name);
+        public ParameterBinding<int> BindInt(StringReference name) {
+            return BindInt(name, name);
+        }
 
         /// <summary>
         /// Configures a parameter in the <see cref="Controller"/>
         /// to follow the value of a parameter in the <see cref="AnimancerGraph.Parameters"/>.
         /// </summary>
-        public ParameterBinding<int> BindInt(StringReference animancerParameter, string controllerParameterName)
-            => BindInt(animancerParameter, Animator.StringToHash(controllerParameterName));
+        public ParameterBinding<int> BindInt(StringReference animancerParameter, string controllerParameterName) {
+            return BindInt(animancerParameter, Animator.StringToHash(controllerParameterName));
+        }
 
         /// <summary>
         /// Configures a parameter in the <see cref="Controller"/>
         /// to follow the value of a parameter in the <see cref="AnimancerGraph.Parameters"/>.
         /// </summary>
-        public ParameterBinding<int> BindInt(StringReference animancerParameter, int controllerParameterHash)
-        {
+        public ParameterBinding<int> BindInt(StringReference animancerParameter, int controllerParameterHash) {
             var parameter = Graph.Parameters.GetOrCreate<int>(animancerParameter);
             var binding = new ParameterBinding<int>(
                 parameter,
@@ -231,8 +225,7 @@ namespace Animancer
 
         /// <summary>An <see cref="IDisposable"/> binding to <see cref="Parameter{T}.OnValueChanged"/>.</summary>
         /// https://kybernetik.com.au/animancer/api/Animancer/ParameterBinding_1
-        public class ParameterBinding<T> : IDisposable
-        {
+        public class ParameterBinding<T> : IDisposable {
             /************************************************************************************************************************/
 
             /// <summary>The parameter being watched.</summary>
@@ -249,8 +242,7 @@ namespace Animancer
             /// </summary>
             public ParameterBinding(
                 Parameter<T> parameter,
-                Action<T> onParameterChanged)
-            {
+                Action<T> onParameterChanged) {
                 Parameter = parameter;
                 OnParameterChanged = onParameterChanged;
 
@@ -263,8 +255,7 @@ namespace Animancer
             /// <summary>
             /// Removes <see cref="OnParameterChanged"/> from the <see cref="Parameter{T}.OnValueChanged"/>.
             /// </summary>
-            public void Dispose()
-            {
+            public void Dispose() {
                 Parameter.OnValueChanged -= OnParameterChanged;
             }
 
@@ -300,8 +291,7 @@ namespace Animancer
         /// https://kybernetik.com.au/animancer/api/Animancer/SerializableParameterBindings
         [Serializable]
         public class SerializableParameterBindings :
-            ICloneable<SerializableParameterBindings>
-        {
+            ICloneable<SerializableParameterBindings> {
             /************************************************************************************************************************/
 
             [SerializeField]
@@ -325,19 +315,14 @@ namespace Animancer
             /// Should all parameters in the <see cref="RuntimeAnimatorController"/> be bound by name?
             /// </summary>
             /// <remarks>See the <see cref="SerializableParameterBindings"/> class for details.</remarks>
-            public bool BindAllParameters
-            {
+            public bool BindAllParameters {
                 get => _Mode && _Bindings.Length == 0;
-                set
-                {
+                set {
                     _Mode = value;
 
-                    if (value)
-                    {
+                    if (value) {
                         _Bindings = Array.Empty<StringAsset>();
-                    }
-                    else
-                    {
+                    } else {
                         Debug.Assert(
                             _Bindings.Length == 0,
                             $"{nameof(BindAllParameters)} can't be disabled unless the {nameof(Bindings)}" +
@@ -354,20 +339,16 @@ namespace Animancer
             /// to the subsequent parameter in <see cref="AnimancerGraph.Parameters"/>?
             /// </summary>
             /// <remarks>See the <see cref="SerializableParameterBindings"/> class for details.</remarks>
-            public bool RebindNames
-            {
+            public bool RebindNames {
                 get => _Mode && _Bindings.Length > 0;
-                set
-                {
+                set {
                     _Mode = value;
 
-                    if (value)
-                    {
-                        if (_Bindings.Length % 2 != 0)
+                    if (value) {
+                        if (_Bindings.Length % 2 != 0) {
                             Array.Resize(ref _Bindings, _Bindings.Length + 1);
-                    }
-                    else
-                    {
+                        }
+                    } else {
                         Debug.Assert(
                             _Bindings.Length == 0,
                             $"{nameof(RebindNames)} can't be disabled unless the {nameof(Bindings)}" +
@@ -386,11 +367,9 @@ namespace Animancer
             /// follow the value of parameters in the <see cref="AnimancerGraph.Parameters"/>.
             /// </summary>
             /// <remarks>See the <see cref="SerializableParameterBindings"/> class for details.</remarks>
-            public StringAsset[] Bindings
-            {
+            public StringAsset[] Bindings {
                 get => _Bindings;
-                set
-                {
+                set {
                     Debug.Assert(
                         value != null,
                         $"{nameof(Bindings)} can't be null. Use Array.Empty<StringAsset>() instead.");
@@ -408,36 +387,30 @@ namespace Animancer
 
             /// <summary>Creates runtime bindings for the `state`.</summary>
             /// <remarks>See the <see cref="SerializableParameterBindings"/> class for details.</remarks>
-            public void Deserialize(ControllerState state)
-            {
-                if (_Bindings.Length == 0)
-                {
-                    if (_Mode)
+            public void Deserialize(ControllerState state) {
+                if (_Bindings.Length == 0) {
+                    if (_Mode) {
                         state.BindAllParameters();
+                    }
                     // Else do nothing.
-                }
-                else
-                {
-                    if (_Mode)
-                    {
-                        for (int i = 0; i < _Bindings.Length - 1; i += 2)
-                        {
+                } else {
+                    if (_Mode) {
+                        for (var i = 0; i < _Bindings.Length - 1; i += 2) {
                             var controller = _Bindings[i];
                             var animancer = _Bindings[i + 1];
                             if (controller == null ||
-                                animancer == null)
+                                animancer == null) {
                                 continue;
+                            }
 
                             state.BindParameter(animancer, controller);
                         }
-                    }
-                    else
-                    {
-                        for (int i = 0; i < _Bindings.Length; i++)
-                        {
+                    } else {
+                        for (var i = 0; i < _Bindings.Length; i++) {
                             var name = _Bindings[i];
-                            if (name == null)
+                            if (name == null) {
                                 continue;
+                            }
 
                             state.BindParameter(name);
                         }
@@ -448,17 +421,16 @@ namespace Animancer
             /************************************************************************************************************************/
 
             /// <inheritdoc/>
-            public SerializableParameterBindings Clone(CloneContext context)
-            {
+            public SerializableParameterBindings Clone(CloneContext context) {
                 var bindingCount = Bindings != null ? Bindings.Length : 0;
-                var clone = new SerializableParameterBindings()
-                {
+                var clone = new SerializableParameterBindings() {
                     BindAllParameters = BindAllParameters,
                     Bindings = new StringAsset[bindingCount],
                 };
 
-                for (int i = 0; i < bindingCount; i++)
+                for (var i = 0; i < bindingCount; i++) {
                     clone.Bindings[i] = context.GetCloneOrOriginal(Bindings[i]);
+                }
 
                 return clone;
             }

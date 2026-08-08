@@ -1,8 +1,8 @@
 using Animancer;
-using Xoderony.Movement;
 using JoG.Character.InputBanks;
 using UnityEngine;
 using VContainer;
+using Xoderony.Movement;
 
 namespace JoG.Character.States {
 
@@ -47,5 +47,4 @@ namespace JoG.Character.States {
                 acceleration * Time.fixedDeltaTime);
         }
     }
-
 }

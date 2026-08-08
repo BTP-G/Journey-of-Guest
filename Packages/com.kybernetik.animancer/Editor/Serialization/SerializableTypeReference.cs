@@ -7,13 +7,11 @@ using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only] A <see cref="SerializableAttribute"/> reference to a <see cref="Type"/>.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/SerializableTypeReference
     [Serializable]
-    public struct SerializableTypeReference : ISerializationCallbackReceiver
-    {
+    public struct SerializableTypeReference : ISerializationCallbackReceiver {
         /************************************************************************************************************************/
 
         [SerializeField]
@@ -24,13 +22,12 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>[<see cref="SerializeField"/>] The <see cref="Type.AssemblyQualifiedName"/>.</summary>
-        public string QualifiedName
-        {
+        public string QualifiedName {
             readonly get => _QualifiedName;
-            set
-            {
-                if (_QualifiedName == value)
+            set {
+                if (_QualifiedName == value) {
                     return;
+                }
 
                 _QualifiedName = value;
                 _Type = null;
@@ -40,19 +37,18 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>The referenced type.</summary>
-        public Type Type
-        {
-            get
-            {
-                if (_Type == null && !string.IsNullOrEmpty(_QualifiedName))
+        public Type Type {
+            get {
+                if (_Type == null && !string.IsNullOrEmpty(_QualifiedName)) {
                     _Type = Type.GetType(_QualifiedName);
+                }
 
                 return _Type;
             }
-            set
-            {
-                if (_Type == value)
+            set {
+                if (_Type == value) {
                     return;
+                }
 
                 _QualifiedName = value?.AssemblyQualifiedName;
                 _Type = value;
@@ -62,15 +58,13 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Creates a new <see cref="SerializableTypeReference"/>.</summary>
-        public SerializableTypeReference(string qualifiedName)
-        {
+        public SerializableTypeReference(string qualifiedName) {
             _QualifiedName = qualifiedName;
             _Type = null;
         }
 
         /// <summary>Creates a new <see cref="SerializableTypeReference"/>.</summary>
-        public SerializableTypeReference(Type type)
-        {
+        public SerializableTypeReference(Type type) {
             _QualifiedName = type?.AssemblyQualifiedName;
             _Type = type;
         }
@@ -81,8 +75,9 @@ namespace Animancer.Editor
         public readonly void OnBeforeSerialize() { }
 
         /// <inheritdoc/>
-        public void OnAfterDeserialize()
-            => _Type = null;
+        public void OnAfterDeserialize() {
+            _Type = null;
+        }
 
         /************************************************************************************************************************/
         #region Drawer
@@ -90,19 +85,18 @@ namespace Animancer.Editor
 
         /// <summary>[Editor-Only] A <see cref="PropertyDrawer"/> for <see cref="SerializableTypeReference"/>.</summary>
         [CustomPropertyDrawer(typeof(SerializableTypeReference))]
-        public class Drawer : PropertyDrawer
-        {
+        public class Drawer : PropertyDrawer {
             /************************************************************************************************************************/
 
             /// <inheritdoc/>
-            public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-                => AnimancerGUI.LineHeight;
+            public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
+                return AnimancerGUI.LineHeight;
+            }
 
             /************************************************************************************************************************/
 
             /// <inheritdoc/>
-            public override void OnGUI(Rect area, SerializedProperty property, GUIContent label)
-            {
+            public override void OnGUI(Rect area, SerializedProperty property, GUIContent label) {
                 var name = property.FindPropertyRelative(nameof(_QualifiedName));
 
                 var spacing = AnimancerGUI.StandardSpacing;
@@ -114,8 +108,9 @@ namespace Animancer.Editor
                 EditorGUI.indentLevel = 0;
 
                 var picked = EditorGUI.ObjectField(pickerArea, null, typeof(Object), true);
-                if (picked != null)
+                if (picked != null) {
                     name.stringValue = picked.GetType().AssemblyQualifiedName;
+                }
 
                 EditorGUI.indentLevel = indentLevel;
             }

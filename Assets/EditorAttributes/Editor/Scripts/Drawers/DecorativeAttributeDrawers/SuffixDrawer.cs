@@ -1,23 +1,18 @@
-﻿using UnityEngine;
 using UnityEditor;
-using UnityEditor.UIElements;
+using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace EditorAttributes.Editor
-{
+namespace EditorAttributes.Editor {
     [CustomPropertyDrawer(typeof(SuffixAttribute))]
-    public class SuffixDrawer : PropertyDrawerBase
-    {
-        public override VisualElement CreatePropertyGUI(SerializedProperty property)
-        {
+    public class SuffixDrawer : PropertyDrawerBase {
+        public override VisualElement CreatePropertyGUI(SerializedProperty property) {
             var suffixAttribute = attribute as SuffixAttribute;
 
             VisualElement root = new();
             HelpBox errorBox = new();
-            PropertyField propertyField = CreatePropertyField(property);
+            var propertyField = CreatePropertyField(property);
 
-            Label suffixLabel = new()
-            {
+            Label suffixLabel = new() {
                 style = {
                     fontSize = 12,
                     maxWidth = 200f,
@@ -35,8 +30,7 @@ namespace EditorAttributes.Editor
             root.Add(propertyField);
             root.Add(suffixLabel);
 
-            UpdateVisualElement(suffixLabel, () =>
-            {
+            UpdateVisualElement(suffixLabel, () => {
                 suffixLabel.text = GetDynamicString(suffixAttribute.Suffix, property, suffixAttribute, errorBox);
                 DisplayErrorBox(root, errorBox);
             });

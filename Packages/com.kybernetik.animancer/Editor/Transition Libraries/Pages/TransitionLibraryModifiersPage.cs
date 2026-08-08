@@ -8,15 +8,13 @@ using Animancer.Units.Editor;
 using System;
 using UnityEngine;
 
-namespace Animancer.Editor.TransitionLibraries
-{
+namespace Animancer.Editor.TransitionLibraries {
     /// <summary>[Editor-Only]
     /// A <see cref="TransitionLibraryWindowPage"/> for editing transition modifiers.
     /// </summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor.TransitionLibraries/TransitionLibraryModifiersPage
     [Serializable]
-    public abstract class TransitionLibraryModifiersPage : TransitionLibraryWindowPage
-    {
+    public abstract class TransitionLibraryModifiersPage : TransitionLibraryWindowPage {
         /************************************************************************************************************************/
 
         [SerializeField]
@@ -29,8 +27,7 @@ namespace Animancer.Editor.TransitionLibraries
             TimeDrawer = new();
 
         /// <summary>Creates a new <see cref="TransitionLibraryModifiersPage"/>.</summary>
-        public TransitionLibraryModifiersPage(AnimationTimeAttribute.Units units)
-        {
+        public TransitionLibraryModifiersPage(AnimationTimeAttribute.Units units) {
             TimeDrawer.Initialize(new AnimationTimeAttribute(units));
             TimeDrawer.Attribute.Rule = Validate.Value.IsFiniteOrNaN;
             TimeDrawer.Attribute.IsOptional = true;
@@ -53,17 +50,15 @@ namespace Animancer.Editor.TransitionLibraries
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void OnGUI(Rect area)
-        {
+        public override void OnGUI(Rect area) {
             _TableGUI ??= new();
             _TableGUI.Page = this;
 
-            if (Window.Data.Transitions.Length == 0)
-            {
+            if (Window.Data.Transitions.Length == 0) {
                 area = new Rect(
                     area.x + AnimancerGUI.StandardSpacing,
                     area.y + AnimancerGUI.StandardSpacing,
-                    area.width - AnimancerGUI.StandardSpacing * 2,
+                    area.width - (AnimancerGUI.StandardSpacing * 2),
                     AnimancerGUI.LineHeight);
 
                 GUI.Label(
@@ -73,11 +68,10 @@ namespace Animancer.Editor.TransitionLibraries
 
                 AnimancerGUI.NextVerticalArea(ref area);
 
-                if (GUI.Button(area, "Create Transition"))
+                if (GUI.Button(area, "Create Transition")) {
                     TransitionLibraryOperations.CreateTransition(Window);
-            }
-            else
-            {
+                }
+            } else {
                 _TableGUI.DoGUI(area, Window);
             }
 

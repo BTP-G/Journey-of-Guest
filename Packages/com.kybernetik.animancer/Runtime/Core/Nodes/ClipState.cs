@@ -6,8 +6,7 @@ using UnityEngine.Animations;
 using UnityEngine.Playables;
 using Object = UnityEngine.Object;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>An <see cref="AnimancerState"/> which plays an <see cref="AnimationClip"/>.</summary>
     /// <remarks>
     /// <strong>Documentation:</strong>
@@ -16,8 +15,7 @@ namespace Animancer
     /// </remarks>
     /// https://kybernetik.com.au/animancer/api/Animancer/ClipState
     /// 
-    public class ClipState : AnimancerState
-    {
+    public class ClipState : AnimancerState {
         /************************************************************************************************************************/
         #region Fields and Properties
         /************************************************************************************************************************/
@@ -25,19 +23,15 @@ namespace Animancer
         private AnimationClip _Clip;
 
         /// <summary>The <see cref="AnimationClip"/> which this state plays.</summary>
-        public override AnimationClip Clip
-        {
+        public override AnimationClip Clip {
             get => _Clip;
-            set
-            {
+            set {
                 Validate.AssertAnimationClip(value, true, $"set {nameof(ClipState)}.{nameof(Clip)}");
-                if (ChangeMainObject(ref _Clip, value))
-                {
+                if (ChangeMainObject(ref _Clip, value)) {
                     _Length = value.length;
 
                     var isLooping = value.isLooping;
-                    if (_IsLooping != isLooping)
-                    {
+                    if (_IsLooping != isLooping) {
                         _IsLooping = isLooping;
                         OnIsLoopingChangedRecursive(isLooping);
                     }
@@ -46,8 +40,7 @@ namespace Animancer
         }
 
         /// <summary>The <see cref="AnimationClip"/> which this state plays.</summary>
-        public override Object MainObject
-        {
+        public override Object MainObject {
             get => _Clip;
             set => Clip = (AnimationClip)value;
         }
@@ -77,8 +70,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override AnimancerEvent.DispatchInfo GetEventDispatchInfo()
-        {
+        public override AnimancerEvent.DispatchInfo GetEventDispatchInfo() {
             var length = _Length;
             return new(
                 length,
@@ -97,11 +89,9 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override bool ApplyAnimatorIK
-        {
+        public override bool ApplyAnimatorIK {
             get => _Playable.IsValid() && ((AnimationClipPlayable)_Playable).GetApplyPlayableIK();
-            set
-            {
+            set {
                 Validate.AssertPlayable(this);
                 ((AnimationClipPlayable)_Playable).SetApplyPlayableIK(value);
             }
@@ -110,11 +100,9 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override bool ApplyFootIK
-        {
+        public override bool ApplyFootIK {
             get => _Playable.IsValid() && ((AnimationClipPlayable)_Playable).GetApplyFootIK();
-            set
-            {
+            set {
                 Validate.AssertPlayable(this);
                 ((AnimationClipPlayable)_Playable).SetApplyFootIK(value);
             }
@@ -130,8 +118,7 @@ namespace Animancer
 
         /// <summary>Creates a new <see cref="ClipState"/> and sets its <see cref="Clip"/>.</summary>
         /// <exception cref="ArgumentNullException">The `clip` is null.</exception>
-        public ClipState(AnimationClip clip)
-        {
+        public ClipState(AnimationClip clip) {
             Validate.AssertAnimationClip(clip, true, $"create {nameof(ClipState)}");
             _Clip = clip;
             _Length = clip.length;
@@ -141,16 +128,14 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Creates and assigns the <see cref="AnimationClipPlayable"/> managed by this node.</summary>
-        protected override void CreatePlayable(out Playable playable)
-        {
+        protected override void CreatePlayable(out Playable playable) {
             playable = AnimationClipPlayable.Create(Graph._PlayableGraph, _Clip);
         }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void RecreatePlayable()
-        {
+        public override void RecreatePlayable() {
             var playable = (AnimationClipPlayable)_Playable;
             var footIK = playable.GetApplyFootIK();
             var playableIK = playable.GetApplyPlayableIK();
@@ -165,8 +150,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void Destroy()
-        {
+        public override void Destroy() {
             _Clip = null;
             base.Destroy();
         }
@@ -174,8 +158,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override AnimancerState Clone(CloneContext context)
-        {
+        public override AnimancerState Clone(CloneContext context) {
             var clip = context.GetCloneOrOriginal(_Clip);
             var clone = new ClipState(clip);
             clone.CopyFrom(this, context);

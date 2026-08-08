@@ -18,7 +18,5 @@ namespace Xoderony.Extensions {
                 max
             );
         }
-
     }
-
 }

@@ -6,12 +6,10 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only] A custom Inspector for <see cref="IAnimancerComponent"/>s.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/BaseAnimancerComponentEditor
-    public abstract class BaseAnimancerComponentEditor : UnityEditor.Editor
-    {
+    public abstract class BaseAnimancerComponentEditor : UnityEditor.Editor {
         /************************************************************************************************************************/
 
         [NonSerialized]
@@ -24,8 +22,7 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Initializes this <see cref="UnityEditor.Editor"/>.</summary>
-        protected virtual void OnEnable()
-        {
+        protected virtual void OnEnable() {
             var targets = this.targets;
             _Targets = new IAnimancerComponent[targets.Length];
             GatherTargets();
@@ -36,17 +33,16 @@ namespace Animancer.Editor
         /// <summary>
         /// Copies the <see cref="UnityEditor.Editor.targets"/> into the <see cref="_Targets"/> array.
         /// </summary>
-        private void GatherTargets()
-        {
-            for (int i = 0; i < _Targets.Length; i++)
+        private void GatherTargets() {
+            for (var i = 0; i < _Targets.Length; i++) {
                 _Targets[i] = (IAnimancerComponent)targets[i];
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <summary>Called by the Unity editor to draw the custom Inspector GUI elements.</summary>
-        public override void OnInspectorGUI()
-        {
+        public override void OnInspectorGUI() {
             // Normally the targets wouldn't change after OnEnable, but the trick AnimancerComponent.Reset uses to
             // swap the type of an existing component when a new one is added causes the old target to be destroyed.
             GatherTargets();
@@ -61,24 +57,24 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Draws the rest of the Inspector fields after the Animator field.</summary>
-        protected void DoSerializedFieldsGUI()
-        {
+        protected void DoSerializedFieldsGUI() {
             var property = serializedObject.GetIterator();
 
-            if (!property.NextVisible(true))
+            if (!property.NextVisible(true)) {
                 return;
+            }
 
-            do
-            {
+            do {
                 var path = property.propertyPath;
-                if (path == "m_Script")
+                if (path == "m_Script") {
                     continue;
+                }
 
-                using (var label = PooledGUIContent.Acquire(property))
-                {
+                using (var label = PooledGUIContent.Acquire(property)) {
                     // Let the target try to override.
-                    if (DoOverridePropertyGUI(path, property, label))
+                    if (DoOverridePropertyGUI(path, property, label)) {
                         continue;
+                    }
 
                     // Otherwise draw the property normally.
                     EditorGUILayout.PropertyField(property, label, true);
@@ -96,8 +92,9 @@ namespace Animancer.Editor
         /// True = GUI was drawn, so don't draw the regular GUI. 
         /// False = Draw the regular GUI.
         /// </summary>
-        protected virtual bool DoOverridePropertyGUI(string path, SerializedProperty property, GUIContent label)
-            => false;
+        protected virtual bool DoOverridePropertyGUI(string path, SerializedProperty property, GUIContent label) {
+            return false;
+        }
 
         /************************************************************************************************************************/
     }

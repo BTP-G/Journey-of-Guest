@@ -5,34 +5,29 @@
 using System;
 using UnityEditor;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only]
     /// A default <see cref="ICustomGUI"/> which simply draws the <see cref="object.ToString"/>.
     /// </summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/LabelGUI
     [CustomGUI(typeof(object))]
-    public class LabelGUI : CustomGUI<object>
-    {
+    public class LabelGUI : CustomGUI<object> {
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void DoGUI()
-        {
+        public override void DoGUI() {
             string text;
-            try
-            {
+            try {
                 text = Value != null
                     ? Value.ToString()
                     : "Null";
-            }
-            catch (Exception exception)
-            {
+            } catch (Exception exception) {
                 text = exception.ToString();
             }
 
-            using (var value = PooledGUIContent.Acquire(text))
+            using (var value = PooledGUIContent.Acquire(text)) {
                 EditorGUILayout.LabelField(Label, value);
+            }
         }
 
         /************************************************************************************************************************/

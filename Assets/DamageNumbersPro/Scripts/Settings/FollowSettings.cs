@@ -1,14 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace DamageNumbersPro
-{
+namespace DamageNumbersPro {
     [System.Serializable]
-    public struct FollowSettings
-    {
-        public FollowSettings(float customDefault)
-        {
+    public struct FollowSettings {
+        public FollowSettings(float customDefault) {
             speed = 10;
             drag = 0f;
         }

@@ -3,13 +3,11 @@
 using System;
 using UnityEngine.Playables;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>Base class for objects that manage a <see cref="UnityEngine.Playables.Playable"/>.</summary>
     /// <remarks>This is the base class of <see cref="AnimancerGraph"/> and <see cref="AnimancerNode"/>.</remarks>
     /// https://kybernetik.com.au/animancer/api/Animancer/AnimancerNodeBase
-    public abstract class AnimancerNodeBase
-    {
+    public abstract class AnimancerNodeBase {
         /************************************************************************************************************************/
 
         /// <summary>The <see cref="AnimancerGraph"/> containing this node.</summary>
@@ -39,8 +37,7 @@ namespace Animancer
         /// <summary>Returns the node connected to the specified `index` as a child of this node.</summary>
         /// <remarks>When overriding, don't call this base method because it throws an exception.</remarks>
         /// <exception cref="NotSupportedException">This node can't have children.</exception>
-        protected internal virtual AnimancerNode GetChildNode(int index)
-        {
+        protected internal virtual AnimancerNode GetChildNode(int index) {
             MarkAsUsed(this);
             throw new NotSupportedException(this + " can't have children.");
         }
@@ -60,12 +57,10 @@ namespace Animancer
         protected virtual void OnChildIsLoopingChanged(bool value) { }
 
         /// <summary>[Internal] Calls <see cref="OnChildIsLoopingChanged"/> for each <see cref="Parent"/> recursively.</summary>
-        protected internal void OnIsLoopingChangedRecursive(bool value)
-        {
+        protected internal void OnIsLoopingChangedRecursive(bool value) {
             var parent = Parent;
 
-            while (parent != null)
-            {
+            while (parent != null) {
                 parent.OnChildIsLoopingChanged(value);
 
                 parent = parent.Parent;
@@ -77,8 +72,7 @@ namespace Animancer
         /// <summary>[Internal] Called when a child's <see cref="Parent"/> is changed from this node.</summary>
         /// <remarks>When overriding, don't call this base method because it throws an exception.</remarks>
         /// <exception cref="NotSupportedException">This node can't have children.</exception>
-        protected internal virtual void OnRemoveChild(AnimancerState child)
-        {
+        protected internal virtual void OnRemoveChild(AnimancerState child) {
             MarkAsUsed(this);
             child.SetParentInternal(null);
             throw new NotSupportedException(this + " can't have children.");
@@ -132,17 +126,15 @@ namespace Animancer
         /// </code></remarks>
         /// 
         /// <exception cref="ArgumentOutOfRangeException">The value is not finite.</exception>
-        public virtual float Speed
-        {
+        public virtual float Speed {
             get => _Speed;
-            set
-            {
-                if (_Speed == value)
+            set {
+                if (_Speed == value) {
                     return;
+                }
 
 #if UNITY_ASSERTIONS
-                if (!value.IsFinite())
-                {
+                if (!value.IsFinite()) {
                     MarkAsUsed(this);
                     throw new ArgumentOutOfRangeException(
                         nameof(value),
@@ -152,8 +144,9 @@ namespace Animancer
 #endif
                 _Speed = value;
 
-                if (_Playable.IsValid())
+                if (_Playable.IsValid()) {
                     _Playable.SetSpeed(value);
+                }
             }
         }
 
@@ -163,8 +156,7 @@ namespace Animancer
         /// The <see cref="Speed"/> of this node multiplied by the <see cref="Speed"/> of each of its parents to
         /// determine the actual speed it's playing at.
         /// </summary>
-        public float EffectiveSpeed
-        {
+        public float EffectiveSpeed {
             get => Speed * ParentEffectiveSpeed;
             set => Speed = value / ParentEffectiveSpeed;
         }
@@ -175,18 +167,16 @@ namespace Animancer
         /// The multiplied <see cref="Speed"/> of each of the <see cref="Parent"/> down the hierarchy,
         /// excluding the root <see cref="Speed"/>.
         /// </summary>
-        private float ParentEffectiveSpeed
-        {
-            get
-            {
+        private float ParentEffectiveSpeed {
+            get {
                 var parent = Parent;
-                if (parent == null)
+                if (parent == null) {
                     return 1;
+                }
 
                 var speed = parent.Speed;
 
-                while ((parent = parent.Parent) != null)
-                {
+                while ((parent = parent.Parent) != null) {
                     speed *= parent.Speed;
                 }
 
@@ -239,18 +229,19 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>[Internal] Applies a change to a child's <see cref="AnimancerState.IsActive"/>.</summary>
-        protected internal virtual void ApplyChildActive(AnimancerState child, bool setActive)
-            => child.ShouldBeActive = setActive;
+        protected internal virtual void ApplyChildActive(AnimancerState child, bool setActive) {
+            child.ShouldBeActive = setActive;
+        }
 
         /************************************************************************************************************************/
 
         /// <summary>[Assert-Conditional] Prevents the `node` from causing <see cref="OptionalWarning.UnusedNode"/>.</summary>
         [System.Diagnostics.Conditional(Strings.Assertions)]
-        public static void MarkAsUsed(AnimancerNodeBase node)
-        {
+        public static void MarkAsUsed(AnimancerNodeBase node) {
 #if UNITY_ASSERTIONS
-            if (node.Graph == null)
+            if (node.Graph == null) {
                 GC.SuppressFinalize(node);
+            }
 #endif
         }
 
@@ -262,8 +253,7 @@ namespace Animancer
         /// Adds functions to show and set <see cref="ApplyAnimatorIK"/> and
         /// <see cref="ApplyFootIK"/>.
         /// </summary>
-        public static void AddContextMenuIK(UnityEditor.GenericMenu menu, AnimancerNodeBase ik)
-        {
+        public static void AddContextMenuIK(UnityEditor.GenericMenu menu, AnimancerNodeBase ik) {
 #if UNITY_IMGUI
             menu.AddItem(new("Inverse Kinematics/Apply Animator IK ?"),
                 ik.ApplyAnimatorIK,

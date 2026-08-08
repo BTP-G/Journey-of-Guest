@@ -1,34 +1,27 @@
-﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace DamageNumbersPro.Demo
-{
-    public class DNP_CubeHighlight : MonoBehaviour
-    {
+namespace DamageNumbersPro.Demo {
+    public class DNP_CubeHighlight : MonoBehaviour {
         public string propertyName = "_Color";
         public AnimationCurve propertyCurve;
         public float destructionDelay = 0.2f;
 
-        Material mat;
+        private Material mat;
 
-        int propertyID;
-        float startTime;
+        private int propertyID;
+        private float startTime;
 
-        void Start()
-        {
+        private void Start() {
             startTime = Time.time;
             propertyID = Shader.PropertyToID(propertyName);
 
-            MeshRenderer mr = GetComponent<MeshRenderer>();
+            var mr = GetComponent<MeshRenderer>();
             mat = mr.material;
 
             Destroy(gameObject, destructionDelay);
         }
 
-
-        void FixedUpdate()
-        {
+        private void FixedUpdate() {
             mat.SetColor(propertyID, new Color(1, 0, 0, propertyCurve.Evaluate(Time.time - startTime)));
         }
     }

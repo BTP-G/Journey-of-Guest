@@ -1,14 +1,11 @@
-﻿using UnityEngine;
 using UnityEditor;
 using UnityEditor.UIElements;
+using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace EditorAttributes.Editor
-{
-    public abstract class MinMaxAxisDrawer : PropertyDrawerBase
-    {
-        public override VisualElement CreatePropertyGUI(SerializedProperty property)
-        {
+namespace EditorAttributes.Editor {
+    public abstract class MinMaxAxisDrawer : PropertyDrawerBase {
+        public override VisualElement CreatePropertyGUI(SerializedProperty property) {
             var clampAttribute = attribute as IMinMaxAxisValueAttribute;
 
             var minMaxX = (clampAttribute.MinValueX, clampAttribute.MaxValueX);
@@ -16,15 +13,12 @@ namespace EditorAttributes.Editor
             var minMaxZ = (clampAttribute.MinValueZ, clampAttribute.MaxValueZ);
             var minMaxW = (clampAttribute.MinValueW, clampAttribute.MaxValueW);
 
-            PropertyField propertyField = CreatePropertyField(property);
+            var propertyField = CreatePropertyField(property);
 
-            propertyField.RegisterCallback<SerializedPropertyChangeEvent>((callback) =>
-            {
-                switch (property.propertyType)
-                {
+            propertyField.RegisterCallback<SerializedPropertyChangeEvent>((callback) => {
+                switch (property.propertyType) {
                     case SerializedPropertyType.Integer:
-                        switch (property.numericType)
-                        {
+                        switch (property.numericType) {
                             default:
                             case SerializedPropertyNumericType.Int32:
                                 property.intValue = (int)MinMaxValue(minMaxX, property.intValue);
@@ -49,8 +43,7 @@ namespace EditorAttributes.Editor
                         break;
 
                     case SerializedPropertyType.Float:
-                        switch (property.numericType)
-                        {
+                        switch (property.numericType) {
                             case SerializedPropertyNumericType.Float:
                                 property.floatValue = MinMaxValue(minMaxX, property.floatValue);
                                 propertyField.Q<FloatField>().SetValueWithoutNotify(property.floatValue);
@@ -114,8 +107,7 @@ namespace EditorAttributes.Editor
 
         protected abstract void MinMaxAxis((float, float) minMaxX, (float, float) minMaxY, (float, float) minMaxZ, (float, float) minMaxW, ref Vector4 vector);
 
-        private float MinMaxValue((float, float) minMax, float value)
-        {
+        private float MinMaxValue((float, float) minMax, float value) {
             Vector4 vector4 = new(value, value);
 
             MinMaxAxis(minMax, (0f, 0f), (0f, 0f), (0f, 0f), ref vector4);
@@ -123,30 +115,26 @@ namespace EditorAttributes.Editor
             return vector4.x;
         }
 
-        private Vector4 MinMaxVector((float, float) minMaxX, (float, float) minMaxY, (float, float) minMaxZ, (float, float) minMaxW, Vector4 vectorValue)
-        {
+        private Vector4 MinMaxVector((float, float) minMaxX, (float, float) minMaxY, (float, float) minMaxZ, (float, float) minMaxW, Vector4 vectorValue) {
             MinMaxAxis(minMaxX, minMaxY, minMaxZ, minMaxW, ref vectorValue);
             return vectorValue;
         }
 
-        private Rect MinMaxRect((float, float) minMaxX, (float, float) minMaxY, (float, float) minMaxZ, (float, float) minMaxW, Rect rectValue)
-        {
+        private Rect MinMaxRect((float, float) minMaxX, (float, float) minMaxY, (float, float) minMaxZ, (float, float) minMaxW, Rect rectValue) {
             Vector4 vector4 = new(rectValue.x, rectValue.y, rectValue.width, rectValue.height);
 
             MinMaxAxis(minMaxX, minMaxY, minMaxZ, minMaxW, ref vector4);
             return new Rect(vector4.x, vector4.y, vector4.z, vector4.w);
         }
 
-        private Vector3Int MinMaxIntVector((float, float) minMaxX, (float, float) minMaxY, (float, float) minMaxZ, Vector3Int vectorValue)
-        {
+        private Vector3Int MinMaxIntVector((float, float) minMaxX, (float, float) minMaxY, (float, float) minMaxZ, Vector3Int vectorValue) {
             Vector4 vector4 = new(vectorValue.x, vectorValue.y, vectorValue.z);
 
             MinMaxAxis(minMaxX, minMaxY, minMaxZ, (0f, 0f), ref vector4);
             return new Vector3Int((int)vector4.x, (int)vector4.y, (int)vector4.z);
         }
 
-        private RectInt MinMaxIntRect((float, float) minMaxX, (float, float) minMaxY, (float, float) minMaxZ, (float, float) minMaxW, RectInt rectValue)
-        {
+        private RectInt MinMaxIntRect((float, float) minMaxX, (float, float) minMaxY, (float, float) minMaxZ, (float, float) minMaxW, RectInt rectValue) {
             Vector4 vector4 = new(rectValue.x, rectValue.y, rectValue.width, rectValue.height);
 
             MinMaxAxis(minMaxX, minMaxY, minMaxZ, minMaxW, ref vector4);

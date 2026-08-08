@@ -1,48 +1,41 @@
-﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-namespace DamageNumbersPro.Demo
-{
-    public class DNP_DemoManager : MonoBehaviour
-    {
+namespace DamageNumbersPro.Demo {
+    public class DNP_DemoManager : MonoBehaviour {
         public static DNP_DemoManager instance;
 
-        Text currentPrefabText;
-        Text currentIndexText;
+        private Text currentPrefabText;
+        private Text currentIndexText;
 
-        DamageNumber[] prefabs;
-        int currentIndex;
-        DNP_PrefabSettings currentSettings;
+        private DamageNumber[] prefabs;
+        private int currentIndex;
+        private DNP_PrefabSettings currentSettings;
 
-        CanvasGroup fade;
-        bool fadeOut;
-        string loadScene;
+        private CanvasGroup fade;
+        private bool fadeOut;
+        private string loadScene;
 
-        void Awake()
-        {
+        private void Awake() {
             // Reference Single Instance
             instance = this;
 
             // Get All Prefabs
-            Transform parent = GameObject.Find("Special").transform.Find("Prefabs/Damage Numbers");
+            var parent = GameObject.Find("Special").transform.Find("Prefabs/Damage Numbers");
             prefabs = new DamageNumber[parent.childCount];
-            for(int n = 0; n < parent.childCount; n++)
-            {
+            for (var n = 0; n < parent.childCount; n++) {
                 prefabs[n] = parent.GetChild(n).GetComponent<DamageNumber>();
             }
             parent.gameObject.SetActive(false);
 
             // Text Components
-            Transform guiParent = GameObject.Find("Special").transform.Find("GUI");
+            var guiParent = GameObject.Find("Special").transform.Find("GUI");
             currentPrefabText = guiParent.Find("Background/Current").GetComponent<Text>();
             currentIndexText = guiParent.Find("Background/Index").GetComponent<Text>();
 
-            Transform fadeTransform = transform.Find("GUI/Fade");
-            if (fadeTransform != null)
-            {
+            var fadeTransform = transform.Find("GUI/Fade");
+            if (fadeTransform != null) {
                 fade = fadeTransform.GetComponent<CanvasGroup>();
             }
 
@@ -50,41 +43,32 @@ namespace DamageNumbersPro.Demo
             currentIndex = 0;
             UpdateCurrent();
 
-            #if !UNITY_EDITOR && UNITY_WEBGL
+#if !UNITY_EDITOR && UNITY_WEBGL
                 WebGLInput.captureAllKeyboardInput = true;    
-            #endif  
+#endif
         }
 
-        void Start()
-        {
-            if(fade != null)
-            {
+        private void Start() {
+            if (fade != null) {
                 fade.alpha = 1f;
             }
         }
 
-        void Update()
-        {
-            float scroll = DNP_InputHandler.GetMouseScroll();
-            if (scroll != 0 && (!Cursor.visible || DNP_Camera.instance == null))
-            {
-                if(scroll > 0.001f)
-                {
+        private void Update() {
+            var scroll = DNP_InputHandler.GetMouseScroll();
+            if (scroll != 0 && (!Cursor.visible || DNP_Camera.instance == null)) {
+                if (scroll > 0.001f) {
                     currentIndex--;
 
-                    if(currentIndex < 0)
-                    {
+                    if (currentIndex < 0) {
                         currentIndex = prefabs.Length - 1;
                     }
 
                     UpdateCurrent();
-                }
-                else if(scroll < 0.001f)
-                {
+                } else if (scroll < 0.001f) {
                     currentIndex++;
 
-                    if(currentIndex > prefabs.Length - 1)
-                    {
+                    if (currentIndex > prefabs.Length - 1) {
                         currentIndex = 0;
                     }
 
@@ -92,32 +76,25 @@ namespace DamageNumbersPro.Demo
                 }
             }
 
-            if(fade != null)
-            {
-                if(fadeOut)
-                {
+            if (fade != null) {
+                if (fadeOut) {
                     fade.alpha += Time.deltaTime * 4;
 
-                    if(fade.alpha >= 0.999f)
-                    {
+                    if (fade.alpha >= 0.999f) {
                         SceneManager.LoadScene(loadScene);
                         enabled = false;
                     }
 
                     return;
-                }
-                else
-                {
-                    if(fade.alpha > 0)
-                    {
+                } else {
+                    if (fade.alpha > 0) {
                         fade.alpha -= Time.deltaTime * 3;
                     }
                 }
             }
         }
 
-        public void SwitchScene(string sceneName)
-        {
+        public void SwitchScene(string sceneName) {
             fadeOut = true;
             loadScene = sceneName;
 
@@ -126,45 +103,37 @@ namespace DamageNumbersPro.Demo
                 dn.DestroyDNP();
             }*/
 
-            if(DNP_Camera.instance != null)
-            {
+            if (DNP_Camera.instance != null) {
                 DNP_Camera.instance.enabled = false;
             }
 
-            DNP_2DDemo demo2D = FindAnyObjectByType<DNP_2DDemo>();
-            if(demo2D) 
-            {
+            var demo2D = FindAnyObjectByType<DNP_2DDemo>();
+            if (demo2D) {
                 demo2D.enabled = false;
             }
 
-            if (DNP_GUI.instance != null)
-            {
+            if (DNP_GUI.instance != null) {
                 DNP_GUI.instance.enabled = false;
             }
         }
 
-        void UpdateCurrent()
-        {
+        private void UpdateCurrent() {
             currentPrefabText.text = "➞ " + prefabs[currentIndex].name;
-            currentIndexText.text = (currentIndex + 1) + "/" + prefabs.Length;
+            currentIndexText.text = currentIndex + 1 + "/" + prefabs.Length;
 
             currentSettings = prefabs[currentIndex].GetComponent<DNP_PrefabSettings>();
         }
 
-        public DamageNumber GetCurrent()
-        {
+        public DamageNumber GetCurrent() {
             return prefabs[currentIndex];
         }
 
-        public DNP_PrefabSettings GetSettings()
-        {
-            if(currentSettings == null)
-            {
+        public DNP_PrefabSettings GetSettings() {
+            if (currentSettings == null) {
                 currentSettings = prefabs[currentIndex].gameObject.AddComponent<DNP_PrefabSettings>();
             }
 
             return currentSettings;
         }
     }
-
 }

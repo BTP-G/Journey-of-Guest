@@ -13,7 +13,9 @@ namespace JoG.UI {
         [SerializeField, Required] private TMP_InputField _ipInputField;
         [SerializeField, Required] private TMP_InputField _portInputField;
 
-        public void SetIpAddress(string address) => _transport.ConnectionData.Address = address;
+        public void SetIpAddress(string address) {
+            _transport.ConnectionData.Address = address;
+        }
 
         public void SetPortByString(string portString) {
             if (ushort.TryParse(portString, out var port)) {
@@ -21,7 +23,9 @@ namespace JoG.UI {
             }
         }
 
-        public void SetPort(ushort port) => _transport.ConnectionData.Port = port;
+        public void SetPort(ushort port) {
+            _transport.ConnectionData.Port = port;
+        }
 
         public void StartHost() {
             _networkManager.NetworkConfig.NetworkTransport = _transport;

@@ -1,17 +1,17 @@
-using JoG.Health;
 using EditorAttributes;
-using Xoderony.Unity;
 using JoG.AI.Patrol;
-using System.Collections.Generic;
 using JoG.Chat;
 using JoG.Gameplay;
+using JoG.Health;
 using JoG.Networking;
 using JoG.UI;
 using MessagePipe;
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
+using Xoderony.Unity;
 
 namespace JoG.LifetimeScopes {
 

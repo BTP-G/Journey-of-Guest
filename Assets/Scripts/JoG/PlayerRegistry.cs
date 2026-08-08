@@ -1,5 +1,5 @@
-using Xoderony.Logging;
 using System.Collections.Generic;
+using Xoderony.Logging;
 
 namespace JoG {
 

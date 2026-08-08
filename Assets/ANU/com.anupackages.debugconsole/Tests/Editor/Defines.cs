@@ -1,14 +1,11 @@
-﻿using System.Linq;
 using NUnit.Framework;
+using System.Linq;
 
-namespace ANU.IngameDebug.Console.Editor.Tests
-{
+namespace ANU.IngameDebug.Console.Editor.Tests {
     [TestFixture]
-    public class Defines : TestBase
-    {
+    public class Defines : TestBase {
         [Test]
-        public void Evaluate_NestedDefines()
-        {
+        public void Evaluate_NestedDefines() {
             Context.ExecuteCommand("#define a \"Hello! And welcome to the los pollos hermanos family\"");
             Context.ExecuteCommand("#define b \"my name is Gustavo\"");
             Context.ExecuteCommand("#define c \"but you can call me Gus\"");

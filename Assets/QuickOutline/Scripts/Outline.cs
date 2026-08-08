@@ -1,4 +1,4 @@
-﻿// // Outline.cs QuickOutline // Created by Chris Nolet on 3/30/18. Copyright © 2018 Chris Nolet.
+// // Outline.cs QuickOutline // Created by Chris Nolet on 3/30/18. Copyright © 2018 Chris Nolet.
 // All rights reserved.
 
 using System;
@@ -87,7 +87,7 @@ public class Outline : MonoBehaviour {
 
     private void OnValidate() {
         // Clear cache when baking is disabled or corrupted
-        if (!precomputeOutline && bakeKeys.Count != 0 || bakeKeys.Count != bakeValues.Count) {
+        if ((!precomputeOutline && bakeKeys.Count != 0) || bakeKeys.Count != bakeValues.Count) {
             bakeKeys.Clear();
             bakeValues.Clear();
         }

@@ -1,7 +1,7 @@
-using Xoderony.ObjectPool.Generic;
 using System;
 using UnityEngine;
 using UnityEngine.Events;
+using Xoderony.ObjectPool.Generic;
 
 namespace JoG.Character.States {
 
@@ -39,7 +39,5 @@ namespace JoG.Character.States {
 
         [Serializable]
         public class TriggerEvent : UnityEvent<Collider> { }
-
     }
-
 }

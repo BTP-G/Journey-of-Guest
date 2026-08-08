@@ -1,27 +1,25 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 // [assembly: ANU.IngameDebug.Console.RegisterDebugCommandTypes(typeof(ANU.IngameDebug.Utils.SubstringSearch))]
 
-namespace ANU.IngameDebug.Utils
-{
-    public static class SubstringSearch
-    {
-        public static List<Match> FindMatches(this string input, string search)
-        {
+namespace ANU.IngameDebug.Utils {
+    public static class SubstringSearch {
+        public static List<Match> FindMatches(this string input, string search) {
             Match lastMatch = default;
             var matches = new List<Match>();
 
-            do
-            {
+            do {
                 var match = Find(input, search, lastMatch);
 
-                if (match.Success && match.Length > 1)
+                if (match.Success && match.Length > 1) {
                     matches.Add(match);
+                }
 
-                if (match.Length == 1)
+                if (match.Length == 1) {
                     match.SearchIndex--;
+                }
 
                 lastMatch = match;
             }
@@ -30,20 +28,16 @@ namespace ANU.IngameDebug.Utils
             return matches;
         }
 
-        private static Match Find(string input, string search, Match lastMatch)
-        {
+        private static Match Find(string input, string search, Match lastMatch) {
             var match = new Match(input, search);
 
-            for (int s = lastMatch.SearchEnd; s < search.Length; s++)
-            {
+            for (var s = lastMatch.SearchEnd; s < search.Length; s++) {
                 var b = search[s];
 
-                for (int i = lastMatch.InputEnd; i < input.Length; i++)
-                {
+                for (var i = lastMatch.InputEnd; i < input.Length; i++) {
                     var a = input[i];
 
-                    if (a == b)
-                    {
+                    if (a == b) {
                         match.Success = true;
                         match.InputIndex = i;
                         match.SearchIndex = s;
@@ -51,12 +45,14 @@ namespace ANU.IngameDebug.Utils
                     }
                 }
 
-                if (match.Success)
+                if (match.Success) {
                     break;
+                }
             }
 
-            if (!match.Success)
+            if (!match.Success) {
                 return match;
+            }
 
             var iStart = match.InputIndex;
             var sStart = match.SearchIndex;
@@ -66,40 +62,38 @@ namespace ANU.IngameDebug.Utils
                 search.Length - sStart
             );
 
-            for (int index = 0; index < len; index++)
-            {
+            for (var index = 0; index < len; index++) {
                 var i = index + iStart;
                 var s = index + sStart;
 
                 var a = input[i];
                 var b = search[s];
 
-                if (a != b)
+                if (a != b) {
                     break;
-                else
+                } else {
                     match.Length++;
+                }
             }
 
             return match;
         }
 
         [IngameDebug.Console.DebugCommand]
-        private static async void TestSearch(string input, string search)
-        {
+        private static async void TestSearch(string input, string search) {
             List<Match> matches = null;
-            var t = new System.Threading.Thread(() =>
-            {
+            var t = new System.Threading.Thread(() => {
                 matches = FindMatches(input, search);
 
             });
             t.Start();
 
             var tokenSource = new System.Threading.CancellationTokenSource(System.TimeSpan.FromSeconds(5));
-            while (!tokenSource.Token.IsCancellationRequested && t.IsAlive)
+            while (!tokenSource.Token.IsCancellationRequested && t.IsAlive) {
                 await System.Threading.Tasks.Task.Yield();
+            }
 
-            if (t.IsAlive)
-            {
+            if (t.IsAlive) {
                 t.Abort();
                 Debug.LogWarning("thread aborted");
             }
@@ -108,13 +102,11 @@ namespace ANU.IngameDebug.Utils
         }
     }
 
-    public struct Match
-    {
+    public struct Match {
         public readonly string Input;
         public readonly string Search;
 
-        public Match(string input, string search) : this()
-        {
+        public Match(string input, string search) : this() {
             Input = input;
             Search = search;
         }

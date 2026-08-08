@@ -4,8 +4,7 @@ using System;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>
     /// Bitwise flags used to determine which warnings Animancer should give.
     /// <para></para>
@@ -36,8 +35,7 @@ namespace Animancer
     /// https://kybernetik.com.au/animancer/api/Animancer/OptionalWarning
     /// 
     [Flags]
-    public enum OptionalWarning
-    {
+    public enum OptionalWarning {
         /// <summary><c>default</c></summary>
         None = 0,
 
@@ -327,8 +325,7 @@ namespace Animancer
     }
 
     /// https://kybernetik.com.au/animancer/api/Animancer/Validate
-    public static partial class Validate
-    {
+    public static partial class Validate {
         /************************************************************************************************************************/
 
 #if UNITY_ASSERTIONS
@@ -358,8 +355,7 @@ namespace Animancer
         /// #endif
         /// </code></remarks>
         [System.Diagnostics.Conditional(Strings.Assertions)]
-        public static void Disable(this OptionalWarning type)
-        {
+        public static void Disable(this OptionalWarning type) {
 #if UNITY_ASSERTIONS
             _DisabledWarnings |= type;
 #endif
@@ -371,8 +367,7 @@ namespace Animancer
         /// Enables the specified warning type. Supports bitwise combinations.
         /// </summary>
         [System.Diagnostics.Conditional(Strings.Assertions)]
-        public static void Enable(this OptionalWarning type)
-        {
+        public static void Enable(this OptionalWarning type) {
 #if UNITY_ASSERTIONS
             _DisabledWarnings &= ~type;
 #endif
@@ -384,13 +379,13 @@ namespace Animancer
         /// Enables or disables the specified warning type. Supports bitwise combinations.
         /// </summary>
         [System.Diagnostics.Conditional(Strings.Assertions)]
-        public static void SetEnabled(this OptionalWarning type, bool enable)
-        {
+        public static void SetEnabled(this OptionalWarning type, bool enable) {
 #if UNITY_ASSERTIONS
-            if (enable)
+            if (enable) {
                 type.Enable();
-            else
+            } else {
                 type.Disable();
+            }
 #endif
         }
 
@@ -402,11 +397,11 @@ namespace Animancer
         /// <remarks>Does nothing if the `message` is <c>null</c>.</remarks>
         [System.Diagnostics.Conditional(Strings.Assertions)]
         [HideInCallstack]
-        public static void Log(this OptionalWarning type, string message, object context = null)
-        {
+        public static void Log(this OptionalWarning type, string message, object context = null) {
 #if UNITY_ASSERTIONS
-            if (message == null || type.IsDisabled())
+            if (message == null || type.IsDisabled()) {
                 return;
+            }
 
             Debug.LogWarning(
                 $"{nameof(OptionalWarning)}.{type} - Possible Issue Detected: {message}" +
@@ -423,12 +418,16 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>[Animancer Extension] [Assert-Only] Are none of the specified warning types disabled?</summary>
-        public static bool IsEnabled(this OptionalWarning type) => (_DisabledWarnings & type) == 0;
+        public static bool IsEnabled(this OptionalWarning type) {
+            return (_DisabledWarnings & type) == 0;
+        }
 
         /************************************************************************************************************************/
 
         /// <summary>[Animancer Extension] [Assert-Only] Are all of the specified warning types disabled?</summary>
-        public static bool IsDisabled(this OptionalWarning type) => (_DisabledWarnings & type) == type;
+        public static bool IsDisabled(this OptionalWarning type) {
+            return (_DisabledWarnings & type) == type;
+        }
 
         /************************************************************************************************************************/
 
@@ -436,8 +435,7 @@ namespace Animancer
         /// Disables the specified warnings and returns those that were previously enabled.
         /// </summary>
         /// <remarks>Call <see cref="Enable"/> on the returned value to re-enable it.</remarks>
-        public static OptionalWarning DisableTemporarily(this OptionalWarning type)
-        {
+        public static OptionalWarning DisableTemporarily(this OptionalWarning type) {
             var previous = _DisabledWarnings;
             type.Disable();
             return ~previous & type;
@@ -452,8 +450,7 @@ namespace Animancer
         /// This value is stored in <see cref="PlayerPrefs"/>
         /// and can be manually edited via <see cref="Strings.AnimancerSettingsPath"/>.
         /// </remarks>
-        public static OptionalWarning PermanentlyDisabledWarnings
-        {
+        public static OptionalWarning PermanentlyDisabledWarnings {
 #if NO_RUNTIME_PLAYER_PREFS && ! UNITY_EDITOR
             get => default;
             set
@@ -462,8 +459,7 @@ namespace Animancer
             }
 #else
             get => (OptionalWarning)PlayerPrefs.GetInt(PermanentlyDisabledWarningsKey);
-            set
-            {
+            set {
                 _DisabledWarnings = value;
                 PlayerPrefs.SetInt(PermanentlyDisabledWarningsKey, (int)value);
             }
@@ -474,8 +470,7 @@ namespace Animancer
         [UnityEditor.InitializeOnLoadMethod]
 #endif
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void InitializePermanentlyDisabledWarnings()
-        {
+        private static void InitializePermanentlyDisabledWarnings() {
             _DisabledWarnings = PermanentlyDisabledWarnings;
         }
 

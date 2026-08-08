@@ -2,7 +2,6 @@ using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
-using Xoderony.Numerics;
 
 namespace Xoderony.Numerics.Editor {
 
@@ -130,7 +129,5 @@ namespace Xoderony.Numerics.Editor {
             EditorGUI.showMixedValue = false;
             EditorGUI.EndProperty();
         }
-
     }
-
 }

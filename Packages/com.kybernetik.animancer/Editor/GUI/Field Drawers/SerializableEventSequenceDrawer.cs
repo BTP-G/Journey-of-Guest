@@ -17,13 +17,11 @@ using static Animancer.Editor.AnimancerGUI;
 using Object = UnityEngine.Object;
 using SerializableSequence = Animancer.AnimancerEvent.Sequence.Serializable;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only] Draws the Inspector GUI for a <see cref="SerializableSequence"/>.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/SerializableEventSequenceDrawer
     [CustomPropertyDrawer(typeof(SerializableSequence), true)]
-    public class SerializableEventSequenceDrawer : PropertyDrawer
-    {
+    public class SerializableEventSequenceDrawer : PropertyDrawer {
         /************************************************************************************************************************/
 
         /// <summary><see cref="RepaintEverything"/></summary>
@@ -39,14 +37,13 @@ namespace Animancer.Editor
         private readonly Dictionary<string, List<AnimBool>>
             EventVisibility = new();
 
-        private AnimBool GetVisibility(Context context, int index)
-        {
+        private AnimBool GetVisibility(Context context, int index) {
             var path = context.Property.propertyPath;
-            if (!EventVisibility.TryGetValue(path, out var list))
+            if (!EventVisibility.TryGetValue(path, out var list)) {
                 EventVisibility.Add(path, list = new());
+            }
 
-            while (list.Count <= index)
-            {
+            while (list.Count <= index) {
                 var visible = context.Property.isExpanded || context.SelectedEvent == index;
                 list.Add(new(visible, Repaint));
             }
@@ -59,32 +56,31 @@ namespace Animancer.Editor
         /// <summary>
         /// Calculates the number of vertical pixels the `property` will occupy when it is drawn.
         /// </summary>
-        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-        {
-            if (property.hasMultipleDifferentValues)
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
+            if (property.hasMultipleDifferentValues) {
                 return LineHeight;
+            }
 
             using var context = Context.Get(property);
 
             var height = LineHeight;
 
             var count = Math.Max(1, context.Times.Count);
-            for (int i = 0; i < count; i++)
-            {
+            for (var i = 0; i < count; i++) {
                 height += CalculateEventHeight(context, i) * GetVisibility(context, i).faded;
             }
 
             var events = context.Sequence?.InitializedEvents;
-            if (events != null)
+            if (events != null) {
                 height += EventSequenceDrawer.Get(events).CalculateHeight(events) + StandardSpacing;
+            }
 
             return height;
         }
 
         /************************************************************************************************************************/
 
-        private float CalculateEventHeight(Context context, int index)
-        {
+        private float CalculateEventHeight(Context context, int index) {
             // Name.
             var height = index < context.Times.Count - 1
                 ? LineHeight + StandardSpacing
@@ -94,8 +90,7 @@ namespace Animancer.Editor
             height += AnimationTimeAttributeDrawer.GetPropertyHeight(null, null) + StandardSpacing;
 
             // Callback.
-            if (!SerializableEventSequenceDrawerSettings.HideEventCallbacks || context.Callbacks.Count > 0)
-            {
+            if (!SerializableEventSequenceDrawerSettings.HideEventCallbacks || context.Callbacks.Count > 0) {
                 height += index < context.Callbacks.Count
                     ? EditorGUI.GetPropertyHeight(context.Callbacks.GetElement(index), null, false)
                     : DummyInvokableDrawer.Height;
@@ -103,8 +98,9 @@ namespace Animancer.Editor
             }
 
             // Separator.
-            if (index > 0)
+            if (index > 0) {
                 height += EventSeparatorPadding + EventSeparatorThickness + EventSeparatorPadding;
+            }
 
             return height;
         }
@@ -112,28 +108,26 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Draws the GUI for the `property`.</summary>
-        public override void OnGUI(Rect area, SerializedProperty property, GUIContent label)
-        {
+        public override void OnGUI(Rect area, SerializedProperty property, GUIContent label) {
             var warnings = OptionalWarning.ProOnly.DisableTemporarily();
 
             using var context = Context.Get(property);
 
             DoHeaderGUI(ref area, label, context);
 
-            if (property.hasMultipleDifferentValues)
+            if (property.hasMultipleDifferentValues) {
                 return;
+            }
 
             EditorGUI.indentLevel++;
             DoAllEventsGUI(ref area, context);
             EditorGUI.indentLevel--;
 
             var sequence = context.Sequence?.InitializedEvents;
-            if (sequence != null)
-            {
+            if (sequence != null) {
                 using (var content = PooledGUIContent.Acquire("Runtime Events",
                     $"The runtime {nameof(AnimancerEvent)}.{nameof(AnimancerEvent.Sequence)}" +
-                    $" created from the serialized data above"))
-                {
+                    $" created from the serialized data above")) {
                     EventSequenceDrawer.Get(sequence).DoGUI(ref area, sequence, content);
                 }
             }
@@ -143,10 +137,10 @@ namespace Animancer.Editor
 
         /************************************************************************************************************************/
 
-        private void DoHeaderGUI(ref Rect area, GUIContent label, Context context)
-        {
-            if (!EditorGUIUtility.hierarchyMode)
+        private void DoHeaderGUI(ref Rect area, GUIContent label, Context context) {
+            if (!EditorGUIUtility.hierarchyMode) {
                 EditorGUI.indentLevel--;
+            }
 
             area.height = LineHeight;
             var headerArea = area;
@@ -154,39 +148,32 @@ namespace Animancer.Editor
 
             label = EditorGUI.BeginProperty(headerArea, label, context.Property);
 
-            if (!context.Property.hasMultipleDifferentValues)
-            {
+            if (!context.Property.hasMultipleDifferentValues) {
                 var addEventArea = StealFromRight(ref headerArea, headerArea.height, StandardSpacing);
                 DoAddRemoveEventButtonGUI(addEventArea, context);
             }
 
-            if (context.TransitionContext.Transition != null)
-            {
+            if (context.TransitionContext.Transition != null) {
                 EditorGUI.EndProperty();
 
                 TimelineGUI.DoGUI(headerArea, context, out var addEventNormalizedTime);
 
-                if (!float.IsNaN(addEventNormalizedTime))
-                {
+                if (!float.IsNaN(addEventNormalizedTime)) {
                     AddEvent(context, addEventNormalizedTime, null);
                 }
-            }
-            else
-            {
+            } else {
                 string summary;
-                if (context.Times.Count == 0)
-                {
+                if (context.Times.Count == 0) {
                     summary = "[0] End Time 1";
-                }
-                else
-                {
+                } else {
                     var index = context.Times.Count - 1;
                     var endTime = context.Times.GetElement(index).floatValue;
                     summary = $"[{index}] End Time {endTime:G3}";
                 }
 
-                using (var content = PooledGUIContent.Acquire(summary))
+                using (var content = PooledGUIContent.Acquire(summary)) {
                     EditorGUI.LabelField(headerArea, label, content);
+                }
 
                 EditorGUI.EndProperty();
             }
@@ -194,11 +181,13 @@ namespace Animancer.Editor
             EditorGUI.BeginChangeCheck();
             context.Property.isExpanded =
                 EditorGUI.Foldout(headerArea, context.Property.isExpanded, GUIContent.none, true);
-            if (EditorGUI.EndChangeCheck())
+            if (EditorGUI.EndChangeCheck()) {
                 context.SelectedEvent = -1;
+            }
 
-            if (!EditorGUIUtility.hierarchyMode)
+            if (!EditorGUIUtility.hierarchyMode) {
                 EditorGUI.indentLevel++;
+            }
         }
 
         /************************************************************************************************************************/
@@ -208,20 +197,18 @@ namespace Animancer.Editor
         private static int _HotControlAdjustRoot;
         private static int _SelectedEventToHotControl;
 
-        private void DoAllEventsGUI(ref Rect area, Context context)
-        {
+        private void DoAllEventsGUI(ref Rect area, Context context) {
             var currentEvent = Event.current;
             var originalEventType = currentEvent.type;
-            if (originalEventType == EventType.Used)
+            if (originalEventType == EventType.Used) {
                 return;
+            }
 
             var rootControlID = GUIUtility.GetControlID(EventTimeHash - 1, FocusType.Passive);
 
             var eventCount = Mathf.Max(1, context.Times.Count);
-            for (int i = 0; i < eventCount; i++)
-            {
-                if (i > 0)
-                {
+            for (var i = 0; i < eventCount; i++) {
+                if (i > 0) {
                     area.y += EventSeparatorPadding;
 
                     var separatorArea = EditorGUI.IndentedRect(area);
@@ -236,20 +223,17 @@ namespace Animancer.Editor
 
                 if (rootControlID == _HotControlAdjustRoot &&
                     _SelectedEventToHotControl > 0 &&
-                    i == context.SelectedEvent)
-                {
+                    i == context.SelectedEvent) {
                     GUIUtility.hotControl = GUIUtility.keyboardControl = controlID + _SelectedEventToHotControl;
                     _SelectedEventToHotControl = 0;
                     _HotControlAdjustRoot = -1;
                 }
 
-                if (i == context.SelectedEvent)
-                {
+                if (i == context.SelectedEvent) {
                     var highlightArea = EditorGUI.IndentedRect(area);
                     highlightArea.xMin -= LineHeight;
                     highlightArea.height = CalculateEventHeight(context, i);
-                    if (i > 0)
-                    {
+                    if (i > 0) {
                         highlightArea.y -= EventSeparatorPadding;
                         highlightArea.height -= EventSeparatorPadding * 2;
                     }
@@ -258,12 +242,10 @@ namespace Animancer.Editor
 
                 DoEventGUI(ref area, context, i, false);
 
-                if (currentEvent.type == EventType.Used && originalEventType == EventType.MouseUp)
-                {
+                if (currentEvent.type == EventType.Used && originalEventType == EventType.MouseUp) {
                     context.SelectedEvent = i;
 
-                    if (SortEvents(context))
-                    {
+                    if (SortEvents(context)) {
                         _SelectedEventToHotControl = GUIUtility.keyboardControl - controlID;
                         _HotControlAdjustRoot = rootControlID;
                         Deselect();
@@ -277,8 +259,7 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Draws the GUI fields for the event at the specified `index`.</summary>
-        public void DoEventGUI(ref Rect area, Context context, int index, bool autoSort)
-        {
+        public void DoEventGUI(ref Rect area, Context context, int index, bool autoSort) {
             GetEventLabels(
                 index,
                 context,
@@ -302,12 +283,10 @@ namespace Animancer.Editor
             GuiOffset += area.position;
 
             TypeSelectionButton.BeginDelayingLinkLines();
-            try
-            {
+            try {
                 GUI.BeginGroup(area, GUIStyle.none);
 
-                if (visibility.faded > 0)
-                {
+                if (visibility.faded > 0) {
                     area.xMin = x;
                     area.y = 0;
 
@@ -315,14 +294,12 @@ namespace Animancer.Editor
                     DoTimeGUI(ref area, context, index, autoSort, timeLabel, defaultTime, isEndEvent);
                     DoCallbackGUI(ref area, context, index, callbackLabel);
 
-                    area.y = area.y * visibility.faded + y;
+                    area.y = (area.y * visibility.faded) + y;
                     area.height *= visibility.faded;
                 }
 
                 GUI.EndGroup();
-            }
-            finally
-            {
+            } finally {
                 GuiOffset = offset;
 
                 TypeSelectionButton.EndDelayingLinkLines();
@@ -338,10 +315,10 @@ namespace Animancer.Editor
             ref Rect area,
             Context context,
             int index,
-            string nameLabel)
-        {
-            if (nameLabel == null)
+            string nameLabel) {
+            if (nameLabel == null) {
                 return;
+            }
 
             EditorGUI.BeginChangeCheck();
 
@@ -351,8 +328,7 @@ namespace Animancer.Editor
 
             using (var label = PooledGUIContent.Acquire(nameLabel,
                 "An optional name which can be used to identify the event in code." +
-                " Leaving all names blank is recommended if you aren't using them."))
-            {
+                " Leaving all names blank is recommended if you aren't using them.")) {
                 fieldArea = EditorGUI.PrefixLabel(fieldArea, label);
             }
 
@@ -369,25 +345,20 @@ namespace Animancer.Editor
 
             var exitGUI = false;
 
-            if (nameProperty != null)
-            {
+            if (nameProperty != null) {
                 EditorGUI.PropertyField(fieldArea, nameProperty, GUIContent.none);
-            }
-            else
-            {
+            } else {
                 EditorGUI.BeginProperty(fieldArea, GUIContent.none, context.Names.Property);
 
                 EditorGUI.BeginChangeCheck();
 
                 name = StringAssetDrawer.DrawGUI(fieldArea, GUIContent.none, null, out exitGUI);
 
-                if (EditorGUI.EndChangeCheck() && name != null)
-                {
+                if (EditorGUI.EndChangeCheck() && name != null) {
                     // Expand up to the new name.
                     // If we need to expand more than one slot, make sure all the new ones are null.
                     context.Names.Count++;
-                    if (context.Names.Count < index + 1)
-                    {
+                    if (context.Names.Count < index + 1) {
                         var nextProperty = context.Names.GetElement(context.Names.Count - 1);
                         nextProperty.objectReferenceValue = null;
                         context.Names.Count = index + 1;
@@ -398,21 +369,19 @@ namespace Animancer.Editor
                     nameProperty.objectReferenceValue = name;
                 }
 
-                if (!exitGUI)
+                if (!exitGUI) {
                     EditorGUI.EndProperty();
-
+                }
             }
 
             EditorGUI.indentLevel = indentLevel;
 
-            if (EditorGUI.EndChangeCheck())
-            {
+            if (EditorGUI.EndChangeCheck()) {
                 var events = context.Sequence?.InitializedEvents;
                 events?.SetName(index, name as StringAsset);
             }
 
-            if (exitGUI)
-            {
+            if (exitGUI) {
                 context.Names.Property.serializedObject.ApplyModifiedProperties();
                 GUIUtility.ExitGUI();
             }
@@ -420,12 +389,12 @@ namespace Animancer.Editor
 
         /************************************************************************************************************************/
 
-        private static void DoNameWarningGUI(ref Rect area, Context context, Object name)
-        {
+        private static void DoNameWarningGUI(ref Rect area, Context context, Object name) {
             var property = context.TransitionContext.Property;
             var attribute = AttributeCache<EventNamesAttribute>.FindAttribute(property);
-            if (attribute == null || !attribute.HasNames)
+            if (attribute == null || !attribute.HasNames) {
                 return;
+            }
 
             var icon = name == null || Array.IndexOf(attribute.Names, (StringReference)name.name) >= 0
                 ? AnimancerIcons.Info
@@ -434,8 +403,7 @@ namespace Animancer.Editor
             var warningArea = StealFromLeft(ref area, area.height, StandardSpacing);
 
             var tooltip = attribute.NamesToString("Expected Names:");
-            using (var content = PooledGUIContent.Acquire("", tooltip))
-            {
+            using (var content = PooledGUIContent.Acquire("", tooltip)) {
                 content.image = icon;
                 GUI.Label(warningArea, content);
                 content.image = null;
@@ -447,9 +415,10 @@ namespace Animancer.Editor
         private static readonly AnimationTimeAttributeDrawer
             AnimationTimeAttributeDrawer = new();
 
-        static SerializableEventSequenceDrawer()
-            => AnimationTimeAttributeDrawer.Initialize(
-                new AnimationTimeAttribute(AnimationTimeAttribute.Units.Normalized));
+        static SerializableEventSequenceDrawer() {
+            AnimationTimeAttributeDrawer.Initialize(
+                                                                 new AnimationTimeAttribute(AnimationTimeAttribute.Units.Normalized));
+        }
 
         private static float _PreviousTime = float.NaN;
 
@@ -461,8 +430,7 @@ namespace Animancer.Editor
             bool autoSort,
             string timeLabel,
             float defaultTime,
-            bool isEndEvent)
-        {
+            bool isEndEvent) {
             EditorGUI.BeginChangeCheck();
 
             area.height = AnimationTimeAttributeDrawer.GetPropertyHeight(null, null);
@@ -474,80 +442,72 @@ namespace Animancer.Editor
             float normalizedTime;
 
             using (var label = PooledGUIContent.Acquire(timeLabel,
-                isEndEvent ? Strings.Tooltips.EndTime : Strings.Tooltips.CallbackTime))
-            {
+                isEndEvent ? Strings.Tooltips.EndTime : Strings.Tooltips.CallbackTime)) {
                 var length = context.TransitionContext.Transition != null
                     ? context.TransitionContext.MaximumLength
                     : float.NaN;
 
-                if (index < context.Times.Count)
-                {
+                if (index < context.Times.Count) {
                     var timeProperty = context.Times.GetElement(index);
                     if (timeProperty == null)// Multi-selection screwed up the property retrieval.
                     {
                         EditorGUI.BeginChangeCheck();
 
                         var propertyLabel = EditorGUI.BeginProperty(timeArea, label, context.Times.Property);
-                        if (isEndEvent)
+                        if (isEndEvent) {
                             AnimationTimeAttributeDrawer.SetNextDefaultValue(defaultTime);
+                        }
+
                         normalizedTime = float.NaN;
                         AnimationTimeAttributeDrawer.OnGUI(timeArea, propertyLabel, ref normalizedTime);
 
                         EditorGUI.EndProperty();
 
-                        if (EditorGUI.EndChangeCheck())
-                        {
+                        if (EditorGUI.EndChangeCheck()) {
                             context.Times.Count = context.Times.Count;
                             timeProperty = context.Times.GetElement(index);
                             timeProperty.floatValue = normalizedTime;
                             SyncEventTimeChange(context, index, normalizedTime);
                         }
-                    }
-                    else// Event time property was correctly retrieved.
-                    {
+                    } else// Event time property was correctly retrieved.
+                      {
                         var wasEditingTextField = EditorGUIUtility.editingTextField;
-                        if (!wasEditingTextField)
+                        if (!wasEditingTextField) {
                             _PreviousTime = float.NaN;
+                        }
 
                         EditorGUI.BeginChangeCheck();
 
                         var propertyLabel = EditorGUI.BeginProperty(timeArea, label, timeProperty);
 
-                        if (isEndEvent)
+                        if (isEndEvent) {
                             AnimationTimeAttributeDrawer.SetNextDefaultValue(defaultTime);
+                        }
+
                         normalizedTime = timeProperty.floatValue;
                         AnimationTimeAttributeDrawer.OnGUI(timeArea, propertyLabel, ref normalizedTime);
 
                         EditorGUI.EndProperty();
 
-                        if (middleClickedTimeArea)
+                        if (middleClickedTimeArea) {
                             normalizedTime = float.NaN;
+                        }
 
                         var isEditingTextField = EditorGUIUtility.editingTextField;
                         if (EditorGUI.EndChangeCheck() ||
                             middleClickedTimeArea ||
-                            (wasEditingTextField && !isEditingTextField))
-                        {
-                            if (float.IsNaN(normalizedTime))
-                            {
+                            (wasEditingTextField && !isEditingTextField)) {
+                            if (float.IsNaN(normalizedTime)) {
                                 RemoveEvent(context, index);
                                 Deselect();
-                            }
-                            else if (isEndEvent)
-                            {
+                            } else if (isEndEvent) {
                                 timeProperty.floatValue = normalizedTime;
                                 SyncEventTimeChange(context, index, normalizedTime);
-                            }
-                            else if (!autoSort && isEditingTextField)
-                            {
+                            } else if (!autoSort && isEditingTextField) {
                                 _PreviousTime = normalizedTime;
-                            }
-                            else
-                            {
-                                if (!float.IsNaN(_PreviousTime))
-                                {
-                                    if (Event.current.keyCode != KeyCode.Escape)
-                                    {
+                            } else {
+                                if (!float.IsNaN(_PreviousTime)) {
+                                    if (Event.current.keyCode != KeyCode.Escape) {
                                         normalizedTime = _PreviousTime;
                                         Deselect();
                                     }
@@ -560,16 +520,16 @@ namespace Animancer.Editor
                                 timeProperty.floatValue = normalizedTime;
                                 SyncEventTimeChange(context, index, normalizedTime);
 
-                                if (autoSort)
+                                if (autoSort) {
                                     SortEvents(context);
+                                }
                             }
 
                             GUI.changed = true;
                         }
                     }
-                }
-                else// Dummy End Event (when there are no event times).
-                {
+                } else// Dummy End Event (when there are no event times).
+                  {
                     AnimancerUtilities.Assert(index == 0, "Dummy end event index != 0");
                     EditorGUI.BeginChangeCheck();
 
@@ -581,8 +541,7 @@ namespace Animancer.Editor
 
                     EditorGUI.EndProperty();
 
-                    if (EditorGUI.EndChangeCheck() && !float.IsNaN(normalizedTime))
-                    {
+                    if (EditorGUI.EndChangeCheck() && !float.IsNaN(normalizedTime)) {
                         context.Times.Count = 1;
                         var timeProperty = context.Times.GetElement(0);
                         timeProperty.floatValue = normalizedTime;
@@ -591,14 +550,13 @@ namespace Animancer.Editor
                 }
             }
 
-            if (EditorGUI.EndChangeCheck())
-            {
+            if (EditorGUI.EndChangeCheck()) {
                 var eventType = Event.current.type;
-                if (eventType == EventType.Layout)
+                if (eventType == EventType.Layout) {
                     return;
+                }
 
-                if (eventType == EventType.Used)
-                {
+                if (eventType == EventType.Used) {
                     normalizedTime = UnitsAttributeDrawer.GetDisplayValue(normalizedTime, defaultTime);
                     TransitionPreviewWindow.PreviewNormalizedTime = normalizedTime;
                 }
@@ -608,8 +566,7 @@ namespace Animancer.Editor
         }
 
         /// <summary>Draws the time field for the event at the specified `index`.</summary>
-        public static void DoTimeGUI(ref Rect area, Context context, int index, bool autoSort)
-        {
+        public static void DoTimeGUI(ref Rect area, Context context, int index, bool autoSort) {
             GetEventLabels(
                 index,
                 context,
@@ -632,18 +589,17 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Updates the <see cref="SerializableSequence.Events"/> to accomodate a changed event time.</summary>
-        public static void SyncEventTimeChange(Context context, int index, float normalizedTime)
-        {
+        public static void SyncEventTimeChange(Context context, int index, float normalizedTime) {
             var events = context.Sequence?.InitializedEvents;
-            if (events == null)
+            if (events == null) {
                 return;
+            }
 
             if (index == events.Count)// End Event.
             {
                 events.NormalizedEndTime = normalizedTime;
-            }
-            else// Regular Event.
-            {
+            } else// Regular Event.
+              {
                 events.SetNormalizedTime(index, normalizedTime);
             }
         }
@@ -655,49 +611,39 @@ namespace Animancer.Editor
             ref Rect area,
             Context context,
             int index,
-            string callbackLabel)
-        {
-            if (SerializableEventSequenceDrawerSettings.HideEventCallbacks && context.Callbacks.Count == 0)
+            string callbackLabel) {
+            if (SerializableEventSequenceDrawerSettings.HideEventCallbacks && context.Callbacks.Count == 0) {
                 return;
+            }
 
             EditorGUI.BeginChangeCheck();
 
-            using (var label = PooledGUIContent.Acquire(callbackLabel))
-            {
-                if (index < context.Callbacks.Count)
-                {
+            using (var label = PooledGUIContent.Acquire(callbackLabel)) {
+                if (index < context.Callbacks.Count) {
                     var callback = context.Callbacks.GetElement(index);
                     area.height = EditorGUI.GetPropertyHeight(callback, false);
 
                     EditorGUI.PropertyField(area, callback, label, false);
-                }
-                else if (DummyInvokableDrawer.DoGUI(ref area, label, context.Callbacks.Property, out var callback))
-                {
-                    try
-                    {
+                } else if (DummyInvokableDrawer.DoGUI(ref area, label, context.Callbacks.Property, out var callback)) {
+                    try {
                         SerializableSequence.DisableCompactArrays = true;
 
-                        if (index >= context.Times.Count)
-                        {
+                        if (index >= context.Times.Count) {
                             context.Times.Property.InsertArrayElementAtIndex(index);
                             context.Times.Count++;
                             context.Times.GetElement(index).floatValue = float.NaN;
                             context.Times.Property.serializedObject.ApplyModifiedProperties();
                         }
 
-                        context.Callbacks.Property.ForEachTarget(callbacksProperty =>
-                        {
+                        context.Callbacks.Property.ForEachTarget(callbacksProperty => {
                             var accessor = callbacksProperty.GetAccessor();
                             var oldCallbacks = (Array)accessor.GetValue(callbacksProperty.serializedObject.targetObject);
 
                             Array newCallbacks;
-                            if (oldCallbacks == null)
-                            {
+                            if (oldCallbacks == null) {
                                 var elementType = accessor.GetFieldElementType(callbacksProperty);
                                 newCallbacks = Array.CreateInstance(elementType, 1);
-                            }
-                            else
-                            {
+                            } else {
                                 var elementType = oldCallbacks.GetType().GetElementType();
                                 newCallbacks = Array.CreateInstance(elementType, index + 1);
                                 Array.Copy(oldCallbacks, newCallbacks, oldCallbacks.Length);
@@ -710,35 +656,30 @@ namespace Animancer.Editor
                         context.Callbacks.Property.OnPropertyChanged();
                         context.Callbacks.Property.GetArrayElementAtIndex(index).isExpanded = true;
                         context.Callbacks.Refresh();
-                    }
-                    finally
-                    {
+                    } finally {
                         SerializableSequence.DisableCompactArrays = false;
                     }
                 }
             }
 
-            if (EditorGUI.EndChangeCheck())
-            {
-                if (index < context.Callbacks.Count)
-                {
+            if (EditorGUI.EndChangeCheck()) {
+                if (index < context.Callbacks.Count) {
                     var events = context.Sequence?.InitializedEvents;
-                    if (events != null)
-                    {
+                    if (events != null) {
                         var animancerEvent = index < events.Count
                             ? events[index]
                             : events.EndEvent;
 
-                        if (AnimancerEvent.IsNullOrDummy(animancerEvent.callback))
-                        {
+                        if (AnimancerEvent.IsNullOrDummy(animancerEvent.callback)) {
                             context.Callbacks.Property.serializedObject.ApplyModifiedProperties();
                             var property = context.Callbacks.GetElement(index);
                             var callback = property.GetValue();
                             var invoke = SerializableSequence.GetInvoke(callback as IInvokable);
-                            if (index < events.Count)
+                            if (index < events.Count) {
                                 events.SetCallback(index, invoke);
-                            else
+                            } else {
                                 events.OnEnd = invoke;
+                            }
                         }
                     }
                 }
@@ -761,10 +702,8 @@ namespace Animancer.Editor
             out string timeLabel,
             out string callbackLabel,
             out float defaultTime,
-            out bool isEndEvent)
-        {
-            if (index >= context.Times.Count - 1)
-            {
+            out bool isEndEvent) {
+            if (index >= context.Times.Count - 1) {
                 nameLabel = null;
                 timeLabel = "End Time";
                 callbackLabel = "End Callback";
@@ -772,11 +711,8 @@ namespace Animancer.Editor
                 defaultTime = AnimancerEvent.Sequence.GetDefaultNormalizedEndTime(
                     context.TransitionContext.Transition?.Speed ?? 1);
                 isEndEvent = true;
-            }
-            else
-            {
-                if (_NameLabelCache == null)
-                {
+            } else {
+                if (_NameLabelCache == null) {
                     _NameLabelCache = new((i) => $"Event {i} Name");
                     _TimeLabelCache = new((i) => $"Event {i} Time");
                     _CallbackLabelCache = new((i) => $"Event {i} Callback");
@@ -793,17 +729,16 @@ namespace Animancer.Editor
 
         /************************************************************************************************************************/
 
-        private static void WrapEventTime(Context context, ref float normalizedTime)
-        {
+        private static void WrapEventTime(Context context, ref float normalizedTime) {
             var transition = context.TransitionContext.Transition;
-            if (transition != null && transition.IsLooping)
-            {
-                if (normalizedTime == 0)
+            if (transition != null && transition.IsLooping) {
+                if (normalizedTime == 0) {
                     return;
-                else if (normalizedTime % 1 == 0)
+                } else if (normalizedTime % 1 == 0) {
                     normalizedTime = AnimancerEvent.AlmostOne;
-                else
+                } else {
                     normalizedTime = AnimancerUtilities.Wrap01(normalizedTime);
+                }
             }
         }
 
@@ -815,30 +750,23 @@ namespace Animancer.Editor
         private static GUIContent _AddEventContent;
 
         /// <summary>Draws a button to add a new event or remove the selected one.</summary>
-        public void DoAddRemoveEventButtonGUI(Rect area, Context context)
-        {
-            if (ShowAddButton(context))
-            {
+        public void DoAddRemoveEventButtonGUI(Rect area, Context context) {
+            if (ShowAddButton(context)) {
                 AnimancerIcons.IconContent(ref _AddEventContent, "Animation.AddEvent", Strings.ProOnlyTag + "Add event");
 
-                _AddEventStyle ??= new(EditorStyles.miniButton)
-                {
+                _AddEventStyle ??= new(EditorStyles.miniButton) {
                     fixedHeight = 0,
                     padding = new(-1, 1, 0, 0),
                 };
 
-                if (GUI.Button(area, _AddEventContent, _AddEventStyle))
-                {
+                if (GUI.Button(area, _AddEventContent, _AddEventStyle)) {
                     // If the target is currently being previewed, add the event at the currently selected time.
                     var state = TransitionPreviewWindow.GetCurrentState();
                     var normalizedTime = state != null ? state.NormalizedTime : float.NaN;
                     AddEvent(context, normalizedTime, null);
                 }
-            }
-            else
-            {
-                if (GUI.Button(area, AnimancerIcons.ClearIcon("Remove selected event"), NoPaddingButtonStyle))
-                {
+            } else {
+                if (GUI.Button(area, AnimancerIcons.ClearIcon("Remove selected event"), NoPaddingButtonStyle)) {
                     RemoveEvent(context, context.SelectedEvent);
                 }
             }
@@ -846,28 +774,32 @@ namespace Animancer.Editor
 
         /************************************************************************************************************************/
 
-        private static bool ShowAddButton(Context context)
-        {
+        private static bool ShowAddButton(Context context) {
             // Nothing selected = Add.
-            if (context.SelectedEvent < 0)
+            if (context.SelectedEvent < 0) {
                 return true;
+            }
 
             // No times means no events exist = Add.
-            if (context.Times.Count == 0)
+            if (context.Times.Count == 0) {
                 return true;
+            }
 
             // Regular event selected = Remove.
-            if (context.SelectedEvent < context.Times.Count - 1)
+            if (context.SelectedEvent < context.Times.Count - 1) {
                 return false;
+            }
 
             // End has non-default time = Remove.
-            if (!float.IsNaN(context.Times.GetElement(context.SelectedEvent).floatValue))
+            if (!float.IsNaN(context.Times.GetElement(context.SelectedEvent).floatValue)) {
                 return false;
+            }
 
             // End has non-empty callback = Remove.
             // If the end callback was empty, the array would have been compacted.
-            if (context.Callbacks.Count == context.Times.Count)
+            if (context.Callbacks.Count == context.Times.Count) {
                 return false;
+            }
 
             // End has empty callback = Add.
             return true;
@@ -879,25 +811,21 @@ namespace Animancer.Editor
         public static void AddEvent(
             Context context,
             float normalizedTime,
-            StringAsset name)
-        {
+            StringAsset name) {
             // If the time is NaN, add it halfway between the last event and the end.
 
-            if (context.Times.Count == 0)
-            {
+            if (context.Times.Count == 0) {
                 // Having any events means we need the end time too.
                 context.Times.Count = 2;
                 context.Times.GetElement(1).floatValue = float.NaN;
-                if (float.IsNaN(normalizedTime))
+                if (float.IsNaN(normalizedTime)) {
                     normalizedTime = 0.5f;
-            }
-            else
-            {
+                }
+            } else {
                 context.Times.Property.InsertArrayElementAtIndex(context.Times.Count - 1);
                 context.Times.Count++;
 
-                if (float.IsNaN(normalizedTime))
-                {
+                if (float.IsNaN(normalizedTime)) {
                     var transition = context.TransitionContext.Transition;
 
                     var previousTime = context.Times.Count >= 3
@@ -905,8 +833,9 @@ namespace Animancer.Editor
                         : AnimancerEvent.Sequence.GetDefaultNormalizedStartTime(transition.Speed);
 
                     var endTime = context.Times.GetElement(context.Times.Count - 1).floatValue;
-                    if (float.IsNaN(endTime))
+                    if (float.IsNaN(endTime)) {
                         endTime = AnimancerEvent.Sequence.GetDefaultNormalizedEndTime(transition.Speed);
+                    }
 
                     normalizedTime = previousTime < endTime
                         ? (previousTime + endTime) * 0.5f
@@ -920,8 +849,7 @@ namespace Animancer.Editor
             context.Times.GetElement(newEventIndex).floatValue = normalizedTime;
             context.SelectedEvent = newEventIndex;
 
-            if (context.Callbacks.Count > newEventIndex)
-            {
+            if (context.Callbacks.Count > newEventIndex) {
                 context.Callbacks.Property.InsertArrayElementAtIndex(newEventIndex);
                 context.Callbacks.Property.serializedObject.ApplyModifiedProperties();
 
@@ -931,10 +859,8 @@ namespace Animancer.Editor
                 context.Callbacks.Property.OnPropertyChanged();
             }
 
-            if (context.Names.Count > newEventIndex || name != null)
-            {
-                while (context.Names.Count <= newEventIndex)
-                {
+            if (context.Names.Count > newEventIndex || name != null) {
+                while (context.Names.Count <= newEventIndex) {
                     var index = context.Names.Count++;
 
                     var nameProperty = context.Names.GetElement(index);
@@ -952,8 +878,7 @@ namespace Animancer.Editor
 
             OptionalWarning.UselessEvent.Disable();
 
-            if (Event.current != null)
-            {
+            if (Event.current != null) {
                 GUI.changed = true;
                 GUIUtility.ExitGUI();
             }
@@ -962,30 +887,28 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Removes the event at the specified `index`.</summary>
-        public static void RemoveEvent(Context context, int index)
-        {
-            if (context.Times.Count == 0)
+        public static void RemoveEvent(Context context, int index) {
+            if (context.Times.Count == 0) {
                 return;
+            }
 
             // If it's an End Event, set it to NaN.
-            if (index >= context.Times.Count - 1)
-            {
+            if (index >= context.Times.Count - 1) {
                 context.Times.GetElement(index).floatValue = float.NaN;
 
-                if (context.Callbacks.Count > index)
+                if (context.Callbacks.Count > index) {
                     context.Callbacks.Count--;
+                }
 
                 Deselect();
 
                 // Update the runtime sequence accordingly.
                 var events = context.Sequence?.InitializedEvents;
-                if (events != null)
-                {
+                if (events != null) {
                     events.EndEvent = new(float.NaN, null);
                 }
-            }
-            else// Otherwise remove it.
-            {
+            } else// Otherwise remove it.
+              {
                 context.Times.Property.DeleteArrayElementAtIndex(index);
                 context.Times.Count--;
 
@@ -993,14 +916,12 @@ namespace Animancer.Editor
                 var events = context.Sequence?.InitializedEvents;
                 events?.Remove(index);
 
-                if (index < context.Names.Count)
-                {
+                if (index < context.Names.Count) {
                     context.Names.Property.DeleteArrayElementAtIndex(index);
                     context.Names.Count--;
                 }
 
-                if (index < context.Callbacks.Count)
-                {
+                if (index < context.Callbacks.Count) {
                     context.Callbacks.Property.DeleteArrayElementAtIndex(index);
                     context.Callbacks.Count--;
                 }
@@ -1010,16 +931,17 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Sorts the events in the `context` according to their times.</summary>
-        private static bool SortEvents(Context context)
-        {
-            if (context.Times.Count <= 2)
+        private static bool SortEvents(Context context) {
+            if (context.Times.Count <= 2) {
                 return false;
+            }
 
             // The serializable sequence sorts itself in ISerializationCallbackReceiver.OnBeforeSerialize.
             var selectedEvent = context.SelectedEvent;
             var sorted = context.Property.serializedObject.ApplyModifiedProperties();
-            if (!sorted)
+            if (!sorted) {
                 return false;
+            }
 
             context.Property.serializedObject.Update();
             context.Times.Refresh();
@@ -1035,11 +957,11 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         [InitializeOnLoadMethod]
-        private static void InitializeOnBeforeSerialize()
-            => SerializableSequence.OnBeforeSerialize += OnBeforeSerialize;
+        private static void InitializeOnBeforeSerialize() {
+            SerializableSequence.OnBeforeSerialize += OnBeforeSerialize;
+        }
 
-        private static void OnBeforeSerialize(SerializableSequence sequence)
-        {
+        private static void OnBeforeSerialize(SerializableSequence sequence) {
             var warnings = OptionalWarning.ProOnly.DisableTemporarily();
 
             var normalizedTimes = sequence.NormalizedTimes;
@@ -1047,8 +969,7 @@ namespace Animancer.Editor
             warnings.Enable();
 
             if (normalizedTimes == null ||
-                normalizedTimes.Length <= 2)
-            {
+                normalizedTimes.Length <= 2) {
                 sequence.CompactArrays();
                 return;
             }
@@ -1063,11 +984,9 @@ namespace Animancer.Editor
             var previousTime = normalizedTimes[0];
 
             // Bubble Sort based on the normalized times.
-            for (int i = 1; i < timeCount; i++)
-            {
+            for (var i = 1; i < timeCount; i++) {
                 var time = normalizedTimes[i];
-                if (time >= previousTime)
-                {
+                if (time >= previousTime) {
                     previousTime = time;
                     continue;
                 }
@@ -1076,18 +995,16 @@ namespace Animancer.Editor
                 DynamicSwap(ref sequence.Callbacks, i);
                 DynamicSwap(ref sequence.Names, i);
 
-                if (selectedEvent == i)
+                if (selectedEvent == i) {
                     selectedEvent = i - 1;
-                else if (selectedEvent == i - 1)
+                } else if (selectedEvent == i - 1) {
                     selectedEvent = i;
+                }
 
-                if (i == 1)
-                {
+                if (i == 1) {
                     i = 0;
                     previousTime = float.NegativeInfinity;
-                }
-                else
-                {
+                } else {
                     i -= 2;
                     previousTime = normalizedTimes[i];
                 }
@@ -1096,21 +1013,19 @@ namespace Animancer.Editor
             // If the current animation is looping, clamp all times within the 0-1 range.
             var transitionContext = TransitionDrawer.Context;
             if (transitionContext.Transition != null &&
-                transitionContext.Transition.IsLooping)
-            {
-                for (int i = normalizedTimes.Length - 1; i >= 0; i--)
-                {
+                transitionContext.Transition.IsLooping) {
+                for (var i = normalizedTimes.Length - 1; i >= 0; i--) {
                     var time = normalizedTimes[i];
-                    if (time < 0)
+                    if (time < 0) {
                         normalizedTimes[i] = 0;
-                    else if (time > AnimancerEvent.AlmostOne)
+                    } else if (time > AnimancerEvent.AlmostOne) {
                         normalizedTimes[i] = AnimancerEvent.AlmostOne;
+                    }
                 }
             }
 
             // If the selected event was moved adjust the selection.
-            if (eventContext?.Property != null && eventContext.SelectedEvent != selectedEvent)
-            {
+            if (eventContext?.Property != null && eventContext.SelectedEvent != selectedEvent) {
                 eventContext.SelectedEvent = selectedEvent;
                 TransitionPreviewWindow.PreviewNormalizedTime = normalizedTimes[selectedEvent];
             }
@@ -1124,15 +1039,16 @@ namespace Animancer.Editor
         /// Swaps <c>array[index]</c> with <c>array[index - 1]</c>
         /// while accounting for the possibility of the `index` being beyond the bounds of the `array`.
         /// </summary>
-        private static void DynamicSwap<T>(ref T[] array, int index)
-        {
+        private static void DynamicSwap<T>(ref T[] array, int index) {
             var count = array != null ? array.Length : 0;
 
-            if (index == count)
+            if (index == count) {
                 Array.Resize(ref array, ++count);
+            }
 
-            if (index < count)
+            if (index < count) {
                 array.Swap(index, index - 1);
+            }
         }
 
         /************************************************************************************************************************/
@@ -1142,8 +1058,7 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Details of an <see cref="AnimancerEvent.Sequence.Serializable"/>.</summary>
-        public class Context : IDisposable
-        {
+        public class Context : IDisposable {
             /************************************************************************************************************************/
 
             /// <summary>The main property representing the <see cref="Sequence"/> field.</summary>
@@ -1152,12 +1067,12 @@ namespace Animancer.Editor
             private SerializableSequence _Sequence;
 
             /// <summary>Underlying value of the <see cref="Property"/>.</summary>
-            public SerializableSequence Sequence
-            {
-                get
-                {
-                    if (_Sequence == null && Property.serializedObject.targetObjects.Length == 1)
+            public SerializableSequence Sequence {
+                get {
+                    if (_Sequence == null && Property.serializedObject.targetObjects.Length == 1) {
                         _Sequence = Property.GetValue<SerializableSequence>();
+                    }
+
                     return _Sequence;
                 }
             }
@@ -1176,20 +1091,14 @@ namespace Animancer.Editor
             private int _SelectedEvent;
 
             /// <summary>The index of the currently selected event.</summary>
-            public int SelectedEvent
-            {
+            public int SelectedEvent {
                 get => _SelectedEvent;
-                set
-                {
-                    if (Times != null && value >= 0 && (value < Times.Count || Times.Count == 0))
-                    {
+                set {
+                    if (Times != null && value >= 0 && (value < Times.Count || Times.Count == 0)) {
                         float normalizedTime;
-                        if (Times.Count > 0)
-                        {
+                        if (Times.Count > 0) {
                             normalizedTime = Times.GetElement(value).floatValue;
-                        }
-                        else
-                        {
+                        } else {
                             var transition = TransitionContext.Transition;
                             var speed = transition != null ? transition.Speed : 1;
                             normalizedTime = AnimancerEvent.Sequence.GetDefaultNormalizedEndTime(speed);
@@ -1199,8 +1108,9 @@ namespace Animancer.Editor
                     }
 
                     if (_SelectedEvent == value &&
-                        Callbacks != null)
+                        Callbacks != null) {
                         return;
+                    }
 
                     _SelectedEvent = value;
                     TemporarySettings.SetSelectedEvent(Callbacks.Property, value);
@@ -1221,17 +1131,13 @@ namespace Animancer.Editor
             /************************************************************************************************************************/
 
             /// <summary>Adds a new <see cref="Context"/> representing the `property` to the stack and returns it.</summary>
-            public static Context Get(SerializedProperty property)
-            {
+            public static Context Get(SerializedProperty property) {
                 _ActiveIndex++;
 
-                if (_ActiveIndex >= Stack.Count)
-                {
+                if (_ActiveIndex >= Stack.Count) {
                     Current = new();
                     Stack.Add(Current);
-                }
-                else
-                {
+                } else {
                     Current = Stack[_ActiveIndex];
                 }
 
@@ -1241,8 +1147,7 @@ namespace Animancer.Editor
             }
 
             /// <summary>Sets this <see cref="Context"/> as the <see cref="Current"/> and returns it.</summary>
-            public Context SetAsCurrent()
-            {
+            public Context SetAsCurrent() {
                 Current = this;
                 EditorGUI.BeginChangeCheck();
                 return this;
@@ -1250,10 +1155,10 @@ namespace Animancer.Editor
 
             /************************************************************************************************************************/
 
-            private void Initialize(SerializedProperty property)
-            {
-                if (Property == property)
+            private void Initialize(SerializedProperty property) {
+                if (Property == property) {
                     return;
+                }
 
                 Property = property;
                 _Sequence = null;
@@ -1262,10 +1167,13 @@ namespace Animancer.Editor
                 Names.Property = property.FindPropertyRelative(SerializableSequence.NamesField);
                 Callbacks.Property = property.FindPropertyRelative(SerializableSequence.CallbacksField);
 
-                if (Names.Count > Times.Count)
+                if (Names.Count > Times.Count) {
                     Names.Count = Times.Count;
-                if (Callbacks.Count > Times.Count)
+                }
+
+                if (Callbacks.Count > Times.Count) {
                     Callbacks.Count = Times.Count;
+                }
 
                 _SelectedEvent = TemporarySettings.GetSelectedEvent(Callbacks.Property);
                 _SelectedEvent = Mathf.Min(_SelectedEvent, Mathf.Max(Times.Count - 1, 0));
@@ -1274,17 +1182,18 @@ namespace Animancer.Editor
             /************************************************************************************************************************/
 
             /// <summary>[<see cref="IDisposable"/>] Calls <see cref="SerializedObject.ApplyModifiedProperties"/>.</summary>
-            public void Dispose()
-            {
+            public void Dispose() {
                 if ((uint)_ActiveIndex < (uint)Stack.Count &&
-                    this == Stack[_ActiveIndex])
+                    this == Stack[_ActiveIndex]) {
                     _ActiveIndex--;
+                }
 
                 Stack.TryGet(_ActiveIndex, out var current);
                 Current = current;
 
-                if (EditorGUI.EndChangeCheck())
+                if (EditorGUI.EndChangeCheck()) {
                     Property.serializedObject.ApplyModifiedProperties();
+                }
 
                 Property = null;
                 _Sequence = null;
@@ -1299,10 +1208,8 @@ namespace Animancer.Editor
             /************************************************************************************************************************/
 
             /// <summary>Creates a copy of this <see cref="Context"/>.</summary>
-            public Context Copy()
-            {
-                var copy = new Context
-                {
+            public Context Copy() {
+                var copy = new Context {
                     Property = Property,
                     _SelectedEvent = _SelectedEvent,
                 };
@@ -1329,8 +1236,7 @@ namespace Animancer.Editor
     /// <summary>[Editor-Only] Settings for <see cref="SerializableEventSequenceDrawer"/>.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/SerializableEventSequenceDrawerSettings
     [Serializable, InternalSerializableType]
-    public class SerializableEventSequenceDrawerSettings : AnimancerSettingsGroup
-    {
+    public class SerializableEventSequenceDrawerSettings : AnimancerSettingsGroup {
         /************************************************************************************************************************/
 
         /// <inheritdoc/>

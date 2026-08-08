@@ -8,12 +8,10 @@ using System.Text;
 using UnityEditor;
 using UnityEngine;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only] The general type of object an <see cref="AnimationClip"/> can animate.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/AnimationType
-    public enum AnimationType
-    {
+    public enum AnimationType {
         /// <summary>Unable to determine a type.</summary>
         None,
 
@@ -31,8 +29,7 @@ namespace Animancer.Editor
     /// Various utility functions relating to the properties animated by an <see cref="AnimationClip"/>.
     /// </summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/AnimationBindings
-    public class AnimationBindings : AssetPostprocessor
-    {
+    public class AnimationBindings : AssetPostprocessor {
         /************************************************************************************************************************/
         #region Animation Types
         /************************************************************************************************************************/
@@ -40,25 +37,23 @@ namespace Animancer.Editor
         private static Dictionary<AnimationClip, bool> _ClipToIsSprite;
 
         /// <summary>Determines the <see cref="AnimationType"/> of the specified `clip`.</summary>
-        public static AnimationType GetAnimationType(AnimationClip clip)
-        {
-            if (clip == null)
+        public static AnimationType GetAnimationType(AnimationClip clip) {
+            if (clip == null) {
                 return AnimationType.None;
+            }
 
-            if (clip.isHumanMotion)
+            if (clip.isHumanMotion) {
                 return AnimationType.Humanoid;
+            }
 
             AnimancerUtilities.InitializeCleanDictionary(ref _ClipToIsSprite);
 
-            if (!_ClipToIsSprite.TryGetValue(clip, out var isSprite))
-            {
+            if (!_ClipToIsSprite.TryGetValue(clip, out var isSprite)) {
                 var bindings = AnimationUtility.GetObjectReferenceCurveBindings(clip);
-                for (int i = 0; i < bindings.Length; i++)
-                {
+                for (var i = 0; i < bindings.Length; i++) {
                     var binding = bindings[i];
                     if (binding.type == typeof(SpriteRenderer) &&
-                        binding.propertyName == "m_Sprite")
-                    {
+                        binding.propertyName == "m_Sprite") {
                         isSprite = true;
                         break;
                     }
@@ -75,23 +70,27 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Determines the <see cref="AnimationType"/> of the specified `animator`.</summary>
-        public static AnimationType GetAnimationType(Animator animator)
-        {
-            if (animator == null)
+        public static AnimationType GetAnimationType(Animator animator) {
+            if (animator == null) {
                 return AnimationType.None;
+            }
 
-            if (animator.isHuman)
+            if (animator.isHuman) {
                 return AnimationType.Humanoid;
+            }
 
             // If all renderers are SpriteRenderers, it's a Sprite animation.
             // Otherwise it's Generic.
             var renderers = animator.GetComponentsInChildren<Renderer>();
-            if (renderers.Length == 0)
+            if (renderers.Length == 0) {
                 return AnimationType.Generic;
+            }
 
-            for (int i = 0; i < renderers.Length; i++)
-                if (renderers[i] is not SpriteRenderer)
+            for (var i = 0; i < renderers.Length; i++) {
+                if (renderers[i] is not SpriteRenderer) {
                     return AnimationType.Generic;
+                }
+            }
 
             return AnimationType.Sprite;
         }
@@ -99,21 +98,20 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Determines the <see cref="AnimationType"/> of the specified `gameObject`.</summary>
-        public static AnimationType GetAnimationType(GameObject gameObject)
-        {
+        public static AnimationType GetAnimationType(GameObject gameObject) {
             var type = AnimationType.None;
             var animators = gameObject.GetComponentsInChildren<Animator>();
-            for (int i = 0; i < animators.Length; i++)
-            {
+            for (var i = 0; i < animators.Length; i++) {
                 var animatorType = GetAnimationType(animators[i]);
-                switch (animatorType)
-                {
+                switch (animatorType) {
                     case AnimationType.Humanoid: return AnimationType.Humanoid;
                     case AnimationType.Generic: return AnimationType.Generic;
 
                     case AnimationType.Sprite:
-                        if (type == AnimationType.None)
+                        if (type == AnimationType.None) {
                             type = AnimationType.Sprite;
+                        }
+
                         break;
 
                     case AnimationType.None:
@@ -132,10 +130,10 @@ namespace Animancer.Editor
         private static bool _CanGatherBindings = true;
 
         /// <summary>No more than one set of bindings should be gathered per frame.</summary>
-        private static bool CanGatherBindings()
-        {
-            if (!_CanGatherBindings)
+        private static bool CanGatherBindings() {
+            if (!_CanGatherBindings) {
                 return false;
+            }
 
             _CanGatherBindings = false;
             EditorApplication.delayCall += () => _CanGatherBindings = true;
@@ -148,14 +146,13 @@ namespace Animancer.Editor
 
         /// <summary>Returns a cached <see cref="BindingData"/> representing the specified `gameObject`.</summary>
         /// <remarks>Note that the cache is cleared by <see cref="EditorApplication.hierarchyChanged"/>.</remarks>
-        public static BindingData GetBindings(GameObject gameObject, bool forceGather = true)
-        {
+        public static BindingData GetBindings(GameObject gameObject, bool forceGather = true) {
             AnimancerUtilities.InitializeCleanDictionary(ref _ObjectToBindings);
 
-            if (!_ObjectToBindings.TryGetValue(gameObject, out var bindings))
-            {
-                if (!forceGather && !CanGatherBindings())
+            if (!_ObjectToBindings.TryGetValue(gameObject, out var bindings)) {
+                if (!forceGather && !CanGatherBindings()) {
                     return null;
+                }
 
                 bindings = new(gameObject);
                 _ObjectToBindings.Add(gameObject, bindings);
@@ -169,12 +166,10 @@ namespace Animancer.Editor
         private static Dictionary<AnimationClip, EditorCurveBinding[]> _ClipToBindings;
 
         /// <summary>Returns a cached array of all properties animated by the specified `clip`.</summary>
-        public static EditorCurveBinding[] GetBindings(AnimationClip clip)
-        {
+        public static EditorCurveBinding[] GetBindings(AnimationClip clip) {
             AnimancerUtilities.InitializeCleanDictionary(ref _ClipToBindings);
 
-            if (!_ClipToBindings.TryGetValue(clip, out var bindings))
-            {
+            if (!_ClipToBindings.TryGetValue(clip, out var bindings)) {
                 var curveBindings = AnimationUtility.GetCurveBindings(clip);
                 var objectBindings = AnimationUtility.GetObjectReferenceCurveBindings(clip);
                 bindings = new EditorCurveBinding[curveBindings.Length + objectBindings.Length];
@@ -189,15 +184,17 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Called when Unity imports an animation.</summary>
-        protected virtual void OnPostprocessAnimation(GameObject root, AnimationClip clip)
-            => OnAnimationChanged(clip);
+        protected virtual void OnPostprocessAnimation(GameObject root, AnimationClip clip) {
+            OnAnimationChanged(clip);
+        }
 
         /// <summary>Clears any cached values relating to the `clip` since they may no longer be correct.</summary>
-        public static void OnAnimationChanged(AnimationClip clip)
-        {
-            if (_ObjectToBindings != null)
-                foreach (var binding in _ObjectToBindings.Values)
+        public static void OnAnimationChanged(AnimationClip clip) {
+            if (_ObjectToBindings != null) {
+                foreach (var binding in _ObjectToBindings.Values) {
                     binding.OnAnimationChanged(clip);
+                }
+            }
 
             _ClipToBindings?.Remove(clip);
         }
@@ -205,8 +202,7 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Clears all cached values in this class.</summary>
-        public static void ClearCache()
-        {
+        public static void ClearCache() {
             _ObjectToBindings.Clear();
             _ClipToBindings.Clear();
         }
@@ -218,26 +214,24 @@ namespace Animancer.Editor
         /// and its children which can be animated and the relationships between those properties
         /// and the properties that individual <see cref="AnimationClip"/>s are trying to animate.
         /// </summary>
-        public class BindingData
-        {
+        public class BindingData {
             /************************************************************************************************************************/
 
             /// <summary>The target object that this data represents.</summary>
             public readonly GameObject GameObject;
 
             /// <summary>Creates a new <see cref="BindingData"/> representing the specified `gameObject`.</summary>
-            public BindingData(GameObject gameObject)
-                => GameObject = gameObject;
+            public BindingData(GameObject gameObject) {
+                GameObject = gameObject;
+            }
 
             /************************************************************************************************************************/
 
             private AnimationType? _ObjectType;
 
             /// <summary>The cached <see cref="AnimationType"/> of the <see cref="GameObject"/>.</summary>
-            public AnimationType ObjectType
-            {
-                get
-                {
+            public AnimationType ObjectType {
+                get {
                     _ObjectType ??= GetAnimationType(GameObject);
                     return _ObjectType.Value;
                 }
@@ -248,16 +242,12 @@ namespace Animancer.Editor
             private HashSet<EditorCurveBinding> _ObjectBindings;
 
             /// <summary>The cached properties of the <see cref="GameObject"/> and its children which can be animated.</summary>
-            public HashSet<EditorCurveBinding> ObjectBindings
-            {
-                get
-                {
-                    if (_ObjectBindings == null)
-                    {
+            public HashSet<EditorCurveBinding> ObjectBindings {
+                get {
+                    if (_ObjectBindings == null) {
                         _ObjectBindings = new();
                         var transforms = GameObject.GetComponentsInChildren<Transform>();
-                        for (int i = 0; i < transforms.Length; i++)
-                        {
+                        for (var i = 0; i < transforms.Length; i++) {
                             var bindings = AnimationUtility.GetAnimatableBindings(transforms[i].gameObject, GameObject);
                             _ObjectBindings.UnionWith(bindings);
                         }
@@ -275,17 +265,14 @@ namespace Animancer.Editor
             /// The <see cref="EditorCurveBinding.path"/> of all <see cref="Transform"/> bindings in
             /// <see cref="ObjectBindings"/>.
             /// </summary>
-            public HashSet<string> ObjectTransformBindings
-            {
-                get
-                {
-                    if (_ObjectTransformBindings == null)
-                    {
+            public HashSet<string> ObjectTransformBindings {
+                get {
+                    if (_ObjectTransformBindings == null) {
                         _ObjectTransformBindings = new();
-                        foreach (var binding in ObjectBindings)
-                        {
-                            if (binding.type == typeof(Transform))
+                        foreach (var binding in ObjectBindings) {
+                            if (binding.type == typeof(Transform)) {
                                 _ObjectTransformBindings.Add(binding.path);
+                            }
                         }
                     }
 
@@ -306,10 +293,8 @@ namespace Animancer.Editor
                 Animator animator,
                 AnimancerState state,
                 StringBuilder message,
-                bool forceGather = true)
-            {
-                using (SetPool<AnimationClip>.Instance.Acquire(out var clips))
-                {
+                bool forceGather = true) {
+                using (SetPool<AnimationClip>.Instance.Acquire(out var clips)) {
                     state.GatherAnimationClips(clips);
 
                     var bindings = message != null
@@ -320,20 +305,20 @@ namespace Animancer.Editor
 
                     var match = default(MatchType);
 
-                    if (animator.avatar == null)
-                    {
+                    if (animator.avatar == null) {
                         message?.AppendLine()
                             .Append($"{LinePrefix}The {nameof(Animator)} has no {nameof(Avatar)}.");
 
-                        if (animator.isHuman)
+                        if (animator.isHuman) {
                             match = MatchType.Error;
+                        }
                     }
 
-                    foreach (var clip in clips)
-                    {
+                    foreach (var clip in clips) {
                         var clipMatch = GetMatchType(clip, message, bindings, ref existingBindingCount, forceGather);
-                        if (match < clipMatch)
+                        if (match < clipMatch) {
                             match = clipMatch;
+                        }
                     }
 
                     AppendBindings(message, bindings, existingBindingCount);
@@ -360,26 +345,21 @@ namespace Animancer.Editor
                 StringBuilder message,
                 Dictionary<EditorCurveBinding, bool> bindingsInMessage,
                 ref int existingBindingCount,
-                bool forceGather = true)
-            {
+                bool forceGather = true) {
                 AnimancerUtilities.InitializeCleanDictionary(ref _BindingMatches);
 
-                if (_BindingMatches.TryGetValue(clip, out var match))
-                {
-                    if (bindingsInMessage == null)
+                if (_BindingMatches.TryGetValue(clip, out var match)) {
+                    if (bindingsInMessage == null) {
                         return match;
-                }
-                else if (!forceGather && !CanGatherBindings())
-                {
+                    }
+                } else if (!forceGather && !CanGatherBindings()) {
                     return MatchType.Unknown;
                 }
 
                 var objectType = ObjectType;
                 var clipType = GetAnimationType(clip);
-                if (clipType != objectType)
-                {
-                    if (message != null)
-                    {
+                if (clipType != objectType) {
+                    if (message != null) {
                         message.AppendLine()
                             .Append($"{LinePrefix}This message does not necessarily mean anything is wrong," +
                             $" but if something is wrong then this might help you identify the problem.");
@@ -397,16 +377,16 @@ namespace Animancer.Editor
                                 $" {Strings.DocsURLs.Inspector.AsHtmlLink()}#animation-types");
                     }
 
-                    switch (clipType)
-                    {
+                    switch (clipType) {
                         default:
                         case AnimationType.None:
                         case AnimationType.Humanoid:
                             match = MatchType.Error;
-                            if (message == null)
+                            if (message == null) {
                                 goto SetMatch;
-                            else
+                            } else {
                                 break;
+                            }
 
                         case AnimationType.Generic:
                         case AnimationType.Sprite:
@@ -421,10 +401,11 @@ namespace Animancer.Editor
                     bindingsInMessage,
                     ref existingBindingCount);
 
-                if (match < bindingMatch)
+                if (match < bindingMatch) {
                     match = bindingMatch;
+                }
 
-                SetMatch:
+            SetMatch:
                 _BindingMatches[clip] = match;
 
                 return match;
@@ -436,57 +417,55 @@ namespace Animancer.Editor
                 AnimationClip clip,
                 StringBuilder message,
                 Dictionary<EditorCurveBinding, bool> bindingsInMessage,
-                ref int existingBindingCount)
-            {
+                ref int existingBindingCount) {
                 var bindings = GetBindings(clip);
 
-                if (bindings.Length == 0)
+                if (bindings.Length == 0) {
                     return MatchType.Empty;
+                }
 
                 var bindingCount = bindings.Length;
                 var hasMissingReferences = false;
 
                 var matchCount = 0;
-                for (int i = 0; i < bindings.Length; i++)
-                {
+                for (var i = 0; i < bindings.Length; i++) {
                     var binding = bindings[i];
-                    if (ShouldIgnoreBinding(binding))
-                    {
+                    if (ShouldIgnoreBinding(binding)) {
                         bindingCount--;
                         continue;
                     }
 
                     var matches = MatchesObjectBinding(binding);
-                    if (matches)
+                    if (matches) {
                         matchCount++;
-
-                    if (bindingsInMessage != null && !bindingsInMessage.ContainsKey(binding))
-                    {
-                        bindingsInMessage.Add(binding, matches);
-                        if (matches)
-                            existingBindingCount++;
                     }
 
-                    if (HasMissingReferences(clip, message, binding))
+                    if (bindingsInMessage != null && !bindingsInMessage.ContainsKey(binding)) {
+                        bindingsInMessage.Add(binding, matches);
+                        if (matches) {
+                            existingBindingCount++;
+                        }
+                    }
+
+                    if (HasMissingReferences(clip, message, binding)) {
                         hasMissingReferences = true;
+                    }
                 }
 
-                if (matchCount == bindingCount && !hasMissingReferences)
+                if (matchCount == bindingCount && !hasMissingReferences) {
                     return MatchType.Correct;
-                else if (matchCount != 0)
+                } else if (matchCount != 0) {
                     return MatchType.Warning;
-                else
+                } else {
                     return MatchType.Error;
+                }
             }
 
             /************************************************************************************************************************/
 
-            private static bool ShouldIgnoreBinding(EditorCurveBinding binding)
-            {
-                if (binding.type == typeof(Animator) && string.IsNullOrEmpty(binding.path))
-                {
-                    switch (binding.propertyName)
-                    {
+            private static bool ShouldIgnoreBinding(EditorCurveBinding binding) {
+                if (binding.type == typeof(Animator) && string.IsNullOrEmpty(binding.path)) {
+                    switch (binding.propertyName) {
                         case "MotionQ.w":
                         case "MotionQ.x":
                         case "MotionQ.y":
@@ -514,12 +493,9 @@ namespace Animancer.Editor
 
             /************************************************************************************************************************/
 
-            private bool MatchesObjectBinding(EditorCurveBinding binding)
-            {
-                if (binding.type == typeof(Transform))
-                {
-                    switch (binding.propertyName)
-                    {
+            private bool MatchesObjectBinding(EditorCurveBinding binding) {
+                if (binding.type == typeof(Transform)) {
+                    switch (binding.propertyName) {
                         case "m_LocalEulerAngles.x":
                         case "m_LocalEulerAngles.y":
                         case "m_LocalEulerAngles.z":
@@ -538,18 +514,15 @@ namespace Animancer.Editor
             private bool HasMissingReferences(
                 AnimationClip clip,
                 StringBuilder message,
-                EditorCurveBinding binding)
-            {
+                EditorCurveBinding binding) {
                 var references = AnimationUtility.GetObjectReferenceCurve(clip, binding);
-                if (references == null)
+                if (references == null) {
                     return false;
+                }
 
-                for (int i = 0; i < references.Length; i++)
-                {
-                    if (references[i].value == null)
-                    {
-                        if (message != null)
-                        {
+                for (var i = 0; i < references.Length; i++) {
+                    if (references[i].value == null) {
+                        if (message != null) {
                             var path = binding.path;
 
                             message.AppendLine()
@@ -559,9 +532,10 @@ namespace Animancer.Editor
                                 .Append(binding.type.Name)
                                 .Append(" binding: ");
 
-                            if (!string.IsNullOrEmpty(path))
+                            if (!string.IsNullOrEmpty(path)) {
                                 message.Append(path)
                                     .Append('.');
+                            }
 
                             message.Append(binding.propertyName);
                         }
@@ -578,11 +552,11 @@ namespace Animancer.Editor
             private static void AppendBindings(
                 StringBuilder message,
                 Dictionary<EditorCurveBinding, bool> bindings,
-                int existingBindingCount)
-            {
+                int existingBindingCount) {
                 if (bindings == null ||
-                    bindings.Count <= existingBindingCount)
+                    bindings.Count <= existingBindingCount) {
                     return;
+                }
 
                 message.AppendLine()
                     .Append(LinePrefix + "This message has been copied to the clipboard" +
@@ -595,25 +569,25 @@ namespace Animancer.Editor
                     .Append(bindings.Count)
                     .Append(" bindings do not exist in the Rig: [x] = Missing, [o] = Exists");
 
-                using (ListPool<EditorCurveBinding>.Instance.Acquire(out var sortedBindings))
-                {
+                using (ListPool<EditorCurveBinding>.Instance.Acquire(out var sortedBindings)) {
                     sortedBindings.AddRange(bindings.Keys);
-                    sortedBindings.Sort((a, b) =>
-                    {
+                    sortedBindings.Sort((a, b) => {
                         var result = a.path.CompareTo(b.path);
-                        if (result != 0)
+                        if (result != 0) {
                             return result;
+                        }
 
-                        if (a.type != b.type)
-                        {
-                            if (a.type == typeof(Transform))
+                        if (a.type != b.type) {
+                            if (a.type == typeof(Transform)) {
                                 return -1;
-                            else if (b.type == typeof(Transform))
+                            } else if (b.type == typeof(Transform)) {
                                 return 1;
+                            }
 
                             result = a.type.Name.CompareTo(b.type.Name);
-                            if (result != 0)
+                            if (result != 0) {
                                 return result;
+                            }
                         }
 
                         return a.propertyName.CompareTo(b.propertyName);
@@ -622,30 +596,27 @@ namespace Animancer.Editor
                     var previousBinding = default(EditorCurveBinding);
                     var pathSplit = Array.Empty<string>();
 
-                    for (int iBinding = 0; iBinding < sortedBindings.Count; iBinding++)
-                    {
+                    for (var iBinding = 0; iBinding < sortedBindings.Count; iBinding++) {
                         var binding = sortedBindings[iBinding];
-                        if (binding.path != previousBinding.path)
-                        {
+                        if (binding.path != previousBinding.path) {
                             var newPathSplit = binding.path.Split('/');
 
                             var iSegment = Math.Min(newPathSplit.Length - 1, pathSplit.Length - 1);
 
-                            for (; iSegment >= 0; iSegment--)
-                            {
-                                if (pathSplit[iSegment] == newPathSplit[iSegment])
+                            for (; iSegment >= 0; iSegment--) {
+                                if (pathSplit[iSegment] == newPathSplit[iSegment]) {
                                     break;
+                                }
                             }
                             iSegment++;
 
-                            if (!string.IsNullOrEmpty(binding.path))
-                            {
-                                for (; iSegment < newPathSplit.Length; iSegment++)
-                                {
+                            if (!string.IsNullOrEmpty(binding.path)) {
+                                for (; iSegment < newPathSplit.Length; iSegment++) {
                                     message.AppendLine();
 
-                                    for (int iIndent = 0; iIndent < iSegment; iIndent++)
+                                    for (var iIndent = 0; iIndent < iSegment; iIndent++) {
                                         message.Append(Strings.Indent);
+                                    }
 
                                     message.Append("> ").Append(newPathSplit[iSegment]);
                                 }
@@ -654,14 +625,17 @@ namespace Animancer.Editor
                             pathSplit = newPathSplit;
                         }
 
-                        if (TransformBindings.Append(bindings, sortedBindings, ref iBinding, message))
+                        if (TransformBindings.Append(bindings, sortedBindings, ref iBinding, message)) {
                             continue;
+                        }
 
                         message.AppendLine();
 
-                        if (binding.path.Length > 0)
-                            for (int iIndent = 0; iIndent < pathSplit.Length; iIndent++)
+                        if (binding.path.Length > 0) {
+                            for (var iIndent = 0; iIndent < pathSplit.Length; iIndent++) {
                                 message.Append(Strings.Indent);
+                            }
+                        }
 
                         message
                             .Append(bindings[binding] ? "[o] " : "[x] ")
@@ -676,11 +650,9 @@ namespace Animancer.Editor
 
             /************************************************************************************************************************/
 
-            private static class TransformBindings
-            {
+            private static class TransformBindings {
                 [Flags]
-                private enum Flags
-                {
+                private enum Flags {
                     None = 0,
 
                     PositionX = 1 << 0,
@@ -701,9 +673,13 @@ namespace Animancer.Editor
                     ScaleZ = 1 << 12,
                 }
 
-                private static bool HasAll(Flags flag, Flags has) => (flag & has) == has;
+                private static bool HasAll(Flags flag, Flags has) {
+                    return (flag & has) == has;
+                }
 
-                private static bool HasAny(Flags flag, Flags has) => (flag & has) != Flags.None;
+                private static bool HasAny(Flags flag, Flags has) {
+                    return (flag & has) != Flags.None;
+                }
 
                 /************************************************************************************************************************/
 
@@ -719,19 +695,19 @@ namespace Animancer.Editor
                     Dictionary<EditorCurveBinding, bool> bindings,
                     List<EditorCurveBinding> sortedBindings,
                     ref int index,
-                    StringBuilder message)
-                {
+                    StringBuilder message) {
                     var binding = sortedBindings[index];
-                    if (binding.type != typeof(Transform))
+                    if (binding.type != typeof(Transform)) {
                         return false;
+                    }
 
-                    if (string.IsNullOrEmpty(binding.path))
+                    if (string.IsNullOrEmpty(binding.path)) {
                         message.AppendLine().Append('>');
-                    else
+                    } else {
                         message.Append(':');
+                    }
 
-                    using (ListPool<EditorCurveBinding>.Instance.Acquire(out var otherBindings))
-                    {
+                    using (ListPool<EditorCurveBinding>.Instance.Acquire(out var otherBindings)) {
                         var flags = GetFlags(bindings, sortedBindings, ref index, otherBindings, out var anyExists);
 
                         message.Append(anyExists ? " [o]" : " [x]");
@@ -743,10 +719,10 @@ namespace Animancer.Editor
                         AppendProperty(message, ref first, flags, EulerFlags, "euler", "xyz");
                         AppendProperty(message, ref first, flags, ScaleFlags, "scale", "xyz");
 
-                        for (int i = 0; i < otherBindings.Count; i++)
-                        {
-                            if (anyExists)
+                        for (var i = 0; i < otherBindings.Count; i++) {
+                            if (anyExists) {
                                 message.Append(',');
+                            }
 
                             binding = otherBindings[i];
                             message
@@ -767,17 +743,15 @@ namespace Animancer.Editor
                     List<EditorCurveBinding> sortedBindings,
                     ref int index,
                     List<EditorCurveBinding> otherBindings,
-                    out bool anyExists)
-                {
+                    out bool anyExists) {
                     var flags = Flags.None;
                     anyExists = false;
 
                     var binding = sortedBindings[index];
 
-                    CheckFlags:
+                CheckFlags:
 
-                    switch (binding.propertyName)
-                    {
+                    switch (binding.propertyName) {
                         case "m_LocalPosition.x": flags |= Flags.PositionX; break;
                         case "m_LocalPosition.y": flags |= Flags.PositionY; break;
                         case "m_LocalPosition.z": flags |= Flags.PositionZ; break;
@@ -798,19 +772,16 @@ namespace Animancer.Editor
                     }
 
                     if (bindings != null &&
-                        bindings.TryGetValue(binding, out var exists))
-                    {
+                        bindings.TryGetValue(binding, out var exists)) {
                         bindings = null;
                         anyExists = exists;
                     }
-                    SkipFlagExistence:
+                SkipFlagExistence:
 
-                    if (index + 1 < sortedBindings.Count)
-                    {
+                    if (index + 1 < sortedBindings.Count) {
                         var nextBinding = sortedBindings[index + 1];
                         if (nextBinding.type == typeof(Transform) &&
-                            nextBinding.path == binding.path)
-                        {
+                            nextBinding.path == binding.path) {
                             index++;
                             binding = nextBinding;
                             goto CheckFlags;
@@ -828,25 +799,23 @@ namespace Animancer.Editor
                     Flags flags,
                     Flags[] propertyFlags,
                     string propertyName,
-                    string flagNames)
-                {
+                    string flagNames) {
                     var all = Flags.None;
-                    for (int i = 0; i < propertyFlags.Length; i++)
+                    for (var i = 0; i < propertyFlags.Length; i++) {
                         all |= propertyFlags[i];
+                    }
 
-                    if (!HasAny(flags, all))
+                    if (!HasAny(flags, all)) {
                         return;
+                    }
 
                     AppendSeparator(message, ref first, " ", ", ").Append(propertyName);
 
-                    if (!HasAll(flags, all))
-                    {
+                    if (!HasAll(flags, all)) {
                         var firstSub = true;
 
-                        for (int i = 0; i < propertyFlags.Length; i++)
-                        {
-                            if (HasAll(flags, propertyFlags[i]))
-                            {
+                        for (var i = 0; i < propertyFlags.Length; i++) {
+                            if (HasAll(flags, propertyFlags[i])) {
                                 AppendSeparator(message, ref firstSub, "(", ", ").Append(flagNames[i]);
                             }
                         }
@@ -861,14 +830,13 @@ namespace Animancer.Editor
                     StringBuilder message,
                     ref bool first,
                     string prefix,
-                    string separator)
-                {
-                    if (first)
-                    {
+                    string separator) {
+                    if (first) {
                         first = false;
                         return message.Append(prefix);
+                    } else {
+                        return message.Append(separator);
                     }
-                    else return message.Append(separator);
                 }
 
                 /************************************************************************************************************************/
@@ -880,14 +848,12 @@ namespace Animancer.Editor
             /// Logs a description of the issues found when comparing the properties animated by the `state` to the
             /// properties that actually exist on the target <see cref="GameObject"/> and its children.
             /// </summary>
-            public void LogIssues(AnimancerState state, MatchType match)
-            {
+            public void LogIssues(AnimancerState state, MatchType match) {
                 var animator = state.Graph?.Component?.Animator;
                 var newMatch = match;
                 var message = StringBuilderPool.Instance.Acquire();
 
-                switch (match)
-                {
+                switch (match) {
                     default:
                     case MatchType.Unknown:
                         message.Append("The animation bindings are still being checked.");
@@ -931,16 +897,16 @@ namespace Animancer.Editor
                         break;
                 }
 
-                if (newMatch != match)
+                if (newMatch != match) {
                     Debug.LogWarning($"{nameof(MatchType)} changed from {match} to {newMatch}" +
                         " between the initial check and the button press.");
+                }
             }
 
             /************************************************************************************************************************/
 
             /// <summary>[Internal] Removes any cached values relating to the `clip`.</summary>
-            internal void OnAnimationChanged(AnimationClip clip)
-            {
+            internal void OnAnimationChanged(AnimationClip clip) {
                 _BindingMatches?.Remove(clip);
             }
 
@@ -955,8 +921,7 @@ namespace Animancer.Editor
         /// A summary of the compatability between the properties animated by an <see cref="AnimationClip"/>
         /// and the properties that actually exist on a particular <see cref="GameObject"/> (and its children).
         /// </summary>
-        public enum MatchType
-        {
+        public enum MatchType {
             /// <summary>All properties exist.</summary>
             Correct,
 
@@ -981,24 +946,26 @@ namespace Animancer.Editor
         /// <para></para>
         /// Clicking the icon calls <see cref="BindingData.LogIssues"/>.
         /// </summary>
-        public static void DoBindingMatchGUI(ref Rect area, AnimancerState state)
-        {
+        public static void DoBindingMatchGUI(ref Rect area, AnimancerState state) {
             if (AnimancerEditorUtilities.IsChangingPlayMode ||
                 !AnimancerGraphDrawer.VerifyAnimationBindings ||
                 state.Graph == null ||
                 state.Graph.Component == null ||
-                state.Graph.Component.Animator == null)
+                state.Graph.Component.Animator == null) {
                 return;
+            }
 
             var animator = state.Graph.Component.Animator;
             var bindings = GetBindings(animator.gameObject, false);
-            if (bindings == null)
+            if (bindings == null) {
                 return;
+            }
 
             var match = bindings.GetMatchType(animator, state, null, false);
             var icon = GetIcon(match);
-            if (icon == null)
+            if (icon == null) {
                 return;
+            }
 
             var buttonArea = AnimancerGUI.StealFromRight(ref area, area.height + 1, AnimancerGUI.StandardSpacing);
 
@@ -1007,11 +974,13 @@ namespace Animancer.Editor
 
             GUI.DrawTexture(iconArea, icon);
 
-            if (buttonArea.Contains(Event.current.mousePosition))
+            if (buttonArea.Contains(Event.current.mousePosition)) {
                 EditorGUI.DrawRect(buttonArea, AnimancerGUI.Grey(1, 0.2f));
+            }
 
-            if (AnimancerGUI.TryUseClickEvent(buttonArea, 0))
+            if (AnimancerGUI.TryUseClickEvent(buttonArea, 0)) {
                 bindings.LogIssues(state, match);
+            }
         }
 
         /************************************************************************************************************************/
@@ -1021,10 +990,8 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Get an icon = corresponding to the specified <see cref="MatchType"/>.</summary>
-        public static Texture GetIcon(MatchType match)
-        {
-            return match switch
-            {
+        public static Texture GetIcon(MatchType match) {
+            return match switch {
                 MatchType.Unknown => null,
                 MatchType.Empty => AnimancerIcons.Info,
                 MatchType.Warning => AnimancerIcons.Warning,
@@ -1036,16 +1003,13 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>A unit test to make sure that the icons are properly loaded.</summary>
-        public static void AssertIcons()
-        {
+        public static void AssertIcons() {
             var matchTypes = (MatchType[])Enum.GetValues(typeof(MatchType));
 
-            for (int i = 0; i < matchTypes.Length; i++)
-            {
+            for (var i = 0; i < matchTypes.Length; i++) {
                 var match = matchTypes[i];
                 var icon = GetIcon(match);
-                switch (matchTypes[i])
-                {
+                switch (matchTypes[i]) {
                     case MatchType.Correct:
                     case MatchType.Unknown:
                         Debug.Assert(icon == null, $"The icon for {nameof(MatchType)}.{match} should be null.");

@@ -1,15 +1,14 @@
 using EditorAttributes;
-using Xoderony.Movement;
-using JoG.Character;
 using JoG.Character.InputBanks;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 using VContainer;
+using Xoderony.Movement;
 
 namespace JoG.Character.Components {
 
     [DisallowMultipleComponent, DefaultExecutionOrder(-1)]
-    public class CharacterJump : MonoBehaviour,IComponent {
+    public class CharacterJump : MonoBehaviour, IComponent {
 
         [Tooltip("起跳速度")]
         public float jumpSpeed = 5f;

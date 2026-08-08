@@ -1,12 +1,12 @@
-using JoG.Health;
-using Xoderony.Numerics;
 using EditorAttributes;
 using JoG.Character.Components;
 using JoG.Character.InputBanks;
+using JoG.Health;
 using JoG.Networking.Components;
 using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
+using Xoderony.Numerics;
 
 namespace JoG.Character.States.Fighter {
 
@@ -127,11 +127,11 @@ namespace JoG.Character.States.Fighter {
                     var hitMessage = new HitMessage {
                         point = hitPoint,
                         impulse = body.rotation
-                            * (new Vector3(
+                            * new Vector3(
                                 0,
                                 0.707f,
                                 0.707f
-                            ))
+                            )
                             * swordDamageForce,
                     };
                     hittable.TakeHit(hitMessage, attacker);
@@ -159,11 +159,11 @@ namespace JoG.Character.States.Fighter {
                     var hitMessage = new HitMessage {
                         point = hitPoint,
                         impulse = body.rotation
-                            * (new Vector3(
+                            * new Vector3(
                                 0,
                                 0.707f,
                                 0.707f
-                            ))
+                            )
                             * shieldDamageForce,
                     };
                     hittable.TakeHit(hitMessage, attacker);
@@ -180,7 +180,5 @@ namespace JoG.Character.States.Fighter {
                 shieldHitEffectSpawner.SpawnRpc(hitPoint, Random.rotationUniform);
             }
         }
-
     }
-
 }

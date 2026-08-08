@@ -5,14 +5,11 @@
 using System;
 using UnityEngine;
 
-namespace Animancer
-{
+namespace Animancer {
     /// https://kybernetik.com.au/animancer/api/Animancer/AnimancerEvent
-    partial struct AnimancerEvent
-    {
+    public partial struct AnimancerEvent {
         /// https://kybernetik.com.au/animancer/api/Animancer/Sequence
-        partial class Sequence
-        {
+        public partial class Sequence {
             /// <summary>
             /// Serializable data which can be used to construct an <see cref="Sequence"/> using
             /// <see cref="StringAsset"/>s and <see cref="IInvokable"/>s.
@@ -98,12 +95,9 @@ namespace Animancer
                 /// Unlike <see cref="GetEventsOptional"/>, this property will create an empty
                 /// <see cref="Sequence"/> instead of returning null if there are no events.
                 /// </remarks>
-                public Sequence Events
-                {
-                    get
-                    {
-                        if (_Events == null)
-                        {
+                public Sequence Events {
+                    get {
+                        if (_Events == null) {
                             GetEventsOptional();
                             _Events ??= new();
                         }
@@ -127,15 +121,16 @@ namespace Animancer
                 /// This method returns null if the sequence would be empty anyway and is used by the implicit
                 /// conversion from <see cref="Serializable"/> to <see cref="Sequence"/>.
                 /// </remarks>
-                public Sequence GetEventsOptional()
-                {
+                public Sequence GetEventsOptional() {
                     if (_Events != null ||
-                        _NormalizedTimes == null)
+                        _NormalizedTimes == null) {
                         return _Events;
+                    }
 
                     var timeCount = _NormalizedTimes.Length;
-                    if (timeCount == 0)
+                    if (timeCount == 0) {
                         return null;
+                    }
 
                     var callbackCount = _Callbacks != null
                         ? _Callbacks.Length
@@ -146,16 +141,14 @@ namespace Animancer
                         : null;
                     var endEvent = new AnimancerEvent(_NormalizedTimes[timeCount], callback);
 
-                    _Events = new(timeCount)
-                    {
+                    _Events = new(timeCount) {
                         EndEvent = endEvent,
                         Count = timeCount,
                         Names = StringAsset.ToStringReferences(_Names),
                     };
 
                     var events = _Events._Events;
-                    for (int i = 0; i < timeCount; i++)
-                    {
+                    for (var i = 0; i < timeCount; i++) {
                         callback = i < callbackCount
                             ? GetInvoke(_Callbacks[i])
                             : InvokeBoundCallback;
@@ -167,8 +160,9 @@ namespace Animancer
                 }
 
                 /// <summary>Calls <see cref="GetEventsOptional"/>.</summary>
-                public static implicit operator Sequence(Serializable serializable)
-                    => serializable?.GetEventsOptional();
+                public static implicit operator Sequence(Serializable serializable) {
+                    return serializable?.GetEventsOptional();
+                }
 
                 /************************************************************************************************************************/
 
@@ -176,10 +170,11 @@ namespace Animancer
                 /// Returns the <see cref="IInvokable.Invoke"/> if the `invokable` isn't <c>null</c>.
                 /// Otherwise, returns <c>null</c>.
                 /// </summary>
-                public static Action GetInvoke(IInvokable invokable)
-                    => invokable != null
-                    ? invokable.Invoke
-                    : InvokeBoundCallback;
+                public static Action GetInvoke(IInvokable invokable) {
+                    return invokable != null
+                                                                                         ? invokable.Invoke
+                                                                                         : InvokeBoundCallback;
+                }
 
                 /************************************************************************************************************************/
                 #endregion
@@ -189,8 +184,7 @@ namespace Animancer
 
                 /// <summary>Returns the <see cref="normalizedTime"/> of the <see cref="EndEvent"/>.</summary>
                 /// <remarks>If the value is not set, the value is determined by <see cref="GetDefaultNormalizedEndTime"/>.</remarks>
-                public float GetNormalizedEndTime(float speed = 1)
-                {
+                public float GetNormalizedEndTime(float speed = 1) {
                     return _NormalizedTimes.IsNullOrEmpty()
                         ? GetDefaultNormalizedEndTime(speed)
                         : _NormalizedTimes[^1];
@@ -199,21 +193,21 @@ namespace Animancer
                 /************************************************************************************************************************/
 
                 /// <summary>Sets the <see cref="normalizedTime"/> of the <see cref="EndEvent"/>.</summary>
-                public void SetNormalizedEndTime(float normalizedTime)
-                {
-                    if (_NormalizedTimes.IsNullOrEmpty())
+                public void SetNormalizedEndTime(float normalizedTime) {
+                    if (_NormalizedTimes.IsNullOrEmpty()) {
                         _NormalizedTimes = new float[] { normalizedTime };
-                    else
+                    } else {
                         _NormalizedTimes[^1] = normalizedTime;
+                    }
                 }
 
                 /************************************************************************************************************************/
 
                 /// <summary>Sets the <see cref="callback"/> of the <see cref="EndEvent"/>.</summary>
-                public void SetEndCallback(IInvokable callback = null)
-                {
-                    if (_NormalizedTimes.IsNullOrEmpty())
+                public void SetEndCallback(IInvokable callback = null) {
+                    if (_NormalizedTimes.IsNullOrEmpty()) {
                         _NormalizedTimes = new float[] { float.NaN };
+                    }
 
                     InsertOptionalItem(ref _Callbacks, _NormalizedTimes.Length - 1, callback);
                 }
@@ -221,12 +215,12 @@ namespace Animancer
                 /************************************************************************************************************************/
 
                 /// <summary>Sets the data of the <see cref="EndEvent"/>.</summary>
-                public void SetEndEvent(float normalizedTime = float.NaN, IInvokable callback = null)
-                {
-                    if (_NormalizedTimes.IsNullOrEmpty())
+                public void SetEndEvent(float normalizedTime = float.NaN, IInvokable callback = null) {
+                    if (_NormalizedTimes.IsNullOrEmpty()) {
                         _NormalizedTimes = new float[] { normalizedTime };
-                    else
+                    } else {
                         _NormalizedTimes[^1] = normalizedTime;
+                    }
 
                     InsertOptionalItem(ref _Callbacks, _NormalizedTimes.Length - 1, callback);
                 }
@@ -238,23 +232,17 @@ namespace Animancer
                 /************************************************************************************************************************/
 
                 /// <summary>Adds an event to the serialized fields.</summary>
-                public int AddEvent(float normalizedTime, IInvokable callback = null, StringAsset name = null)
-                {
+                public int AddEvent(float normalizedTime, IInvokable callback = null, StringAsset name = null) {
                     int index;
 
-                    if (_NormalizedTimes.IsNullOrEmpty())
-                    {
+                    if (_NormalizedTimes.IsNullOrEmpty()) {
                         _NormalizedTimes = new float[] { normalizedTime, float.NaN };
                         index = 0;
-                    }
-                    else
-                    {
+                    } else {
                         index = _NormalizedTimes.Length - 1;
 
-                        for (int i = 0; i < _NormalizedTimes.Length - 1; i++)
-                        {
-                            if (_NormalizedTimes[i] > normalizedTime)
-                            {
+                        for (var i = 0; i < _NormalizedTimes.Length - 1; i++) {
+                            if (_NormalizedTimes[i] > normalizedTime) {
                                 index = i;
                                 break;
                             }
@@ -277,11 +265,11 @@ namespace Animancer
                 /// to be expanded if it was already larger than the `index`.
                 /// </remarks>
                 private static void InsertOptionalItem<T>(ref T[] array, int index, T item)
-                    where T : class
-                {
+                    where T : class {
                     if (item == null &&
-                        (array == null || array.Length < index))
+                        (array == null || array.Length < index)) {
                         return;
+                    }
 
                     AnimancerUtilities.InsertAt(ref array, index, item);
                 }
@@ -289,39 +277,39 @@ namespace Animancer
                 /************************************************************************************************************************/
 
                 /// <summary>Removes an event from the serialized fields.</summary>
-                public void RemoveEvent(int index)
-                {
-                    if (_NormalizedTimes.IsNullOrEmpty())
+                public void RemoveEvent(int index) {
+                    if (_NormalizedTimes.IsNullOrEmpty()) {
                         return;
+                    }
 
                     AnimancerUtilities.RemoveAt(ref _NormalizedTimes, index);
 
-                    if (_Callbacks != null && _Callbacks.Length > index)
+                    if (_Callbacks != null && _Callbacks.Length > index) {
                         AnimancerUtilities.RemoveAt(ref _Callbacks, index);
+                    }
 
-                    if (_Names != null && _Names.Length > index)
+                    if (_Names != null && _Names.Length > index) {
                         AnimancerUtilities.RemoveAt(ref _Names, index);
+                    }
                 }
 
                 /************************************************************************************************************************/
 
                 /// <summary>Removes all events.</summary>
-                public void Clear(bool keepEndEvent = false)
-                {
-                    if (keepEndEvent)
-                    {
-                        if (_NormalizedTimes != null && _NormalizedTimes.Length > 0)
+                public void Clear(bool keepEndEvent = false) {
+                    if (keepEndEvent) {
+                        if (_NormalizedTimes != null && _NormalizedTimes.Length > 0) {
                             _NormalizedTimes = new float[] { _NormalizedTimes[^1] };
-                        else
+                        } else {
                             _NormalizedTimes = null;
+                        }
 
-                        if (_Callbacks != null && _Callbacks.Length > 0)
+                        if (_Callbacks != null && _Callbacks.Length > 0) {
                             _Callbacks = new IInvokable[] { _Callbacks[^1] };
-                        else
+                        } else {
                             _Callbacks = null;
-                    }
-                    else
-                    {
+                        }
+                    } else {
                         _NormalizedTimes = null;
                         _Callbacks = null;
                     }
@@ -337,22 +325,21 @@ namespace Animancer
 
                 /// <summary>Creates a new <see cref="Serializable"/> and copies the contents of <c>this</c> into it.</summary>
                 /// <remarks>To copy into an existing sequence, use <see cref="CopyFrom"/> instead.</remarks>
-                public Serializable Clone()
-                {
+                public Serializable Clone() {
                     var clone = new Serializable();
                     clone.CopyFrom(this);
                     return clone;
                 }
 
                 /// <inheritdoc/>
-                public Serializable Clone(CloneContext context)
-                    => Clone();
+                public Serializable Clone(CloneContext context) {
+                    return Clone();
+                }
 
                 /************************************************************************************************************************/
 
                 /// <inheritdoc/>
-                public void CopyFrom(Serializable copyFrom)
-                {
+                public void CopyFrom(Serializable copyFrom) {
                     AnimancerUtilities.CopyExactArray(copyFrom._NormalizedTimes, ref _NormalizedTimes);
                     AnimancerUtilities.CopyExactArray(copyFrom._Callbacks, ref _Callbacks);
                     AnimancerUtilities.CopyExactArray(copyFrom._Names, ref _Names);
@@ -377,8 +364,9 @@ namespace Animancer
                 internal static event Action<Serializable> OnBeforeSerialize;
 
                 /// <summary>[Editor-Only] Ensures that the events are sorted by time (excluding the end event).</summary>
-                void ISerializationCallbackReceiver.OnBeforeSerialize()
-                    => OnBeforeSerialize?.Invoke(this);
+                void ISerializationCallbackReceiver.OnBeforeSerialize() {
+                    OnBeforeSerialize?.Invoke(this);
+                }
 
                 /************************************************************************************************************************/
 
@@ -390,18 +378,17 @@ namespace Animancer
                 /// <summary>[Editor-Only] [Internal]
                 /// Removes empty data from the ends of the arrays to reduce the serialized data size.
                 /// </summary>
-                internal void CompactArrays()
-                {
-                    if (DisableCompactArrays)
+                internal void CompactArrays() {
+                    if (DisableCompactArrays) {
                         return;
+                    }
 
                     // If there is only one time and it is NaN, we don't need to store anything.
                     if (_NormalizedTimes == null ||
                         (_NormalizedTimes.Length == 1 &&
                         (_Callbacks == null || _Callbacks.Length == 0) &&
                         (_Names == null || _Names.Length == 0) &&
-                        float.IsNaN(_NormalizedTimes[0])))
-                    {
+                        float.IsNaN(_NormalizedTimes[0]))) {
                         _NormalizedTimes = Array.Empty<float>();
                         _Callbacks = Array.Empty<IInvokable>();
                         _Names = Array.Empty<StringAsset>();
@@ -415,20 +402,20 @@ namespace Animancer
                 /************************************************************************************************************************/
 
                 /// <summary>[Editor-Only] Removes unimportant values from the end of the `array`.</summary>
-                private static void Trim<T>(ref T[] array, int maxLength, Func<T, bool> isImportant)
-                {
-                    if (array == null)
+                private static void Trim<T>(ref T[] array, int maxLength, Func<T, bool> isImportant) {
+                    if (array == null) {
                         return;
+                    }
 
                     var count = Math.Min(array.Length, maxLength);
 
-                    while (count >= 1)
-                    {
+                    while (count >= 1) {
                         var item = array[count - 1];
-                        if (isImportant(item))
+                        if (isImportant(item)) {
                             break;
-                        else
+                        } else {
                             count--;
+                        }
                     }
 
                     Array.Resize(ref array, count);

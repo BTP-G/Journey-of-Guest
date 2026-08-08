@@ -1,6 +1,5 @@
 using Cysharp.Threading.Tasks;
 using System;
-using UnityEngine;
 using YooAsset;
 
 namespace Xoderony.YooAsset {
@@ -8,55 +7,55 @@ namespace Xoderony.YooAsset {
     public static class YooAssetUtility {
 
         static YooAssetUtility() {
-            if (!YooAssets.Initialized) {
+            if (!YooAssets.IsInitialized) {
                 YooAssets.Initialize();
             }
         }
 
         public static ResourcePackage GetOrCreatePackage(string packageName) {
-            return YooAssets.TryGetPackage(packageName) ?? YooAssets.CreatePackage(packageName);
+            return YooAssets.TryGetPackage(packageName, out var package) ? package : YooAssets.CreatePackage(packageName);
         }
 
         public static async UniTask<ResourcePackage> CreatePackageAsync(string packageName, string packageRoot = null) {
             var package = YooAssets.CreatePackage(packageName);
-            InitializeParameters initParameters;
+            InitializePackageOptions initParameters;
 #if UNITY_EDITOR
-            var simulateBuildResult = EditorSimulateModeHelper.SimulateBuild(package.PackageName);
+            var simulateBuildResult = EditorSimulateBuildInvoker.Build(packageName, (int)EBundleType.VirtualAssetBundle);
             var editorFileSystem = FileSystemParameters.CreateDefaultEditorFileSystemParameters(simulateBuildResult.PackageRootDirectory);
-            initParameters = new EditorSimulateModeParameters {
+            initParameters = new EditorSimulateModeOptions {
                 EditorFileSystemParameters = editorFileSystem,
             };
 #else
-            var buildinFileSystem = FileSystemParameters.CreateDefaultBuildinFileSystemParameters(packageRoot: packageRoot);
-            initParameters = new OfflinePlayModeParameters {
-                BuildinFileSystemParameters = buildinFileSystem,
+            var buildinFileSystem = FileSystemParameters.CreateDefaultBuiltinFileSystemParameters(packageRoot);
+            initParameters = new OfflinePlayModeOptions {
+                BuiltinFileSystemParameters = buildinFileSystem,
             };
 #endif
-            var operation = package.InitializeAsync(initParameters);
-            await operation.Task;
-            if (operation.Status != EOperationStatus.Succeed) {
-                throw new Exception($"[ResourcePackage: {packageName}] Initialization failed: {operation.Error}");
+            var initializeOperation = package.InitializePackageAsync(initParameters);
+            await initializeOperation;
+            if (initializeOperation.Status != EOperationStatus.Succeeded) {
+                throw new Exception($"[ResourcePackage: {packageName}] Initialization failed: {initializeOperation.Error}");
             }
             var requestPackageVersionOperation = package.RequestPackageVersionAsync();
-            await requestPackageVersionOperation.Task;
-            if (requestPackageVersionOperation.Status != EOperationStatus.Succeed) {
+            await requestPackageVersionOperation;
+            if (requestPackageVersionOperation.Status != EOperationStatus.Succeeded) {
                 throw new InvalidOperationException($"[ResourcePackage: {packageName}] Request package version failed.");
             }
-            var updatePackageManifestOperation = package.UpdatePackageManifestAsync(requestPackageVersionOperation.PackageVersion);
-            await updatePackageManifestOperation.Task;
-            if (updatePackageManifestOperation.Status != EOperationStatus.Succeed) {
-                throw new InvalidOperationException($"[ResourcePackage: {packageName}] Update package manifest failed: {updatePackageManifestOperation.Error}");
+            var loadPackageManifestOperation = package.LoadPackageManifestAsync(new LoadPackageManifestOptions(requestPackageVersionOperation.PackageVersion, 60));
+            await loadPackageManifestOperation;
+            if (loadPackageManifestOperation.Status != EOperationStatus.Succeeded) {
+                throw new InvalidOperationException($"[ResourcePackage: {packageName}] Load package manifest failed: {loadPackageManifestOperation.Error}");
             }
             return package;
         }
 
         public static async UniTask DestroyPackageAsync(ResourcePackage package) {
-            var operation = package.DestroyAsync();
-            await operation.Task;
-            if (operation.Status != EOperationStatus.Succeed) {
+            var operation = package.DestroyPackageAsync();
+            await operation;
+            if (operation.Status != EOperationStatus.Succeeded) {
                 throw new Exception($"[ResourcePackage: {package.PackageName}] Destroy failed.");
             }
-            YooAssets.RemovePackage(package);
+            YooAssets.RemovePackage(package.PackageName);
         }
     }
 }

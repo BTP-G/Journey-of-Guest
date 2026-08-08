@@ -1,28 +1,25 @@
-﻿//RealToon Shader Cache
+//RealToon Shader Cache
 //MJQStudioWorks
 //?025
 
-
-using UnityEngine;
-using UnityEditor;
 using System.IO;
+using UnityEditor;
+using UnityEngine;
 
-namespace RealToon.Tools
-{
-    public class RealToonShaderCache : EditorWindow
-    {
+namespace RealToon.Tools {
+    public class RealToonShaderCache : EditorWindow {
 
         #region Variables
 
-        static float WinHig = 300;
-        static EditorWindow EdiWin;
-        static int countsha = 0;
+        private static float WinHig = 300;
+        private static EditorWindow EdiWin;
+        private static int countsha = 0;
 
-        static string shaderCachePath = Directory.GetParent(Application.dataPath).ToString() + "/Library/ShaderCache/shader";
+        private static string shaderCachePath = Directory.GetParent(Application.dataPath).ToString() + "/Library/ShaderCache/shader";
 
-        static string infospace = null;
+        private static string infospace = null;
 
-        static string[] rt_shaders =
+        private static string[] rt_shaders =
                                 { "D_Default"
                                 , "D_Fade_Transparency"
                                 , "D_Refraction"
@@ -33,14 +30,13 @@ namespace RealToon.Tools
                                 , "T_Refraction"
                                 , "D_Default_URP"
                                 , "D_Default_HDRP"
-                                , "RealToon_Sobel_Outline_FX" 
+                                , "RealToon_Sobel_Outline_FX"
                                 , "DeNorSobOutline"};
 
         #endregion
 
         [MenuItem("Window/RealToon/RealToon Shader Cache")]
-        static void Init()
-        {
+        private static void Init() {
             EdiWin = GetWindow<RealToonShaderCache>(true);
             EdiWin.titleContent = new GUIContent("RealToon Shader Cache");
             WinHig = 200;
@@ -52,8 +48,7 @@ namespace RealToon.Tools
 
         }
 
-        void OnGUI()
-        {
+        private void OnGUI() {
 
             var lblcenstyle = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter };
 
@@ -68,34 +63,25 @@ namespace RealToon.Tools
             GUILayout.Space(10);
             EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
-            if (GUILayout.Button("Reduce/Clean Cached RealToon Shader"))
-            {
+            if (GUILayout.Button("Reduce/Clean Cached RealToon Shader")) {
 
-                foreach (string rt_sha in rt_shaders)
-                {
-                    string[] direc = Directory.GetDirectories(@shaderCachePath, rt_sha + "*");
+                foreach (var rt_sha in rt_shaders) {
+                    var direc = Directory.GetDirectories(@shaderCachePath, rt_sha + "*");
 
-                    foreach (string dir in direc)
-                    {
-                        if (direc.Length == 1)
-                        {
+                    foreach (var dir in direc) {
+                        if (direc.Length == 1) {
                             Debug.Log("RealToon Shader Cache: " + rt_sha + " Shader Cache removed.");
                             Directory.Delete(dir.ToString(), true);
                         }
                     }
 
-
-                    if (direc.Length == 0)
-                    {
+                    if (direc.Length == 0) {
                         Debug.LogWarning("RealToon Shader Cache: " + rt_sha + " Shader already removed or not present.");
                     }
-
                 }
-
             }
 
-            if (GUILayout.Button("Re-import RealToon Shader"))
-            {
+            if (GUILayout.Button("Re-import RealToon Shader")) {
                 AssetDatabase.ImportAsset("Assets/RealToon", ImportAssetOptions.ImportRecursive);
             }
 
@@ -110,21 +96,15 @@ namespace RealToon.Tools
 
         }
 
-        static void CountRTCache()
-        {
+        private static void CountRTCache() {
             countsha = 0;
-            foreach (string rt_sha in rt_shaders)
-            {
-                string[] direc = Directory.GetDirectories(@shaderCachePath, rt_sha + "*");
+            foreach (var rt_sha in rt_shaders) {
+                var direc = Directory.GetDirectories(@shaderCachePath, rt_sha + "*");
 
-                foreach (string dir in direc)
-                {
+                foreach (var dir in direc) {
                     ++countsha;
                 }
             }
-
         }
-
     }
-
 }

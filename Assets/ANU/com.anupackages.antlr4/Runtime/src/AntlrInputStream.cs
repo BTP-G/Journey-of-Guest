@@ -1,18 +1,14 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
+using Antlr4.Runtime.Misc;
 using System;
 using System.IO;
 using System.Text;
-using Antlr4.Runtime;
-using Antlr4.Runtime.Misc;
-using Antlr4.Runtime.Sharpen;
 
-namespace Antlr4.Runtime
-{
-    public abstract class BaseInputCharStream : ICharStream
-    {
+namespace Antlr4.Runtime {
+    public abstract class BaseInputCharStream : ICharStream {
         public const int ReadBufferSize = 1024;
 
         public const int InitialBufferSize = 1024;
@@ -36,44 +32,34 @@ namespace Antlr4.Runtime
         /// when the object was created *except* the data array is not
         /// touched.
         /// </remarks>
-        public virtual void Reset()
-        {
+        public virtual void Reset() {
             p = 0;
         }
 
-        public virtual void Consume()
-        {
-            if (p >= n)
-            {
+        public virtual void Consume() {
+            if (p >= n) {
                 System.Diagnostics.Debug.Assert(LA(1) == IntStreamConstants.EOF);
                 throw new InvalidOperationException("cannot consume EOF");
-            }
-            else
-            {
+            } else {
                 p++;
             }
         }
 
         //System.out.println("p moves to "+p+" (c='"+(char)data[p]+"')");
-        public virtual int LA(int i)
-        {
-            if (i == 0)
-            {
+        public virtual int LA(int i) {
+            if (i == 0) {
                 return 0;
             }
             // undefined
-            if (i < 0)
-            {
+            if (i < 0) {
                 i++;
                 // e.g., translate LA(-1) to use offset i=0; then data[p+0-1]
-                if ((p + i - 1) < 0)
-                {
+                if ((p + i - 1) < 0) {
                     return IntStreamConstants.EOF;
                 }
             }
             // invalid; no char before first char
-            if ((p + i - 1) >= n)
-            {
+            if ((p + i - 1) >= n) {
                 //System.out.println("char LA("+i+")=EOF; p="+p);
                 return IntStreamConstants.EOF;
             }
@@ -82,8 +68,7 @@ namespace Antlr4.Runtime
             return ValueAt(p + i - 1);
         }
 
-        public virtual int Lt(int i)
-        {
+        public virtual int Lt(int i) {
             return LA(i);
         }
 
@@ -96,30 +81,24 @@ namespace Antlr4.Runtime
         /// last symbol has been read.  The index is the index of char to
         /// be returned from LA(1).
         /// </remarks>
-        public virtual int Index
-        {
-            get
-            {
+        public virtual int Index {
+            get {
                 return p;
             }
         }
 
-        public virtual int Size
-        {
-            get
-            {
+        public virtual int Size {
+            get {
                 return n;
             }
         }
 
         /// <summary>mark/release do nothing; we have entire buffer</summary>
-        public virtual int Mark()
-        {
+        public virtual int Mark() {
             return -1;
         }
 
-        public virtual void Release(int marker)
-        {
+        public virtual void Release(int marker) {
         }
 
         /// <summary>
@@ -130,33 +109,27 @@ namespace Antlr4.Runtime
         /// consume() ahead until p==index; can't just set p=index as we must
         /// update line and charPositionInLine. If we seek backwards, just set p
         /// </remarks>
-        public virtual void Seek(int index)
-        {
-            if (index <= p)
-            {
+        public virtual void Seek(int index) {
+            if (index <= p) {
                 p = index;
                 // just jump; don't update stream state (line, ...)
                 return;
             }
             // seek forward, consume until p hits index or n (whichever comes first)
             index = Math.Min(index, n);
-            while (p < index)
-            {
+            while (p < index) {
                 Consume();
             }
         }
 
-        public virtual string GetText(Interval interval)
-        {
-            int start = interval.a;
-            int stop = interval.b;
-            if (stop >= n)
-            {
+        public virtual string GetText(Interval interval) {
+            var start = interval.a;
+            var stop = interval.b;
+            if (stop >= n) {
                 stop = n - 1;
             }
-            int count = stop - start + 1;
-            if (start >= n)
-            {
+            var count = stop - start + 1;
+            if (start >= n) {
                 return string.Empty;
             }
             return ConvertDataToString(start, count);
@@ -166,17 +139,13 @@ namespace Antlr4.Runtime
 
         protected abstract string ConvertDataToString(int start, int count);
 
-        public override sealed string ToString()
-        {
+        public sealed override string ToString() {
             return ConvertDataToString(0, n);
         }
 
-        public virtual string SourceName
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(name))
-                {
+        public virtual string SourceName {
+            get {
+                if (string.IsNullOrEmpty(name)) {
                     return IntStreamConstants.UnknownSourceName;
                 }
                 return name;
@@ -199,70 +168,58 @@ namespace Antlr4.Runtime
     /// to use.
     /// <p>If you need encoding, pass in stream/reader with correct encoding.</p>
     /// </summary>
-    public class AntlrInputStream : BaseInputCharStream
-    {
+    public class AntlrInputStream : BaseInputCharStream {
         /// <summary>The data being scanned</summary>
         protected internal char[] data;
 
-        public AntlrInputStream()
-        {
+        public AntlrInputStream() {
         }
 
         /// <summary>Copy data in string to a local char array</summary>
-        public AntlrInputStream(string input)
-        {
-            this.data = input.ToCharArray();
-            this.n = input.Length;
+        public AntlrInputStream(string input) {
+            data = input.ToCharArray();
+            n = input.Length;
         }
 
         /// <summary>This is the preferred constructor for strings as no data is copied</summary>
-        public AntlrInputStream(char[] data, int numberOfActualCharsInArray)
-        {
+        public AntlrInputStream(char[] data, int numberOfActualCharsInArray) {
             this.data = data;
-            this.n = numberOfActualCharsInArray;
+            n = numberOfActualCharsInArray;
         }
 
         /// <exception cref="System.IO.IOException"/>
         public AntlrInputStream(TextReader r)
-            : this(r, InitialBufferSize, ReadBufferSize)
-        {
+            : this(r, InitialBufferSize, ReadBufferSize) {
         }
 
         /// <exception cref="System.IO.IOException"/>
         public AntlrInputStream(TextReader r, int initialSize)
-            : this(r, initialSize, ReadBufferSize)
-        {
+            : this(r, initialSize, ReadBufferSize) {
         }
 
         /// <exception cref="System.IO.IOException"/>
-        public AntlrInputStream(TextReader r, int initialSize, int readChunkSize)
-        {
+        public AntlrInputStream(TextReader r, int initialSize, int readChunkSize) {
             Load(r, initialSize, readChunkSize);
         }
 
         /// <exception cref="System.IO.IOException"/>
         public AntlrInputStream(Stream input)
-            : this(new StreamReader(input), InitialBufferSize)
-        {
+            : this(new StreamReader(input), InitialBufferSize) {
         }
 
         /// <exception cref="System.IO.IOException"/>
         public AntlrInputStream(Stream input, int initialSize)
-            : this(new StreamReader(input), initialSize)
-        {
+            : this(new StreamReader(input), initialSize) {
         }
 
         /// <exception cref="System.IO.IOException"/>
         public AntlrInputStream(Stream input, int initialSize, int readChunkSize)
-            : this(new StreamReader(input), initialSize, readChunkSize)
-        {
+            : this(new StreamReader(input), initialSize, readChunkSize) {
         }
 
         /// <exception cref="System.IO.IOException"/>
-        public virtual void Load(TextReader r, int size, int readChunkSize)
-        {
-            if (r == null)
-            {
+        public virtual void Load(TextReader r, int size, int readChunkSize) {
+            if (r == null) {
                 return;
             }
 
@@ -270,13 +227,11 @@ namespace Antlr4.Runtime
             n = data.Length;
         }
 
-        protected override int ValueAt(int i)
-        {
+        protected override int ValueAt(int i) {
             return data[i];
         }
 
-        protected override string ConvertDataToString(int start, int count)
-        {
+        protected override string ConvertDataToString(int start, int count) {
             //		System.err.println("data: "+Arrays.toString(data)+", n="+n+
             //                                             ", start="+start+
             //                                             ", stop="+stop);
@@ -293,35 +248,31 @@ namespace Antlr4.Runtime
     /// Use this if you need to parse input which potentially contains
     /// Unicode values > U+FFFF.
     /// </summary>
-    public class CodePointCharStream : BaseInputCharStream
-    {
+    public class CodePointCharStream : BaseInputCharStream {
         private int[] data;
 
-        public CodePointCharStream(string input)
-        {
-            this.data = new int[input.Length];
-            int dataIdx = 0;
-            for (int i = 0; i < input.Length; ) {
-                var codePoint = Char.ConvertToUtf32(input, i);
+        public CodePointCharStream(string input) {
+            data = new int[input.Length];
+            var dataIdx = 0;
+            for (var i = 0; i < input.Length;) {
+                var codePoint = char.ConvertToUtf32(input, i);
                 data[dataIdx++] = codePoint;
                 if (dataIdx > data.Length) {
                     Array.Resize(ref data, data.Length * 2);
                 }
                 i += codePoint <= 0xFFFF ? 1 : 2;
             }
-            this.n = dataIdx;
+            n = dataIdx;
         }
 
-        protected override int ValueAt(int i)
-        {
+        protected override int ValueAt(int i) {
             return data[i];
         }
 
-        protected override string ConvertDataToString(int start, int count)
-        {
+        protected override string ConvertDataToString(int start, int count) {
             var sb = new StringBuilder(count);
-            for (int i = start; i < start + count; i++) {
-                sb.Append(Char.ConvertFromUtf32(data[i]));
+            for (var i = start; i < start + count; i++) {
+                sb.Append(char.ConvertFromUtf32(data[i]));
             }
             return sb.ToString();
         }

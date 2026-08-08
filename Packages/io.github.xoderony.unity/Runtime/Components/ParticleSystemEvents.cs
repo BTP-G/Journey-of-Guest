@@ -22,7 +22,7 @@ namespace Xoderony.Unity {
         }
 
         private void OnParticleCollision(GameObject other) {
-            ParticleCollision?.Invoke(this,other);
+            ParticleCollision?.Invoke(this, other);
         }
 
         private void OnParticleTrigger() {

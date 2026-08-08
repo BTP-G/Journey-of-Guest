@@ -12,14 +12,12 @@ using UnityEngine;
 using static Animancer.AnimancerEvent.Sequence.Serializable;
 using Object = UnityEngine.Object;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only]
     /// A system for migrating old asset data to the current version of Animancer.
     /// </summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/AnimancerDataMigrator
-    public class AnimancerDataMigrator
-    {
+    public class AnimancerDataMigrator {
         /************************************************************************************************************************/
 
         /// <summary>The directory where any newly created files will be saved.</summary>
@@ -31,8 +29,7 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         [InitializeOnLoadMethod]
-        private static void Initialize()
-        {
+        private static void Initialize() {
             AnimancerReadMe.Editor.MigrateOldAssetData +=
                 text => new AnimancerDataMigrator(text);
         }
@@ -49,27 +46,26 @@ namespace Animancer.Editor
         /// <item>Make a backup.</item>
         /// </list>
         /// </remarks>
-        public AnimancerDataMigrator(string functionName)
-        {
-            if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
+        public AnimancerDataMigrator(string functionName) {
+            if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) {
                 return;
+            }
 
-            if (EditorApplication.isCompiling)
-            {
+            if (EditorApplication.isCompiling) {
                 Debug.LogError(functionName + " failed: unable to migrate while scripts are compiling.");
                 EditorApplication.Beep();
                 return;
             }
 
-            if (EditorUtility.scriptCompilationFailed)
-            {
+            if (EditorUtility.scriptCompilationFailed) {
                 Debug.LogError(functionName + " failed: all compile errors must be fixed first.");
                 EditorApplication.Beep();
                 return;
             }
 
-            if (!AskForBackup(functionName))
+            if (!AskForBackup(functionName)) {
                 return;
+            }
 
             BeginMigration();
         }
@@ -80,8 +76,7 @@ namespace Animancer.Editor
         /// Explains what migration will involve
         /// and confirms that the user has backed up their project.
         /// </summary>
-        private static bool AskForBackup(string functionName)
-        {
+        private static bool AskForBackup(string functionName) {
             const string Message =
                 "This process scans through your entire project" +
                 " for assets containing data from an older version of Animancer" +
@@ -99,8 +94,7 @@ namespace Animancer.Editor
                 "Cancel",
                 "Open Upgrade Guide");
 
-            switch (result)
-            {
+            switch (result) {
                 case 0:
                     return true;
 
@@ -116,13 +110,13 @@ namespace Animancer.Editor
 
         /************************************************************************************************************************/
 
-        private void BeginMigration()
-            => MigrateData(GatherTargetFiles());
+        private void BeginMigration() {
+            MigrateData(GatherTargetFiles());
+        }
 
         /************************************************************************************************************************/
 
-        private static List<string> GatherTargetFiles()
-        {
+        private static List<string> GatherTargetFiles() {
             AssetDatabase.SaveAssets();
 
             var directory = Environment.CurrentDirectory;
@@ -134,39 +128,37 @@ namespace Animancer.Editor
             return targetFiles;
         }
 
-        private static void GatherTargetFiles(string directory, List<string> targetFiles)
-        {
+        private static void GatherTargetFiles(string directory, List<string> targetFiles) {
             var allFiles = Directory.GetFiles(directory, "*", SearchOption.AllDirectories);
-            for (int i = 0; i < allFiles.Length; i++)
-            {
+            for (var i = 0; i < allFiles.Length; i++) {
                 var file = allFiles[i];
                 if (file.EndsWith(".asset", StringComparison.OrdinalIgnoreCase) ||
                     file.EndsWith(".prefab", StringComparison.OrdinalIgnoreCase) ||
-                    file.EndsWith(".unity", StringComparison.OrdinalIgnoreCase))
+                    file.EndsWith(".unity", StringComparison.OrdinalIgnoreCase)) {
                     targetFiles.Add(file);
+                }
             }
         }
 
         /************************************************************************************************************************/
 
-        private void MigrateData(List<string> files)
-        {
-            try
-            {
+        private void MigrateData(List<string> files) {
+            try {
                 Debug.Log("Data Migration Started");
 
                 var modifiedFileCount = 0;
                 var timer = SimpleTimer.Start();
 
-                for (int i = 0; i < files.Count; i++)
-                {
+                for (var i = 0; i < files.Count; i++) {
                     var file = files[i];
 
-                    if (ShowProgressBar(i, files.Count, file))
+                    if (ShowProgressBar(i, files.Count, file)) {
                         return;
+                    }
 
-                    if (MigrateData(file))
+                    if (MigrateData(file)) {
                         modifiedFileCount++;
+                    }
                 }
 
                 Debug.Log(
@@ -178,27 +170,24 @@ namespace Animancer.Editor
                 WarnAboutUnSharedChanges();
 
                 AssetDatabase.Refresh();
-            }
-            finally
-            {
+            } finally {
                 EditorUtility.ClearProgressBar();
             }
         }
 
         /************************************************************************************************************************/
 
-        private static bool ShowProgressBar(int index, int count, string currentFile)
-            => EditorUtility.DisplayCancelableProgressBar(
-                "Migrating Asset Data",
-                $"{index} / {count}: {currentFile}",
-                index / (float)count);
+        private static bool ShowProgressBar(int index, int count, string currentFile) {
+            return EditorUtility.DisplayCancelableProgressBar(
+                                                                                                      "Migrating Asset Data",
+                                                                                                      $"{index} / {count}: {currentFile}",
+                                                                                                      index / (float)count);
+        }
 
         /************************************************************************************************************************/
 
-        private bool MigrateData(string filePath)
-        {
-            try
-            {
+        private bool MigrateData(string filePath) {
+            try {
                 var originalText = File.ReadAllText(filePath);
                 var modifiedText = originalText;
 
@@ -207,8 +196,7 @@ namespace Animancer.Editor
                 MigrateUnSharedTransitionAssets(filePath, ref modifiedText);
                 MigrateTransitionAssets(ref modifiedText);
 
-                if (!ReferenceEquals(originalText, modifiedText))
-                {
+                if (!ReferenceEquals(originalText, modifiedText)) {
                     File.WriteAllText(filePath, modifiedText);
 
                     filePath = GetRelativeFilePath(filePath);
@@ -220,9 +208,7 @@ namespace Animancer.Editor
 
                     return true;
                 }
-            }
-            catch (Exception exception)
-            {
+            } catch (Exception exception) {
                 Debug.LogException(exception);
             }
 
@@ -238,8 +224,7 @@ namespace Animancer.Editor
         /// <summary>[Animancer v8.0]
         /// Animancer assemblies renamed when moving to a package.
         /// </summary>
-        private static void MigrateSerializedReferences(ref string fileText)
-        {
+        private static void MigrateSerializedReferences(ref string fileText) {
             fileText = fileText.Replace(
                 ", ns: Animancer, asm: Animancer}",
                 ", ns: Animancer, asm: Kybernetik.Animancer}");
@@ -255,20 +240,20 @@ namespace Animancer.Editor
         /// Event callbacks changed from <see cref="UnityEvent"/> to <see cref="IInvokable"/>.
         /// Event names changed from <see cref="string"/> to <see cref="StringAsset"/>.
         /// </summary>
-        private static void MigrateEvents(ref string text)
-        {
+        private static void MigrateEvents(ref string text) {
             const string Prefix = "_" + nameof(IHasEvents.Events) + ":";
 
             var index = 0;
-            while ((index = text.IndexOf(Prefix, index)) >= 0)
-            {
+            while ((index = text.IndexOf(Prefix, index)) >= 0) {
                 var callbacks = IndexOfEventField(text, index, CallbacksField);
-                if (callbacks >= 0)
+                if (callbacks >= 0) {
                     MigrateEventCallbacks(ref text, callbacks);
+                }
 
                 var names = IndexOfEventField(text, index, NamesField);
-                if (names >= 0)
+                if (names >= 0) {
                     MigrateEventNames(ref text, names);
+                }
 
                 index += Prefix.Length;
             }
@@ -280,28 +265,30 @@ namespace Animancer.Editor
         private static int IndexOfEventField(
             string text,
             int start,
-            string fieldName)
-        {
+            string fieldName) {
             var baseIndentation = CountConsecutiveCharacters(text, start - 1, -1, ' ');
 
-            while (true)
-            {
+            while (true) {
                 start = text.IndexOf('\n', start);
-                if (start < 0)
+                if (start < 0) {
                     break;
+                }
 
                 start++;
 
                 var lineIndentation = CountConsecutiveCharacters(text, start, 1, ' ');
-                if (lineIndentation <= baseIndentation)
+                if (lineIndentation <= baseIndentation) {
                     break;
+                }
 
                 start += lineIndentation;
-                if (text[start] != '_')
+                if (text[start] != '_') {
                     continue;
+                }
 
-                if (SubstringEquals(text, start, fieldName + ":"))
+                if (SubstringEquals(text, start, fieldName + ":")) {
                     return start;
+                }
             }
 
             return -1;
@@ -314,31 +301,31 @@ namespace Animancer.Editor
         /// <summary>[Animancer v8.0]
         /// Event names changed from <see cref="string"/> to <see cref="StringAsset"/>.
         /// </summary>
-        private static void MigrateEventNames(ref string text, int start)
-        {
+        private static void MigrateEventNames(ref string text, int start) {
             start = text.IndexOf('\n', start);
-            if (start < 0)
+            if (start < 0) {
                 return;
+            }
 
             start++;
 
-            while (start < text.Length)
-            {
+            while (start < text.Length) {
                 var end = text.IndexOf('\n', start + 1);
-                if (start < 0)
+                if (start < 0) {
                     end = text.Length;
+                }
 
                 start += CountConsecutiveCharacters(text, start, 1, ' ');
 
                 var character = text[start];
-                if (character != '-')
+                if (character != '-') {
                     return;
+                }
 
                 start++;
 
                 // If not already migrated.
-                if (!SubstringEquals(text, start, " {fileID: "))
-                {
+                if (!SubstringEquals(text, start, " {fileID: ")) {
                     var name = text[start..end];
                     name = name.Trim();
 
@@ -352,8 +339,7 @@ namespace Animancer.Editor
 
         /************************************************************************************************************************/
 
-        private static void MigrateEventName(ref string text, int start, string name, out int end)
-        {
+        private static void MigrateEventName(ref string text, int start, string name, out int end) {
             StringAsset.FindOrCreate(name, MigratedDataDirectory, out var path);
 
             var fileID = GetFileID(path);
@@ -372,24 +358,26 @@ namespace Animancer.Editor
 
         /************************************************************************************************************************/
 
-        private static string GetFileID(string assetPath)
-        {
+        private static string GetFileID(string assetPath) {
             assetPath += ".meta";
-            if (!File.Exists(assetPath))
+            if (!File.Exists(assetPath)) {
                 return null;
+            }
 
             var meta = File.ReadAllText(assetPath);
 
             const string Prefix = "mainObjectFileID: ";
             var start = meta.IndexOf(Prefix, StringComparison.Ordinal);
-            if (start < 0)
+            if (start < 0) {
                 return null;
+            }
 
             start += Prefix.Length;
 
             var end = meta.IndexOf('\n', start);
-            if (end < 0)
+            if (end < 0) {
                 end = meta.Length;
+            }
 
             var id = meta[start..end];
             id = id.Trim();
@@ -405,37 +393,36 @@ namespace Animancer.Editor
         /// <summary>[Animancer v8.0]
         /// Event callbacks changed from <see cref="UnityEvent"/> to <see cref="IInvokable"/>.
         /// </summary>
-        private static void MigrateEventCallbacks(ref string text, int start)
-        {
+        private static void MigrateEventCallbacks(ref string text, int start) {
             start = text.IndexOf('\n', start);
-            if (start < 0)
+            if (start < 0) {
                 return;
+            }
 
             start++;
 
-            while (start < text.Length)
-            {
+            while (start < text.Length) {
                 var end = text.IndexOf('\n', start + 1);
-                if (start < 0)
+                if (start < 0) {
                     end = text.Length;
+                }
 
                 var indentation = CountConsecutiveCharacters(text, start, 1, ' ');
 
                 start += indentation;
 
                 var character = text[start];
-                if (character != '-')
+                if (character != '-') {
                     return;
+                }
 
                 start++;
 
                 // If already migrated, skip over it.
-                if (SubstringEquals(text, start, " rid:"))
-                {
+                if (SubstringEquals(text, start, " rid:")) {
                     start = end;
-                }
-                else// Otherwise, turn it into a serialized reference.
-                {
+                } else// Otherwise, turn it into a serialized reference.
+                  {
                     var callback = ReIndentFieldData(text, start, indentation, 6, out end);
                     var id = RandomLong();
 
@@ -464,26 +451,21 @@ namespace Animancer.Editor
             int start,
             int oldIndentation,
             int newIndentation,
-            out int end)
-        {
+            out int end) {
             var callback = StringBuilderPool.Instance.Acquire();
 
             end = start;
 
-            while (start < text.Length)
-            {
+            while (start < text.Length) {
                 var indentation = CountConsecutiveCharacters(text, start, 1, ' ');
 
                 // Remove the dash from the start of the first line.
-                if (callback.Length == 0)
-                {
+                if (callback.Length == 0) {
                     start += indentation;
                     indentation = newIndentation + 2;
-                }
-                else// Adjust the indentation of other lines.
-                {
-                    if (indentation <= oldIndentation)
-                    {
+                } else// Adjust the indentation of other lines.
+                  {
+                    if (indentation <= oldIndentation) {
                         end = start;
                         break;
                     }
@@ -494,8 +476,9 @@ namespace Animancer.Editor
                 }
 
                 end = text.IndexOf('\n', start);
-                if (end < 0)
+                if (end < 0) {
                     end = text.Length;
+                }
 
                 callback.Append(' ', indentation);
                 callback.Append(text, start, end - start);
@@ -523,13 +506,11 @@ namespace Animancer.Editor
         /// UnShared classes removed,
         /// data replaced with direct <see cref="TransitionAssetBase"/> references.
         /// </summary>
-        private void MigrateUnSharedTransitionAssets(string filePath, ref string fileText)
-        {
+        private void MigrateUnSharedTransitionAssets(string filePath, ref string fileText) {
             var isChanged = false;
 
             var start = 0;
-            while (start < fileText.Length)
-            {
+            while (start < fileText.Length) {
                 const string
                     AssetReferencePrefix = "    _Asset: ",
                     FileReferencePrefix = "{fileID: ",
@@ -537,38 +518,41 @@ namespace Animancer.Editor
                     TypePrefix = ", type: ";
 
                 start = fileText.IndexOf(AssetReferencePrefix + FileReferencePrefix, start, StringComparison.Ordinal);
-                if (start < 0)
+                if (start < 0) {
                     break;
+                }
 
                 var end = fileText.IndexOf(
                     '\n',
                     start + AssetReferencePrefix.Length + FileReferencePrefix.Length);
-                if (end < 0)
+                if (end < 0) {
                     end = fileText.Length;
+                }
 
                 var guid = fileText.IndexOf(
                     GuidPrefix,
                     start + AssetReferencePrefix.Length,
                     end - (start + AssetReferencePrefix.Length),
                     StringComparison.Ordinal);
-                if (guid < 0)
+                if (guid < 0) {
                     break;
+                }
 
                 var type = fileText.IndexOf(
                     TypePrefix,
                     guid + GuidPrefix.Length,
                     end - (guid + GuidPrefix.Length),
                     StringComparison.Ordinal);
-                if (type < 0)
+                if (type < 0) {
                     break;
+                }
 
                 var guidReference = fileText[(guid + GuidPrefix.Length)..type];
 
                 var assetPath = AssetDatabase.GUIDToAssetPath(guidReference);
 
                 if (string.IsNullOrEmpty(assetPath) ||
-                    AssetDatabase.LoadAssetAtPath<TransitionAssetBase>(assetPath) == null)
-                {
+                    AssetDatabase.LoadAssetAtPath<TransitionAssetBase>(assetPath) == null) {
                     start++;
                     continue;
                 }
@@ -579,8 +563,7 @@ namespace Animancer.Editor
 
                 fileText = $"{fileText[..(start - indent)]} {reference}{fileText[end..]}";
 
-                if (!isChanged)
-                {
+                if (!isChanged) {
                     isChanged = true;
                     _UnSharedFilePaths ??= new();
                     _UnSharedFilePaths.Add(GetRelativeFilePath(filePath));
@@ -592,10 +575,10 @@ namespace Animancer.Editor
 
         /************************************************************************************************************************/
 
-        private void WarnAboutUnSharedChanges()
-        {
-            if (_UnSharedFilePaths == null)
+        private void WarnAboutUnSharedChanges() {
+            if (_UnSharedFilePaths == null) {
                 return;
+            }
 
             var text = StringBuilderPool.Instance.Acquire();
 
@@ -605,8 +588,7 @@ namespace Animancer.Editor
 
             Debug.LogWarning(message + '\n');
 
-            if (_UnSharedFilePaths.Count > 10)
-            {
+            if (_UnSharedFilePaths.Count > 10) {
                 text.Length = 0;
                 AppendUnSharedFilePaths(text, 10);
                 message = text.ToString();
@@ -620,21 +602,20 @@ namespace Animancer.Editor
             StringBuilderPool.Instance.Release(text);
         }
 
-        private void AppendUnSharedFilePaths(StringBuilder text, int maxCount)
-        {
+        private void AppendUnSharedFilePaths(StringBuilder text, int maxCount) {
             text.Append("Data resembling UnShared Transition Assets has been detected in the following files:");
 
             var count = Math.Min(maxCount, _UnSharedFilePaths.Count);
-            for (int i = 0; i < count; i++)
-            {
+            for (var i = 0; i < count; i++) {
                 text.Append("\n• ")
                     .Append(_UnSharedFilePaths[i]);
             }
 
-            if (count < _UnSharedFilePaths.Count)
+            if (count < _UnSharedFilePaths.Count) {
                 text.Append("\n• And ")
                     .Append(_UnSharedFilePaths.Count - count)
                     .Append(" more (see the log).");
+            }
 
             text.Append(
                 "\n\nThe UnShared system has been removed so this data has been modified" +
@@ -672,31 +653,29 @@ namespace Animancer.Editor
         /// for each individual transition type except <see cref="TransitionAsset"/>
         /// since its [<see cref="SerializeReference"/>] can hold any of them without changing the asset type.
         /// </summary>
-        private void MigrateTransitionAssets(ref string fileText)
-        {
+        private void MigrateTransitionAssets(ref string fileText) {
             const string
                 ScriptReferencePrefix = "m_Script: {fileID: 11500000, guid: ",
                 ScriptReferenceSuffix = ", type: 3}";
 
             var index = 0;
 
-            while (index < fileText.Length)
-            {
+            while (index < fileText.Length) {
                 index = fileText.IndexOf(ScriptReferencePrefix, index);
-                if (index < 0)
+                if (index < 0) {
                     return;
+                }
 
                 index += ScriptReferencePrefix.Length;
 
                 var guidLength = AnimancerTransitionAssetGUID.Length;
                 var guidEnd = index + guidLength;
-                if (guidEnd >= fileText.Length)
+                if (guidEnd >= fileText.Length) {
                     return;
+                }
 
-                for (int i = 0; i < RemovedTransitionAssetGUIDs.Length; i++)
-                {
-                    if (string.CompareOrdinal(fileText, index, RemovedTransitionAssetGUIDs[i], 0, guidLength) == 0)
-                    {
+                for (var i = 0; i < RemovedTransitionAssetGUIDs.Length; i++) {
+                    if (string.CompareOrdinal(fileText, index, RemovedTransitionAssetGUIDs[i], 0, guidLength) == 0) {
                         fileText = $"{fileText[..index]}{AnimancerTransitionAssetGUID}{fileText[guidEnd..]}";
                         break;
                     }
@@ -717,19 +696,14 @@ namespace Animancer.Editor
             string text,
             int start,
             int direction,
-            char character)
-        {
+            char character) {
             var count = 0;
 
-            while (start >= 0 && start < text.Length)
-            {
-                if (text[start] == character)
-                {
+            while (start >= 0 && start < text.Length) {
+                if (text[start] == character) {
                     count++;
                     start += direction;
-                }
-                else
-                {
+                } else {
                     break;
                 }
             }
@@ -742,21 +716,23 @@ namespace Animancer.Editor
         private static bool SubstringEquals(
             string text,
             int start,
-            string substring)
-            => string.CompareOrdinal(
-                text,
-                start,
-                substring,
-                0,
-                substring.Length) == 0;
+            string substring) {
+            return string.CompareOrdinal(
+                                              text,
+                                              start,
+                                              substring,
+                                              0,
+                                              substring.Length) == 0;
+        }
 
         /************************************************************************************************************************/
 
         private static readonly System.Random
             Random = new();
 
-        private static long RandomLong()
-            => (uint)Random.Next() | ((long)Random.Next() << 32);
+        private static long RandomLong() {
+            return (uint)Random.Next() | ((long)Random.Next() << 32);
+        }
 
         /************************************************************************************************************************/
 
@@ -765,37 +741,36 @@ namespace Animancer.Editor
             int index,
             long id,
             Type type,
-            string reference)
-        {
+            string reference) {
             const string ObjectHeader = "\n--- !u!";
 
             var start = text.LastIndexOf(ObjectHeader, index) + 1;
 
             var end = text.IndexOf(ObjectHeader, start) + 1;
-            if (end <= 0)
+            if (end <= 0) {
                 end = text.Length;
+            }
 
             var newText = StringBuilderPool.Instance.Acquire();
 
             newText.Append(text, 0, end);
 
-            if (text[^1] != '\n')
+            if (text[^1] != '\n') {
                 newText.Append('\n');
+            }
 
             const string ReferencesHeader = "  references:\n";
             const string VersionHeader = "    version: 2\n";
 
             // If the references block is missing, add it.
             var referencesIndex = text.LastIndexOf("\n" + ReferencesHeader, end, end - start);
-            if (referencesIndex < 0)
-            {
+            if (referencesIndex < 0) {
                 newText.Append(ReferencesHeader + VersionHeader + "    RefIds:\n");
-            }
-            else
-            {
+            } else {
                 // Or if it exists but has the wrong version, complain.
-                if (!SubstringEquals(text, referencesIndex + ReferencesHeader.Length + 1, VersionHeader))
+                if (!SubstringEquals(text, referencesIndex + ReferencesHeader.Length + 1, VersionHeader)) {
                     Debug.LogWarning("Unknown serialized reference format. Expected version 2.");
+                }
             }
 
             newText.Append("    - rid: ");
@@ -819,11 +794,11 @@ namespace Animancer.Editor
 
         /************************************************************************************************************************/
 
-        private static string GetRelativeFilePath(string filePath)
-        {
+        private static string GetRelativeFilePath(string filePath) {
             var currentDirectory = Environment.CurrentDirectory;
-            if (filePath.StartsWith(currentDirectory))
+            if (filePath.StartsWith(currentDirectory)) {
                 filePath = filePath[(currentDirectory.Length + 1)..];
+            }
 
             return filePath;
         }

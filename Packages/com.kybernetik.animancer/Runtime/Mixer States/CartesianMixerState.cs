@@ -3,8 +3,7 @@
 using System;
 using UnityEngine;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>[Pro-Only]
     /// An <see cref="AnimancerState"/> which blends an array of other states together based on a two dimensional
     /// parameter and thresholds using Gradient Band Interpolation.
@@ -19,8 +18,7 @@ namespace Animancer
     /// https://kybernetik.com.au/animancer/api/Animancer/CartesianMixerState
     /// 
     public class CartesianMixerState : Vector2MixerState,
-        ICopyable<CartesianMixerState>
-    {
+        ICopyable<CartesianMixerState> {
         /************************************************************************************************************************/
 
         /// <summary>Precalculated values to speed up the recalculation of weights.</summary>
@@ -35,8 +33,7 @@ namespace Animancer
         /// Called whenever the thresholds are changed. Indicates that the internal blend factors need to be
         /// recalculated and triggers weight recalculation.
         /// </summary>
-        public override void OnThresholdsChanged()
-        {
+        public override void OnThresholdsChanged() {
             _BlendFactorsAreDirty = true;
             base.OnThresholdsChanged();
         }
@@ -44,15 +41,11 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override void ForceRecalculateWeights()
-        {
+        protected override void ForceRecalculateWeights() {
             var childCount = ChildCount;
-            if (childCount == 0)
-            {
+            if (childCount == 0) {
                 return;
-            }
-            else if (childCount == 1)
-            {
+            } else if (childCount == 1) {
                 Playable.SetChildWeight(ChildStates[0], 1);
                 return;
             }
@@ -63,8 +56,7 @@ namespace Animancer
 
             var weights = GetTemporaryFloatArray(childCount);
 
-            for (int i = 0; i < childCount; i++)
-            {
+            for (var i = 0; i < childCount; i++) {
                 var blendFactors = _BlendFactors[i];
 
                 var threshold = GetThreshold(i);
@@ -72,19 +64,21 @@ namespace Animancer
 
                 float weight = 1;
 
-                for (int j = 0; j < childCount; j++)
-                {
-                    if (j == i)
+                for (var j = 0; j < childCount; j++) {
+                    if (j == i) {
                         continue;
+                    }
 
                     var newWeight = 1 - Vector2.Dot(thresholdToParameter, blendFactors[j]);
 
-                    if (weight > newWeight)
+                    if (weight > newWeight) {
                         weight = newWeight;
+                    }
                 }
 
-                if (weight < 0.01f)
+                if (weight < 0.01f) {
                     weight = 0;
+                }
 
                 weights[i] = weight;
                 totalWeight += weight;
@@ -95,35 +89,32 @@ namespace Animancer
 
         /************************************************************************************************************************/
 
-        private void CalculateBlendFactors(int childCount)
-        {
-            if (!_BlendFactorsAreDirty)
+        private void CalculateBlendFactors(int childCount) {
+            if (!_BlendFactorsAreDirty) {
                 return;
+            }
 
             _BlendFactorsAreDirty = false;
 
             // Resize the precalculated values.
-            if (AnimancerUtilities.SetLength(ref _BlendFactors, childCount))
-            {
-                for (int i = 0; i < childCount; i++)
+            if (AnimancerUtilities.SetLength(ref _BlendFactors, childCount)) {
+                for (var i = 0; i < childCount; i++) {
                     _BlendFactors[i] = new Vector2[childCount];
+                }
             }
 
             // Calculate the blend factors between each combination of thresholds.
-            for (int i = 0; i < childCount; i++)
-            {
+            for (var i = 0; i < childCount; i++) {
                 var blendFactors = _BlendFactors[i];
 
                 var thresholdI = GetThreshold(i);
 
                 var j = i + 1;
-                for (; j < childCount; j++)
-                {
+                for (; j < childCount; j++) {
                     var thresholdIToJ = GetThreshold(j) - thresholdI;
 
 #if UNITY_ASSERTIONS
-                    if (thresholdIToJ == default)
-                    {
+                    if (thresholdIToJ == default) {
                         MarkAsUsed(this);
                         throw new ArgumentException(
                             $"Mixer has multiple identical thresholds.\n{this.GetDescription()}");
@@ -142,8 +133,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override AnimancerState Clone(CloneContext context)
-        {
+        public override AnimancerState Clone(CloneContext context) {
             var clone = new CartesianMixerState();
             clone.CopyFrom(this, context);
             return clone;
@@ -152,15 +142,16 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public sealed override void CopyFrom(Vector2MixerState copyFrom, CloneContext context)
-            => this.CopyFromBase(copyFrom, context);
+        public sealed override void CopyFrom(Vector2MixerState copyFrom, CloneContext context) {
+            this.CopyFromBase(copyFrom, context);
+        }
 
         /// <inheritdoc/>
-        public virtual void CopyFrom(CartesianMixerState copyFrom, CloneContext context)
-        {
+        public virtual void CopyFrom(CartesianMixerState copyFrom, CloneContext context) {
             _BlendFactorsAreDirty = copyFrom._BlendFactorsAreDirty;
-            if (!_BlendFactorsAreDirty)
+            if (!_BlendFactorsAreDirty) {
                 _BlendFactors = copyFrom._BlendFactors;
+            }
 
             base.CopyFrom(copyFrom, context);
         }

@@ -1,8 +1,8 @@
-using Xoderony;
-using Xoderony.Movement;
 using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
+using Xoderony;
+using Xoderony.Movement;
 
 namespace JoG.Character {
 
@@ -62,6 +62,5 @@ namespace JoG.Character {
                 }
             }
         }
-
     }
 }

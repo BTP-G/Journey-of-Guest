@@ -1,13 +1,8 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-using Antlr4.Runtime;
-using Antlr4.Runtime.Atn;
-using Antlr4.Runtime.Sharpen;
-
-namespace Antlr4.Runtime.Atn
-{
+namespace Antlr4.Runtime.Atn {
     /// <summary>
     /// This class represents profiling event information for tracking the lookahead
     /// depth required in order to make a prediction.
@@ -17,8 +12,7 @@ namespace Antlr4.Runtime.Atn
     /// depth required in order to make a prediction.
     /// </remarks>
     /// <since>4.3</since>
-    public class LookaheadEventInfo : DecisionEventInfo
-    {
+    public class LookaheadEventInfo : DecisionEventInfo {
         /// <summary>The alternative chosen by adaptivePredict(), not necessarily
         ///  the outermost alt shown for a rule; left-recursive rules have
         ///  user-level alts that differ from the rewritten rule with a (...) block
@@ -50,8 +44,7 @@ namespace Antlr4.Runtime.Atn
         /// an SLL prediction
         /// </param>
         public LookaheadEventInfo(int decision, ATNConfigSet configs, int predictedAlt, ITokenStream input, int startIndex, int stopIndex, bool fullCtx)
-            : base(decision, configs, input, startIndex, stopIndex, fullCtx)
-        {
+            : base(decision, configs, input, startIndex, stopIndex, fullCtx) {
             this.predictedAlt = predictedAlt;
         }
     }

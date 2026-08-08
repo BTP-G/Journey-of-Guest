@@ -2,14 +2,12 @@
 
 using UnityEngine.Playables;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>
     /// A <see cref="PlayableBehaviour"/> which executes <see cref="IUpdatable.Update"/>
     /// on each item in an <see cref="IUpdatable.List"/> every frame.
     /// </summary>
-    public class UpdatableListPlayable : PlayableBehaviour
-    {
+    public class UpdatableListPlayable : PlayableBehaviour {
         /************************************************************************************************************************/
 
         /// <summary>
@@ -33,8 +31,7 @@ namespace Animancer
         public static ScriptPlayable<UpdatableListPlayable> Create(
             AnimancerGraph graph,
             int inputCount,
-            IUpdatable.List updatables)
-        {
+            IUpdatable.List updatables) {
             var playable = ScriptPlayable<UpdatableListPlayable>.Create(graph._PlayableGraph, Template, inputCount);
             var instance = playable.GetBehaviour();
             instance._Graph = graph;
@@ -48,11 +45,12 @@ namespace Animancer
         /// <remarks>
         /// Called by the <see cref="PlayableGraph"/> after the rest of the <see cref="Playable"/>s are evaluated.
         /// </remarks>
-        public override void PrepareFrame(Playable playable, FrameData info)
-            => _Graph.UpdateAll(
-                _Updatables,
-                info.deltaTime * info.effectiveParentSpeed,
-                info.frameId);
+        public override void PrepareFrame(Playable playable, FrameData info) {
+            _Graph.UpdateAll(
+                                                                                             _Updatables,
+                                                                                             info.deltaTime * info.effectiveParentSpeed,
+                                                                                             info.frameId);
+        }
 
         /************************************************************************************************************************/
     }

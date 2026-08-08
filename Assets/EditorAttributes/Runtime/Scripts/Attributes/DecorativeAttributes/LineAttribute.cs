@@ -1,12 +1,10 @@
-﻿using UnityEngine;
+using UnityEngine;
 
-namespace EditorAttributes
-{
+namespace EditorAttributes {
     /// <summary>
     /// Attribute to draw a line in the inspector
     /// </summary>
-    public class LineAttribute : PropertyAttribute, IColorAttribute
-    {
+    public class LineAttribute : PropertyAttribute, IColorAttribute {
         public float R { get; private set; }
         public float G { get; private set; }
         public float B { get; private set; }
@@ -25,8 +23,7 @@ namespace EditorAttributes
         /// <param name="color">The color of the line</param>
         /// <param name="alpha">Alpha amount</param>
         /// <param name="lineThickness">The thickness of the line in pixels</param>
-        public LineAttribute(GUIColor color = GUIColor.Default, float alpha = 1f, float lineThickness = 3f)
-        {
+        public LineAttribute(GUIColor color = GUIColor.Default, float alpha = 1f, float lineThickness = 3f) {
             Color = color;
             A = alpha;
             LineThickness = lineThickness;
@@ -40,8 +37,7 @@ namespace EditorAttributes
         /// <param name="blue">Blue amount</param>
         /// <param name="alpha">Alpha amount</param>
         /// <param name="lineThickness">The thickness of the line in pixels</param>
-        public LineAttribute(float red, float green, float blue, float alpha = 1f, float lineThickness = 3f) : this(GUIColor.Default, alpha, lineThickness)
-        {
+        public LineAttribute(float red, float green, float blue, float alpha = 1f, float lineThickness = 3f) : this(GUIColor.Default, alpha, lineThickness) {
             UseRGB = true;
             R = red;
             G = green;
@@ -54,6 +50,8 @@ namespace EditorAttributes
         /// <param name="hexColor">The color in hexadecimal</param>
         /// <param name="alpha">Alpha amount</param>
         /// <param name="lineThickness">The thickness of the line in pixels</param>
-        public LineAttribute(string hexColor, float alpha = 1f, float lineThickness = 3f) : this(GUIColor.Default, alpha, lineThickness) => HexColor = hexColor;
+        public LineAttribute(string hexColor, float alpha = 1f, float lineThickness = 3f) : this(GUIColor.Default, alpha, lineThickness) {
+            HexColor = hexColor;
+        }
     }
 }

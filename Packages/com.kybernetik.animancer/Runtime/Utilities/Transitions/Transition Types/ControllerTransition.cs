@@ -5,16 +5,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <inheritdoc/>
     /// https://kybernetik.com.au/animancer/api/Animancer/ControllerTransition_1
     [Serializable]
     public abstract class ControllerTransition<TState> : Transition<TState>,
         IAnimationClipCollection,
         ICopyable<ControllerTransition<TState>>
-        where TState : ControllerState
-    {
+        where TState : ControllerState {
         /************************************************************************************************************************/
 
         [SerializeField]
@@ -28,15 +26,14 @@ namespace Animancer
         /// you will need to call <see cref="Transition{T}.ReconcileMainObject(AnimancerGraph)"/>
         /// for each of them to create new states for the newly assigned object.
         /// </remarks>
-        public RuntimeAnimatorController Controller
-        {
+        public RuntimeAnimatorController Controller {
             get => _Controller;
-            set
-            {
+            set {
                 _Controller = value;
 
-                if (BaseState != null)
+                if (BaseState != null) {
                     ReconcileMainObject(BaseState);
+                }
             }
         }
 
@@ -87,21 +84,20 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override float MaximumLength
-        {
-            get
-            {
-                if (_Controller == null)
+        public override float MaximumLength {
+            get {
+                if (_Controller == null) {
                     return 0;
+                }
 
                 var duration = 0f;
 
                 var clips = _Controller.animationClips;
-                for (int i = 0; i < clips.Length; i++)
-                {
+                for (var i = 0; i < clips.Length; i++) {
                     var length = clips[i].length;
-                    if (duration < length)
+                    if (duration < length) {
                         duration = length;
+                    }
                 }
 
                 return duration;
@@ -117,16 +113,17 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Returns the <see cref="Controller"/>.</summary>
-        public static implicit operator RuntimeAnimatorController(ControllerTransition<TState> transition)
-            => transition?._Controller;
+        public static implicit operator RuntimeAnimatorController(ControllerTransition<TState> transition) {
+            return transition?._Controller;
+        }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void Apply(AnimancerState state)
-        {
-            if (state is ControllerState controllerState)
+        public override void Apply(AnimancerState state) {
+            if (state is ControllerState controllerState) {
                 controllerState.ActionsOnStop = _ActionsOnStop;
+            }
 
             base.Apply(state);
         }
@@ -134,21 +131,21 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Adds all clips in the <see cref="Controller"/> to the collection.</summary>
-        void IAnimationClipCollection.GatherAnimationClips(ICollection<AnimationClip> clips)
-        {
-            if (_Controller != null)
+        void IAnimationClipCollection.GatherAnimationClips(ICollection<AnimationClip> clips) {
+            if (_Controller != null) {
                 clips.Gather(_Controller.animationClips);
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public sealed override void CopyFrom(Transition<TState> copyFrom, CloneContext context)
-            => this.CopyFromBase(copyFrom, context);
+        public sealed override void CopyFrom(Transition<TState> copyFrom, CloneContext context) {
+            this.CopyFromBase(copyFrom, context);
+        }
 
         /// <inheritdoc/>
-        public virtual void CopyFrom(ControllerTransition<TState> copyFrom, CloneContext context)
-        {
+        public virtual void CopyFrom(ControllerTransition<TState> copyFrom, CloneContext context) {
             base.CopyFrom(copyFrom, context);
 
             _Controller = context.GetCloneOrOriginal(copyFrom._Controller);
@@ -165,22 +162,20 @@ namespace Animancer
     /// https://kybernetik.com.au/animancer/api/Animancer/ControllerTransition
     [Serializable]
     public class ControllerTransition : ControllerTransition<ControllerState>,
-        ICopyable<ControllerTransition>
-    {
+        ICopyable<ControllerTransition> {
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override ControllerState CreateState()
-        {
+        public override ControllerState CreateState() {
 #if UNITY_ASSERTIONS
-            if (Controller == null)
+            if (Controller == null) {
                 throw new ArgumentException(
                     $"Unable to create {nameof(ControllerState)} because the" +
                     $" {nameof(ControllerTransition)}.{nameof(Controller)} is null.");
+            }
 #endif
 
-            return State = new(Controller, ActionsOnStop)
-            {
+            return State = new(Controller, ActionsOnStop) {
                 SerializedParameterBindings = ParameterBindings
             };
         }
@@ -191,32 +186,35 @@ namespace Animancer
         public ControllerTransition() { }
 
         /// <summary>Creates a new <see cref="ControllerTransition"/> with the specified Animator Controller.</summary>
-        public ControllerTransition(RuntimeAnimatorController controller)
-            => Controller = controller;
+        public ControllerTransition(RuntimeAnimatorController controller) {
+            Controller = controller;
+        }
 
         /************************************************************************************************************************/
 
         /// <summary>Creates a new <see cref="ControllerTransition"/> with the specified Animator Controller.</summary>
-        public static implicit operator ControllerTransition(RuntimeAnimatorController controller)
-            => new(controller);
+        public static implicit operator ControllerTransition(RuntimeAnimatorController controller) {
+            return new(controller);
+        }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override Transition<ControllerState> Clone(CloneContext context)
-        {
+        public override Transition<ControllerState> Clone(CloneContext context) {
             var clone = new ControllerTransition();
             clone.CopyFrom(this, context);
             return clone;
         }
 
         /// <inheritdoc/>
-        public sealed override void CopyFrom(ControllerTransition<ControllerState> copyFrom, CloneContext context)
-            => this.CopyFromBase(copyFrom, context);
+        public sealed override void CopyFrom(ControllerTransition<ControllerState> copyFrom, CloneContext context) {
+            this.CopyFromBase(copyFrom, context);
+        }
 
         /// <inheritdoc/>
-        public virtual void CopyFrom(ControllerTransition copyFrom, CloneContext context)
-            => base.CopyFrom(copyFrom, context);
+        public virtual void CopyFrom(ControllerTransition copyFrom, CloneContext context) {
+            base.CopyFrom(copyFrom, context);
+        }
 
         /************************************************************************************************************************/
 
@@ -225,26 +223,28 @@ namespace Animancer
         /// if the `target` is an <see cref="RuntimeAnimatorController"/>.
         /// </summary>
         [TryCreateTransition(typeof(RuntimeAnimatorController))]
-        public static ITransition TryCreateTransition(Object target)
-            => target is not RuntimeAnimatorController controller
-            ? null
-            : new ControllerTransition()
-            {
-                Controller = controller,
-            };
+        public static ITransition TryCreateTransition(Object target) {
+            return target is not RuntimeAnimatorController controller
+                                                                                 ? null
+                                                                                 : new ControllerTransition() {
+                                                                                     Controller = controller,
+                                                                                 };
+        }
 
         /************************************************************************************************************************/
 
 #if UNITY_EDITOR
         /// <summary>[Editor-Only] Validates that the `command` is targeting an asset.</summary>
         [UnityEditor.MenuItem("CONTEXT/" + nameof(RuntimeAnimatorController) + "/Create Transition Asset", validate = true)]
-        private static bool ValidateCreateTransitionAsset(UnityEditor.MenuCommand command)
-            => TryCreateTransitionAttribute.CanCreateAndSave(command.context);
+        private static bool ValidateCreateTransitionAsset(UnityEditor.MenuCommand command) {
+            return TryCreateTransitionAttribute.CanCreateAndSave(command.context);
+        }
 
         /// <summary>[Editor-Only] Tries to create an asset containing an appropriate transition for the `command`.</summary>
         [UnityEditor.MenuItem("CONTEXT/" + nameof(RuntimeAnimatorController) + "/Create Transition Asset")]
-        private static void CreateTransitionAsset(UnityEditor.MenuCommand command)
-            => TryCreateTransitionAttribute.TryCreateTransitionAsset(command.context, true);
+        private static void CreateTransitionAsset(UnityEditor.MenuCommand command) {
+            TryCreateTransitionAttribute.TryCreateTransitionAsset(command.context, true);
+        }
 #endif
 
         /************************************************************************************************************************/

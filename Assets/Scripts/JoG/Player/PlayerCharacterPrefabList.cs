@@ -1,10 +1,9 @@
 using EditorAttributes;
-using Xoderony.Localization;
-using JoG.Localization;
 using System;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using Xoderony.Localization;
 
 namespace JoG.Player {
 

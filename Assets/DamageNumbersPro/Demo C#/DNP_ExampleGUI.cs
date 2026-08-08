@@ -1,4 +1,4 @@
-﻿/* 
+/* 
  * Hello user.
  * 
  * This is a script made to teach you how to use the asset.
@@ -11,32 +11,25 @@
  */
 
 using UnityEngine;
-using DamageNumbersPro; // Include DamageNumbersPro Namespace     <-----     [REQUIRED]
 
-namespace DamageNumbersPro.Demo
-{
-    public class DNP_ExampleGUI : MonoBehaviour
-    {
+namespace DamageNumbersPro.Demo {
+    public class DNP_ExampleGUI : MonoBehaviour {
         public DamageNumber popupPrefab; // Reference DamageNumber Prefab     <-----     [REQUIRED]
 
         public RectTransform rectTarget;
         public Vector2 anchoredPosition;
 
-        void Update()
-        {
-            if (DNP_InputHandler.GetRightClick())
-            {
+        private void Update() {
+            if (DNP_InputHandler.GetRightClick()) {
                 SpawnPopup(Mathf.Round(Random.Range(1, 10)));
             }
         }
 
-        public void SpawnPopup(float number)
-        {
-            DamageNumber newPopup = popupPrefab.SpawnGUI(rectTarget, anchoredPosition, number); // Spawn DamageNumber     <-----     [REQUIRED]
+        public void SpawnPopup(float number) {
+            var newPopup = popupPrefab.SpawnGUI(rectTarget, anchoredPosition, number); // Spawn DamageNumber     <-----     [REQUIRED]
 
             // You can do any change you want on the DamageNumber returned by the Spawn(..) function.
-            if(Random.value < 0.5f)
-            {
+            if (Random.value < 0.5f) {
                 newPopup.number *= 2;
             }
         }

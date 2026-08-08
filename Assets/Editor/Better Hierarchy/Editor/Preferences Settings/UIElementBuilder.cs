@@ -1,27 +1,20 @@
-﻿#if UNITY_2019_1_OR_NEWER
+#if UNITY_2019_1_OR_NEWER
 using System;
 using System.Linq;
-using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Utilities.BetterHierarchy
-{
-    public static partial class BetterHierarchyPreferences
-    {
-        private class UIElementBuilder
-        {
+namespace Utilities.BetterHierarchy {
+    public static partial class BetterHierarchyPreferences {
+        private class UIElementBuilder {
             private VisualElement wrapper;
 
-            public UIElementBuilder(VisualElement wrapper)
-            {
+            public UIElementBuilder(VisualElement wrapper) {
                 this.wrapper = wrapper;
             }
-            
-            public VisualElement AddTooltip(string title, string tooltip)
-            {
-                var tooltipWrapper = new VisualElement()
-                {
+
+            public VisualElement AddTooltip(string title, string tooltip) {
+                var tooltipWrapper = new VisualElement() {
                     tooltip = tooltip,
                     style =
                     {
@@ -31,8 +24,7 @@ namespace Utilities.BetterHierarchy
                     }
                 };
 
-                var tooltipShortLabel = new Label(title)
-                {
+                var tooltipShortLabel = new Label(title) {
                     style =
                     {
                         fontSize = 10,
@@ -42,15 +34,13 @@ namespace Utilities.BetterHierarchy
                     }
                 };
 
-                var questionMark = new Label("?")
-                {
+                var questionMark = new Label("?") {
                     style =
                     {
                         unityFontStyleAndWeight = FontStyle.Bold,
                         color = new Color(0.2f, 0.4f, 0.8f)
                     }
                 };
-
 
                 tooltipWrapper.Add(tooltipShortLabel);
                 tooltipWrapper.Add(questionMark);
@@ -59,10 +49,8 @@ namespace Utilities.BetterHierarchy
                 return tooltipWrapper;
             }
 
-            public Label AddHeader(string text)
-            {
-                var header = new Label()
-                {
+            public Label AddHeader(string text) {
+                var header = new Label() {
                     text = text,
                     style =
                     {
@@ -76,10 +64,8 @@ namespace Utilities.BetterHierarchy
                 return header;
             }
 
-            public Toggle AddToggle(BoolPreference toggle, string info)
-            {
-                var toggleElement = new Toggle
-                {
+            public Toggle AddToggle(BoolPreference toggle, string info) {
+                var toggleElement = new Toggle {
                     label = toggle.Label,
                     value = toggle.Get(),
                     tooltip = info,
@@ -94,12 +80,10 @@ namespace Utilities.BetterHierarchy
             }
 
             public PopupField<T> AddSelection<T>(Preference<T> selection, string info)
-                where T : Enum
-            {
+                where T : Enum {
                 var enumOptions = Enum.GetValues(typeof(T)).Cast<T>().ToList();
 
-                var selectionDropdown = new PopupField<T>
-                {
+                var selectionDropdown = new PopupField<T> {
                     value = selection.Get(),
                     label = selection.Label,
                     tooltip = info,

@@ -7,15 +7,13 @@ using UnityEngine;
 using UnityEngine.Playables;
 using Object = UnityEngine.Object;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <inheritdoc/>
     /// https://kybernetik.com.au/animancer/api/Animancer/PlayableAssetTransition
     [Serializable]
     public class PlayableAssetTransition : Transition<PlayableAssetState>,
         IAnimationClipCollection,
-        ICopyable<PlayableAssetTransition>
-    {
+        ICopyable<PlayableAssetTransition> {
         /************************************************************************************************************************/
 
         [SerializeField, Tooltip("The asset to play")]
@@ -27,15 +25,14 @@ namespace Animancer
         /// you will need to call <see cref="Transition{T}.ReconcileMainObject(AnimancerGraph)"/>
         /// for each of them to create new states for the newly assigned object.
         /// </remarks>
-        public PlayableAsset Asset
-        {
+        public PlayableAsset Asset {
             get => _Asset;
-            set
-            {
+            set {
                 _Asset = value;
 
-                if (BaseState != null)
+                if (BaseState != null) {
                     ReconcileMainObject(BaseState);
+                }
             }
         }
 
@@ -56,8 +53,7 @@ namespace Animancer
         private float _NormalizedStartTime = float.NaN;
 
         /// <inheritdoc/>
-        public override float NormalizedStartTime
-        {
+        public override float NormalizedStartTime {
             get => _NormalizedStartTime;
             set => _NormalizedStartTime = value;
         }
@@ -90,8 +86,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override PlayableAssetState CreateState()
-        {
+        public override PlayableAssetState CreateState() {
             State = new(_Asset);
             State.SetBindings(_Bindings);
             return State;
@@ -100,8 +95,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void Apply(AnimancerState state)
-        {
+        public override void Apply(AnimancerState state) {
             base.Apply(state);
             ApplyNormalizedStartTime(state, _NormalizedStartTime);
         }
@@ -109,26 +103,26 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Gathers all the animations associated with this object.</summary>
-        void IAnimationClipCollection.GatherAnimationClips(ICollection<AnimationClip> clips)
-            => clips.GatherFromAsset(_Asset);
+        void IAnimationClipCollection.GatherAnimationClips(ICollection<AnimationClip> clips) {
+            clips.GatherFromAsset(_Asset);
+        }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override Transition<PlayableAssetState> Clone(CloneContext context)
-        {
+        public override Transition<PlayableAssetState> Clone(CloneContext context) {
             var clone = new PlayableAssetTransition();
             clone.CopyFrom(this, context);
             return clone;
         }
 
         /// <inheritdoc/>
-        public sealed override void CopyFrom(Transition<PlayableAssetState> copyFrom, CloneContext context)
-            => this.CopyFromBase(copyFrom, context);
+        public sealed override void CopyFrom(Transition<PlayableAssetState> copyFrom, CloneContext context) {
+            this.CopyFromBase(copyFrom, context);
+        }
 
         /// <inheritdoc/>
-        public virtual void CopyFrom(PlayableAssetTransition copyFrom, CloneContext context)
-        {
+        public virtual void CopyFrom(PlayableAssetTransition copyFrom, CloneContext context) {
             base.CopyFrom(copyFrom, context);
 
             _Asset = context.GetCloneOrOriginal(copyFrom._Asset);
@@ -143,26 +137,28 @@ namespace Animancer
         /// if the `target` is an <see cref="PlayableAsset"/>.
         /// </summary>
         [TryCreateTransition(typeof(PlayableAsset))]
-        public static ITransition TryCreateTransition(Object target)
-            => target is not PlayableAsset asset
-            ? null
-            : new PlayableAssetTransition()
-            {
-                Asset = asset,
-            };
+        public static ITransition TryCreateTransition(Object target) {
+            return target is not PlayableAsset asset
+                                                                                 ? null
+                                                                                 : new PlayableAssetTransition() {
+                                                                                     Asset = asset,
+                                                                                 };
+        }
 
         /************************************************************************************************************************/
 
 #if UNITY_EDITOR
         /// <summary>[Editor-Only] Validates that the `command` is targeting an asset.</summary>
         [UnityEditor.MenuItem("CONTEXT/" + nameof(PlayableAsset) + "/Create Transition Asset", validate = true)]
-        private static bool ValidateCreateTransitionAsset(UnityEditor.MenuCommand command)
-            => TryCreateTransitionAttribute.CanCreateAndSave(command.context);
+        private static bool ValidateCreateTransitionAsset(UnityEditor.MenuCommand command) {
+            return TryCreateTransitionAttribute.CanCreateAndSave(command.context);
+        }
 
         /// <summary>[Editor-Only] Tries to create an asset containing an appropriate transition for the `command`.</summary>
         [UnityEditor.MenuItem("CONTEXT/" + nameof(PlayableAsset) + "/Create Transition Asset")]
-        private static void CreateTransitionAsset(UnityEditor.MenuCommand command)
-            => TryCreateTransitionAttribute.TryCreateTransitionAsset(command.context, true);
+        private static void CreateTransitionAsset(UnityEditor.MenuCommand command) {
+            TryCreateTransitionAttribute.TryCreateTransitionAsset(command.context, true);
+        }
 #endif
 
         /************************************************************************************************************************/

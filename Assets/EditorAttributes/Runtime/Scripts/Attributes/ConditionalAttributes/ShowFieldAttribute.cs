@@ -1,12 +1,10 @@
-﻿using UnityEngine;
+using UnityEngine;
 
-namespace EditorAttributes
-{
+namespace EditorAttributes {
     /// <summary>
     /// Attribute to show a field based on a condition
     /// </summary>
-    public class ShowFieldAttribute : PropertyAttribute, IConditionalAttribute
-    {
+    public class ShowFieldAttribute : PropertyAttribute, IConditionalAttribute {
         public string ConditionName { get; private set; }
         public int EnumValue { get; private set; }
 
@@ -14,13 +12,17 @@ namespace EditorAttributes
         /// Attribute to show a field based on a condition
         /// </summary>
         /// <param name="conditionName">The name of the condition to evaluate</param>
-        public ShowFieldAttribute(string conditionName) : base(true) => ConditionName = conditionName;
+        public ShowFieldAttribute(string conditionName) : base(true) {
+            ConditionName = conditionName;
+        }
 
         /// <summary>
         /// Attribute to show a field based on a condition
         /// </summary>
         /// <param name="conditionName">The name of the condition to evaluate</param>
         /// <param name="enumValue">The value of the enum</param>
-        public ShowFieldAttribute(string conditionName, object enumValue) : this(conditionName) => EnumValue = (int)enumValue;
+        public ShowFieldAttribute(string conditionName, object enumValue) : this(conditionName) {
+            EnumValue = (int)enumValue;
+        }
     }
 }

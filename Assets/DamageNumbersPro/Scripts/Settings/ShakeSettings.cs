@@ -1,14 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace DamageNumbersPro
-{
+namespace DamageNumbersPro {
     [System.Serializable]
-    public struct ShakeSettings
-    {
-        public ShakeSettings(Vector2 customDefault)
-        {
+    public struct ShakeSettings {
+        public ShakeSettings(Vector2 customDefault) {
             offset = customDefault;
             frequency = 50f;
         }
@@ -18,5 +13,4 @@ namespace DamageNumbersPro
         [Tooltip("Changes the speed at which the number moves back and fourth.\nUsed in a sinus function.")]
         public float frequency;
     }
-
 }

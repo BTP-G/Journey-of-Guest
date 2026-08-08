@@ -4,15 +4,12 @@
 
 using System;
 using UnityEditor;
-using UnityEngine;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only] Draws the Inspector GUI for an <see cref="NamedEventDictionary"/>.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/NamedEventDictionaryDrawer
     /// 
-    public static class NamedEventDictionaryDrawer
-    {
+    public static class NamedEventDictionaryDrawer {
         /************************************************************************************************************************/
 
         private const string
@@ -24,10 +21,10 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Draws the <see cref="AnimancerGraph.Events"/>.</summary>
-        public static void DoEventsGUI(AnimancerGraph graph)
-        {
-            if (!graph.HasEvents)
+        public static void DoEventsGUI(AnimancerGraph graph) {
+            if (!graph.HasEvents) {
                 return;
+            }
 
             EditorGUI.indentLevel++;
 
@@ -38,16 +35,16 @@ namespace Animancer.Editor
                 events.Count.ToStringCached(),
                 AreEventsExpanded);
 
-            if (AreEventsExpanded)
-            {
+            if (AreEventsExpanded) {
                 EditorGUI.indentLevel++;
 
                 var sortedEvents = ListPool.Acquire<StringReference>();
                 sortedEvents.AddRange(events.Keys);
                 sortedEvents.Sort();
 
-                foreach (var item in sortedEvents)
+                foreach (var item in sortedEvents) {
                     DoEventGUI(item, events[item]);
+                }
 
                 ListPool.Release(sortedEvents);
 
@@ -60,11 +57,9 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Draws an event.</summary>
-        public static void DoEventGUI(string name, Action action)
-        {
+        public static void DoEventGUI(string name, Action action) {
             var gui = CustomGUIFactory.GetOrCreateForObject(action);
-            if (gui == null)
-            {
+            if (gui == null) {
                 EditorGUILayout.LabelField(name, action.ToStringDetailed());
                 return;
             }

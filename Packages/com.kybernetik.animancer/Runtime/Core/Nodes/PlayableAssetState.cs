@@ -9,8 +9,7 @@ using UnityEngine.Audio;
 using UnityEngine.Playables;
 using Object = UnityEngine.Object;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>[Pro-Only] An <see cref="AnimancerState"/> which plays a <see cref="PlayableAsset"/>.</summary>
     /// <remarks>
     /// <strong>Documentation:</strong>
@@ -18,8 +17,7 @@ namespace Animancer
     /// Timeline</see>
     /// </remarks>
     /// https://kybernetik.com.au/animancer/api/Animancer/PlayableAssetState
-    public class PlayableAssetState : AnimancerState
-    {
+    public class PlayableAssetState : AnimancerState {
         /************************************************************************************************************************/
         #region Fields and Properties
         /************************************************************************************************************************/
@@ -28,15 +26,13 @@ namespace Animancer
         private PlayableAsset _Asset;
 
         /// <summary>The <see cref="PlayableAsset"/> which this state plays.</summary>
-        public PlayableAsset Asset
-        {
+        public PlayableAsset Asset {
             get => _Asset;
             set => ChangeMainObject(ref _Asset, value);
         }
 
         /// <summary>The <see cref="PlayableAsset"/> which this state plays.</summary>
-        public override Object MainObject
-        {
+        public override Object MainObject {
             get => _Asset;
             set => _Asset = (PlayableAsset)value;
         }
@@ -58,23 +54,21 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override float Speed
-        {
+        public override float Speed {
             get => base.Speed;
-            set
-            {
+            set {
                 base.Speed = value;
 
-                for (int i = Outputs.Count - 1; i >= 0; i--)
+                for (var i = Outputs.Count - 1; i >= 0; i--) {
                     Outputs[i].GetSourcePlayable().SetSpeed(value);
+                }
             }
         }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override AnimancerEvent.DispatchInfo GetEventDispatchInfo()
-        {
+        public override AnimancerEvent.DispatchInfo GetEventDispatchInfo() {
             var length = _Length;
             return new(
                 length,
@@ -85,22 +79,23 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override void OnSetIsPlaying()
-        {
-            if (!_Playable.IsValid())
+        protected override void OnSetIsPlaying() {
+            if (!_Playable.IsValid()) {
                 return;
+            }
 
             var inputCount = _Playable.GetInputCount();
-            for (int i = 0; i < inputCount; i++)
-            {
+            for (var i = 0; i < inputCount; i++) {
                 var playable = _Playable.GetInput(i);
-                if (!playable.IsValid())
+                if (!playable.IsValid()) {
                     continue;
+                }
 
-                if (IsPlaying)
+                if (IsPlaying) {
                     playable.Play();
-                else
+                } else {
                     playable.Pause();
+                }
             }
         }
 
@@ -112,15 +107,14 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>IK cannot be dynamically enabled on a <see cref="PlayableAssetState"/>.</summary>
-        public override bool ApplyAnimatorIK
-        {
+        public override bool ApplyAnimatorIK {
             get => false;
-            set
-            {
+            set {
 #if UNITY_ASSERTIONS
-                if (value)
+                if (value) {
                     OptionalWarning.UnsupportedIK.Log(
                         $"IK cannot be dynamically enabled on a {nameof(PlayableAssetState)}.", Graph?.Component);
+                }
 #endif
             }
         }
@@ -128,15 +122,14 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>IK cannot be dynamically enabled on a <see cref="PlayableAssetState"/>.</summary>
-        public override bool ApplyFootIK
-        {
+        public override bool ApplyFootIK {
             get => false;
-            set
-            {
+            set {
 #if UNITY_ASSERTIONS
-                if (value)
+                if (value) {
                     OptionalWarning.UnsupportedIK.Log(
                         $"IK cannot be dynamically enabled on a {nameof(PlayableAssetState)}.", Graph?.Component);
+                }
 #endif
             }
         }
@@ -149,10 +142,10 @@ namespace Animancer
 
         /// <summary>Creates a new <see cref="PlayableAssetState"/> to play the `asset`.</summary>
         /// <exception cref="ArgumentNullException">The `asset` is null.</exception>
-        public PlayableAssetState(PlayableAsset asset)
-        {
-            if (asset == null)
+        public PlayableAssetState(PlayableAsset asset) {
+            if (asset == null) {
                 throw new ArgumentNullException(nameof(asset));
+            }
 
             _Asset = asset;
         }
@@ -160,15 +153,15 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override void CreatePlayable(out Playable playable)
-        {
+        protected override void CreatePlayable(out Playable playable) {
             playable = _Asset.CreatePlayable(Graph._PlayableGraph, Graph.Component.gameObject);
             playable.SetDuration(9223372.03685477);// https://github.com/KybernetikGames/animancer/issues/111
 
             _Length = (float)_Asset.duration;
 
-            if (!_HasInitializedBindings)
+            if (!_HasInitializedBindings) {
                 InitializeBindings();
+            }
         }
 
         /************************************************************************************************************************/
@@ -182,11 +175,9 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>The objects controlled by each track in the asset.</summary>
-        public IList<Object> Bindings
-        {
+        public IList<Object> Bindings {
             get => _Bindings;
-            set
-            {
+            set {
                 DestroyBoundOutputs(false);
                 _Bindings = value;
                 InitializeBindings();
@@ -196,17 +187,16 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Sets the <see cref="Bindings"/>.</summary>
-        public void SetBindings(params Object[] bindings)
-        {
+        public void SetBindings(params Object[] bindings) {
             Bindings = bindings;
         }
 
         /************************************************************************************************************************/
 
-        private void InitializeBindings()
-        {
-            if (Graph == null)
+        private void InitializeBindings() {
+            if (Graph == null) {
                 return;
+            }
 
             _HasInitializedBindings = true;
 
@@ -221,8 +211,7 @@ namespace Animancer
 
             var speed = Speed;
 
-            foreach (var binding in _Asset.outputs)
-            {
+            foreach (var binding in _Asset.outputs) {
                 GetBindingDetails(binding, out var trackName, out var trackType, out var isMarkers);
 
                 var bindable = bindableIndex < bindableCount
@@ -233,8 +222,7 @@ namespace Animancer
                 if (!isMarkers &&
                     trackType != null &&
                     bindable != null &&
-                    !trackType.IsAssignableFrom(bindable.GetType()))
-                {
+                    !trackType.IsAssignableFrom(bindable.GetType())) {
                     Debug.LogError(
                         $"Binding Type Mismatch: bindings[{bindableIndex}] is '{bindable}'" +
                         $" but should be a {trackType.FullName} for {trackName}",
@@ -246,20 +234,21 @@ namespace Animancer
 
                 var playable = _Playable.GetInput(bindableIndex);
 
-                if (speed != 1)
+                if (speed != 1) {
                     playable.SetSpeed(speed);
+                }
 
                 if (trackType == typeof(Animator))// AnimationTrack.
                 {
-                    if (bindable != null)
-                    {
+                    if (bindable != null) {
 #if UNITY_ASSERTIONS
-                        if (bindable == Graph.Component?.Animator)
+                        if (bindable == Graph.Component?.Animator) {
                             Debug.LogError(
                                 $"{nameof(PlayableAsset)} tracks should not be bound to the same {nameof(Animator)} as" +
                                 $" Animancer. Leaving the binding of the first Animation Track empty will automatically" +
                                 $" apply its animation to the object being controlled by Animancer.",
                                 Graph.Component as Object);
+                        }
 #endif
 
                         var playableOutput = AnimationPlayableOutput.Create(graph, trackName, (Animator)bindable);
@@ -272,8 +261,7 @@ namespace Animancer
 #if UNITY_AUDIO
                 else if (trackType == typeof(AudioSource))// AudioTrack.
                 {
-                    if (bindable != null)
-                    {
+                    if (bindable != null) {
                         var playableOutput = AudioPlayableOutput.Create(graph, trackName, (AudioSource)bindable);
                         playableOutput.SetReferenceObject(binding.sourceObject);
                         playableOutput.SetSourcePlayable(playable);
@@ -294,21 +282,24 @@ namespace Animancer
 
                     var receivers = ListPool.Acquire<INotificationReceiver>();
                     animancer.GetComponents(receivers);
-                    for (int i = 0; i < receivers.Count; i++)
+                    for (var i = 0; i < receivers.Count; i++) {
                         playableOutput.AddNotificationReceiver(receivers[i]);
+                    }
+
                     ListPool.Release(receivers);
 
                     continue;// Don't increment the bindingIndex.
-                }
-                else// ActivationTrack, ControlTrack, PlayableTrack, SignalTrack.
-                {
+                } else// ActivationTrack, ControlTrack, PlayableTrack, SignalTrack.
+                  {
                     var playableOutput = ScriptPlayableOutput.Create(graph, trackName);
                     playableOutput.SetReferenceObject(binding.sourceObject);
                     playableOutput.SetSourcePlayable(playable);
                     playableOutput.SetWeight(1);
                     playableOutput.SetUserData(bindable);
-                    if (bindable is INotificationReceiver receiver)
+                    if (bindable is INotificationReceiver receiver) {
                         playableOutput.AddNotificationReceiver(receiver);
+                    }
+
                     Outputs.Add(playableOutput);
                 }
 
@@ -323,8 +314,7 @@ namespace Animancer
             PlayableBinding binding,
             out string name,
             out Type type,
-            out bool isMarkers)
-        {
+            out bool isMarkers) {
             name = binding.streamName;
             type = binding.outputTargetType;
             isMarkers = type == typeof(GameObject) && name == "Markers";
@@ -333,19 +323,18 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void SetWeight(float value)
-        {
+        public override void SetWeight(float value) {
             base.SetWeight(value);
 
-            for (int i = Outputs.Count - 1; i >= 0; i--)
+            for (var i = Outputs.Count - 1; i >= 0; i--) {
                 Outputs[i].SetWeight(value);
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void Destroy()
-        {
+        public override void Destroy() {
             _Asset = null;
 
             DestroyBoundOutputs(true);
@@ -359,37 +348,38 @@ namespace Animancer
         /// Destroys all of the outputs created for the <see cref="Bindings"/>
         /// and optionally the state playable itself.
         /// </summary>
-        public void DestroyBoundOutputs(bool destroyStatePlayable)
-        {
-            if (Graph == null)
+        public void DestroyBoundOutputs(bool destroyStatePlayable) {
+            if (Graph == null) {
                 return;
+            }
 
             var graph = Graph._PlayableGraph;
-            if (!graph.IsValid())
+            if (!graph.IsValid()) {
                 return;
+            }
 
-            for (int i = Outputs.Count - 1; i >= 0; i--)
-            {
+            for (var i = Outputs.Count - 1; i >= 0; i--) {
                 var output = Outputs[i];
 
                 var playable = output.GetSourcePlayable();
-                if (playable.IsValid())
+                if (playable.IsValid()) {
                     graph.DestroySubgraph(playable);
+                }
 
                 graph.DestroyOutput(output);
             }
 
             Outputs.Clear();
 
-            if (destroyStatePlayable && _Playable.IsValid())
+            if (destroyStatePlayable && _Playable.IsValid()) {
                 graph.DestroySubgraph(_Playable);
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override AnimancerState Clone(CloneContext context)
-        {
+        public override AnimancerState Clone(CloneContext context) {
             var asset = context.GetCloneOrOriginal(_Asset);
             var clone = new PlayableAssetState(asset);
             clone.CopyFrom(this, context);
@@ -399,21 +389,17 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override void AppendDetails(StringBuilder text, string separator)
-        {
+        protected override void AppendDetails(StringBuilder text, string separator) {
             base.AppendDetails(text, separator);
 
             text.Append(separator)
                 .Append($"{nameof(Bindings)}: ");
 
             int count;
-            if (_Bindings == null)
-            {
+            if (_Bindings == null) {
                 text.Append("Null");
                 count = 0;
-            }
-            else
-            {
+            } else {
                 count = _Bindings.Count;
                 text.Append('[')
                     .Append(count)
@@ -424,8 +410,7 @@ namespace Animancer
                 ? " (Initialized)"
                 : " (Not Initialized)");
 
-            for (int i = 0; i < count; i++)
-            {
+            for (var i = 0; i < count; i++) {
                 text.Append(separator)
                     .Append($"{nameof(Bindings)}[")
                     .Append(i)

@@ -5,7 +5,7 @@ namespace JoG.Modding {
 
     public interface IModManager {
         ReadOnlySpan<Mod> ModSpan { get; }
-        public int ModCount { get; }
+        int ModCount { get; }
 
         UniTask DisableModAsync(string modId);
 

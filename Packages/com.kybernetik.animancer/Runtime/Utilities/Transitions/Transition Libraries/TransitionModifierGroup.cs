@@ -2,8 +2,7 @@
 
 using System.Collections.Generic;
 
-namespace Animancer.TransitionLibraries
-{
+namespace Animancer.TransitionLibraries {
     /// <summary>
     /// An <see cref="ITransition"/> and a dictionary to modify it based on the previous state.
     /// </summary>
@@ -15,8 +14,7 @@ namespace Animancer.TransitionLibraries
     /// https://kybernetik.com.au/animancer/api/Animancer.TransitionLibraries/TransitionModifierGroup
     public class TransitionModifierGroup :
         ICloneable<TransitionModifierGroup>,
-        ICopyable<TransitionModifierGroup>
-    {
+        ICopyable<TransitionModifierGroup> {
         /************************************************************************************************************************/
 
         /// <summary>The index at which this group was added to its <see cref="TransitionLibrary"/>.</summary>
@@ -28,11 +26,9 @@ namespace Animancer.TransitionLibraries
 
         /// <summary>The target transition of this group.</summary>
         /// <remarks>Can't be <c>null</c>.</remarks>
-        public ITransition Transition
-        {
+        public ITransition Transition {
             get => _Transition;
-            set
-            {
+            set {
                 AnimancerUtilities.Assert(
                     value != null,
                     $"{nameof(TransitionModifierGroup)}.{nameof(Transition)} can't be null.");
@@ -55,8 +51,7 @@ namespace Animancer.TransitionLibraries
         /// <summary>Creates a new <see cref="TransitionModifierGroup"/>.</summary>
         public TransitionModifierGroup(
             int index,
-            ITransition transition)
-        {
+            ITransition transition) {
             Index = index;
             Transition = transition;
         }
@@ -64,15 +59,15 @@ namespace Animancer.TransitionLibraries
         /************************************************************************************************************************/
 
         /// <summary>Sets the `modifier` to use when transitioning from `from` to the <see cref="Transition"/>.</summary>
-        public void SetModifier(object from, TransitionDetails modifier)
-        {
+        public void SetModifier(object from, TransitionDetails modifier) {
             FromKeyToModifier ??= new();
             FromKeyToModifier[from] = modifier;
         }
 
         /// <summary>Removes the fade duration modifier set for transitioning from `from` to the <see cref="Transition"/>.</summary>
-        public void ResetModifier(object from)
-            => FromKeyToModifier?.Remove(from);
+        public void ResetModifier(object from) {
+            FromKeyToModifier?.Remove(from);
+        }
 
         /************************************************************************************************************************/
 
@@ -80,12 +75,12 @@ namespace Animancer.TransitionLibraries
         /// Sets the <see cref="TransitionDetails.FadeDuration"/>
         /// to use when transitioning from `from` to the <see cref="Transition"/>.
         /// </summary>
-        public void SetFadeDuration(object from, float fadeDuration)
-        {
+        public void SetFadeDuration(object from, float fadeDuration) {
             FromKeyToModifier ??= new();
 
-            if (!FromKeyToModifier.TryGetValue(from, out var modifier))
+            if (!FromKeyToModifier.TryGetValue(from, out var modifier)) {
                 modifier = TransitionDetails.NaN;
+            }
 
             modifier.FadeDuration = fadeDuration;
 
@@ -96,12 +91,12 @@ namespace Animancer.TransitionLibraries
         /// Sets the <see cref="TransitionDetails.NormalizedStartTime"/>
         /// to use when transitioning from `from` to the <see cref="Transition"/>.
         /// </summary>
-        public void SetNormalizedStartTime(object from, float normalizedStartTime)
-        {
+        public void SetNormalizedStartTime(object from, float normalizedStartTime) {
             FromKeyToModifier ??= new();
 
-            if (!FromKeyToModifier.TryGetValue(from, out var modifier))
+            if (!FromKeyToModifier.TryGetValue(from, out var modifier)) {
                 modifier = TransitionDetails.NaN;
+            }
 
             modifier.NormalizedStartTime = normalizedStartTime;
 
@@ -111,18 +106,17 @@ namespace Animancer.TransitionLibraries
         /************************************************************************************************************************/
 
         /// <summary>Returns the fade duration to use when transitioning from `from` to the <see cref="Transition"/>.</summary>
-        public TransitionDetails GetDetails(object from)
-        {
-            if (FromKeyToModifier != null && from != null)
-            {
+        public TransitionDetails GetDetails(object from) {
+            if (FromKeyToModifier != null && from != null) {
                 from = AnimancerUtilities.GetRootKey(from);
-                if (FromKeyToModifier.TryGetValue(from, out var details))
-                {
-                    if (float.IsNaN(details.FadeDuration))
+                if (FromKeyToModifier.TryGetValue(from, out var details)) {
+                    if (float.IsNaN(details.FadeDuration)) {
                         details.FadeDuration = Transition.FadeDuration;
+                    }
 
-                    if (float.IsNaN(details.NormalizedStartTime))
+                    if (float.IsNaN(details.NormalizedStartTime)) {
                         details.NormalizedStartTime = Transition.NormalizedStartTime;
+                    }
 
                     return details;
                 }
@@ -134,17 +128,17 @@ namespace Animancer.TransitionLibraries
         /************************************************************************************************************************/
 
         /// <summary>Returns the fade duration to use when transitioning from `from` to the <see cref="Transition"/>.</summary>
-        public float GetFadeDuration(object from)
-            => FromKeyToModifier != null
-            && FromKeyToModifier.TryGetValue(AnimancerUtilities.GetRootKey(from), out var modifier)
-            ? modifier.FadeDuration
-            : Transition.FadeDuration;
+        public float GetFadeDuration(object from) {
+            return FromKeyToModifier != null
+                                                              && FromKeyToModifier.TryGetValue(AnimancerUtilities.GetRootKey(from), out var modifier)
+                                                              ? modifier.FadeDuration
+                                                              : Transition.FadeDuration;
+        }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public TransitionModifierGroup Clone(CloneContext context)
-        {
+        public TransitionModifierGroup Clone(CloneContext context) {
             var clone = new TransitionModifierGroup(Index, null);
             clone.CopyFrom(this);
             return clone;
@@ -153,27 +147,25 @@ namespace Animancer.TransitionLibraries
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public void CopyFrom(TransitionModifierGroup copyFrom, CloneContext context)
-        {
+        public void CopyFrom(TransitionModifierGroup copyFrom, CloneContext context) {
             Transition = copyFrom.Transition;
 
-            if (copyFrom.FromKeyToModifier == null)
-            {
+            if (copyFrom.FromKeyToModifier == null) {
                 FromKeyToModifier?.Clear();
-            }
-            else
-            {
+            } else {
                 FromKeyToModifier ??= new();
-                foreach (var item in copyFrom.FromKeyToModifier)
+                foreach (var item in copyFrom.FromKeyToModifier) {
                     FromKeyToModifier[item.Key] = item.Value;
+                }
             }
         }
 
         /************************************************************************************************************************/
 
         /// <summary>Describes this object.</summary>
-        public override string ToString()
-            => $"{nameof(TransitionModifierGroup)}([{Index}] {AnimancerUtilities.ToStringOrNull(Transition)})";
+        public override string ToString() {
+            return $"{nameof(TransitionModifierGroup)}([{Index}] {AnimancerUtilities.ToStringOrNull(Transition)})";
+        }
 
         /************************************************************************************************************************/
     }

@@ -18,6 +18,13 @@ Xoderony Foundation 提供可复用的基础集合、委托通道、通用扩展
 
 - Unity 6000.0 或更高版本
 
+## 对象池约定
+
+- `Xoderony.ObjectPool` 提供 `IPool<T>`（Rent/Return）与自动归还作用域 `PooledObjectScope<T>`。
+- `Xoderony.ObjectPool.Generic` 的集合池（List、HashSet、Dictionary、Stack、Queue）归还时自动清空元素，租出的集合始终为空；调用方归还后不得继续使用对象。
+- List、HashSet、Dictionary 共用 `CollectionPool<TCollection, TElement>` 基类；Stack、Queue 单独实现。
+- 池容量在构造时固定，通过 `Capacity` 只读访问；`Shared` 为进程内共享实例。
+
 ## 设计边界
 
 本包不包含依赖特定第三方包或 Unity 子系统的集成代码。Unity 对象池、Netcode、ZString、Hjson 等扩展由其他 Xoderony 包提供。

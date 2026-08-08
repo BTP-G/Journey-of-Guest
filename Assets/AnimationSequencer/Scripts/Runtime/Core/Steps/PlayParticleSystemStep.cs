@@ -1,54 +1,48 @@
-﻿#if DOTWEEN_ENABLED
-using System;
+#if DOTWEEN_ENABLED
 using DG.Tweening;
+using System;
 using UnityEngine;
 
-namespace BrunoMikoski.AnimationSequencer
-{
+namespace BrunoMikoski.AnimationSequencer {
     // Modified by Pablo Huaxteco
     [Serializable]
-    public sealed class PlayParticleSystemStep : AnimationStepBase
-    {
+    public sealed class PlayParticleSystemStep : AnimationStepBase {
         public override string DisplayName => "Play Particles";
 
         [SerializeField]
         private ParticleSystem target;
-        public ParticleSystem TargetParticleSystem
-        {
+        public ParticleSystem TargetParticleSystem {
             get => target;
             set => target = value;
         }
 
         [SerializeField]
         private bool toPlayParticles = true;
-        public bool ToPlayParticles
-        {
+        public bool ToPlayParticles {
             get => toPlayParticles;
             set => toPlayParticles = value;
         }
 
         private bool originalIsEmitting;
 
-        public override Sequence GenerateTweenSequence()
-        {
-            if (TargetParticleSystem == null)
-            {
+        public override Sequence GenerateTweenSequence() {
+            if (TargetParticleSystem == null) {
                 Debug.LogWarning($"The <b>\"{DisplayName}\"</b> Step does not have a <b>\"Target\"</b>. Please consider assigning a <b>\"Target\"</b> or removing the step.");
                 return null;
             }
 
             originalIsEmitting = TargetParticleSystem.isEmitting;
 
-            Sequence sequence = DOTween.Sequence();
+            var sequence = DOTween.Sequence();
             sequence.SetDelay(delay);
 
-            float duration = GetExtraInterval();
-            var tween = DOTween.To(() => TargetParticleSystem.isEmitting ? 1f : 0f, x =>
-            {
-                if (x == 0f)
+            var duration = GetExtraInterval();
+            var tween = DOTween.To(() => TargetParticleSystem.isEmitting ? 1f : 0f, x => {
+                if (x == 0f) {
                     TargetParticleSystem.Stop();
-                else if (x == 1f)
+                } else if (x == 1f) {
                     TargetParticleSystem.Play();
+                }
             }
             , toPlayParticles ? 1f : 0f, duration);
 
@@ -57,38 +51,36 @@ namespace BrunoMikoski.AnimationSequencer
             return sequence;
         }
 
-        private float GetExtraInterval()
-        {
+        private float GetExtraInterval() {
             return extraInterval;
         }
 
-        protected override void ResetToInitialState_Internal() 
-        {
-            if (TargetParticleSystem == null)
+        protected override void ResetToInitialState_Internal() {
+            if (TargetParticleSystem == null) {
                 return;
+            }
 
-            if (originalIsEmitting)
+            if (originalIsEmitting) {
                 TargetParticleSystem.Play();
-            else
+            } else {
                 TargetParticleSystem.Stop();
+            }
         }
 
-        public override string GetDisplayNameForEditor(int index)
-        {
-            string display = "NULL";
-            if (TargetParticleSystem != null)
+        public override string GetDisplayNameForEditor(int index) {
+            var display = "NULL";
+            if (TargetParticleSystem != null) {
                 display = TargetParticleSystem.name;
+            }
 
             return $"{index}. Play \"{display}\" Particles";
         }
 
-        public override float GetDuration()
-        {
+        public override float GetDuration() {
             return createdSequence == null ? -1 : createdSequence.Duration() - GetExtraInterval();
         }
 
-        public override float GetExtraIntervalAdded()
-        {
+        public override float GetExtraIntervalAdded() {
             return createdSequence == null ? 0 : GetExtraInterval();
         }
     }

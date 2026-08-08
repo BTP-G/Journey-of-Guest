@@ -1,9 +1,7 @@
 using Cysharp.Threading.Tasks;
-using Xoderony.Localization;
-using Xoderony.Logging;
-using JoG.UI.Popup;
 using JoG.Localization;
 using JoG.Player;
+using JoG.UI.Popup;
 using System;
 using TMPro;
 using Unity.Netcode;
@@ -11,6 +9,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using VContainer;
+using Xoderony.Localization;
+using Xoderony.Logging;
 
 namespace JoG.Networking {
 

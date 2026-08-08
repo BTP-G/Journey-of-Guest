@@ -1,13 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace DamageNumbersPro {
     [System.Serializable]
-    public struct TextSettings
-    {
-        public TextSettings(float customDefault)
-        {
+    public struct TextSettings {
+        public TextSettings(float customDefault) {
             horizontal = customDefault;
 
             customColor = false;

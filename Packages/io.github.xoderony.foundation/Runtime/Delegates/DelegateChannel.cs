@@ -15,7 +15,5 @@ namespace Xoderony {
         void IDelegateSubscriber<TDelegate>.Unsubscribe(TDelegate handler) {
             _handlers = (TDelegate)Delegate.Remove(_handlers, handler);
         }
-
     }
-
 }

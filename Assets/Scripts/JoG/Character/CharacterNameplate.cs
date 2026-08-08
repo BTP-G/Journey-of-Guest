@@ -1,15 +1,14 @@
 using EditorAttributes;
-using Xoderony;
-using Xoderony.Localization;
-using Xoderony.Unity;
 using JoG.Health;
-using JoG.Localization;
 using JoG.UI.Buff;
 using JoG.UI.Health;
 using TMPro;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
 using VContainer;
+using Xoderony;
+using Xoderony.Localization;
+using Xoderony.Unity;
 
 namespace JoG.Character {
 

@@ -14,8 +14,7 @@ namespace Animancer.Editor
     /// <summary>[Editor-Only] A <see cref="PropertyDrawer"/> which adds an "Edit" button to a field.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/EditableFieldDrawer
     /// https://kybernetik.com.au/flexi-motion/api/FlexiMotion.Editor/EditableFieldDrawer
-    public abstract class EditableFieldDrawer : PropertyDrawer
-    {
+    public abstract class EditableFieldDrawer : PropertyDrawer {
         /************************************************************************************************************************/
 
         /// <summary>The method to call when the "Edit" button is clicked.</summary>
@@ -25,14 +24,14 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-            => EditorGUI.GetPropertyHeight(property, label);
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
+            return EditorGUI.GetPropertyHeight(property, label);
+        }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void OnGUI(Rect area, SerializedProperty property, GUIContent label)
-        {
+        public override void OnGUI(Rect area, SerializedProperty property, GUIContent label) {
             DrawEditableArea(area, property);
             EditorGUI.PropertyField(area, property, label, true);
         }
@@ -45,34 +44,30 @@ namespace Animancer.Editor
         private static readonly GUIContent
             EditContent = new();
 
-        private void DrawEditableArea(Rect area, SerializedProperty property)
-        {
-            if (property.hasMultipleDifferentValues)
+        private void DrawEditableArea(Rect area, SerializedProperty property) {
+            if (property.hasMultipleDifferentValues) {
                 return;
+            }
 
             var label = EditContent;
             label.text = null;
             label.tooltip = null;
 
             GetEditButtonLabel(property, label);
-            if (!string.IsNullOrEmpty(label.text))
-            {
+            if (!string.IsNullOrEmpty(label.text)) {
                 area.xMin += EditorGUIUtility.labelWidth + StandardSpacing;
                 area.height = LineHeight;
 
-                if (OnEdit != null)
-                {
-                    _LeftAlignedButtonStyle ??= new GUIStyle(EditorStyles.miniButton)
-                    {
+                if (OnEdit != null) {
+                    _LeftAlignedButtonStyle ??= new GUIStyle(EditorStyles.miniButton) {
                         alignment = TextAnchor.MiddleLeft,
                         padding = EditorStyles.miniPullDown.padding,
                     };
 
-                    if (GUI.Button(area, label, _LeftAlignedButtonStyle))
+                    if (GUI.Button(area, label, _LeftAlignedButtonStyle)) {
                         OnEdit(property);
-                }
-                else
-                {
+                    }
+                } else {
                     GUI.Label(area, label);
                 }
             }

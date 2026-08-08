@@ -6,8 +6,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.Playables;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>[Pro-Only]
     /// An <see cref="AnimancerState"/> which blends an array of other states together
     /// using linear interpolation between the specified thresholds.
@@ -21,8 +20,7 @@ namespace Animancer
     /// </remarks>
     /// https://kybernetik.com.au/animancer/api/Animancer/LinearMixerState
     public class LinearMixerState : MixerState<float>,
-        ICopyable<LinearMixerState>
-    {
+        ICopyable<LinearMixerState> {
         /************************************************************************************************************************/
 
         private bool _ExtrapolateSpeed = true;
@@ -31,27 +29,27 @@ namespace Animancer
         /// Should setting the <see cref="MixerState{TParameter}.Parameter"/> above the highest threshold
         /// increase the <see cref="AnimancerNodeBase.Speed"/> of this mixer proportionally?
         /// </summary>
-        public bool ExtrapolateSpeed
-        {
+        public bool ExtrapolateSpeed {
             get => _ExtrapolateSpeed;
-            set
-            {
-                if (_ExtrapolateSpeed == value)
+            set {
+                if (_ExtrapolateSpeed == value) {
                     return;
+                }
 
                 _ExtrapolateSpeed = value;
 
-                if (!_Playable.IsValid())
+                if (!_Playable.IsValid()) {
                     return;
+                }
 
                 var speed = Speed;
 
                 var childCount = ChildCount;
-                if (value && childCount > 0)
-                {
+                if (value && childCount > 0) {
                     var threshold = GetThreshold(childCount - 1);
-                    if (Parameter > threshold)
+                    if (Parameter > threshold) {
                         speed *= Parameter / threshold;
+                    }
                 }
 
                 _Playable.SetSpeed(speed);
@@ -61,8 +59,9 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override string GetParameterError(float value)
-            => value.IsFinite() ? null : Strings.MustBeFinite;
+        public override string GetParameterError(float value) {
+            return value.IsFinite() ? null : Strings.MustBeFinite;
+        }
 
         /************************************************************************************************************************/
 
@@ -75,10 +74,8 @@ namespace Animancer
             => GetThreshold(ChildCount - 1);
 
         /// <inheritdoc/>
-        public override float NormalizedParameter
-        {
-            get
-            {
+        public override float NormalizedParameter {
+            get {
                 var min = MinThreshold;
                 var max = MaxThreshold;
 
@@ -86,15 +83,15 @@ namespace Animancer
                 {
                     var value = Parameter;
 
-                    if (value > 0)
+                    if (value > 0) {
                         value = AnimancerUtilities.InverseLerpUnclamped(0, max, value);
-                    else if (value < 0)
+                    } else if (value < 0) {
                         value = AnimancerUtilities.InverseLerpUnclamped(0, min, -value);
+                    }
 
                     return value;
-                }
-                else// Interpolate 0 to 1.
-                {
+                } else// Interpolate 0 to 1.
+                  {
                     return AnimancerUtilities.InverseLerpUnclamped(MinThreshold, MaxThreshold, Parameter);
                 }
             }
@@ -112,23 +109,22 @@ namespace Animancer
         /// If set, this will be used as a key in the <see cref="ParameterDictionary"/> so any
         /// changes to that parameter will automatically set the <see cref="MixerState{TParameter}.Parameter"/>.
         /// </summary>
-        public StringReference ParameterName
-        {
+        public StringReference ParameterName {
             get => _ParameterBinding.Key;
-            set
-            {
-                if (_ParameterBinding.SetKeyCheckNeedsInitialize(value))
+            set {
+                if (_ParameterBinding.SetKeyCheckNeedsInitialize(value)) {
                     _ParameterBinding.Initialize(this, parameter => Parameter = parameter);
+                }
             }
         }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void SetGraph(AnimancerGraph graph)
-        {
-            if (Graph == graph)
+        public override void SetGraph(AnimancerGraph graph) {
+            if (Graph == graph) {
                 return;
+            }
 
             _ParameterBinding.UnBindIfInitialized();
 
@@ -140,8 +136,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void Destroy()
-        {
+        public override void Destroy() {
             base.Destroy();
 
             _ParameterBinding.UnBindIfInitialized();
@@ -152,8 +147,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override AnimancerState Clone(CloneContext context)
-        {
+        public override AnimancerState Clone(CloneContext context) {
             var clone = new LinearMixerState();
             clone.CopyFrom(this, context);
             return clone;
@@ -162,12 +156,12 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public sealed override void CopyFrom(MixerState<float> copyFrom, CloneContext context)
-            => this.CopyFromBase(copyFrom, context);
+        public sealed override void CopyFrom(MixerState<float> copyFrom, CloneContext context) {
+            this.CopyFromBase(copyFrom, context);
+        }
 
         /// <inheritdoc/>
-        public virtual void CopyFrom(LinearMixerState copyFrom, CloneContext context)
-        {
+        public virtual void CopyFrom(LinearMixerState copyFrom, CloneContext context) {
             _ExtrapolateSpeed = copyFrom._ExtrapolateSpeed;
 
             base.CopyFrom(copyFrom, context);
@@ -186,8 +180,7 @@ namespace Animancer
         /// be called by the next <see cref="ForceRecalculateWeights"/> if <c>UNITY_ASSERTIONS</c> is defined, then
         /// calls <see cref="MixerState{TParameter}.OnThresholdsChanged"/>.
         /// </summary>
-        public override void OnThresholdsChanged()
-        {
+        public override void OnThresholdsChanged() {
             _ShouldCheckThresholdSorting = true;
 
             base.OnThresholdsChanged();
@@ -203,14 +196,12 @@ namespace Animancer
         /// </summary>
         /// <exception cref="ArgumentException"/>
         /// <exception cref="InvalidOperationException">The thresholds have not been initialized.</exception>
-        public void AssertThresholdsSorted()
-        {
+        public void AssertThresholdsSorted() {
 #if UNITY_ASSERTIONS
             _ShouldCheckThresholdSorting = false;
 #endif
 
-            if (!HasThresholds)
-            {
+            if (!HasThresholds) {
                 MarkAsUsed(this);
                 throw new InvalidOperationException("Thresholds have not been initialized");
             }
@@ -218,19 +209,16 @@ namespace Animancer
             var previous = float.NegativeInfinity;
 
             var childCount = ChildCount;
-            for (int i = 0; i < childCount; i++)
-            {
+            for (var i = 0; i < childCount; i++) {
                 var state = ChildStates[i];
-                if (state == null)
+                if (state == null) {
                     continue;
+                }
 
                 var next = GetThreshold(i);
-                if (next > previous)
-                {
+                if (next > previous) {
                     previous = next;
-                }
-                else
-                {
+                } else {
                     MarkAsUsed(this);
                     var reason = next == previous
                         ? "Mixer has multiple identical thresholds."
@@ -245,19 +233,20 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override void ForceRecalculateWeights()
-        {
+        protected override void ForceRecalculateWeights() {
 #if UNITY_ASSERTIONS
-            if (_ShouldCheckThresholdSorting)
+            if (_ShouldCheckThresholdSorting) {
                 AssertThresholdsSorted();
+            }
 #endif
 
             // Go through all states, figure out how much weight to give those with thresholds adjacent to the
             // current parameter value using linear interpolation, and set all others to 0 weight.
 
             var childCount = ChildCount;
-            if (childCount == 0)
+            if (childCount == 0) {
                 goto ResetExtrapolatedSpeed;
+            }
 
             var index = 0;
             var previousState = ChildStates[index];
@@ -265,33 +254,25 @@ namespace Animancer
             var parameter = Parameter;
             var previousThreshold = GetThreshold(index);
 
-            if (parameter <= previousThreshold)
-            {
+            if (parameter <= previousThreshold) {
                 DisableRemainingStates(index);
 
-                if (previousThreshold >= 0)
-                {
+                if (previousThreshold >= 0) {
                     Playable.SetChildWeight(previousState, 1);
                     goto ResetExtrapolatedSpeed;
                 }
-            }
-            else
-            {
-                while (++index < childCount)
-                {
+            } else {
+                while (++index < childCount) {
                     var nextState = ChildStates[index];
                     var nextThreshold = GetThreshold(index);
 
-                    if (parameter > previousThreshold && parameter <= nextThreshold)
-                    {
+                    if (parameter > previousThreshold && parameter <= nextThreshold) {
                         var t = (parameter - previousThreshold) / (nextThreshold - previousThreshold);
                         Playable.SetChildWeight(previousState, 1 - t);
                         Playable.SetChildWeight(nextState, t);
                         DisableRemainingStates(index);
                         goto ResetExtrapolatedSpeed;
-                    }
-                    else
-                    {
+                    } else {
                         Playable.SetChildWeight(previousState, 0);
                     }
 
@@ -302,14 +283,16 @@ namespace Animancer
 
             Playable.SetChildWeight(previousState, 1);
 
-            if (ExtrapolateSpeed)
+            if (ExtrapolateSpeed) {
                 _Playable.SetSpeed(Speed * (parameter / previousThreshold));
+            }
 
             return;
 
-            ResetExtrapolatedSpeed:
-            if (ExtrapolateSpeed && _Playable.IsValid())
+        ResetExtrapolatedSpeed:
+            if (ExtrapolateSpeed && _Playable.IsValid()) {
                 _Playable.SetSpeed(Speed);
+            }
         }
 
         /************************************************************************************************************************/
@@ -317,11 +300,9 @@ namespace Animancer
         /// <summary>
         /// Assigns the thresholds to be evenly spaced between the specified min and max (inclusive).
         /// </summary>
-        public LinearMixerState AssignLinearThresholds(float min = 0, float max = 1)
-        {
+        public LinearMixerState AssignLinearThresholds(float min = 0, float max = 1) {
 #if UNITY_ASSERTIONS
-            if (min >= max)
-            {
+            if (min >= max) {
                 MarkAsUsed(this);
                 throw new ArgumentException($"{nameof(min)} must be less than {nameof(max)}");
             }
@@ -332,12 +313,11 @@ namespace Animancer
 
             var increment = (max - min) / (childCount - 1);
 
-            for (int i = 0; i < childCount; i++)
-            {
+            for (var i = 0; i < childCount; i++) {
                 thresholds[i] =
-                    i < childCount - 1 ?
-                    min + i * increment :// Assign each threshold linearly spaced between the min and max.
-                    max;// and ensure that the last one is exactly at the max (to avoid floating-point error).
+                    i < childCount - 1
+                    ? min + (i * increment) // Assign each threshold linearly spaced between the min and max.
+                    : max;// and ensure that the last one is exactly at the max (to avoid floating-point error).
             }
 
             SetThresholds(thresholds);
@@ -348,8 +328,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override void AppendDetails(StringBuilder text, string separator)
-        {
+        protected override void AppendDetails(StringBuilder text, string separator) {
             text.AppendField(separator, nameof(ExtrapolateSpeed), ExtrapolateSpeed);
 
             base.AppendDetails(text, separator);
@@ -360,8 +339,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void GetParameters(List<StateParameterDetails> parameters)
-        {
+        public override void GetParameters(List<StateParameterDetails> parameters) {
             parameters.Add(new(
                 "Parameter",
                 ParameterName,
@@ -370,8 +348,7 @@ namespace Animancer
         }
 
         /// <inheritdoc/>
-        public override void SetParameters(List<StateParameterDetails> parameters)
-        {
+        public override void SetParameters(List<StateParameterDetails> parameters) {
             var parameter = parameters[0];
             ParameterName = parameter.name;
             Parameter = (float)parameter.value;

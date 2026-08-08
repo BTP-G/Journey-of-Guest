@@ -1,9 +1,9 @@
 using EditorAttributes;
-using Xoderony.Extensions;
 using JoG.Character;
 using UnityEngine;
 using UnityEngine.AI;
 using VContainer;
+using Xoderony.Extensions;
 
 namespace JoG.AI {
 

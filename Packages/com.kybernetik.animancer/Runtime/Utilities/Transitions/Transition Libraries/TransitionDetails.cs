@@ -1,7 +1,6 @@
 // Animancer // https://kybernetik.com.au/animancer // Copyright 2018-2026 Kybernetik //
 
-namespace Animancer.TransitionLibraries
-{
+namespace Animancer.TransitionLibraries {
     /// <summary>Values which determine how a transition is played.</summary>
     /// <remarks>
     /// <strong>Documentation:</strong>
@@ -9,8 +8,7 @@ namespace Animancer.TransitionLibraries
     /// Transition Libraries</see>
     /// </remarks>
     /// https://kybernetik.com.au/animancer/api/Animancer.TransitionLibraries/TransitionDetails
-    public struct TransitionDetails
-    {
+    public struct TransitionDetails {
         /************************************************************************************************************************/
 
         /// <summary>Creates a new <see cref="TransitionDetails"/> with all values as <see cref="float.NaN"/>.</summary>
@@ -30,16 +28,14 @@ namespace Animancer.TransitionLibraries
         /// <summary>Creates a new <see cref="TransitionDetails"/>.</summary>
         public TransitionDetails(
             float fadeDuration,
-            float normalizedStartTime)
-        {
+            float normalizedStartTime) {
             FadeDuration = fadeDuration;
             NormalizedStartTime = normalizedStartTime;
         }
 
         /// <summary>Creates a new <see cref="TransitionDetails"/>.</summary>
         public TransitionDetails(
-            ITransition transition)
-        {
+            ITransition transition) {
             FadeDuration = transition.FadeDuration;
             NormalizedStartTime = transition.NormalizedStartTime;
         }

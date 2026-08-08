@@ -1,8 +1,7 @@
-using Xoderony;
 using JoG.Health;
 using System;
-using UnityEngine;
 using VContainer;
+using Xoderony;
 
 namespace JoG.Character.Components {
 
@@ -44,7 +43,5 @@ namespace JoG.Character.Components {
                 }
             }
         }
-
     }
-
 }

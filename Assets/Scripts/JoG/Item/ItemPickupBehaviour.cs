@@ -1,13 +1,13 @@
 using EditorAttributes;
-using Xoderony.Extensions;
-using Xoderony.Logging;
-using Xoderony.YooAsset;
 using JoG.Interaction;
 using JoG.Inventory;
 using JoG.UI;
 using System.Text;
 using Unity.Netcode;
 using UnityEngine;
+using Xoderony.Extensions;
+using Xoderony.Logging;
+using Xoderony.YooAsset;
 
 namespace JoG.Item {
 
@@ -61,7 +61,10 @@ namespace JoG.Item {
 
         [Rpc(SendTo.Authority)]
         private void GivePickupRpc(NetworkBehaviourReference inventoryReference) {
-            if (!IsSpawned) return;
+            if (!IsSpawned) {
+                return;
+            }
+
             if (inventoryReference.TryGet<CharacterInventoryNetwork>(out var inventoryNetwork)) {
                 inventoryNetwork.AddItemRpc(ItemData, Amount);
             }

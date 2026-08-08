@@ -12,8 +12,7 @@ using Object = UnityEngine.Object;
 using UnityEditor;
 #endif
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>
     /// Base class for all states in an <see cref="AnimancerGraph"/> graph which manages one or more
     /// <see cref="Playable"/>s.
@@ -32,8 +31,7 @@ namespace Animancer
     public abstract partial class AnimancerState : AnimancerNode,
         IAnimationClipCollection,
         ICloneable<AnimancerState>,
-        ICopyable<AnimancerState>
-    {
+        ICopyable<AnimancerState> {
         /************************************************************************************************************************/
         #region Graph
         /************************************************************************************************************************/
@@ -44,10 +42,10 @@ namespace Animancer
         /// Setting the <see cref="AnimancerNodeBase.Parent"/>'s <see cref="AnimancerNodeBase.Graph"/>
         /// will apply to its children recursively because they must always match.
         /// </exception>
-        public virtual void SetGraph(AnimancerGraph graph)
-        {
-            if (Graph == graph)
+        public virtual void SetGraph(AnimancerGraph graph) {
+            if (Graph == graph) {
                 return;
+            }
 
             RemoveFromOldGraph(graph);
 
@@ -58,16 +56,15 @@ namespace Animancer
             FadeGroup?.ChangeGraph(graph);
         }
 
-        private void RemoveFromOldGraph(AnimancerGraph newGraph)
-        {
-            if (Graph == null)
-            {
+        private void RemoveFromOldGraph(AnimancerGraph newGraph) {
+            if (Graph == null) {
 #if UNITY_ASSERTIONS
-                if (Parent != null && Parent.Graph != newGraph)
+                if (Parent != null && Parent.Graph != newGraph) {
                     throw new InvalidOperationException(
                         "Unable to set the Graph of a state which has a Parent." +
                         " Setting the Parent's Graph will apply to its children recursively" +
                         " because they must always match.");
+                }
 #endif
 
                 return;
@@ -75,8 +72,7 @@ namespace Animancer
 
             Graph.States.Unregister(this);
 
-            if (Parent != null && Parent.Graph != newGraph)
-            {
+            if (Parent != null && Parent.Graph != newGraph) {
                 Parent.OnRemoveChild(this);
                 Parent = null;
 
@@ -88,43 +84,41 @@ namespace Animancer
             DestroyPlayable();
         }
 
-        private void AddToNewGraph()
-        {
-            if (Graph != null)
-            {
+        private void AddToNewGraph() {
+            if (Graph != null) {
                 Graph.States.Register(this);
 
                 CreatePlayable();
             }
 
-            for (int i = ChildCount - 1; i >= 0; i--)
+            for (var i = ChildCount - 1; i >= 0; i--) {
                 GetChild(i)?.SetGraph(Graph);
+            }
 
-            if (Parent != null)
+            if (Parent != null) {
                 CopyIKFlags(Parent);
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <summary>Connects this state to the `parent` at its next available child index.</summary>
         /// <remarks>If the `parent` is <c>null</c>, this state will be disconnected from everything.</remarks>
-        public void SetParent(AnimancerNode parent)
-        {
+        public void SetParent(AnimancerNode parent) {
 #if UNITY_ASSERTIONS
-            if (Parent == parent)
+            if (Parent == parent) {
                 Debug.LogWarning(
                     $"{nameof(Parent)} is already set to {AnimancerUtilities.ToStringOrNull(parent)}.",
                     Graph?.Component as Object);
-#endif
-
-            if (Parent != null)
-            {
-                Parent.OnRemoveChild(this);
-                Parent = null;
             }
 
-            if (parent == null)
-            {
+#endif
+#endif
+
+            Parent?.OnRemoveChild(this);
+            Parent = null;
+
+            if (parent == null) {
                 FadeGroup?.ChangeParent(this);
                 Index = -1;
                 return;
@@ -141,8 +135,7 @@ namespace Animancer
         /// Directly sets the <see cref="AnimancerNodeBase.Parent"/> and <see cref="AnimancerNode.Index"/>
         /// without triggering any other connection methods.
         /// </summary>
-        internal void SetParentInternal(AnimancerNode parent, int index = -1)
-        {
+        internal void SetParentInternal(AnimancerNode parent, int index = -1) {
             Parent = parent;
             Index = index;
         }
@@ -156,16 +149,16 @@ namespace Animancer
         /// (determined by the <see cref="AnimancerNodeBase.Parent"/>).
         /// </summary>
         /// <returns><c>-1</c> if this state isn't connected to a layer.</returns>
-        public int LayerIndex
-        {
-            get
-            {
-                if (Parent == null)
+        public int LayerIndex {
+            get {
+                if (Parent == null) {
                     return -1;
+                }
 
                 var layer = Parent.Layer;
-                if (layer == null)
+                if (layer == null) {
                     return -1;
+                }
 
                 return layer.Index;
             }
@@ -186,17 +179,12 @@ namespace Animancer
         /// The object used to identify this state in the graph <see cref="AnimancerGraph.States"/> dictionary.
         /// Can be null.
         /// </summary>
-        public object Key
-        {
+        public object Key {
             get => _Key;
-            set
-            {
-                if (Graph == null)
-                {
+            set {
+                if (Graph == null) {
                     _Key = value;
-                }
-                else
-                {
+                } else {
                     Graph.States.Unregister(this);
                     _Key = value;
                     Graph.States.Register(this);
@@ -208,11 +196,9 @@ namespace Animancer
 
         /// <summary>The <see cref="AnimationClip"/> which this state plays (if any).</summary>
         /// <exception cref="NotSupportedException">This state type doesn't have a clip and you try to set it.</exception>
-        public virtual AnimationClip Clip
-        {
+        public virtual AnimationClip Clip {
             get => null;
-            set
-            {
+            set {
                 MarkAsUsed(this);
                 throw new NotSupportedException($"{GetType()} doesn't support setting the {nameof(Clip)}.");
             }
@@ -221,11 +207,9 @@ namespace Animancer
         /// <summary>The main object to show in the Inspector for this state (if any).</summary>
         /// <exception cref="NotSupportedException">This state type doesn't have a main object and you try to set it.</exception>
         /// <exception cref="InvalidCastException">This state can't use the assigned value.</exception>
-        public virtual Object MainObject
-        {
+        public virtual Object MainObject {
             get => null;
-            set
-            {
+            set {
                 MarkAsUsed(this);
                 throw new NotSupportedException($"{GetType()} doesn't support setting the {nameof(MainObject)}.");
             }
@@ -245,24 +229,25 @@ namespace Animancer
         /// </summary>
         /// <exception cref="ArgumentNullException">The `newObject` is null.</exception>
         protected bool ChangeMainObject<T>(ref T currentObject, T newObject)
-            where T : Object
-        {
-            if (newObject == null)
-            {
+            where T : Object {
+            if (newObject == null) {
                 MarkAsUsed(this);
                 throw new ArgumentNullException(nameof(newObject));
             }
 
-            if (ReferenceEquals(currentObject, newObject))
+            if (ReferenceEquals(currentObject, newObject)) {
                 return false;
+            }
 
-            if (ReferenceEquals(_Key, currentObject))
+            if (ReferenceEquals(_Key, currentObject)) {
                 Key = newObject;
+            }
 
             currentObject = newObject;
 
-            if (Graph != null)
+            if (Graph != null) {
                 RecreatePlayable();
+            }
 
             return true;
         }
@@ -305,11 +290,9 @@ namespace Animancer
         ///     state.IsPlaying = true;// Unpause the animation.
         /// }
         /// </code></remarks>
-        public bool IsPlaying
-        {
+        public bool IsPlaying {
             get => _IsPlaying;
-            set
-            {
+            set {
                 SetIsPlaying(value);
                 UpdateIsActive();
             }
@@ -319,19 +302,19 @@ namespace Animancer
         /// Sets <see cref="IsPlaying"/> and applies it to the <see cref="Playable"/>
         /// without calling <see cref="UpdateIsActive"/>.
         /// </summary>
-        protected internal void SetIsPlaying(bool isPlaying)
-        {
-            if (_IsPlaying == isPlaying)
+        protected internal void SetIsPlaying(bool isPlaying) {
+            if (_IsPlaying == isPlaying) {
                 return;
+            }
 
             _IsPlaying = isPlaying;
 
-            if (_Playable.IsValid())
-            {
-                if (_IsPlaying)
+            if (_Playable.IsValid()) {
+                if (_IsPlaying) {
                     _Playable.Play();
-                else
+                } else {
                     _Playable.Pause();
+                }
             }
 
             OnSetIsPlaying();
@@ -344,15 +327,16 @@ namespace Animancer
 
         /// <summary>Creates and assigns the <see cref="Playable"/> managed by this state.</summary>
         /// <remarks>This method also applies the <see cref="AnimancerNodeBase.Speed"/> and <see cref="IsPlaying"/>.</remarks>
-        protected sealed override void CreatePlayable()
-        {
+        protected sealed override void CreatePlayable() {
             base.CreatePlayable();
 
-            if (Parent != null && (IsActive || Parent.KeepChildrenConnected))
+            if (Parent != null && (IsActive || Parent.KeepChildrenConnected)) {
                 Graph._PlayableGraph.Connect(Parent.Playable, Playable, Index, Weight);
+            }
 
-            if (!_IsPlaying)
+            if (!_IsPlaying) {
                 _Playable.Pause();
+            }
 
             RawTime = _Time;
         }
@@ -386,8 +370,7 @@ namespace Animancer
         /// <para></para>
         /// Doesn't change the <see cref="Time"/> so it will continue from its current value.
         /// </remarks>
-        public void Play()
-        {
+        public void Play() {
             SetIsPlaying(true);
             Weight = 1;
         }
@@ -395,8 +378,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected internal override void StopWithoutWeight()
-        {
+        protected internal override void StopWithoutWeight() {
             SetIsPlaying(false);
             TimeD = 0;
             UpdateIsActive();
@@ -405,14 +387,12 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected internal override void OnStartFade()
-        {
+        protected internal override void OnStartFade() {
             UpdateIsActive();
         }
 
         /// <inheritdoc/>
-        protected internal override void InternalClearFade()
-        {
+        protected internal override void InternalClearFade() {
             base.InternalClearFade();
             UpdateIsActive();
         }
@@ -448,8 +428,7 @@ namespace Animancer
         /// Should <see cref="IsActive"/> be true
         /// based on the current details of this state?
         /// </summary>
-        internal bool ShouldBeActive
-        {
+        internal bool ShouldBeActive {
             get => IsPlaying
                 || Weight > 0
                 || FadeGroup != null;
@@ -457,34 +436,34 @@ namespace Animancer
         }
 
         /// <summary>[Internal] If <see cref="IsActive"/> this method sets it to false and returns true.</summary>
-        internal bool TryDeactivate()
-        {
-            if (_ActiveIndex < 0)
+        internal bool TryDeactivate() {
+            if (_ActiveIndex < 0) {
                 return false;
+            }
 
             _ActiveIndex = ActiveList.NotInList;
             return true;
         }
 
         /// <summary>Called when <see cref="IsActive"/> might change.</summary>
-        internal void UpdateIsActive()
-        {
+        internal void UpdateIsActive() {
             var shouldBeActive = ShouldBeActive;
-            if (IsActive == shouldBeActive)
+            if (IsActive == shouldBeActive) {
                 return;
+            }
 
             var parent = Parent;
-            if (parent != null)
+            if (parent != null) {
                 parent.ApplyChildActive(this, shouldBeActive);
-            else
+            } else {
                 ShouldBeActive = ShouldBeActive;
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void SetWeight(float value)
-        {
+        public override void SetWeight(float value) {
             base.SetWeight(value);
             UpdateIsActive();
         }
@@ -492,8 +471,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>[Internal] An <see cref="IIndexer{T}"/> based on <see cref="_ActiveIndex"/>.</summary>
-        internal readonly struct Indexer : IIndexer<AnimancerState>
-        {
+        internal readonly struct Indexer : IIndexer<AnimancerState> {
             /************************************************************************************************************************/
 
             /// <summary>The <see cref="AnimancerNodeBase.Graph"/>.</summary>
@@ -505,8 +483,7 @@ namespace Animancer
             /************************************************************************************************************************/
 
             /// <summary>Creates a new <see cref="Indexer"/>.</summary>
-            public Indexer(AnimancerGraph graph, Playable parentPlayable)
-            {
+            public Indexer(AnimancerGraph graph, Playable parentPlayable) {
                 Graph = graph;
                 ParentPlayable = parentPlayable;
             }
@@ -514,16 +491,15 @@ namespace Animancer
             /************************************************************************************************************************/
 
             /// <inheritdoc/>
-            public readonly int GetIndex(AnimancerState state)
-                => state._ActiveIndex;
+            public readonly int GetIndex(AnimancerState state) {
+                return state._ActiveIndex;
+            }
 
             /************************************************************************************************************************/
 
             /// <inheritdoc/>
-            public readonly void SetIndex(AnimancerState state, int index)
-            {
-                if (!Graph.KeepChildrenConnected && state._ActiveIndex < 0)
-                {
+            public readonly void SetIndex(AnimancerState state, int index) {
+                if (!Graph.KeepChildrenConnected && state._ActiveIndex < 0) {
                     Validate.AssertPlayable(state);
                     Graph._PlayableGraph.Connect(ParentPlayable, state._Playable, state.Index, state.Weight);
                 }
@@ -534,10 +510,10 @@ namespace Animancer
             /************************************************************************************************************************/
 
             /// <inheritdoc/>
-            public readonly void ClearIndex(AnimancerState state)
-            {
-                if (!Graph.KeepChildrenConnected)
+            public readonly void ClearIndex(AnimancerState state) {
+                if (!Graph.KeepChildrenConnected) {
                     Graph._PlayableGraph.Disconnect(ParentPlayable, state.Index);
+                }
 
                 state._ActiveIndex = ActiveList.NotInList;
             }
@@ -551,16 +527,14 @@ namespace Animancer
         /// An <see cref="IndexedList{TItem, TAccessor}"/> of <see cref="AnimancerState"/>s
         /// which tracks <see cref="IsActive"/>.
         /// </summary>
-        internal class ActiveList : IndexedList<AnimancerState, Indexer>
-        {
+        internal class ActiveList : IndexedList<AnimancerState, Indexer> {
             /// <summary>The default <see cref="IndexedList{TItem, TIndexer}.Capacity"/> for newly created lists.</summary>
             /// <remarks>Default value is 4.</remarks>
             public static new int DefaultCapacity { get; set; } = 4;
 
             /// <summary>Creates a new <see cref="ActiveList"/> with the <see cref="DefaultCapacity"/>.</summary>
             public ActiveList(Indexer accessor)
-                : base(DefaultCapacity, accessor)
-            { }
+                : base(DefaultCapacity, accessor) { }
         }
 
         /************************************************************************************************************************/
@@ -614,35 +588,30 @@ namespace Animancer
         ///     state.Speed = -1;
         /// }
         /// </code></remarks>
-        public float Time
-        {
+        public float Time {
             get => (float)TimeD;
             set => TimeD = value;
         }
 
         /// <summary>The underlying <see cref="double"/> value of <see cref="Time"/>.</summary>
-        public double TimeD
-        {
-            get
-            {
+        public double TimeD {
+            get {
                 var graph = Graph;
-                if (graph == null)
+                if (graph == null) {
                     return _Time;
+                }
 
                 var frameID = graph.FrameID;
-                if (_TimeFrameID != frameID)
-                {
+                if (_TimeFrameID != frameID) {
                     _TimeFrameID = frameID;
                     _Time = RawTime;
                 }
 
                 return _Time;
             }
-            set
-            {
+            set {
 #if UNITY_ASSERTIONS
-                if (!value.IsFinite())
-                {
+                if (!value.IsFinite()) {
                     MarkAsUsed(this);
                     throw new ArgumentOutOfRangeException(
                         nameof(value),
@@ -654,8 +623,7 @@ namespace Animancer
                 _Time = value;
 
                 var graph = Graph;
-                if (graph != null)
-                {
+                if (graph != null) {
                     _TimeFrameID = graph.FrameID;
                     RawTime = value;
                 }
@@ -675,15 +643,12 @@ namespace Animancer
         /// Setting this value will skip Events and Root Motion between the old and new time.
         /// Use <see cref="MoveTime(float, bool)"/> instead if you don't want that behaviour.
         /// </remarks>
-        public virtual double RawTime
-        {
-            get
-            {
+        public virtual double RawTime {
+            get {
                 Validate.AssertPlayable(this);
                 return _Playable.GetTime();
             }
-            set
-            {
+            set {
                 Validate.AssertPlayable(this);
                 var time = value;
                 _Playable.SetTime(time);
@@ -728,22 +693,20 @@ namespace Animancer
         ///     state.Speed = -1;
         /// }
         /// </code></remarks>
-        public float NormalizedTime
-        {
+        public float NormalizedTime {
             get => (float)NormalizedTimeD;
             set => NormalizedTimeD = value;
         }
 
         /// <summary>The underlying <see cref="double"/> value of <see cref="NormalizedTime"/>.</summary>
-        public double NormalizedTimeD
-        {
-            get
-            {
+        public double NormalizedTimeD {
+            get {
                 var length = Length;
-                if (length != 0)
+                if (length != 0) {
                     return TimeD / length;
-                else
+                } else {
                     return 0;
+                }
             }
             set => TimeD = value * Length;
         }
@@ -766,8 +729,9 @@ namespace Animancer
         /// but only between the old time and the last new time you set
         /// (any other values would be ignored).
         /// </remarks>
-        public void MoveTime(float time, bool normalized)
-            => MoveTime((double)time, normalized);
+        public void MoveTime(float time, bool normalized) {
+            MoveTime((double)time, normalized);
+        }
 
         /// <summary>
         /// Sets the <see cref="Time"/> or <see cref="NormalizedTime"/>, but unlike those properties
@@ -783,11 +747,9 @@ namespace Animancer
         /// but only between the old time and the last new time you set
         /// (any other values would be ignored).
         /// </remarks>
-        public virtual void MoveTime(double time, bool normalized)
-        {
+        public virtual void MoveTime(double time, bool normalized) {
 #if UNITY_ASSERTIONS
-            if (!time.IsFinite())
-            {
+            if (!time.IsFinite()) {
                 MarkAsUsed(this);
                 throw new ArgumentOutOfRangeException(nameof(time), time,
                     $"{nameof(Time)} {Strings.MustBeFinite}");
@@ -795,11 +757,13 @@ namespace Animancer
 #endif
 
             var graph = Graph;
-            if (graph != null)
+            if (graph != null) {
                 _TimeFrameID = graph.FrameID;
+            }
 
-            if (normalized)
+            if (normalized) {
                 time *= Length;
+            }
 
             _Time = time;
             _Playable.SetTime(time);
@@ -819,16 +783,14 @@ namespace Animancer
         /// it can be determined based on the <see cref="AnimancerNodeBase.EffectiveSpeed"/>:
         /// positive speed ends at 1 and negative speed ends at 0.
         /// </remarks>
-        public float NormalizedEndTime
-        {
-            get
-            {
+        public float NormalizedEndTime {
+            get {
                 var events = SharedEvents;
-                if (events != null)
-                {
+                if (events != null) {
                     var time = events.NormalizedEndTime;
-                    if (!float.IsNaN(time))
+                    if (!float.IsNaN(time)) {
                         return time;
+                    }
                 }
 
                 return AnimancerEvent.Sequence.GetDefaultNormalizedEndTime(EffectiveSpeed);
@@ -861,42 +823,38 @@ namespace Animancer
         ///     state.NormalizedTime = 1; state.Duration = -1;// Play backwards from the end in 1 second.
         /// }
         /// </code></remarks>
-        public float Duration
-        {
-            get
-            {
+        public float Duration {
+            get {
                 var speed = EffectiveSpeed;
-                if (speed == 0)
+                if (speed == 0) {
                     return float.PositiveInfinity;
+                }
 
                 var events = SharedEvents;
-                if (events != null)
-                {
+                if (events != null) {
                     var endTime = events.NormalizedEndTime;
-                    if (!float.IsNaN(endTime))
-                    {
-                        if (speed > 0)
+                    if (!float.IsNaN(endTime)) {
+                        if (speed > 0) {
                             return Length * endTime / speed;
-                        else
+                        } else {
                             return Length * (1 - endTime) / -speed;
+                        }
                     }
                 }
 
                 return Length / Math.Abs(speed);
             }
-            set
-            {
+            set {
                 var length = Length;
                 var events = SharedEvents;
-                if (events != null)
-                {
+                if (events != null) {
                     var endTime = events.NormalizedEndTime;
-                    if (!float.IsNaN(endTime))
-                    {
-                        if (EffectiveSpeed > 0)
+                    if (!float.IsNaN(endTime)) {
+                        if (EffectiveSpeed > 0) {
                             length *= endTime;
-                        else
+                        } else {
                             length *= 1 - endTime;
+                        }
                     }
                 }
 
@@ -929,10 +887,9 @@ namespace Animancer
         ///     state.RemainingDuration = -1;// Play from the current time away from the end.
         /// }
         /// </code></remarks>
-        public float RemainingDuration
-        {
-            get => (Length * NormalizedEndTime - Time) / EffectiveSpeed;
-            set => EffectiveSpeed = (Length * NormalizedEndTime - Time) / value;
+        public float RemainingDuration {
+            get => ((Length * NormalizedEndTime) - Time) / EffectiveSpeed;
+            set => EffectiveSpeed = ((Length * NormalizedEndTime) - Time) / value;
         }
 
         /************************************************************************************************************************/
@@ -955,8 +912,7 @@ namespace Animancer
 
         /// <summary>Gets the details used to trigger <see cref="AnimancerEvent"/>s on this state.</summary>
         /// <remarks>Gathering all these details at once is often faster than getting them individually.</remarks>
-        public virtual AnimancerEvent.DispatchInfo GetEventDispatchInfo()
-        {
+        public virtual AnimancerEvent.DispatchInfo GetEventDispatchInfo() {
             var length = Length;
             return new(
                 length,
@@ -976,26 +932,22 @@ namespace Animancer
         /// so if you need to guarantee that things will get cleaned up you must use
         /// <see cref="AnimancerGraph.Disposables"/>.
         /// </remarks>
-        public virtual void Destroy()
-        {
-            if (Parent != null)
-            {
-                Parent.OnRemoveChild(this);
-                Parent = null;
-            }
+        public virtual void Destroy() {
+            Parent?.OnRemoveChild(this);
+            Parent = null;
 
             FadeGroup = null;
             Index = -1;
             _EventDispatcher = null;
 
             var graph = Graph;
-            if (graph != null)
-            {
+            if (graph != null) {
                 graph.States.Unregister(this);
 
                 // Destroying via the graph seems to be slightly faster than _Playable.Destroy().
-                if (_Playable.IsValid() && graph._PlayableGraph.IsValid())
+                if (_Playable.IsValid() && graph._PlayableGraph.IsValid()) {
                     graph._PlayableGraph.DestroyPlayable(_Playable);
+                }
             }
         }
 
@@ -1007,12 +959,12 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public sealed override void CopyFrom(AnimancerNode copyFrom, CloneContext context)
-            => this.CopyFromBase(copyFrom, context);
+        public sealed override void CopyFrom(AnimancerNode copyFrom, CloneContext context) {
+            this.CopyFromBase(copyFrom, context);
+        }
 
         /// <inheritdoc/>
-        public virtual void CopyFrom(AnimancerState copyFrom, CloneContext context)
-        {
+        public virtual void CopyFrom(AnimancerState copyFrom, CloneContext context) {
             CopyFirstGraphAndKeyFrom(copyFrom, context);
 
             TimeD = copyFrom.TimeD;
@@ -1028,10 +980,10 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Sets the <see cref="AnimancerNodeBase.Graph"/> and <see cref="Key"/>.</summary>
-        private void CopyFirstGraphAndKeyFrom(AnimancerState copyFrom, CloneContext context)
-        {
-            if (Graph != null)
+        private void CopyFirstGraphAndKeyFrom(AnimancerState copyFrom, CloneContext context) {
+            if (Graph != null) {
                 return;
+            }
 
             Graph = context.GetCloneOrOriginal(copyFrom.Graph);
 
@@ -1044,8 +996,9 @@ namespace Animancer
 
             // Each key can only be used once per graph,
             // so we can only use it if it's different or we have a different graph.
-            if (_Key == copyFrom.Key && Graph == copyFrom.Graph)
+            if (_Key == copyFrom.Key && Graph == copyFrom.Graph) {
                 _Key = null;
+            }
 
             AddToNewGraph();
         }
@@ -1053,12 +1006,12 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>[<see cref="IAnimationClipCollection"/>] Gathers all the animations in this state.</summary>
-        public virtual void GatherAnimationClips(ICollection<AnimationClip> clips)
-        {
+        public virtual void GatherAnimationClips(ICollection<AnimationClip> clips) {
             clips.Gather(Clip);
 
-            for (int i = ChildCount - 1; i >= 0; i--)
+            for (var i = ChildCount - 1; i >= 0; i--) {
                 GetChild(i).GatherAnimationClips(clips);
+            }
         }
 
         /************************************************************************************************************************/
@@ -1071,45 +1024,45 @@ namespace Animancer
         /// This method is called by <see cref="IEnumerator.MoveNext"/> so this object can be used as a custom yield
         /// instruction to wait until it finishes.
         /// </remarks>
-        public override bool IsPlayingAndNotEnding()
-        {
-            if (!IsPlaying || !_Playable.IsValid())
+        public override bool IsPlayingAndNotEnding() {
+            if (!IsPlaying || !_Playable.IsValid()) {
                 return false;
+            }
 
             var speed = EffectiveSpeed;
-            if (speed > 0)
-            {
+            if (speed > 0) {
                 float endTime;
                 var events = SharedEvents;
-                if (events != null)
-                {
+                if (events != null) {
                     endTime = events.NormalizedEndTime;
-                    if (float.IsNaN(endTime))
+                    if (float.IsNaN(endTime)) {
                         endTime = Length;
-                    else
+                    } else {
                         endTime *= Length;
+                    }
+                } else {
+                    endTime = Length;
                 }
-                else endTime = Length;
 
                 return Time <= endTime;
-            }
-            else if (speed < 0)
-            {
+            } else if (speed < 0) {
                 float endTime;
                 var events = SharedEvents;
-                if (events != null)
-                {
+                if (events != null) {
                     endTime = events.NormalizedEndTime;
-                    if (float.IsNaN(endTime))
+                    if (float.IsNaN(endTime)) {
                         endTime = 0;
-                    else
+                    } else {
                         endTime *= Length;
+                    }
+                } else {
+                    endTime = 0;
                 }
-                else endTime = 0;
 
                 return Time >= endTime;
+            } else {
+                return true;
             }
-            else return true;
         }
 
         /************************************************************************************************************************/
@@ -1122,31 +1075,29 @@ namespace Animancer
         /// Returns the <see cref="AnimancerNode.DebugName"/> if one is set, otherwise a string describing the type of
         /// this state and the name of the <see cref="MainObject"/>.
         /// </summary>
-        public override string ToString()
-        {
+        public override string ToString() {
 #if UNITY_ASSERTIONS
-            if (NameCache.TryToString(DebugName, out var cachedName))
+            if (NameCache.TryToString(DebugName, out var cachedName)) {
                 return cachedName;
+            }
 
-            if (_CachedToString != null)
+            if (_CachedToString != null) {
                 return _CachedToString;
+            }
 #endif
 
             string name;
 
             var type = GetType().Name;
             var mainObject = MainObject;
-            if (mainObject != null)
-            {
+            if (mainObject != null) {
 #if UNITY_ASSERTIONS
                 name = mainObject.GetCachedName();
 #else
                 name = mainObject.name;
 #endif
                 name = $"{name} ({type})";
-            }
-            else
-            {
+            } else {
                 name = type;
             }
 
@@ -1162,26 +1113,26 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override void AppendDetails(StringBuilder text, string separator)
-        {
+        protected override void AppendDetails(StringBuilder text, string separator) {
             text.AppendField(separator, nameof(Key), _Key);
             text.AppendField(separator, "ActiveIndex", _ActiveIndex);
 
             var mainObject = MainObject;
-            if (mainObject != _Key as Object)
+            if (mainObject != (_Key as Object)) {
                 text.AppendField(separator, nameof(MainObject), mainObject);
+            }
 
 #if UNITY_EDITOR
-            if (mainObject != null)
+            if (mainObject != null) {
                 text.AppendField(separator, "AssetPath", AssetDatabase.GetAssetPath(mainObject));
+            }
 #endif
 
             base.AppendDetails(text, separator);
 
             text.AppendField(separator, nameof(IsPlaying), IsPlaying);
 
-            try
-            {
+            try {
                 text.AppendField(separator, nameof(Time), TimeD)
                     .Append("s / ")
                     .Append(Length)
@@ -1190,9 +1141,7 @@ namespace Animancer
                     .Append('%');
 
                 text.AppendField(separator, nameof(IsLooping), IsLooping);
-            }
-            catch (Exception exception)
-            {
+            } catch (Exception exception) {
                 text.Append(separator).Append(exception);
             }
 

@@ -10,10 +10,8 @@ using UnityEditor.AnimatedValues;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Animancer.Editor.Tools
-{
-    partial class AnimancerToolsWindow
-    {
+namespace Animancer.Editor.Tools {
+    public partial class AnimancerToolsWindow {
         /// <summary>[Editor-Only] [Pro-Only] Base class for tools in the <see cref="AnimancerToolsWindow"/>.</summary>
         /// <remarks>
         /// <strong>Documentation:</strong>
@@ -23,8 +21,7 @@ namespace Animancer.Editor.Tools
         /// https://kybernetik.com.au/animancer/api/Animancer.Editor.Tools/Tool
         /// 
         [Serializable]
-        public abstract class Tool : IComparable<Tool>
-        {
+        public abstract class Tool : IComparable<Tool> {
             /************************************************************************************************************************/
 
             private AnimBool _FullAnimator;
@@ -40,15 +37,14 @@ namespace Animancer.Editor.Tools
             /************************************************************************************************************************/
 
             /// <summary>Is the body of this tool currently visible?</summary>
-            public bool IsExpanded
-            {
+            public bool IsExpanded {
                 get { return Instance._CurrentTool == _Index; }
-                set
-                {
-                    if (value)
+                set {
+                    if (value) {
                         Instance._CurrentTool = _Index;
-                    else if (IsExpanded)
+                    } else if (IsExpanded) {
                         Instance._CurrentTool = -1;
+                    }
                 }
             }
 
@@ -58,8 +54,9 @@ namespace Animancer.Editor.Tools
             public abstract int DisplayOrder { get; }
 
             /// <summary>Compares the <see cref="DisplayOrder"/> to put lower numbers first.</summary>
-            public int CompareTo(Tool other)
-                => DisplayOrder.CompareTo(other.DisplayOrder);
+            public int CompareTo(Tool other) {
+                return DisplayOrder.CompareTo(other.DisplayOrder);
+            }
 
             /************************************************************************************************************************/
 
@@ -78,8 +75,7 @@ namespace Animancer.Editor.Tools
             /************************************************************************************************************************/
 
             /// <summary>Called by <see cref="AnimancerToolsWindow.OnEnable"/>.</summary>
-            public virtual void OnEnable(int index)
-            {
+            public virtual void OnEnable(int index) {
                 _Index = index;
 
                 _FullAnimator = new(IsVisible);
@@ -92,25 +88,23 @@ namespace Animancer.Editor.Tools
             /************************************************************************************************************************/
 
             /// <summary>Draws the GUI for this tool.</summary>
-            public virtual void DoGUI()
-            {
+            public virtual void DoGUI() {
                 var enabled = GUI.enabled;
 
                 _FullAnimator.target = IsVisible;
 
-                if (EditorGUILayout.BeginFadeGroup(_FullAnimator.faded))
-                {
+                if (EditorGUILayout.BeginFadeGroup(_FullAnimator.faded)) {
                     GUILayout.BeginVertical(EditorStyles.helpBox);
 
                     DoHeaderGUI();
 
                     _BodyAnimator.target = IsExpanded;
 
-                    if (EditorGUILayout.BeginFadeGroup(_BodyAnimator.faded))
-                    {
+                    if (EditorGUILayout.BeginFadeGroup(_BodyAnimator.faded)) {
                         var instructions = Instructions;
-                        if (!string.IsNullOrEmpty(instructions))
+                        if (!string.IsNullOrEmpty(instructions)) {
                             EditorGUILayout.HelpBox(instructions, MessageType.Info);
+                        }
 
                         DoBodyGUI();
                     }
@@ -120,8 +114,9 @@ namespace Animancer.Editor.Tools
                 }
                 EditorGUILayout.EndFadeGroup();
 
-                if (_FullAnimator.isAnimating || _BodyAnimator.isAnimating)
+                if (_FullAnimator.isAnimating || _BodyAnimator.isAnimating) {
                     Repaint();
+                }
 
                 GUI.enabled = enabled;
             }
@@ -131,23 +126,18 @@ namespace Animancer.Editor.Tools
             /// <summary>
             /// Draws the Header GUI for this tool which is displayed regardless of whether it is expanded or not.
             /// </summary>
-            public virtual void DoHeaderGUI()
-            {
+            public virtual void DoHeaderGUI() {
                 var area = AnimancerGUI.LayoutSingleLineRect(AnimancerGUI.SpacingMode.BeforeAndAfter);
                 var click = GUI.Button(area, Name, EditorStyles.boldLabel);
 
                 area.xMin = area.xMax - area.height;
                 GUI.DrawTexture(area, HelpIcon);
 
-                if (click)
-                {
-                    if (area.Contains(Event.current.mousePosition))
-                    {
+                if (click) {
+                    if (area.Contains(Event.current.mousePosition)) {
                         Application.OpenURL(HelpURL);
                         return;
-                    }
-                    else
-                    {
+                    } else {
                         IsExpanded = !IsExpanded;
                     }
                 }
@@ -162,23 +152,23 @@ namespace Animancer.Editor.Tools
 
             /// <summary>Asks the user where they want to save a modified asset, calls `modify` on it, and saves it.</summary>
             public static bool SaveModifiedAsset<T>(string saveTitle, string saveMessage,
-                T obj, Action<T> modify) where T : Object
-            {
+                T obj, Action<T> modify) where T : Object {
                 var originalPath = AssetDatabase.GetAssetPath(obj);
 
                 var extension = Path.GetExtension(originalPath);
-                if (extension[0] == '.')
+                if (extension[0] == '.') {
                     extension = extension[1..];
+                }
 
                 var directory = Path.GetDirectoryName(originalPath);
 
                 var newName = Path.GetFileNameWithoutExtension(AssetDatabase.GenerateUniqueAssetPath(originalPath));
                 var savePath = EditorUtility.SaveFilePanelInProject(saveTitle, newName, extension, saveMessage, directory);
-                if (string.IsNullOrEmpty(savePath))
+                if (string.IsNullOrEmpty(savePath)) {
                     return false;
+                }
 
-                if (originalPath != savePath)
-                {
+                if (originalPath != savePath) {
                     obj = Instantiate(obj);
                     AssetDatabase.CreateAsset(obj, savePath);
                 }
@@ -195,12 +185,12 @@ namespace Animancer.Editor.Tools
             private static Texture _HelpIcon;
 
             /// <summary>The help icon image used in the tool header.</summary>
-            public static Texture HelpIcon
-            {
-                get
-                {
-                    if (_HelpIcon == null)
+            public static Texture HelpIcon {
+                get {
+                    if (_HelpIcon == null) {
                         _HelpIcon = AnimancerIcons.Load("_Help");
+                    }
+
                     return _HelpIcon;
                 }
             }
@@ -212,30 +202,23 @@ namespace Animancer.Editor.Tools
                 Rect area,
                 IList<T> list,
                 bool overwrite)
-                where T : Object
-            {
+                where T : Object {
                 var dropIndex = 0;
 
                 // No easy way to avoid this closure.
-                AnimancerGUI.Handle<T>((obj, isDrop) =>
-                {
-                    if (!isDrop)
+                AnimancerGUI.Handle<T>((obj, isDrop) => {
+                    if (!isDrop) {
                         return true;
+                    }
 
-                    if (overwrite)
-                    {
+                    if (overwrite) {
                         RecordUndo();
-                        if (dropIndex < list.Count)
-                        {
+                        if (dropIndex < list.Count) {
                             list[dropIndex++] = obj;
-                        }
-                        else
-                        {
+                        } else {
                             list.Add(obj);
                         }
-                    }
-                    else
-                    {
+                    } else {
                         list.Add(obj);
                     }
 

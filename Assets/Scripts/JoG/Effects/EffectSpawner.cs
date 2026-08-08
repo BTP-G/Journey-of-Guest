@@ -1,8 +1,8 @@
 using EditorAttributes;
+using UnityEngine;
 using Xoderony.Extensions;
 using Xoderony.ObjectPool.Unity;
 using Xoderony.Unity;
-using UnityEngine;
 
 namespace JoG.VisualEffects {
 
@@ -45,7 +45,5 @@ namespace JoG.VisualEffects {
         private void Awake() {
             _pool = ObjectPoolManager<GameObject>.GetPool<GameObjectPool>(prefab);
         }
-
     }
-
 }

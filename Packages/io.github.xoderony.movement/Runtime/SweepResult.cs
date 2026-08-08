@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace Xoderony.Movement {
 
@@ -17,9 +17,9 @@ namespace Xoderony.Movement {
 
         public SweepResult(float safeDistance) {
             this.safeDistance = safeDistance;
-            this.point = default;
-            this.normal = default;
-            this.collider = default;
+            point = default;
+            normal = default;
+            collider = default;
         }
     }
 }

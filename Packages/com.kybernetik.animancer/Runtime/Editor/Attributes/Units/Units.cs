@@ -1,7 +1,6 @@
 // Animancer // https://kybernetik.com.au/animancer // Copyright 2018-2026 Kybernetik //
 
-namespace Animancer.Units
-{
+namespace Animancer.Units {
     /************************************************************************************************************************/
 
     /// <summary>[Editor-Conditional] Angle measured in <c>degrees</c> (<c>º</c>).</summary>
@@ -13,8 +12,7 @@ namespace Animancer.Units
     /// https://kybernetik.com.au/animancer/api/Animancer.Units/DegreesAttribute
     /// 
     [System.Diagnostics.Conditional(Strings.UnityEditor)]
-    public sealed class DegreesAttribute : UnitsAttribute
-    {
+    public sealed class DegreesAttribute : UnitsAttribute {
         /// <summary>Creates a new <see cref="DegreesAttribute"/>.</summary>
         public DegreesAttribute() : base(" º") { }
     }
@@ -30,8 +28,7 @@ namespace Animancer.Units
     /// https://kybernetik.com.au/animancer/api/Animancer.Units/DegreesPerSecondAttribute
     /// 
     [System.Diagnostics.Conditional(Strings.UnityEditor)]
-    public sealed class DegreesPerSecondAttribute : UnitsAttribute
-    {
+    public sealed class DegreesPerSecondAttribute : UnitsAttribute {
         /// <summary>Creates a new <see cref="DegreesPerSecondAttribute"/>.</summary>
         public DegreesPerSecondAttribute() : base(" º/s") { }
     }
@@ -47,8 +44,7 @@ namespace Animancer.Units
     /// https://kybernetik.com.au/animancer/api/Animancer.Units/MetersAttribute
     /// 
     [System.Diagnostics.Conditional(Strings.UnityEditor)]
-    public sealed class MetersAttribute : UnitsAttribute
-    {
+    public sealed class MetersAttribute : UnitsAttribute {
         /// <summary>Creates a new <see cref="MetersAttribute"/>.</summary>
         public MetersAttribute() : base(" m") { }
     }
@@ -64,8 +60,7 @@ namespace Animancer.Units
     /// https://kybernetik.com.au/animancer/api/Animancer.Units/MetersPerSecondAttribute
     /// 
     [System.Diagnostics.Conditional(Strings.UnityEditor)]
-    public sealed class MetersPerSecondAttribute : UnitsAttribute
-    {
+    public sealed class MetersPerSecondAttribute : UnitsAttribute {
         /// <summary>Creates a new <see cref="MetersPerSecondAttribute"/>.</summary>
         public MetersPerSecondAttribute() : base(" m/s") { }
     }
@@ -81,8 +76,7 @@ namespace Animancer.Units
     /// https://kybernetik.com.au/animancer/api/Animancer.Units/MetersPerSecondPerSecondAttribute
     /// 
     [System.Diagnostics.Conditional(Strings.UnityEditor)]
-    public sealed class MetersPerSecondPerSecondAttribute : UnitsAttribute
-    {
+    public sealed class MetersPerSecondPerSecondAttribute : UnitsAttribute {
         /// <summary>Creates a new <see cref="MetersPerSecondPerSecondAttribute"/>.</summary>
         public MetersPerSecondPerSecondAttribute() : base(" m/s\xB2") { }
     }
@@ -98,8 +92,7 @@ namespace Animancer.Units
     /// https://kybernetik.com.au/animancer/api/Animancer.Units/MultiplierAttribute
     /// 
     [System.Diagnostics.Conditional(Strings.UnityEditor)]
-    public sealed class MultiplierAttribute : UnitsAttribute
-    {
+    public sealed class MultiplierAttribute : UnitsAttribute {
         /// <summary>Creates a new <see cref="MultiplierAttribute"/>.</summary>
         public MultiplierAttribute() : base(" x") { }
     }
@@ -115,8 +108,7 @@ namespace Animancer.Units
     /// https://kybernetik.com.au/animancer/api/Animancer.Units/SecondsAttribute
     /// 
     [System.Diagnostics.Conditional(Strings.UnityEditor)]
-    public sealed class SecondsAttribute : UnitsAttribute
-    {
+    public sealed class SecondsAttribute : UnitsAttribute {
         /// <summary>Creates a new <see cref="SecondsAttribute"/>.</summary>
         public SecondsAttribute() : base(" s") { }
     }
@@ -132,8 +124,7 @@ namespace Animancer.Units
     /// https://kybernetik.com.au/animancer/api/Animancer.Units/PerSecondAttribute
     /// 
     [System.Diagnostics.Conditional(Strings.UnityEditor)]
-    public sealed class PerSecondAttribute : UnitsAttribute
-    {
+    public sealed class PerSecondAttribute : UnitsAttribute {
         /// <summary>Creates a new <see cref="PerSecondAttribute"/>.</summary>
         public PerSecondAttribute() : base(" /s") { }
     }

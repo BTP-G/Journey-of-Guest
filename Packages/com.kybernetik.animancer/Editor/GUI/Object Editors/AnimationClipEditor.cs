@@ -8,14 +8,12 @@ using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only] [Pro-Only] A custom Inspector for <see cref="AnimationClip"/>s</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/AnimationClipEditor
     /// 
     [CustomEditor(typeof(AnimationClip))]
-    public class AnimationClipEditor : UnityEditor.Editor
-    {
+    public class AnimationClipEditor : UnityEditor.Editor {
         /************************************************************************************************************************/
 
         private const string DefaultEditorTypeName = nameof(UnityEditor) + "." + nameof(AnimationClipEditor);
@@ -27,12 +25,9 @@ namespace Animancer.Editor
 
         private UnityEditor.Editor _DefaultEditor;
 
-        private bool TryGetDefaultEditor(out UnityEditor.Editor editor)
-        {
-            if (_DefaultEditor == null)
-            {
-                if (DefaultEditorType == null || AnimancerEditorUtilities.IsChangingPlayMode)
-                {
+        private bool TryGetDefaultEditor(out UnityEditor.Editor editor) {
+            if (_DefaultEditor == null) {
+                if (DefaultEditorType == null || AnimancerEditorUtilities.IsChangingPlayMode) {
                     editor = null;
                     return false;
                 }
@@ -48,8 +43,7 @@ namespace Animancer.Editor
 
         /************************************************************************************************************************/
 
-        protected virtual void OnDestroy()
-        {
+        protected virtual void OnDestroy() {
             _DestroyOnPlayModeStateChanged?.Remove(_DefaultEditor);
             DestroyImmediate(_DefaultEditor);
         }
@@ -58,16 +52,14 @@ namespace Animancer.Editor
 
         private static HashSet<Object> _DestroyOnPlayModeStateChanged;
 
-        private static void DestroyOnPlayModeStateChanged(Object obj)
-        {
-            if (_DestroyOnPlayModeStateChanged == null)
-            {
+        private static void DestroyOnPlayModeStateChanged(Object obj) {
+            if (_DestroyOnPlayModeStateChanged == null) {
                 _DestroyOnPlayModeStateChanged = new();
 
-                EditorApplication.playModeStateChanged += (change) =>
-                {
-                    foreach (var destroy in _DestroyOnPlayModeStateChanged)
+                EditorApplication.playModeStateChanged += (change) => {
+                    foreach (var destroy in _DestroyOnPlayModeStateChanged) {
                         DestroyImmediate(destroy);
+                    }
 
                     _DestroyOnPlayModeStateChanged.Clear();
                 };
@@ -80,10 +72,8 @@ namespace Animancer.Editor
 
         /// <summary>Draws the regular Inspector then adds a better preview for <see cref="Sprite"/> animations.</summary>
         /// <remarks>Called by the Unity editor to draw the custom Inspector GUI elements.</remarks>
-        public override void OnInspectorGUI()
-        {
-            if (DefaultEditorType == null)
-            {
+        public override void OnInspectorGUI() {
+            if (DefaultEditorType == null) {
                 EditorGUILayout.HelpBox(
                     $"Unable to find type '{DefaultEditorTypeName}' in '{typeof(UnityEditor.Editor).Assembly}'." +
                     $" The {nameof(AnimationClipEditor)} script will need to be fixed" +
@@ -91,14 +81,12 @@ namespace Animancer.Editor
                     MessageType.Error);
 
                 const string Label = "Delete " + nameof(AnimationClipEditor) + " Script";
-                if (GUILayout.Button(Label))
-                {
+                if (GUILayout.Button(Label)) {
                     if (EditorUtility.DisplayDialog(Label,
                         $"Are you sure you want to delete the {nameof(AnimationClipEditor)} script?" +
                         $" This operation cannot be undone.",
                         "Delete",
-                        "Cancel"))
-                    {
+                        "Cancel")) {
                         var script = MonoScript.FromScriptableObject(this);
                         var path = AssetDatabase.GetAssetPath(script);
                         AssetDatabase.DeleteAsset(path);
@@ -108,24 +96,25 @@ namespace Animancer.Editor
                 return;
             }
 
-            if (TryGetDefaultEditor(out var editor))
+            if (TryGetDefaultEditor(out var editor)) {
                 editor.OnInspectorGUI();
+            }
 
-            if (GUILayout.Button("Open Animation Window"))
+            if (GUILayout.Button("Open Animation Window")) {
                 EditorApplication.ExecuteMenuItem("Window/Animation/Animation");
+            }
 
-            if (GUILayout.Button("Open Animancer Tools"))
+            if (GUILayout.Button("Open Animancer Tools")) {
                 Tools.AnimancerToolsWindow.Open();
+            }
 
             var targets = this.targets;
-            if (targets.Length == 1)
-            {
+            if (targets.Length == 1) {
                 var clip = GetTargetClip(out var type);
 
                 DrawEvents(clip);
 
-                if (type == AnimationType.Sprite)
-                {
+                if (type == AnimationType.Sprite) {
                     InitializeSpritePreview(editor, clip);
                     DrawSpriteFrames(clip);
                 }
@@ -134,8 +123,7 @@ namespace Animancer.Editor
 
         /************************************************************************************************************************/
 
-        private AnimationClip GetTargetClip(out AnimationType type)
-        {
+        private AnimationClip GetTargetClip(out AnimationType type) {
             var clip = (AnimationClip)target;
             type = AnimationBindings.GetAnimationType(clip);
             return clip;
@@ -146,22 +134,21 @@ namespace Animancer.Editor
         [SerializeField]
         private bool _ShowEvents = true;
 
-        private void DrawEvents(AnimationClip clip)
-        {
+        private void DrawEvents(AnimationClip clip) {
             var events = clip.events;
             if (events == null ||
-                events.Length == 0)
+                events.Length == 0) {
                 return;
+            }
 
             _ShowEvents = EditorGUILayout.Foldout(_ShowEvents, "Events", true);
-            if (!_ShowEvents)
+            if (!_ShowEvents) {
                 return;
+            }
 
-            using (new EditorGUI.DisabledScope(true))
-            {
+            using (new EditorGUI.DisabledScope(true)) {
                 EditorGUI.indentLevel++;
-                for (int i = 0; i < events.Length; i++)
-                {
+                for (var i = 0; i < events.Length; i++) {
                     var animationEvent = events[i];
                     EditorGUILayout.FloatField(animationEvent.functionName, animationEvent.time);
 
@@ -181,36 +168,40 @@ namespace Animancer.Editor
         [NonSerialized]
         private bool _HasInitializedSpritePreview;
 
-        private void InitializeSpritePreview(UnityEditor.Editor editor, AnimationClip clip)
-        {
+        private void InitializeSpritePreview(UnityEditor.Editor editor, AnimationClip clip) {
             if (_HasInitializedSpritePreview
-                || editor == null)
+                || editor == null) {
                 return;
+            }
 
             _HasInitializedSpritePreview = true;
 
             // Get the avatar preview.
 
             var field = editor.GetType().GetField("m_AvatarPreview", AnimancerReflection.InstanceBindings);
-            if (field == null)
+            if (field == null) {
                 return;
+            }
 
             var preview = field.GetValue(editor);
-            if (preview == null)
+            if (preview == null) {
                 return;
+            }
 
             var previewType = preview.GetType();
 
             // Make sure a proper preview object isn't already assigned.
 
             var previewObject = previewType.GetProperty("PreviewObject", AnimancerReflection.InstanceBindings);
-            if (previewObject == null)
+            if (previewObject == null) {
                 return;
+            }
 
             var previewGameObject = previewObject.GetValue(preview) as GameObject;
             if (previewGameObject != null &&
-                previewGameObject.GetComponentInChildren<Renderer>() != null)
+                previewGameObject.GetComponentInChildren<Renderer>() != null) {
                 return;
+            }
 
             // Get the SetPreview method.
 
@@ -220,19 +211,22 @@ namespace Animancer.Editor
                 null,
                 new Type[] { typeof(GameObject) },
                 null);
-            if (method == null)
+            if (method == null) {
                 return;
+            }
 
             // Get the Sprite from the target animation's first keyframe.
 
             var keyframes = GetSpriteReferences(clip);
             if (keyframes == null ||
-                keyframes.Length == 0)
+                keyframes.Length == 0) {
                 return;
+            }
 
             var sprite = keyframes[0].value as Sprite;
-            if (sprite == null)
+            if (sprite == null) {
                 return;
+            }
 
             // Create an object with an Animator and SpriteRenderer.
             // The Sprite must be assigned for it to be accepted as the preview object.
@@ -255,20 +249,17 @@ namespace Animancer.Editor
         private static ConversionCache<int, string> _FrameCache;
         private static ConversionCache<float, string> _TimeCache;
 
-        private static void DrawSpriteFrames(AnimationClip clip)
-        {
+        private static void DrawSpriteFrames(AnimationClip clip) {
             var keyframes = GetSpriteReferences(clip);
-            if (keyframes == null)
+            if (keyframes == null) {
                 return;
+            }
 
-            for (int i = 0; i < keyframes.Length; i++)
-            {
+            for (var i = 0; i < keyframes.Length; i++) {
                 var keyframe = keyframes[i];
                 var sprite = keyframe.value as Sprite;
-                if (sprite != null)
-                {
-                    if (_FrameCache == null)
-                    {
+                if (sprite != null) {
+                    if (_FrameCache == null) {
                         _FrameCache = new(
                             (value) => $"Frame: {value}");
 
@@ -310,16 +301,15 @@ namespace Animancer.Editor
 
         /************************************************************************************************************************/
 
-        private static ObjectReferenceKeyframe[] GetSpriteReferences(AnimationClip clip)
-        {
+        private static ObjectReferenceKeyframe[] GetSpriteReferences(AnimationClip clip) {
             var bindings = AnimationBindings.GetBindings(clip);
-            for (int i = 0; i < bindings.Length; i++)
-            {
+            for (var i = 0; i < bindings.Length; i++) {
                 var binding = bindings[i];
                 if (binding.path == "" &&
                     binding.type == typeof(SpriteRenderer) &&
-                    binding.propertyName == "m_Sprite")
+                    binding.propertyName == "m_Sprite") {
                     return AnimationUtility.GetObjectReferenceCurve(clip, binding);
+                }
             }
 
             return null;
@@ -330,122 +320,122 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void DrawPreview(Rect previewArea)
-        {
-            if (TryGetDefaultEditor(out var editor))
+        public override void DrawPreview(Rect previewArea) {
+            if (TryGetDefaultEditor(out var editor)) {
                 editor.DrawPreview(previewArea);
-            else
+            } else {
                 base.DrawPreview(previewArea);
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override string GetInfoString()
-        {
-            if (TryGetDefaultEditor(out var editor))
+        public override string GetInfoString() {
+            if (TryGetDefaultEditor(out var editor)) {
                 return editor.GetInfoString();
-            else
+            } else {
                 return base.GetInfoString();
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override GUIContent GetPreviewTitle()
-        {
-            if (TryGetDefaultEditor(out var editor))
+        public override GUIContent GetPreviewTitle() {
+            if (TryGetDefaultEditor(out var editor)) {
                 return editor.GetPreviewTitle();
-            else
+            } else {
                 return base.GetPreviewTitle();
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override bool HasPreviewGUI()
-        {
-            if (TryGetDefaultEditor(out var editor))
+        public override bool HasPreviewGUI() {
+            if (TryGetDefaultEditor(out var editor)) {
                 return editor.HasPreviewGUI();
-            else
+            } else {
                 return base.HasPreviewGUI();
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void OnInteractivePreviewGUI(Rect area, GUIStyle background)
-        {
-            if (TryGetDefaultEditor(out var editor))
+        public override void OnInteractivePreviewGUI(Rect area, GUIStyle background) {
+            if (TryGetDefaultEditor(out var editor)) {
                 editor.OnInteractivePreviewGUI(area, background);
-            else
+            } else {
                 base.OnInteractivePreviewGUI(area, background);
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void OnPreviewGUI(Rect area, GUIStyle background)
-        {
-            if (TryGetDefaultEditor(out var editor))
+        public override void OnPreviewGUI(Rect area, GUIStyle background) {
+            if (TryGetDefaultEditor(out var editor)) {
                 editor.OnPreviewGUI(area, background);
-            else
+            } else {
                 base.OnPreviewGUI(area, background);
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void OnPreviewSettings()
-        {
-            if (TryGetDefaultEditor(out var editor))
+        public override void OnPreviewSettings() {
+            if (TryGetDefaultEditor(out var editor)) {
                 editor.OnPreviewSettings();
-            else
+            } else {
                 base.OnPreviewSettings();
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void ReloadPreviewInstances()
-        {
-            if (TryGetDefaultEditor(out var editor))
+        public override void ReloadPreviewInstances() {
+            if (TryGetDefaultEditor(out var editor)) {
                 editor.ReloadPreviewInstances();
-            else
+            } else {
                 base.ReloadPreviewInstances();
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override Texture2D RenderStaticPreview(string assetPath, Object[] subAssets, int width, int height)
-        {
-            if (TryGetDefaultEditor(out var editor))
+        public override Texture2D RenderStaticPreview(string assetPath, Object[] subAssets, int width, int height) {
+            if (TryGetDefaultEditor(out var editor)) {
                 return editor.RenderStaticPreview(assetPath, subAssets, width, height);
-            else
+            } else {
                 return base.RenderStaticPreview(assetPath, subAssets, width, height);
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override bool RequiresConstantRepaint()
-        {
-            if (TryGetDefaultEditor(out var editor))
+        public override bool RequiresConstantRepaint() {
+            if (TryGetDefaultEditor(out var editor)) {
                 return editor.RequiresConstantRepaint();
-            else
+            } else {
                 return base.RequiresConstantRepaint();
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override bool UseDefaultMargins()
-        {
-            if (TryGetDefaultEditor(out var editor))
+        public override bool UseDefaultMargins() {
+            if (TryGetDefaultEditor(out var editor)) {
                 return editor.UseDefaultMargins();
-            else
+            } else {
                 return base.UseDefaultMargins();
+            }
         }
 
         /************************************************************************************************************************/

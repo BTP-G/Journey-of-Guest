@@ -1,17 +1,13 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-using System;
-using Antlr4.Runtime;
 using Antlr4.Runtime.Misc;
-using Antlr4.Runtime.Sharpen;
+using System;
 
-namespace Antlr4.Runtime
-{
+namespace Antlr4.Runtime {
     [System.Serializable]
-    public class CommonToken : IWritableToken
-    {
+    public class CommonToken : IWritableToken {
         private const long serialVersionUID = -6708843461296520577L;
 
         /// <summary>
@@ -89,24 +85,21 @@ namespace Antlr4.Runtime
         /// with the specified token type.
         /// </summary>
         /// <param name="type">The token type.</param>
-        public CommonToken(int type)
-        {
+        public CommonToken(int type) {
             // set to invalid position
-            this._type = type;
-            this.source = EmptySource;
+            _type = type;
+            source = EmptySource;
         }
 
-        public CommonToken(Tuple<ITokenSource, ICharStream> source, int type, int channel, int start, int stop)
-        {
+        public CommonToken(Tuple<ITokenSource, ICharStream> source, int type, int channel, int start, int stop) {
             this.source = source;
-            this._type = type;
-            this._channel = channel;
+            _type = type;
+            _channel = channel;
             this.start = start;
             this.stop = stop;
-            if (source.Item1 != null)
-            {
-                this._line = source.Item1.Line;
-                this.charPositionInLine = source.Item1.Column;
+            if (source.Item1 != null) {
+                _line = source.Item1.Line;
+                charPositionInLine = source.Item1.Column;
             }
         }
 
@@ -118,12 +111,11 @@ namespace Antlr4.Runtime
         /// </summary>
         /// <param name="type">The token type.</param>
         /// <param name="text">The text of the token.</param>
-        public CommonToken(int type, string text)
-        {
-            this._type = type;
-            this._channel = TokenConstants.DefaultChannel;
-            this._text = text;
-            this.source = EmptySource;
+        public CommonToken(int type, string text) {
+            _type = type;
+            _channel = TokenConstants.DefaultChannel;
+            _text = text;
+            source = EmptySource;
         }
 
         /// <summary>
@@ -159,8 +151,7 @@ namespace Antlr4.Runtime
         /// .</p>
         /// </summary>
         /// <param name="oldToken">The token to copy.</param>
-        public CommonToken(IToken oldToken)
-        {
+        public CommonToken(IToken oldToken) {
             _type = oldToken.Type;
             _line = oldToken.Line;
             index = oldToken.TokenIndex;
@@ -168,39 +159,30 @@ namespace Antlr4.Runtime
             _channel = oldToken.Channel;
             start = oldToken.StartIndex;
             stop = oldToken.StopIndex;
-            if (oldToken is Antlr4.Runtime.CommonToken)
-            {
+            if (oldToken is Antlr4.Runtime.CommonToken) {
                 _text = ((Antlr4.Runtime.CommonToken)oldToken)._text;
                 source = ((Antlr4.Runtime.CommonToken)oldToken).source;
-            }
-            else
-            {
+            } else {
                 _text = oldToken.Text;
                 source = Tuple.Create(oldToken.TokenSource, oldToken.InputStream);
             }
         }
 
-        public virtual int Type
-        {
-            get
-            {
+        public virtual int Type {
+            get {
                 return _type;
             }
-            set
-            {
- 				this._type = value;
+            set {
+                _type = value;
             }
         }
 
-        public virtual int Line
-        {
-            get
-            {
+        public virtual int Line {
+            get {
                 return _line;
             }
-            set
-            {
- 				this._line = value;
+            set {
+                _line = value;
             }
         }
 
@@ -220,131 +202,99 @@ namespace Antlr4.Runtime
         /// should be obtained from the input along with the start and stop indexes
         /// of the token.
         /// </value>
-        public virtual string Text
-        {
-            get
-            {
-                if (_text != null)
-                {
+        public virtual string Text {
+            get {
+                if (_text != null) {
                     return _text;
                 }
-                ICharStream input = InputStream;
-                if (input == null)
-                {
+                var input = InputStream;
+                if (input == null) {
                     return null;
                 }
-                int n = input.Size;
-                if (start < n && stop < n)
-                {
+                var n = input.Size;
+                if (start < n && stop < n) {
                     return input.GetText(Interval.Of(start, stop));
-                }
-                else
-                {
+                } else {
                     return "<EOF>";
                 }
             }
-            set
-            {
- 				this._text = value;
+            set {
+                _text = value;
             }
         }
 
-        public virtual int Column
-        {
-            get
-            {
+        public virtual int Column {
+            get {
                 return charPositionInLine;
             }
-            set
-            {
-                int charPositionInLine = value;
+            set {
+                var charPositionInLine = value;
                 this.charPositionInLine = charPositionInLine;
             }
         }
 
-        public virtual int Channel
-        {
-            get
-            {
+        public virtual int Channel {
+            get {
                 return _channel;
             }
-            set
-            {
-                this._channel = value;
+            set {
+                _channel = value;
             }
         }
 
-        public virtual int StartIndex
-        {
-            get
-            {
+        public virtual int StartIndex {
+            get {
                 return start;
             }
-            set
-            {
-                int start = value;
+            set {
+                var start = value;
                 this.start = start;
             }
         }
 
-        public virtual int StopIndex
-        {
-            get
-            {
+        public virtual int StopIndex {
+            get {
                 return stop;
             }
-            set
-            {
-                int stop = value;
+            set {
+                var stop = value;
                 this.stop = stop;
             }
         }
 
-        public virtual int TokenIndex
-        {
-            get
-            {
+        public virtual int TokenIndex {
+            get {
                 return index;
             }
-            set
-            {
-                int index = value;
+            set {
+                var index = value;
                 this.index = index;
             }
         }
 
-        public virtual ITokenSource TokenSource
-        {
-            get
-            {
+        public virtual ITokenSource TokenSource {
+            get {
                 return source.Item1;
             }
         }
 
-        public virtual ICharStream InputStream
-        {
-            get
-            {
+        public virtual ICharStream InputStream {
+            get {
                 return source.Item2;
             }
         }
 
-        public override string ToString()
-        {
-            string channelStr = string.Empty;
-            if (_channel > 0)
-            {
+        public override string ToString() {
+            var channelStr = string.Empty;
+            if (_channel > 0) {
                 channelStr = ",channel=" + _channel;
             }
-            string txt = Text;
-            if (txt != null)
-            {
+            var txt = Text;
+            if (txt != null) {
                 txt = txt.Replace("\n", "\\n");
                 txt = txt.Replace("\r", "\\r");
                 txt = txt.Replace("\t", "\\t");
-            }
-            else
-            {
+            } else {
                 txt = "<no text>";
             }
             return "[@" + TokenIndex + "," + start + ":" + stop + "='" + txt + "',<" + _type + ">" + channelStr + "," + _line + ":" + Column + "]";

@@ -1,4 +1,4 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
@@ -6,13 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Antlr4.Runtime;
-using Antlr4.Runtime.Sharpen;
-using Antlr4.Runtime.Tree;
-using Antlr4.Runtime.Tree.Xpath;
 
-namespace Antlr4.Runtime.Tree.Xpath
-{
+namespace Antlr4.Runtime.Tree.Xpath {
     /// <summary>
     /// Represent a subset of XPath XML path syntax for use in identifying nodes in
     /// parse trees.
@@ -65,8 +60,7 @@ namespace Antlr4.Runtime.Tree.Xpath
     /// <p>
     /// Whitespace is not allowed.</p>
     /// </remarks>
-    public class XPath
-    {
+    public class XPath {
         public const string Wildcard = "*";
 
         public const string Not = "!";
@@ -77,8 +71,7 @@ namespace Antlr4.Runtime.Tree.Xpath
 
         protected internal Parser parser;
 
-        public XPath(Parser parser, string path)
-        {
+        public XPath(Parser parser, string path) {
             // word not operator/separator
             // word for invert operator
             this.parser = parser;
@@ -88,55 +81,44 @@ namespace Antlr4.Runtime.Tree.Xpath
 
         //		System.out.println(Arrays.toString(elements));
         // TODO: check for invalid token/rule names, bad syntax
-        public virtual XPathElement[] Split(string path)
-        {
+        public virtual XPathElement[] Split(string path) {
             AntlrInputStream @in;
-            try
-            {
+            try {
                 @in = new AntlrInputStream(new StringReader(path));
-            }
-            catch (IOException ioe)
-            {
+            } catch (IOException ioe) {
                 throw new ArgumentException("Could not read path: " + path, ioe);
             }
             XPathLexer lexer = new _XPathLexer_87(@in);
             lexer.RemoveErrorListeners();
             lexer.AddErrorListener(new XPathLexerErrorListener());
-            CommonTokenStream tokenStream = new CommonTokenStream(lexer);
-            try
-            {
+            var tokenStream = new CommonTokenStream(lexer);
+            try {
                 tokenStream.Fill();
-            }
-            catch (LexerNoViableAltException e)
-            {
-                int pos = lexer.Column;
-                string msg = "Invalid tokens or characters at index " + pos + " in path '" + path + "'";
+            } catch (LexerNoViableAltException e) {
+                var pos = lexer.Column;
+                var msg = "Invalid tokens or characters at index " + pos + " in path '" + path + "'";
                 throw new ArgumentException(msg, e);
             }
-            IList<IToken> tokens = tokenStream.GetTokens();
+            var tokens = tokenStream.GetTokens();
             //		System.out.println("path="+path+"=>"+tokens);
             IList<XPathElement> elements = new List<XPathElement>();
-            int n = tokens.Count;
-            int i = 0;
-            while (i < n)
-            {
-                IToken el = tokens[i];
+            var n = tokens.Count;
+            var i = 0;
+            while (i < n) {
+                var el = tokens[i];
                 IToken next = null;
-                switch (el.Type)
-                {
+                switch (el.Type) {
                     case XPathLexer.Root:
-                    case XPathLexer.Anywhere:
-                    {
-                        bool anywhere = el.Type == XPathLexer.Anywhere;
+                    case XPathLexer.Anywhere: {
+                        var anywhere = el.Type == XPathLexer.Anywhere;
                         i++;
                         next = tokens[i];
-                        bool invert = next.Type == XPathLexer.Bang;
-                        if (invert)
-                        {
+                        var invert = next.Type == XPathLexer.Bang;
+                        if (invert) {
                             i++;
                             next = tokens[i];
                         }
-                        XPathElement pathElement = GetXPathElement(next, anywhere);
+                        var pathElement = GetXPathElement(next, anywhere);
                         pathElement.invert = invert;
                         elements.Add(pathElement);
                         i++;
@@ -145,37 +127,31 @@ namespace Antlr4.Runtime.Tree.Xpath
 
                     case XPathLexer.TokenRef:
                     case XPathLexer.RuleRef:
-                    case XPathLexer.Wildcard:
-                    {
+                    case XPathLexer.Wildcard: {
                         elements.Add(GetXPathElement(el, false));
                         i++;
                         break;
                     }
 
-                    case TokenConstants.EOF:
-                    {
+                    case TokenConstants.EOF: {
                         goto loop_break;
                     }
 
-                    default:
-                    {
+                    default: {
                         throw new ArgumentException("Unknowth path element " + el);
                     }
                 }
             }
-loop_break: ;
+        loop_break:;
             return elements.ToArray();
         }
 
-        private sealed class _XPathLexer_87 : XPathLexer
-        {
+        private sealed class _XPathLexer_87 : XPathLexer {
             public _XPathLexer_87(ICharStream baseArg1)
-                : base(baseArg1)
-            {
+                : base(baseArg1) {
             }
 
-            public override void Recover(LexerNoViableAltException e)
-            {
+            public override void Recover(LexerNoViableAltException e) {
                 throw e;
             }
         }
@@ -197,36 +173,28 @@ loop_break: ;
         /// precedes the
         /// word.
         /// </summary>
-        protected internal virtual XPathElement GetXPathElement(IToken wordToken, bool anywhere)
-        {
-            if (wordToken.Type == TokenConstants.EOF)
-            {
+        protected internal virtual XPathElement GetXPathElement(IToken wordToken, bool anywhere) {
+            if (wordToken.Type == TokenConstants.EOF) {
                 throw new ArgumentException("Missing path element at end of path");
             }
-            string word = wordToken.Text;
-            int ttype = parser.GetTokenType(word);
-            int ruleIndex = parser.GetRuleIndex(word);
-            switch (wordToken.Type)
-            {
-                case XPathLexer.Wildcard:
-                {
+            var word = wordToken.Text;
+            var ttype = parser.GetTokenType(word);
+            var ruleIndex = parser.GetRuleIndex(word);
+            switch (wordToken.Type) {
+                case XPathLexer.Wildcard: {
                     return anywhere ? new XPathWildcardAnywhereElement() : (XPathElement)new XPathWildcardElement();
                 }
 
                 case XPathLexer.TokenRef:
-                case XPathLexer.String:
-                {
-                    if (ttype == TokenConstants.InvalidType)
-                    {
+                case XPathLexer.String: {
+                    if (ttype == TokenConstants.InvalidType) {
                         throw new ArgumentException(word + " at index " + wordToken.StartIndex + " isn't a valid token name");
                     }
                     return anywhere ? new XPathTokenAnywhereElement(word, ttype) : (XPathElement)new XPathTokenElement(word, ttype);
                 }
 
-                default:
-                {
-                    if (ruleIndex == -1)
-                    {
+                default: {
+                    if (ruleIndex == -1) {
                         throw new ArgumentException(word + " at index " + wordToken.StartIndex + " isn't a valid rule name");
                     }
                     return anywhere ? new XPathRuleAnywhereElement(word, ruleIndex) : (XPathElement)new XPathRuleElement(word, ruleIndex);
@@ -234,9 +202,8 @@ loop_break: ;
             }
         }
 
-        public static ICollection<IParseTree> FindAll(IParseTree tree, string xpath, Parser parser)
-        {
-            Antlr4.Runtime.Tree.Xpath.XPath p = new Antlr4.Runtime.Tree.Xpath.XPath(parser, xpath);
+        public static ICollection<IParseTree> FindAll(IParseTree tree, string xpath, Parser parser) {
+            var p = new Antlr4.Runtime.Tree.Xpath.XPath(parser, xpath);
             return p.Evaluate(tree);
         }
 
@@ -250,29 +217,26 @@ loop_break: ;
         /// <see cref="Evaluate(Antlr4.Runtime.Tree.IParseTree)"/>
         /// .
         /// </summary>
-        public virtual ICollection<IParseTree> Evaluate(IParseTree t)
-        {
-            ParserRuleContext dummyRoot = new ParserRuleContext();
-            dummyRoot.children = Antlr4.Runtime.Sharpen.Collections.SingletonList(t);
+        public virtual ICollection<IParseTree> Evaluate(IParseTree t) {
+            var dummyRoot = new ParserRuleContext {
+                children = Antlr4.Runtime.Sharpen.Collections.SingletonList(t)
+            };
             // don't set t's parent.
             ICollection<IParseTree> work = new[] { dummyRoot };
-            int i = 0;
-            while (i < elements.Length)
-            {
-                HashSet<IParseTree> visited = new HashSet<IParseTree>();
+            var i = 0;
+            while (i < elements.Length) {
+                var visited = new HashSet<IParseTree>();
                 ICollection<IParseTree> next = new List<IParseTree>();
-                foreach (IParseTree node in work)
-                {
-                    if (node.ChildCount > 0)
-                    {
+                foreach (var node in work) {
+                    if (node.ChildCount > 0) {
                         // only try to match next element if it has children
                         // e.g., //func/*/stat might have a token node for which
                         // we can't go looking for stat nodes.
-                        ICollection<IParseTree> matching = elements[i].Evaluate(node);
-                        foreach (IParseTree parseTree in matching)
-                        {
-                            if (visited.Add(parseTree))
+                        var matching = elements[i].Evaluate(node);
+                        foreach (var parseTree in matching) {
+                            if (visited.Add(parseTree)) {
                                 next.Add(parseTree);
+                            }
                         }
                     }
                 }

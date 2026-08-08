@@ -1,5 +1,3 @@
-using System;
-
 namespace JoG {
     //[Serializable]
     //public class StringValue : IEquatable<StringValue> {

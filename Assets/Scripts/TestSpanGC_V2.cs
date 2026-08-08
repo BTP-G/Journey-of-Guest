@@ -1,5 +1,4 @@
-﻿using System;
-using Unity.Profiling;
+using System;
 using UnityEngine;
 using UnityEngine.Profiling;
 
@@ -12,16 +11,20 @@ namespace JoG {
         private void Update() {
             const int LOOP = 1000;          // 放大 1000 倍
             Profiler.BeginSample("Span_FOREACH");
-            for (int i = 0; i < LOOP; i++) {
-                int sum = 0;
-                foreach (var x in Span) sum += x;
+            for (var i = 0; i < LOOP; i++) {
+                var sum = 0;
+                foreach (var x in Span) {
+                    sum += x;
+                }
             }
             Profiler.EndSample();
 
             Profiler.BeginSample("Span_FOR");
-            for (int i = 0; i < LOOP; i++) {
-                int sum = 0;
-                for (int j = 0; j < Span.Length; j++) sum += Span[j];
+            for (var i = 0; i < LOOP; i++) {
+                var sum = 0;
+                for (var j = 0; j < Span.Length; j++) {
+                    sum += Span[j];
+                }
             }
             Profiler.EndSample();
         }

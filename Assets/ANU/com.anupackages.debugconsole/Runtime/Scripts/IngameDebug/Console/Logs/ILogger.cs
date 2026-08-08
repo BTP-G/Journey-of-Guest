@@ -1,10 +1,7 @@
-﻿using System;
-using UnityEngine;
+using System;
 
-namespace ANU.IngameDebug
-{
-    public interface ILogger
-    {
+namespace ANU.IngameDebug {
+    public interface ILogger {
         void LogReturnValue(object value, UnityEngine.Object context = null);
         void LogInfo(string message, UnityEngine.Object context = null);
         void LogWarning(string message, UnityEngine.Object context = null);

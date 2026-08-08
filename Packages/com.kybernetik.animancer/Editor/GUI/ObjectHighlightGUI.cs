@@ -3,20 +3,17 @@
 #if UNITY_EDITOR
 
 using UnityEditor;
-using UnityEditorInternal;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only]
     /// Allows any object to be highlighted in the GUI like with
     /// <see cref="EditorGUIUtility.PingObject(Object)"/>.
     /// </summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/ObjectHighlightGUI
     /// 
-    public static class ObjectHighlightGUI
-    {
+    public static class ObjectHighlightGUI {
         /************************************************************************************************************************/
 
         /// <summary>The highlight will start by expanding then contracting over this duration.</summary>
@@ -47,10 +44,8 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Sets the target object to start highlighting it.</summary>
-        public static void Highlight(object target)
-        {
-            if (target is Object unityObject)
-            {
+        public static void Highlight(object target) {
+            if (target is Object unityObject) {
                 EditorGUIUtility.PingObject(unityObject);
                 return;
             }
@@ -62,17 +57,15 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Draws the highlight if the given `target` is the current <see cref="Target"/>.</summary>
-        public static void Draw(Rect area, object target)
-        {
+        public static void Draw(Rect area, object target) {
             if (Target != target ||
-                Event.current.type != EventType.Repaint)
+                Event.current.type != EventType.Repaint) {
                 return;
+            }
 
             var elapsedTime = CurrentTime - StartTime;
-            if (elapsedTime < ExpandDuration + LingerDuration)
-            {
-                if (elapsedTime < ExpandDuration)
-                {
+            if (elapsedTime < ExpandDuration + LingerDuration) {
+                if (elapsedTime < ExpandDuration) {
                     var size = HighlightSize * Mathf.Sin((float)(elapsedTime / ExpandDuration * Mathf.PI));
 
                     area.x -= size;
@@ -89,9 +82,7 @@ namespace Animancer.Editor
                 EditorGUI.DrawRect(area, color);
 
                 AnimancerGUI.RepaintEverything();
-            }
-            else
-            {
+            } else {
                 Target = null;
             }
         }

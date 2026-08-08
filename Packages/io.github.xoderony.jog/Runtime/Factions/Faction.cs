@@ -22,7 +22,5 @@ namespace JoG {
         public bool IsHostileTo(Faction other) {
             return !IsAlliedWith(other);
         }
-
     }
-
 }

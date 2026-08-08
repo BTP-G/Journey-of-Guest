@@ -1,7 +1,6 @@
 // Animancer // https://kybernetik.com.au/animancer // Copyright 2018-2026 Kybernetik //
 
-namespace Animancer.Units
-{
+namespace Animancer.Units {
     /// <summary>[Editor-Conditional]
     /// Causes a float field to display using 3 fields: Normalized, Seconds, and Frames.
     /// </summary>
@@ -13,13 +12,11 @@ namespace Animancer.Units
     /// https://kybernetik.com.au/animancer/api/Animancer.Units/AnimationTimeAttribute
     /// 
     [System.Diagnostics.Conditional(Strings.UnityEditor)]
-    public sealed class AnimationTimeAttribute : UnitsAttribute
-    {
+    public sealed class AnimationTimeAttribute : UnitsAttribute {
         /************************************************************************************************************************/
 
         /// <summary>A unit of measurement used by the <see cref="AnimationTimeAttribute"/>.</summary>
-        public enum Units
-        {
+        public enum Units {
             /// <summary>A value of 1 represents the end of the animation.</summary>
             Normalized = 0,
 
@@ -43,8 +40,7 @@ namespace Animancer.Units
 
         /// <summary>Cretes a new <see cref="AnimationTimeAttribute"/>.</summary>
         public AnimationTimeAttribute(Units units)
-            : base(Multipliers, Suffixes, (int)units)
-        { }
+            : base(Multipliers, Suffixes, (int)units) { }
 
         /************************************************************************************************************************/
     }

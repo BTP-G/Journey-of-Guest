@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace Xoderony.Collections {
@@ -61,6 +62,7 @@ namespace Xoderony.Collections {
             _count = _items.Length;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ref T ElementAt(int index) {
             if ((uint)index >= (uint)_count) {
                 throw new ArgumentOutOfRangeException(nameof(index));
@@ -219,7 +221,5 @@ namespace Xoderony.Collections {
             Array.Copy(_items, newItems, _count);
             _items = newItems;
         }
-
     }
-
 }

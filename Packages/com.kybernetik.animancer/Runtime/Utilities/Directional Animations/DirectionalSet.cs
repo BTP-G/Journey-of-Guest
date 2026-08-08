@@ -5,8 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>A generic set of objects corresponding to up/right/down/left.</summary>
     /// <remarks>
     /// <strong>Documentation:</strong>
@@ -16,8 +15,7 @@ namespace Animancer
     /// https://kybernetik.com.au/animancer/api/Animancer/DirectionalSet_1
     /// 
     [AnimancerHelpUrl(typeof(DirectionalSet<>))]
-    public abstract class DirectionalSet<T> : ScriptableObject
-    {
+    public abstract class DirectionalSet<T> : ScriptableObject {
         /************************************************************************************************************************/
         #region Read-Only
         /************************************************************************************************************************/
@@ -28,8 +26,7 @@ namespace Animancer
 
         /// <summary>[Assert-Only] Sets a debug flag to enable or disable the ability to modify this set.</summary>
         [System.Diagnostics.Conditional(Strings.Assertions)]
-        public void AllowChanges(bool allow = true)
-        {
+        public void AllowChanges(bool allow = true) {
 #if UNITY_ASSERTIONS
             _AllowChanges = allow;
 #endif
@@ -39,13 +36,13 @@ namespace Animancer
         /// Throws an <see cref="InvalidOperationException"/> if <see cref="AllowChanges"/> wasn't called.
         /// </summary>
         [System.Diagnostics.Conditional(Strings.Assertions)]
-        public void AssertAllowChanges()
-        {
+        public void AssertAllowChanges() {
 #if UNITY_ASSERTIONS
-            if (!_AllowChanges)
+            if (!_AllowChanges) {
                 throw new InvalidOperationException(
                     $"Unable to modify {this} because it is read-only." +
                     $" Call {nameof(AllowChanges)}() before making any changes.");
+            }
 #endif
         }
 
@@ -84,11 +81,11 @@ namespace Animancer
         /// Attempts to assign the `value` to one of this set's fields based on its `name` and
         /// returns the direction index of that field (or -1 if it was unable to determine the direction).
         /// </summary>
-        public int SetByName(string name, T value)
-        {
+        public int SetByName(string name, T value) {
             var direction = GetDirection(name);
-            if (direction >= 0)
+            if (direction >= 0) {
                 Set(direction, value);
+            }
 
             return direction;
         }
@@ -98,8 +95,9 @@ namespace Animancer
         /// returns the direction index of that field (or -1 if it was unable to determine the direction).
         /// </summary>
         public int SetByName<U>(U value)
-            where U : Object, T
-            => SetByName(value.name, value);
+            where U : Object, T {
+            return SetByName(value.name, value);
+        }
 
         /************************************************************************************************************************/
         #region Conversion
@@ -125,19 +123,19 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Adds all objects from this set to the `values`, starting from the specified `index`.</summary>
-        public void AddTo(T[] values, int index)
-        {
+        public void AddTo(T[] values, int index) {
             var count = DirectionCount;
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++) {
                 values[index + i] = Get(i);
+            }
         }
 
         /// <summary>Adds all objects from this set to the `values`.</summary>
-        public void AddTo(List<T> values)
-        {
+        public void AddTo(List<T> values) {
             var count = DirectionCount;
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++) {
                 values.Add(Get(i));
+            }
         }
 
         /************************************************************************************************************************/
@@ -146,18 +144,17 @@ namespace Animancer
         /// Adds unit vectors corresponding to each of the objects in this set to the `directions`,
         /// starting from the specified `index`.
         /// </summary>
-        public void AddTo(Vector2[] directions, int index)
-        {
+        public void AddTo(Vector2[] directions, int index) {
             var count = DirectionCount;
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++) {
                 directions[index + i] = GetDirection(i);
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <summary>Calls <see cref="AddTo"/> and <see cref="AddTo"/>.</summary>
-        public void AddTo(T[] values, Vector2[] directions, int index)
-        {
+        public void AddTo(T[] values, Vector2[] directions, int index) {
             AddTo(values, index);
             AddTo(directions, index);
         }

@@ -4,14 +4,12 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <inheritdoc/>
     /// https://kybernetik.com.au/animancer/api/Animancer/TransitionAsset_1
     [AnimancerHelpUrl(typeof(TransitionAsset<ITransition>))]
     public class TransitionAsset<TTransition> : TransitionAssetBase
-        where TTransition : ITransition
-    {
+        where TTransition : ITransition {
         /************************************************************************************************************************/
 
         [SerializeReference]
@@ -28,10 +26,8 @@ namespace Animancer
         /// or <see cref="AnimancerLayer.GetOrCreateState(ITransition)"/>
         /// to get or create the state for a specific object.
         /// </remarks>
-        public TTransition Transition
-        {
-            get
-            {
+        public TTransition Transition {
+            get {
                 AssertTransition();
                 return _Transition;
             }
@@ -39,8 +35,7 @@ namespace Animancer
         }
 
         /// <summary>Returns the <see cref="ITransition"/> wrapped by this <see cref="ScriptableObject"/>.</summary>
-        public override ITransition GetTransition()
-        {
+        public override ITransition GetTransition() {
             AssertTransition();
             return _Transition;
         }
@@ -51,12 +46,12 @@ namespace Animancer
         /// Throws a <see cref="NullReferenceException"/> if the <see cref="Transition"/> is null.
         /// </summary>
         [System.Diagnostics.Conditional(Strings.Assertions)]
-        private void AssertTransition()
-        {
-            if (_Transition == null)
+        private void AssertTransition() {
+            if (_Transition == null) {
                 throw new NullReferenceException(
                     $"'{name}' {nameof(Transition)} is null." +
                     $" {nameof(HasTransition)} can be used to check without triggering this error.");
+            }
         }
 
         /************************************************************************************************************************/
@@ -74,18 +69,20 @@ namespace Animancer
         public override FadeMode FadeMode => _Transition.FadeMode;
 
         /// <inheritdoc/>
-        public override AnimancerState CreateState() => _Transition.CreateState();
+        public override AnimancerState CreateState() {
+            return _Transition.CreateState();
+        }
 
         /// <inheritdoc/>
-        public override void Apply(AnimancerState state)
-        {
+        public override void Apply(AnimancerState state) {
             _Transition.Apply(state);
             state.SetDebugName(this);
         }
 
         /// <inheritdoc/>
-        public override void GetAnimationClips(List<AnimationClip> clips)
-            => clips.GatherFromSource(_Transition);
+        public override void GetAnimationClips(List<AnimationClip> clips) {
+            clips.GatherFromSource(_Transition);
+        }
 
         /************************************************************************************************************************/
 
@@ -98,8 +95,7 @@ namespace Animancer
         /// <summary>[Editor-Only]
         /// Assigns a default <typeparamref name="TTransition"/> to the <see cref="Transition"/> field.
         /// </summary>
-        protected virtual void Reset()
-        {
+        protected virtual void Reset() {
             _Transition = AnimancerReflection.CreateDefaultInstance<TTransition>();
         }
 #endif

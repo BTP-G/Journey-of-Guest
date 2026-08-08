@@ -1,7 +1,5 @@
 using ANU.IngameDebug.Console;
 using EditorAttributes;
-using Xoderony.Localization;
-using Xoderony.Logging;
 using JoG.Character;
 using System;
 using TMPro;
@@ -9,6 +7,8 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
+using Xoderony.Localization;
+using Xoderony.Logging;
 
 namespace JoG {
 
@@ -79,7 +79,5 @@ namespace JoG {
                 spawnCard.SetActive(true);
             }
         }
-
     }
-
 }

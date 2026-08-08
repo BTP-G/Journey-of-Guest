@@ -1,18 +1,16 @@
-﻿#if DOTWEEN_ENABLED
+#if DOTWEEN_ENABLED
 using DG.Tweening;
 using UnityEngine;
 
-namespace BrunoMikoski.AnimationSequencer
-{
+namespace BrunoMikoski.AnimationSequencer {
     // Modified by Pablo Huaxteco
     [CreateAssetMenu(menuName = "Animation Sequencer/Create Animation Sequencer Defaults", fileName = "AnimationSequencerDefaults")]
-    public sealed class AnimationSequencerDefaults : EditorDefaultResourceSingleton<AnimationSequencerDefaults>
-    {
+    public sealed class AnimationSequencerDefaults : EditorDefaultResourceSingleton<AnimationSequencerDefaults> {
         [Header("Animation Sequencer defaults (New Instance)")]
         [SerializeField]
         private AutoplayType autoplayMode;
         public AutoplayType AutoplayMode => autoplayMode;
-        
+
         [SerializeField]
         private bool startPaused;
         public bool StartPaused => startPaused;

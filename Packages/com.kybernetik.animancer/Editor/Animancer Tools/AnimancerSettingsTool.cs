@@ -4,13 +4,11 @@
 
 using System;
 
-namespace Animancer.Editor.Tools
-{
+namespace Animancer.Editor.Tools {
     /// <summary>[Editor-Only] Displays the <see cref="AnimancerSettings"/>.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor.Tools/AnimancerSettingsTool
     [Serializable]
-    public class AnimancerSettingsTool : AnimancerToolsWindow.Tool
-    {
+    public class AnimancerSettingsTool : AnimancerToolsWindow.Tool {
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
@@ -33,8 +31,7 @@ namespace Animancer.Editor.Tools
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void OnDisable()
-        {
+        public override void OnDisable() {
             base.OnDisable();
             SettingsEditor.Dispose();
         }
@@ -42,11 +39,11 @@ namespace Animancer.Editor.Tools
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void DoBodyGUI()
-        {
+        public override void DoBodyGUI() {
             var settings = AnimancerSettings.Instance;
-            if (settings == null)
+            if (settings == null) {
                 return;
+            }
 
             AnimancerSettings.Editor.HideNextInfo = true;
 

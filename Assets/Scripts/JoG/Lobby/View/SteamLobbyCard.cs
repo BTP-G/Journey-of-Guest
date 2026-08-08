@@ -1,10 +1,10 @@
 using EditorAttributes;
-using Xoderony.Logging;
 using Steamworks;
 using Steamworks.Data;
 using System.Text;
 using TMPro;
 using UnityEngine;
+using Xoderony.Logging;
 using SLobby = Steamworks.Data.Lobby;
 
 namespace JoG.Lobby.View {

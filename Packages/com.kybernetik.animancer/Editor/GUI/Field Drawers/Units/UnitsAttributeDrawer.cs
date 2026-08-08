@@ -8,13 +8,11 @@ using UnityEditor;
 using UnityEngine;
 using static Animancer.Editor.AnimancerGUI;
 
-namespace Animancer.Units.Editor
-{
+namespace Animancer.Units.Editor {
     /// <summary>[Editor-Only] A <see cref="PropertyDrawer"/> for fields with a <see cref="UnitsAttribute"/>.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Units.Editor/UnitsAttributeDrawer
     [CustomPropertyDrawer(typeof(UnitsAttribute), true)]
-    public class UnitsAttributeDrawer : PropertyDrawer
-    {
+    public class UnitsAttributeDrawer : PropertyDrawer {
         /************************************************************************************************************************/
 
         /// <summary>The attribute on the field being drawn.</summary>
@@ -26,37 +24,39 @@ namespace Animancer.Units.Editor
         /************************************************************************************************************************/
 
         /// <summary>Gathers the <see cref="Attribute"/> and sets up the <see cref="DisplayConverters"/>.</summary>
-        public void Initialize()
-            => Initialize(attribute);
+        public void Initialize() {
+            Initialize(attribute);
+        }
 
         /// <summary>Gathers the <see cref="Attribute"/> and sets up the <see cref="DisplayConverters"/>.</summary>
-        public void Initialize(Attribute attribute)
-        {
-            if (Attribute != null)
+        public void Initialize(Attribute attribute) {
+            if (Attribute != null) {
                 return;
+            }
 
             Attribute = (UnitsAttribute)attribute;
 
             var suffixes = Attribute.Suffixes;
             DisplayConverters = new CompactUnitConversionCache[suffixes.Length];
-            for (int i = 0; i < suffixes.Length; i++)
+            for (var i = 0; i < suffixes.Length; i++) {
                 DisplayConverters[i] = new(suffixes[i]);
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-        {
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
             var lineCount = GetLineCount(property, label);
-            return LineHeight * lineCount + StandardSpacing * (lineCount - 1);
+            return (LineHeight * lineCount) + (StandardSpacing * (lineCount - 1));
         }
 
         /// <summary>Determines how many lines tall the `property` should be.</summary>
-        protected virtual int GetLineCount(SerializedProperty property, GUIContent label)
-            => EditorGUIUtility.wideMode
-            ? 1
-            : 2;
+        protected virtual int GetLineCount(SerializedProperty property, GUIContent label) {
+            return EditorGUIUtility.wideMode
+                                                                                                      ? 1
+                                                                                                      : 2;
+        }
 
         /************************************************************************************************************************/
 
@@ -65,8 +65,7 @@ namespace Animancer.Units.Editor
             Rect area,
             SerializedProperty property,
             ref GUIContent label,
-            out float value)
-        {
+            out float value) {
             label = EditorGUI.BeginProperty(area, label, property);
 
             EditorGUI.BeginChangeCheck();
@@ -78,13 +77,14 @@ namespace Animancer.Units.Editor
         protected static void EndProperty(
             Rect area,
             SerializedProperty property,
-            ref float value)
-        {
-            if (TryUseClickEvent(area, 2))
+            ref float value) {
+            if (TryUseClickEvent(area, 2)) {
                 DefaultValues.SetToDefault(ref value, property);
+            }
 
-            if (EditorGUI.EndChangeCheck())
+            if (EditorGUI.EndChangeCheck()) {
                 property.floatValue = value;
+            }
 
             EditorGUI.EndProperty();
         }
@@ -92,8 +92,7 @@ namespace Animancer.Units.Editor
         /************************************************************************************************************************/
 
         /// <summary>Draws this attribute's fields for the `property`.</summary>
-        public override void OnGUI(Rect area, SerializedProperty property, GUIContent label)
-        {
+        public override void OnGUI(Rect area, SerializedProperty property, GUIContent label) {
             Initialize();
             BeginProperty(area, property, ref label, out var value);
             DoFieldGUI(area, label, ref value);
@@ -105,8 +104,7 @@ namespace Animancer.Units.Editor
         private static readonly int TextFieldHash = "EditorTextField".GetHashCode();
 
         /// <summary>Draws this attribute's fields.</summary>
-        public void DoFieldGUI(Rect area, GUIContent label, ref float value)
-        {
+        public void DoFieldGUI(Rect area, GUIContent label, ref float value) {
             var isMultiLine = area.height >= LineHeight * 2;
             area.height = LineHeight;
 
@@ -120,8 +118,7 @@ namespace Animancer.Units.Editor
             var hasLabel = label != null && !string.IsNullOrEmpty(label.text);
             Rect allFieldArea;
 
-            if (isMultiLine)
-            {
+            if (isMultiLine) {
                 EditorGUI.LabelField(area, label);
                 label = null;
                 NextVerticalArea(ref area);
@@ -129,14 +126,10 @@ namespace Animancer.Units.Editor
                 EditorGUI.indentLevel++;
                 allFieldArea = EditorGUI.IndentedRect(area);
                 EditorGUI.indentLevel--;
-            }
-            else if (hasLabel)
-            {
+            } else if (hasLabel) {
                 var labelXMax = area.x + EditorGUIUtility.labelWidth;
                 allFieldArea = new(labelXMax, area.y, area.xMax - labelXMax, area.height);
-            }
-            else
-            {
+            } else {
                 allFieldArea = area;
             }
 
@@ -150,8 +143,7 @@ namespace Animancer.Units.Editor
                 Attribute.DisabledText != null &&
                 currentEvent.type == EventType.Repaint &&
                 !area.Contains(currentEvent.mousePosition) &&
-                !HasKeyboardControl(beforeControlID, beforeControlID + count))
-            {
+                !HasKeyboardControl(beforeControlID, beforeControlID + count)) {
                 var dragArea = area;
                 dragArea.width = EditorGUIUtility.labelWidth;
                 EditorGUIUtility.AddCursorRect(dragArea, MouseCursor.SlideArrow);
@@ -160,34 +152,28 @@ namespace Animancer.Units.Editor
 
                 EditorGUI.TextField(area, label, Attribute.DisabledText);
 
-                for (int i = 1; i < count; i++)
+                for (var i = 1; i < count; i++) {
                     GUIUtility.GetControlID(TextFieldHash, FocusType.Keyboard, area);
-            }
-            else
-            {
-                var width = (allFieldArea.width - StandardSpacing * (count - 1)) / count;
+                }
+            } else {
+                var width = (allFieldArea.width - (StandardSpacing * (count - 1))) / count;
                 var fieldArea = new Rect(allFieldArea.x, allFieldArea.y, width, allFieldArea.height);
 
                 var displayValue = GetDisplayValue(value, Attribute.DefaultValue);
 
                 // Draw the active fields.
-                for (int i = 0; i < Attribute.Multipliers.Length; i++)
-                {
+                for (var i = 0; i < Attribute.Multipliers.Length; i++) {
                     var multiplier = Attribute.Multipliers[i];
-                    if (float.IsNaN(multiplier))
+                    if (float.IsNaN(multiplier)) {
                         continue;
-
-                    if (hasLabel)
-                    {
-                        fieldArea.xMin = area.xMin;
                     }
-                    else if (i < last)
-                    {
+
+                    if (hasLabel) {
+                        fieldArea.xMin = area.xMin;
+                    } else if (i < last) {
                         fieldArea.width = width;
                         fieldArea.xMax = AnimancerUtilities.Round(fieldArea.xMax);
-                    }
-                    else
-                    {
+                    } else {
                         fieldArea.xMax = area.xMax;
                     }
 
@@ -198,8 +184,9 @@ namespace Animancer.Units.Editor
                     label = null;
                     hasLabel = false;
 
-                    if (EditorGUI.EndChangeCheck())
+                    if (EditorGUI.EndChangeCheck()) {
                         value = fieldValue / multiplier;
+                    }
 
                     fieldArea.x += fieldArea.width + StandardSpacing;
                 }
@@ -219,15 +206,12 @@ namespace Animancer.Units.Editor
         /************************************************************************************************************************/
 
         /// <summary>Counts the number of active <see cref="UnitsAttribute.Multipliers"/>.</summary>
-        private void CountActiveFields(out int count, out int last)
-        {
+        private void CountActiveFields(out int count, out int last) {
             count = 0;
             last = 0;
 
-            for (int i = 0; i < Attribute.Multipliers.Length; i++)
-            {
-                if (!float.IsNaN(Attribute.Multipliers[i]))
-                {
+            for (var i = 0; i < Attribute.Multipliers.Length; i++) {
+                if (!float.IsNaN(Attribute.Multipliers[i])) {
                     count++;
                     last = i;
                 }
@@ -237,8 +221,7 @@ namespace Animancer.Units.Editor
         /************************************************************************************************************************/
 
         /// <summary>Is the <see cref="GUIUtility.keyboardControl"/> in the specified range (inclusive)?</summary>
-        private static bool HasKeyboardControl(int minControlID, int maxControlID)
-        {
+        private static bool HasKeyboardControl(int minControlID, int maxControlID) {
             var keyboardControl = GUIUtility.keyboardControl;
             return keyboardControl >= minControlID && keyboardControl <= maxControlID;
         }
@@ -257,28 +240,26 @@ namespace Animancer.Units.Editor
             Rect area,
             GUIContent label,
             float value,
-            CompactUnitConversionCache toString)
-        {
-            if (label != null && !string.IsNullOrEmpty(label.text))
-            {
-                if (Event.current.type != EventType.Repaint)
+            CompactUnitConversionCache toString) {
+            if (label != null && !string.IsNullOrEmpty(label.text)) {
+                if (Event.current.type != EventType.Repaint) {
                     return EditorGUI.FloatField(area, label, value);
+                }
 
                 var dragArea = new Rect(area.x, area.y, EditorGUIUtility.labelWidth, area.height);
                 EditorGUIUtility.AddCursorRect(dragArea, MouseCursor.SlideArrow);
 
                 var text = toString.Convert(value, area.width - EditorGUIUtility.labelWidth);
                 EditorGUI.TextField(area, label, text);
-            }
-            else
-            {
+            } else {
                 var indentLevel = EditorGUI.indentLevel;
                 EditorGUI.indentLevel = 0;
 
-                if (Event.current.type != EventType.Repaint)
+                if (Event.current.type != EventType.Repaint) {
                     value = EditorGUI.FloatField(area, value);
-                else
+                } else {
                     EditorGUI.TextField(area, toString.Convert(value, area.width));
+                }
 
                 EditorGUI.indentLevel = indentLevel;
             }
@@ -295,13 +276,13 @@ namespace Animancer.Units.Editor
             Rect area,
             out Rect toggleArea,
             out bool guiWasEnabled,
-            out float previousLabelWidth)
-        {
+            out float previousLabelWidth) {
             toggleArea = area;
             guiWasEnabled = GUI.enabled;
             previousLabelWidth = EditorGUIUtility.labelWidth;
-            if (!isOptional)
+            if (!isOptional) {
                 return;
+            }
 
             toggleArea.x += previousLabelWidth;
 
@@ -313,10 +294,8 @@ namespace Animancer.Units.Editor
             // We need to draw the toggle after everything else to it goes on top of the label. But we want it to
             // get priority for input events, so we disable the other controls during those events in its area.
             var currentEvent = Event.current;
-            if (guiWasEnabled && toggleArea.Contains(currentEvent.mousePosition))
-            {
-                switch (currentEvent.type)
-                {
+            if (guiWasEnabled && toggleArea.Contains(currentEvent.mousePosition)) {
+                switch (currentEvent.type) {
                     case EventType.Repaint:
                     case EventType.Layout:
                         break;
@@ -337,13 +316,13 @@ namespace Animancer.Units.Editor
             ref float value,
             float defaultValue,
             bool guiWasEnabled,
-            float previousLabelWidth)
-        {
+            float previousLabelWidth) {
             GUI.enabled = guiWasEnabled;
             EditorGUIUtility.labelWidth = previousLabelWidth;
 
-            if (!isOptional)
+            if (!isOptional) {
                 return;
+            }
 
             area.x += StandardSpacing;
 
@@ -359,8 +338,7 @@ namespace Animancer.Units.Editor
 
             EditorGUI.indentLevel = indentLevel;
 
-            if (isEnabled != wasEnabled)
-            {
+            if (isEnabled != wasEnabled) {
                 value = isEnabled ? defaultValue : float.NaN;
                 Deselect();
             }
@@ -369,8 +347,9 @@ namespace Animancer.Units.Editor
         /************************************************************************************************************************/
 
         /// <summary>Returns the value that should be displayed for a given field.</summary>
-        public static float GetDisplayValue(float value, float defaultValue)
-            => float.IsNaN(value) ? defaultValue : value;
+        public static float GetDisplayValue(float value, float defaultValue) {
+            return float.IsNaN(value) ? defaultValue : value;
+        }
 
         /************************************************************************************************************************/
     }

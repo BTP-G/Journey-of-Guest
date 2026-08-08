@@ -1,16 +1,14 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
 using System.IO;
 
-namespace Antlr4.Runtime
-{
+namespace Antlr4.Runtime {
     /// <summary>How to emit recognition errors.</summary>
     /// <remarks>How to emit recognition errors.</remarks>
-    public interface IAntlrErrorListener<in TSymbol>
-    {
+    public interface IAntlrErrorListener<in TSymbol> {
         /// <summary>Upon syntax error, notify any interested parties.</summary>
         /// <remarks>
         /// Upon syntax error, notify any interested parties. This is not how to

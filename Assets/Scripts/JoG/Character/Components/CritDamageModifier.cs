@@ -1,6 +1,3 @@
-using UnityEngine;
-using VContainer;
-
 namespace JoG.Character.Components {
 
     //public class CritDamageModifier : MonoBehaviour, IComponent {

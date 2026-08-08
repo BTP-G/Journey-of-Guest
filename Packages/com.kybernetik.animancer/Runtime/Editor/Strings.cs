@@ -3,13 +3,11 @@
 using Animancer.Units;
 using UnityEngine;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>Various string constants used throughout <see cref="Animancer"/>.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer/Strings
     /// 
-    public static class Strings
-    {
+    public static class Strings {
         /************************************************************************************************************************/
 
         /// <summary>The name of this product.</summary>
@@ -74,8 +72,7 @@ namespace Animancer
         /// <summary>URLs of various documentation pages.</summary>
         /// https://kybernetik.com.au/animancer/api/Animancer/DocsURLs
         /// 
-        public static class DocsURLs
-        {
+        public static class DocsURLs {
             /************************************************************************************************************************/
 
             /// <summary>The URL of the website where the Animancer documentation is hosted.</summary>
@@ -158,8 +155,7 @@ namespace Animancer
         /// <summary>Tooltips for various fields.</summary>
         /// https://kybernetik.com.au/animancer/api/Animancer/Tooltips
         /// 
-        public static class Tooltips
-        {
+        public static class Tooltips {
             /************************************************************************************************************************/
 
             public const string MiddleClickReset =

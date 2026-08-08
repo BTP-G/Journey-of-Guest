@@ -2,8 +2,7 @@
 
 using System;
 
-namespace Animancer.FSM
-{
+namespace Animancer.FSM {
     /// <summary>A static access point for the details of a state change in a <see cref="StateMachine{TState}"/>.</summary>
     /// <remarks>
     /// This system is thread-safe.
@@ -15,8 +14,7 @@ namespace Animancer.FSM
     /// https://kybernetik.com.au/animancer/api/Animancer.FSM/StateChange_1
     /// 
     public struct StateChange<TState> : IDisposable
-        where TState : class, IState
-    {
+        where TState : class, IState {
         /************************************************************************************************************************/
 
         [ThreadStatic]
@@ -43,14 +41,13 @@ namespace Animancer.FSM
         /// <exception cref="InvalidOperationException">[Assert-Only]
         /// <see cref="IsActive"/> is false so this property is likely being accessed on the wrong generic type.
         /// </exception>
-        public static TState PreviousState
-        {
-            get
-            {
+        public static TState PreviousState {
+            get {
 #if UNITY_ASSERTIONS
-                if (!IsActive)
+                if (!IsActive) {
                     throw new InvalidOperationException(
                         StateExtensions.GetChangeError(typeof(TState), typeof(StateMachine<>)));
+                }
 #endif
                 return _Current._PreviousState;
             }
@@ -62,14 +59,13 @@ namespace Animancer.FSM
         /// <exception cref="InvalidOperationException">[Assert-Only]
         /// <see cref="IsActive"/> is false so this property is likely being accessed on the wrong generic type.
         /// </exception>
-        public static TState NextState
-        {
-            get
-            {
+        public static TState NextState {
+            get {
 #if UNITY_ASSERTIONS
-                if (!IsActive)
+                if (!IsActive) {
                     throw new InvalidOperationException(
                         StateExtensions.GetChangeError(typeof(TState), typeof(StateMachine<>)));
+                }
 #endif
                 return _Current._NextState;
             }
@@ -89,8 +85,7 @@ namespace Animancer.FSM
         ///     // Do the actual state change.
         /// }
         /// </code></remarks>
-        internal StateChange(StateMachine<TState> stateMachine, TState previousState, TState nextState)
-        {
+        internal StateChange(StateMachine<TState> stateMachine, TState previousState, TState nextState) {
             this = _Current;
 
             _Current._StateMachine = stateMachine;
@@ -108,22 +103,25 @@ namespace Animancer.FSM
         /// Usually this will be returning to default values (nulls), but if one state change causes another
         /// then the second one ending will return to the first which will then return to the defaults.
         /// </remarks>
-        public readonly void Dispose()
-            => _Current = this;
+        public readonly void Dispose() {
+            _Current = this;
+        }
 
         /************************************************************************************************************************/
 
         /// <summary>Returns a string describing the contents of this <see cref="StateChange{TState}"/>.</summary>
-        public override readonly string ToString()
-            => IsActive
-            ? $"{nameof(StateChange<TState>)}<{typeof(TState).FullName}" +
-                $">({nameof(PreviousState)}='{_PreviousState}'" +
-                $", {nameof(NextState)}='{_NextState}')"
-            : $"{nameof(StateChange<TState>)}<{typeof(TState).FullName}(Not Currently Active)";
+        public override readonly string ToString() {
+            return IsActive
+                                                               ? $"{nameof(StateChange<TState>)}<{typeof(TState).FullName}" +
+                                                                   $">({nameof(PreviousState)}='{_PreviousState}'" +
+                                                                   $", {nameof(NextState)}='{_NextState}')"
+                                                               : $"{nameof(StateChange<TState>)}<{typeof(TState).FullName}(Not Currently Active)";
+        }
 
         /// <summary>Returns a string describing the contents of the current <see cref="StateChange{TState}"/>.</summary>
-        public static string CurrentToString()
-            => _Current.ToString();
+        public static string CurrentToString() {
+            return _Current.ToString();
+        }
 
         /************************************************************************************************************************/
     }

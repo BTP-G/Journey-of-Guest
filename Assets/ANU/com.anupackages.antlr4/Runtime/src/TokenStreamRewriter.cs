@@ -1,15 +1,14 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
+using Antlr4.Runtime.Misc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Antlr4.Runtime.Misc;
 
-namespace Antlr4.Runtime
-{
+namespace Antlr4.Runtime {
     /// <summary>
     /// Useful for rewriting out a buffered input token stream after doing some
     /// augmentation or other manipulations on it.
@@ -96,16 +95,14 @@ namespace Antlr4.Runtime
     /// If you don't use named rewrite streams, a "default" stream is used as the
     /// first example shows.</p>
     /// </remarks>
-    public class TokenStreamRewriter
-    {
+    public class TokenStreamRewriter {
         public const string DefaultProgramName = "default";
 
         public const int ProgramInitSize = 100;
 
         public const int MinTokenIndex = 0;
 
-        public class RewriteOperation
-        {
+        public class RewriteOperation {
             protected internal readonly ITokenStream tokens;
 
             /// <summary>What index into rewrites List are we?</summary>
@@ -117,15 +114,13 @@ namespace Antlr4.Runtime
 
             protected internal object text;
 
-            protected internal RewriteOperation(ITokenStream tokens, int index)
-            {
+            protected internal RewriteOperation(ITokenStream tokens, int index) {
                 // Define the rewrite operation hierarchy
                 this.tokens = tokens;
                 this.index = index;
             }
 
-            protected internal RewriteOperation(ITokenStream tokens, int index, object text)
-            {
+            protected internal RewriteOperation(ITokenStream tokens, int index, object text) {
                 this.tokens = tokens;
                 this.index = index;
                 this.text = text;
@@ -136,32 +131,26 @@ namespace Antlr4.Runtime
             /// Execute the rewrite operation by possibly adding to the buffer.
             /// Return the index of the next token to operate on.
             /// </remarks>
-            public virtual int Execute(StringBuilder buf)
-            {
+            public virtual int Execute(StringBuilder buf) {
                 return index;
             }
 
-            public override string ToString()
-            {
-                string opName = GetType().FullName;
-                int index = opName.IndexOf('$');
+            public override string ToString() {
+                var opName = GetType().FullName;
+                var index = opName.IndexOf('$');
                 opName = Sharpen.Runtime.Substring(opName, index + 1, opName.Length);
                 return "<" + opName + "@" + tokens.Get(this.index) + ":\"" + text + "\">";
             }
         }
 
-        internal class InsertBeforeOp : TokenStreamRewriter.RewriteOperation
-        {
+        internal class InsertBeforeOp : TokenStreamRewriter.RewriteOperation {
             public InsertBeforeOp(ITokenStream tokens, int index, object text)
-                : base(tokens, index, text)
-            {
+                : base(tokens, index, text) {
             }
 
-            public override int Execute(StringBuilder buf)
-            {
+            public override int Execute(StringBuilder buf) {
                 buf.Append(text);
-                if (tokens.Get(index).Type != TokenConstants.EOF)
-                {
+                if (tokens.Get(index).Type != TokenConstants.EOF) {
                     buf.Append(tokens.Get(index).Text);
                 }
                 return index + 1;
@@ -176,29 +165,23 @@ namespace Antlr4.Runtime
         /// I'm going to try replacing range from x..y with (y-x)+1 ReplaceOp
         /// instructions.
         /// </remarks>
-        internal class ReplaceOp : TokenStreamRewriter.RewriteOperation
-        {
+        internal class ReplaceOp : TokenStreamRewriter.RewriteOperation {
             protected internal int lastIndex;
 
             public ReplaceOp(ITokenStream tokens, int from, int to, object text)
-                : base(tokens, from, text)
-            {
+                : base(tokens, from, text) {
                 lastIndex = to;
             }
 
-            public override int Execute(StringBuilder buf)
-            {
-                if (text != null)
-                {
+            public override int Execute(StringBuilder buf) {
+                if (text != null) {
                     buf.Append(text);
                 }
                 return lastIndex + 1;
             }
 
-            public override string ToString()
-            {
-                if (text == null)
-                {
+            public override string ToString() {
+                if (text == null) {
                     return "<DeleteOp@" + tokens.Get(index) + ".." + tokens.Get(lastIndex) + ">";
                 }
                 return "<ReplaceOp@" + tokens.Get(index) + ".." + tokens.Get(lastIndex) + ":\"" + text + "\">";
@@ -219,24 +202,21 @@ namespace Antlr4.Runtime
         /// <summary>Map String (program name) &#x2192; Integer index</summary>
         protected internal readonly IDictionary<string, int> lastRewriteTokenIndexes;
 
-        public TokenStreamRewriter(ITokenStream tokens)
-        {
+        public TokenStreamRewriter(ITokenStream tokens) {
             this.tokens = tokens;
-            programs = new Dictionary<string, IList<TokenStreamRewriter.RewriteOperation>>();
-            programs[DefaultProgramName] = new List<TokenStreamRewriter.RewriteOperation>(ProgramInitSize);
+            programs = new Dictionary<string, IList<TokenStreamRewriter.RewriteOperation>> {
+                [DefaultProgramName] = new List<TokenStreamRewriter.RewriteOperation>(ProgramInitSize)
+            };
             lastRewriteTokenIndexes = new Dictionary<string, int>();
         }
 
-        public ITokenStream TokenStream
-        {
-            get
-            {
+        public ITokenStream TokenStream {
+            get {
                 return tokens;
             }
         }
 
-        public virtual void Rollback(int instructionIndex)
-        {
+        public virtual void Rollback(int instructionIndex) {
             Rollback(DefaultProgramName, instructionIndex);
         }
 
@@ -250,172 +230,136 @@ namespace Antlr4.Runtime
         /// the indicated instruction (via instructionIndex) is no
         /// longer in the stream. UNTESTED!
         /// </remarks>
-        public virtual void Rollback(string programName, int instructionIndex)
-        {
-            IList<TokenStreamRewriter.RewriteOperation> @is;
-            if (programs.TryGetValue(programName, out @is))
-            {
+        public virtual void Rollback(string programName, int instructionIndex) {
+            if (programs.TryGetValue(programName, out var @is)) {
                 programs[programName] = new List<RewriteOperation>(@is.Skip(MinTokenIndex).Take(instructionIndex - MinTokenIndex));
             }
         }
 
-        public virtual void DeleteProgram()
-        {
+        public virtual void DeleteProgram() {
             DeleteProgram(DefaultProgramName);
         }
 
         /// <summary>Reset the program so that no instructions exist</summary>
-        public virtual void DeleteProgram(string programName)
-        {
+        public virtual void DeleteProgram(string programName) {
             Rollback(programName, MinTokenIndex);
         }
 
-        public virtual void InsertAfter(IToken t, object text)
-        {
+        public virtual void InsertAfter(IToken t, object text) {
             InsertAfter(DefaultProgramName, t, text);
         }
 
-        public virtual void InsertAfter(int index, object text)
-        {
+        public virtual void InsertAfter(int index, object text) {
             InsertAfter(DefaultProgramName, index, text);
         }
 
-        public virtual void InsertAfter(string programName, IToken t, object text)
-        {
+        public virtual void InsertAfter(string programName, IToken t, object text) {
             InsertAfter(programName, t.TokenIndex, text);
         }
 
-        public virtual void InsertAfter(string programName, int index, object text)
-        {
+        public virtual void InsertAfter(string programName, int index, object text) {
             // to insert after, just insert before next index (even if past end)
             InsertBefore(programName, index + 1, text);
         }
 
-        public virtual void InsertBefore(IToken t, object text)
-        {
+        public virtual void InsertBefore(IToken t, object text) {
             InsertBefore(DefaultProgramName, t, text);
         }
 
-        public virtual void InsertBefore(int index, object text)
-        {
+        public virtual void InsertBefore(int index, object text) {
             InsertBefore(DefaultProgramName, index, text);
         }
 
-        public virtual void InsertBefore(string programName, IToken t, object text)
-        {
+        public virtual void InsertBefore(string programName, IToken t, object text) {
             InsertBefore(programName, t.TokenIndex, text);
         }
 
-        public virtual void InsertBefore(string programName, int index, object text)
-        {
+        public virtual void InsertBefore(string programName, int index, object text) {
             TokenStreamRewriter.RewriteOperation op = new TokenStreamRewriter.InsertBeforeOp(tokens, index, text);
-            IList<TokenStreamRewriter.RewriteOperation> rewrites = GetProgram(programName);
+            var rewrites = GetProgram(programName);
             op.instructionIndex = rewrites.Count;
             rewrites.Add(op);
         }
 
-        public virtual void Replace(int index, object text)
-        {
+        public virtual void Replace(int index, object text) {
             Replace(DefaultProgramName, index, index, text);
         }
 
-        public virtual void Replace(int from, int to, object text)
-        {
+        public virtual void Replace(int from, int to, object text) {
             Replace(DefaultProgramName, from, to, text);
         }
 
-        public virtual void Replace(IToken indexT, object text)
-        {
+        public virtual void Replace(IToken indexT, object text) {
             Replace(DefaultProgramName, indexT, indexT, text);
         }
 
-        public virtual void Replace(IToken from, IToken to, object text)
-        {
+        public virtual void Replace(IToken from, IToken to, object text) {
             Replace(DefaultProgramName, from, to, text);
         }
 
-        public virtual void Replace(string programName, int from, int to, object text)
-        {
-            if (from > to || from < 0 || to < 0 || to >= tokens.Size)
-            {
+        public virtual void Replace(string programName, int from, int to, object text) {
+            if (from > to || from < 0 || to < 0 || to >= tokens.Size) {
                 throw new ArgumentException("replace: range invalid: " + from + ".." + to + "(size=" + tokens.Size + ")");
             }
             TokenStreamRewriter.RewriteOperation op = new TokenStreamRewriter.ReplaceOp(tokens, from, to, text);
-            IList<TokenStreamRewriter.RewriteOperation> rewrites = GetProgram(programName);
+            var rewrites = GetProgram(programName);
             op.instructionIndex = rewrites.Count;
             rewrites.Add(op);
         }
 
-        public virtual void Replace(string programName, IToken from, IToken to, object text)
-        {
+        public virtual void Replace(string programName, IToken from, IToken to, object text) {
             Replace(programName, from.TokenIndex, to.TokenIndex, text);
         }
 
-        public virtual void Delete(int index)
-        {
+        public virtual void Delete(int index) {
             Delete(DefaultProgramName, index, index);
         }
 
-        public virtual void Delete(int from, int to)
-        {
+        public virtual void Delete(int from, int to) {
             Delete(DefaultProgramName, from, to);
         }
 
-        public virtual void Delete(IToken indexT)
-        {
+        public virtual void Delete(IToken indexT) {
             Delete(DefaultProgramName, indexT, indexT);
         }
 
-        public virtual void Delete(IToken from, IToken to)
-        {
+        public virtual void Delete(IToken from, IToken to) {
             Delete(DefaultProgramName, from, to);
         }
 
-        public virtual void Delete(string programName, int from, int to)
-        {
+        public virtual void Delete(string programName, int from, int to) {
             Replace(programName, from, to, null);
         }
 
-        public virtual void Delete(string programName, IToken from, IToken to)
-        {
+        public virtual void Delete(string programName, IToken from, IToken to) {
             Replace(programName, from, to, null);
         }
 
-        public virtual int LastRewriteTokenIndex
-        {
-            get
-            {
+        public virtual int LastRewriteTokenIndex {
+            get {
                 return GetLastRewriteTokenIndex(DefaultProgramName);
             }
         }
 
-        protected internal virtual int GetLastRewriteTokenIndex(string programName)
-        {
-            int I;
-            if (!lastRewriteTokenIndexes.TryGetValue(programName, out I))
-            {
+        protected internal virtual int GetLastRewriteTokenIndex(string programName) {
+            if (!lastRewriteTokenIndexes.TryGetValue(programName, out var I)) {
                 return -1;
             }
             return I;
         }
 
-        protected internal virtual void SetLastRewriteTokenIndex(string programName, int i)
-        {
+        protected internal virtual void SetLastRewriteTokenIndex(string programName, int i) {
             lastRewriteTokenIndexes[programName] = i;
         }
 
-        protected internal virtual IList<TokenStreamRewriter.RewriteOperation> GetProgram(string name)
-        {
-            IList<TokenStreamRewriter.RewriteOperation> @is;
-            if (!programs.TryGetValue(name, out @is))
-            {
+        protected internal virtual IList<TokenStreamRewriter.RewriteOperation> GetProgram(string name) {
+            if (!programs.TryGetValue(name, out var @is)) {
                 @is = InitializeProgram(name);
             }
             return @is;
         }
 
-        private IList<TokenStreamRewriter.RewriteOperation> InitializeProgram(string name)
-        {
+        private IList<TokenStreamRewriter.RewriteOperation> InitializeProgram(string name) {
             IList<TokenStreamRewriter.RewriteOperation> @is = new List<TokenStreamRewriter.RewriteOperation>(ProgramInitSize);
             programs[name] = @is;
             return @is;
@@ -429,8 +373,7 @@ namespace Antlr4.Runtime
         /// Return the text from the original tokens altered per the
         /// instructions given to this rewriter.
         /// </remarks>
-        public virtual string GetText()
-        {
+        public virtual string GetText() {
             return GetText(DefaultProgramName, Interval.Of(0, tokens.Size - 1));
         }
 
@@ -448,57 +391,47 @@ namespace Antlr4.Runtime
         /// insertBefore on the first token, you would get that insertion.
         /// The same is true if you do an insertAfter the stop token.
         /// </remarks>
-        public virtual string GetText(Interval interval)
-        {
+        public virtual string GetText(Interval interval) {
             return GetText(DefaultProgramName, interval);
         }
 
-        public virtual string GetText(string programName, Interval interval)
-        {
-            IList<TokenStreamRewriter.RewriteOperation> rewrites;
-            if (!programs.TryGetValue(programName, out rewrites))
+        public virtual string GetText(string programName, Interval interval) {
+            if (!programs.TryGetValue(programName, out var rewrites)) {
                 rewrites = null;
+            }
 
-            int start = interval.a;
-            int stop = interval.b;
+            var start = interval.a;
+            var stop = interval.b;
             // ensure start/end are in range
-            if (stop > tokens.Size - 1)
-            {
+            if (stop > tokens.Size - 1) {
                 stop = tokens.Size - 1;
             }
-            if (start < 0)
-            {
+            if (start < 0) {
                 start = 0;
             }
-            if (rewrites == null || rewrites.Count == 0)
-            {
+            if (rewrites == null || rewrites.Count == 0) {
                 return tokens.GetText(interval);
             }
             // no instructions to execute
-            StringBuilder buf = new StringBuilder();
+            var buf = new StringBuilder();
             // First, optimize instruction stream
-            IDictionary<int, TokenStreamRewriter.RewriteOperation> indexToOp = ReduceToSingleOperationPerIndex(rewrites);
+            var indexToOp = ReduceToSingleOperationPerIndex(rewrites);
             // Walk buffer, executing instructions and emitting tokens
-            int i = start;
-            while (i <= stop && i < tokens.Size)
-            {
-                TokenStreamRewriter.RewriteOperation op;
-                if (indexToOp.TryGetValue(i, out op))
+            var i = start;
+            while (i <= stop && i < tokens.Size) {
+                if (indexToOp.TryGetValue(i, out var op)) {
                     indexToOp.Remove(i);
+                }
 
                 // remove so any left have index size-1
-                IToken t = tokens.Get(i);
-                if (op == null)
-                {
+                var t = tokens.Get(i);
+                if (op == null) {
                     // no operation at that index, just dump token
-                    if (t.Type != TokenConstants.EOF)
-                    {
+                    if (t.Type != TokenConstants.EOF) {
                         buf.Append(t.Text);
                     }
                     i++;
-                }
-                else
-                {
+                } else {
                     // move to next token
                     i = op.Execute(buf);
                 }
@@ -507,14 +440,11 @@ namespace Antlr4.Runtime
             // include stuff after end if it's last index in buffer
             // So, if they did an insertAfter(lastValidIndex, "foo"), include
             // foo if end==lastValidIndex.
-            if (stop == tokens.Size - 1)
-            {
+            if (stop == tokens.Size - 1) {
                 // Scan any remaining operations after last token
                 // should be included (they will be inserts).
-                foreach (TokenStreamRewriter.RewriteOperation op in indexToOp.Values)
-                {
-                    if (op.index >= tokens.Size - 1)
-                    {
+                foreach (var op in indexToOp.Values) {
+                    if (op.index >= tokens.Size - 1) {
                         buf.Append(op.text);
                     }
                 }
@@ -564,93 +494,73 @@ namespace Antlr4.Runtime
         /// body, I think the stuff before the '{' you added should disappear too.
         /// Return a map from token index to operation.
         /// </remarks>
-        protected internal virtual IDictionary<int, TokenStreamRewriter.RewriteOperation> ReduceToSingleOperationPerIndex(IList<TokenStreamRewriter.RewriteOperation> rewrites)
-        {
+        protected internal virtual IDictionary<int, TokenStreamRewriter.RewriteOperation> ReduceToSingleOperationPerIndex(IList<TokenStreamRewriter.RewriteOperation> rewrites) {
             //		System.out.println("rewrites="+rewrites);
             // WALK REPLACES
-            for (int i = 0; i < rewrites.Count; i++)
-            {
-                TokenStreamRewriter.RewriteOperation op = rewrites[i];
-                if (op == null)
-                {
+            for (var i = 0; i < rewrites.Count; i++) {
+                var op = rewrites[i];
+                if (op == null) {
                     continue;
                 }
-                if (!(op is TokenStreamRewriter.ReplaceOp))
-                {
+                if (op is not ReplaceOp) {
                     continue;
                 }
-                TokenStreamRewriter.ReplaceOp rop = (TokenStreamRewriter.ReplaceOp)rewrites[i];
+                var rop = (TokenStreamRewriter.ReplaceOp)rewrites[i];
                 // Wipe prior inserts within range
-                IList<TokenStreamRewriter.InsertBeforeOp> inserts = GetKindOfOps<TokenStreamRewriter.InsertBeforeOp>(rewrites, i);
-                foreach (TokenStreamRewriter.InsertBeforeOp iop in inserts)
-                {
-                    if (iop.index == rop.index)
-                    {
+                var inserts = GetKindOfOps<TokenStreamRewriter.InsertBeforeOp>(rewrites, i);
+                foreach (var iop in inserts) {
+                    if (iop.index == rop.index) {
                         // E.g., insert before 2, delete 2..2; update replace
                         // text to include insert before, kill insert
                         rewrites[iop.instructionIndex] = null;
                         rop.text = iop.text.ToString() + (rop.text != null ? rop.text.ToString() : string.Empty);
-                    }
-                    else
-                    {
-                        if (iop.index > rop.index && iop.index <= rop.lastIndex)
-                        {
+                    } else {
+                        if (iop.index > rop.index && iop.index <= rop.lastIndex) {
                             // delete insert as it's a no-op.
                             rewrites[iop.instructionIndex] = null;
                         }
                     }
                 }
                 // Drop any prior replaces contained within
-                IList<TokenStreamRewriter.ReplaceOp> prevReplaces = GetKindOfOps<TokenStreamRewriter.ReplaceOp>(rewrites, i);
-                foreach (TokenStreamRewriter.ReplaceOp prevRop in prevReplaces)
-                {
-                    if (prevRop.index >= rop.index && prevRop.lastIndex <= rop.lastIndex)
-                    {
+                var prevReplaces = GetKindOfOps<TokenStreamRewriter.ReplaceOp>(rewrites, i);
+                foreach (var prevRop in prevReplaces) {
+                    if (prevRop.index >= rop.index && prevRop.lastIndex <= rop.lastIndex) {
                         // delete replace as it's a no-op.
                         rewrites[prevRop.instructionIndex] = null;
                         continue;
                     }
                     // throw exception unless disjoint or identical
-                    bool disjoint = prevRop.lastIndex < rop.index || prevRop.index > rop.lastIndex;
+                    var disjoint = prevRop.lastIndex < rop.index || prevRop.index > rop.lastIndex;
                     // Delete special case of replace (text==null):
                     // D.i-j.u D.x-y.v	| boundaries overlap	combine to max(min)..max(right)
-                    if (prevRop.text == null && rop.text == null && !disjoint)
-                    {
+                    if (prevRop.text == null && rop.text == null && !disjoint) {
                         //System.out.println("overlapping deletes: "+prevRop+", "+rop);
                         rewrites[prevRop.instructionIndex] = null;
                         // kill first delete
                         rop.index = Math.Min(prevRop.index, rop.index);
                         rop.lastIndex = Math.Max(prevRop.lastIndex, rop.lastIndex);
                         System.Console.Out.WriteLine("new rop " + rop);
-                    }
-                    else
-                    {
-                        if (!disjoint)
-                        {
+                    } else {
+                        if (!disjoint) {
                             throw new ArgumentException("replace op boundaries of " + rop + " overlap with previous " + prevRop);
                         }
                     }
                 }
             }
             // WALK INSERTS
-            for (int i_1 = 0; i_1 < rewrites.Count; i_1++)
-            {
-                TokenStreamRewriter.RewriteOperation op = rewrites[i_1];
-                if (op == null)
-                {
+            for (var i_1 = 0; i_1 < rewrites.Count; i_1++) {
+                var op = rewrites[i_1];
+                if (op == null) {
                     continue;
                 }
-                if (!(op is TokenStreamRewriter.InsertBeforeOp))
-                {
+                if (op is not InsertBeforeOp) {
                     continue;
                 }
-                TokenStreamRewriter.InsertBeforeOp iop = (TokenStreamRewriter.InsertBeforeOp)rewrites[i_1];
+                var iop = (TokenStreamRewriter.InsertBeforeOp)rewrites[i_1];
                 // combine current insert with prior if any at same index
-                IList<TokenStreamRewriter.InsertBeforeOp> prevInserts = GetKindOfOps<TokenStreamRewriter.InsertBeforeOp>(rewrites, i_1);
-                foreach (TokenStreamRewriter.InsertBeforeOp prevIop in prevInserts)
-                {
-                    if (prevIop.index == iop.index)
-                    {
+                var prevInserts = GetKindOfOps<TokenStreamRewriter.InsertBeforeOp>(rewrites, i_1);
+                foreach (var prevIop in prevInserts) {
+                    if (prevIop.index == iop.index) {
                         // combine objects
                         // convert to strings...we're in process of toString'ing
                         // whole token buffer so no lazy eval issue with any templates
@@ -660,34 +570,28 @@ namespace Antlr4.Runtime
                     }
                 }
                 // look for replaces where iop.index is in range; error
-                IList<TokenStreamRewriter.ReplaceOp> prevReplaces = GetKindOfOps<TokenStreamRewriter.ReplaceOp>(rewrites, i_1);
-                foreach (TokenStreamRewriter.ReplaceOp rop in prevReplaces)
-                {
-                    if (iop.index == rop.index)
-                    {
+                var prevReplaces = GetKindOfOps<TokenStreamRewriter.ReplaceOp>(rewrites, i_1);
+                foreach (var rop in prevReplaces) {
+                    if (iop.index == rop.index) {
                         rop.text = CatOpText(iop.text, rop.text);
                         rewrites[i_1] = null;
                         // delete current insert
                         continue;
                     }
-                    if (iop.index >= rop.index && iop.index <= rop.lastIndex)
-                    {
+                    if (iop.index >= rop.index && iop.index <= rop.lastIndex) {
                         throw new ArgumentException("insert op " + iop + " within boundaries of previous " + rop);
                     }
                 }
             }
             // System.out.println("rewrites after="+rewrites);
             IDictionary<int, TokenStreamRewriter.RewriteOperation> m = new Dictionary<int, TokenStreamRewriter.RewriteOperation>();
-            for (int i_2 = 0; i_2 < rewrites.Count; i_2++)
-            {
-                TokenStreamRewriter.RewriteOperation op = rewrites[i_2];
-                if (op == null)
-                {
+            for (var i_2 = 0; i_2 < rewrites.Count; i_2++) {
+                var op = rewrites[i_2];
+                if (op == null) {
                     continue;
                 }
                 // ignore deleted ops
-                if (m.ContainsKey(op.index))
-                {
+                if (m.ContainsKey(op.index)) {
                     throw new InvalidOperationException("should only be one op per index");
                 }
                 m[op.index] = op;
@@ -696,24 +600,20 @@ namespace Antlr4.Runtime
             return m;
         }
 
-        protected internal virtual string CatOpText(object a, object b)
-        {
-            string x = string.Empty;
-            string y = string.Empty;
-            if (a != null)
-            {
+        protected internal virtual string CatOpText(object a, object b) {
+            var x = string.Empty;
+            var y = string.Empty;
+            if (a != null) {
                 x = a.ToString();
             }
-            if (b != null)
-            {
+            if (b != null) {
                 y = b.ToString();
             }
             return x + y;
         }
 
         /// <summary>Get all operations before an index of a particular kind</summary>
-        protected internal virtual IList<T> GetKindOfOps<T>(IList<RewriteOperation> rewrites, int before)
-        {
+        protected internal virtual IList<T> GetKindOfOps<T>(IList<RewriteOperation> rewrites, int before) {
             return rewrites.Take(before).OfType<T>().ToList();
         }
     }

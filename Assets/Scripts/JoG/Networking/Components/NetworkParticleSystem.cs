@@ -19,7 +19,10 @@ namespace JoG.Networking.Components {
         }
 
         public void Play() {
-            if (IsPlaying) return;
+            if (IsPlaying) {
+                return;
+            }
+
             PlayRpc();
         }
 
@@ -48,9 +51,13 @@ namespace JoG.Networking.Components {
         }
 
         [Rpc(SendTo.Everyone)]
-        private void PlayRpc() => _particleSystem.Play(true);
+        private void PlayRpc() {
+            _particleSystem.Play(true);
+        }
 
         [Rpc(SendTo.Everyone)]
-        private void StopRpc() => _particleSystem.Stop(true);
+        private void StopRpc() {
+            _particleSystem.Stop(true);
+        }
     }
 }

@@ -140,6 +140,7 @@ MonoBehaviour:
   Ownership: 8
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
+  m_InScenePlaced: 0
   ActiveSceneSynchronization: 0
   SceneMigrationSynchronization: 0
   SpawnWithObservers: 1
@@ -225,8 +226,8 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   itemDataReference:
     _assetCache: {fileID: 11400000, guid: 4b1c65197b6cd204787c497adbc02c01, type: 2}
-    location: DefenseShieldItemData
-    packageName: DefaultPackage
+    _location: DefenseShieldItemData
+    _packageName: DefaultPackage
   tooltipPoint: {fileID: 3330670001641426854}
 --- !u!114 &1051823828577594697
 MonoBehaviour:

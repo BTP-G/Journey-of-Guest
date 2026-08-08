@@ -1,4 +1,4 @@
-﻿#if DOTWEEN_ENABLED
+#if DOTWEEN_ENABLED
 #if TMP_ENABLED
 using System;
 using DG.Tweening;

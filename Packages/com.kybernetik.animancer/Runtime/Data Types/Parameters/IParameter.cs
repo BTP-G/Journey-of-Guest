@@ -2,12 +2,10 @@
 
 using System;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>A value wrapper with utilities for being drawn in the Inspector.</summary>
     /// <remarks>This interface is used for non-generic access to <see cref="Parameter{T}"/>.</remarks>
-    public interface IParameter : IComparable<IParameter>
-    {
+    public interface IParameter : IComparable<IParameter> {
         /************************************************************************************************************************/
 
         /// <summary>The key this parameter is registered with in the <see cref="ParameterDictionary"/>.</summary>

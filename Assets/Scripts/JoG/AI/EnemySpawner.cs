@@ -1,13 +1,13 @@
 using Cysharp.Threading.Tasks;
-using Xoderony;
-using Xoderony.YooAsset;
 using JoG.Character;
-using Xoderony.GameplayEffects;
 using JoG.Gameplay;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.AI;
 using VContainer;
+using Xoderony;
+using Xoderony.GameplayEffects;
+using Xoderony.YooAsset;
 
 namespace JoG.AI {
 

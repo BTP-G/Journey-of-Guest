@@ -6,8 +6,7 @@ using System;
 using UnityEditor;
 using Object = UnityEngine.Object;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only]
     /// A wrapper for modifying a serialized field to allow it to be properly saved and undone.
     /// </summary>
@@ -20,8 +19,7 @@ namespace Animancer.Editor
     /// }// Target gets flagged for saving.
     /// </code></remarks>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/ModifySerializedField
-    public readonly struct ModifySerializedField : IDisposable
-    {
+    public readonly struct ModifySerializedField : IDisposable {
         /************************************************************************************************************************/
 
         /// <summary>The object being modified.</summary>
@@ -36,22 +34,22 @@ namespace Animancer.Editor
         public ModifySerializedField(
             Object target,
             string name = "Inspector",
-            bool mightBePrefab = false)
-        {
+            bool mightBePrefab = false) {
             Target = target;
             MightBePrefab = mightBePrefab;
 
-            if (!string.IsNullOrEmpty(name))
+            if (!string.IsNullOrEmpty(name)) {
                 Undo.RecordObject(Target, name);
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <summary>Flags the target as modified so that it will get saved by Unity.</summary>
-        public void Dispose()
-        {
-            if (MightBePrefab)
+        public void Dispose() {
+            if (MightBePrefab) {
                 PrefabUtility.RecordPrefabInstancePropertyModifications(Target);
+            }
 
             EditorUtility.SetDirty(Target);
 

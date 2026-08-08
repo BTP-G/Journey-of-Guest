@@ -1,31 +1,25 @@
-﻿using UnityEditor;
+using EditorAttributes.Editor.Utility;
+using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
-using EditorAttributes.Editor.Utility;
-using System.Reflection;
 
-namespace EditorAttributes.Editor
-{
+namespace EditorAttributes.Editor {
     [CustomPropertyDrawer(typeof(OnValueChangedAttribute))]
-    public class OnValueChangedDrawer : PropertyDrawerBase
-    {
-        public override VisualElement CreatePropertyGUI(SerializedProperty property)
-        {
+    public class OnValueChangedDrawer : PropertyDrawerBase {
+        public override VisualElement CreatePropertyGUI(SerializedProperty property) {
             var onValueChangedAttribute = attribute as OnValueChangedAttribute;
 
-            ReflectionUtils.GetNestedObjectType(property, out object target);
-            PropertyField propertyField = CreatePropertyField(property);
+            ReflectionUtils.GetNestedObjectType(property, out var target);
+            var propertyField = CreatePropertyField(property);
 
-            MethodInfo function = ReflectionUtils.FindFunction(onValueChangedAttribute.FunctionName, property);
+            var function = ReflectionUtils.FindFunction(onValueChangedAttribute.FunctionName, property);
 
-            if (function.GetParameters().Length != 0)
-            {
+            if (function.GetParameters().Length != 0) {
                 propertyField.Add(new HelpBox("The function cannot have parameters", HelpBoxMessageType.Error));
                 return propertyField;
             }
 
-            propertyField.RegisterCallbackOnce<GeometryChangedEvent>((callback) =>
-            {
+            propertyField.RegisterCallbackOnce<GeometryChangedEvent>((callback) => {
                 var field = propertyField.Q(className: PropertyField.ussClassName) as PropertyField;
                 field.RegisterValueChangeCallback((callback) => function.Invoke(target, null));
             });

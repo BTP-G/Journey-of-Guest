@@ -1,9 +1,9 @@
-using Xoderony.Logging;
 using Netcode.Transports.Facepunch;
 using Steamworks;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using Xoderony.Logging;
 using SLobby = Steamworks.Data.Lobby;
 
 namespace JoG.Lobby.Controller {
@@ -53,7 +53,9 @@ namespace JoG.Lobby.Controller {
             }
         }
 
-        public void SetLobbyName(string lobbyName) => LobbyName = lobbyName;
+        public void SetLobbyName(string lobbyName) {
+            LobbyName = lobbyName;
+        }
 
         public void SetLobbyMaxMembersFromString(string maxMembersString) {
             if (byte.TryParse(maxMembersString, out var maxMembers)) {
@@ -61,15 +63,21 @@ namespace JoG.Lobby.Controller {
             }
         }
 
-        public void SetLobbyTypeFromInt(int lobbyType) => LobbyType = (ELobbyType)lobbyType;
+        public void SetLobbyTypeFromInt(int lobbyType) {
+            LobbyType = (ELobbyType)lobbyType;
+        }
 
-        public void LeaveCurrentLobby() => currentLobby.Leave();
+        public void LeaveCurrentLobby() {
+            currentLobby.Leave();
+        }
 
         public void OpenInviteFriendsUI() {
             SteamFriends.OpenGameInviteOverlay(currentLobby.Id);
         }
 
-        public void SetGameServer() => currentLobby.SetGameServer(SteamClient.SteamId);
+        public void SetGameServer() {
+            currentLobby.SetGameServer(SteamClient.SteamId);
+        }
 
         public bool GetGameServer(out SteamId serverId) {
             var ip = 0u;
@@ -78,9 +86,13 @@ namespace JoG.Lobby.Controller {
             return currentLobby.GetGameServer(ref ip, ref port, ref serverId);
         }
 
-        public void SetLobbyData(string key, string value) => currentLobby.SetData(key, value);
+        public void SetLobbyData(string key, string value) {
+            currentLobby.SetData(key, value);
+        }
 
-        public string GetLobbyData(string key) => currentLobby.GetData(key);
+        public string GetLobbyData(string key) {
+            return currentLobby.GetData(key);
+        }
 
         private void Awake() {
             SteamMatchmaking.OnLobbyCreated += OnLobbyCreated;
@@ -141,7 +153,10 @@ namespace JoG.Lobby.Controller {
         //}
 
         private async void OnLobbyCreated(Result result, SLobby lobby) {
-            if (result is not Result.OK) return;
+            if (result is not Result.OK) {
+                return;
+            }
+
             lobby.SetData("app_id", SteamClient.AppId.ToString());
             //lobby.SetData("port", facepunchTransport.GetPort().ToString());
             lobby.SetData("_inputName", SteamClient.Name + "'s Lobby");

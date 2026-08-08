@@ -1,8 +1,6 @@
-﻿namespace EditorAttributes
-{
-    public interface IConditionalAttribute
-    {
-        public string ConditionName { get; }
-	    public int EnumValue { get; }
+namespace EditorAttributes {
+    public interface IConditionalAttribute {
+        string ConditionName { get; }
+        int EnumValue { get; }
     }
 }

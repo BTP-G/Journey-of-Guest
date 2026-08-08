@@ -5,16 +5,14 @@
 using Animancer.TransitionLibraries;
 using System;
 
-namespace Animancer.Editor.TransitionLibraries
-{
+namespace Animancer.Editor.TransitionLibraries {
     /// <summary>[Editor-Only]
     /// A <see cref="TransitionLibraryWindowPage"/> for editing 
     /// <see cref="TransitionModifierDefinition.FadeDuration"/>.
     /// </summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor.TransitionLibraries/TransitionLibraryStartTimesPage
     [Serializable]
-    public class TransitionLibraryStartTimesPage : TransitionLibraryModifiersPage
-    {
+    public class TransitionLibraryStartTimesPage : TransitionLibraryModifiersPage {
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
@@ -33,26 +31,25 @@ namespace Animancer.Editor.TransitionLibraries
 
         /// <inheritdoc/>
         public TransitionLibraryStartTimesPage()
-            : base(Units.AnimationTimeAttribute.Units.Normalized)
-        {
+            : base(Units.AnimationTimeAttribute.Units.Normalized) {
             TimeDrawer.Attribute.DisabledText = Strings.Tooltips.StartTimeDisabled;
 
             var converters = TimeDrawer.DisplayConverters;
             ConvertedZeroes = new string[converters.Length];
-            for (int i = 0; i < converters.Length; i++)
+            for (var i = 0; i < converters.Length; i++) {
                 ConvertedZeroes[i] = converters[i].ConvertedZero;
+            }
         }
 
         /// <inheritdoc/>
-        public override void ConfigureForSingleField(bool singleField, ref float value)
-        {
+        public override void ConfigureForSingleField(bool singleField, ref float value) {
             var isSingleFieldNaN = singleField && float.IsNaN(value);
-            if (isSingleFieldNaN)
+            if (isSingleFieldNaN) {
                 value = 0;
+            }
 
             var converters = TimeDrawer.DisplayConverters;
-            for (int i = 0; i < converters.Length; i++)
-            {
+            for (var i = 0; i < converters.Length; i++) {
                 var converter = converters[i];
                 converter.ConvertedZero = isSingleFieldNaN
                     ? Strings.Tooltips.StartTimeDisabled
@@ -61,16 +58,19 @@ namespace Animancer.Editor.TransitionLibraries
         }
 
         /// <inheritdoc/>
-        public override float GetValue(ITransition transition)
-            => transition.NormalizedStartTime;
+        public override float GetValue(ITransition transition) {
+            return transition.NormalizedStartTime;
+        }
 
         /// <inheritdoc/>
-        public override float GetValue(TransitionModifierDefinition modifier)
-            => modifier.NormalizedStartTime;
+        public override float GetValue(TransitionModifierDefinition modifier) {
+            return modifier.NormalizedStartTime;
+        }
 
         /// <inheritdoc/>
-        public override void SetValue(ref TransitionModifierDefinition modifier, float value)
-            => modifier = modifier.WithNormalizedStartTime(value);
+        public override void SetValue(ref TransitionModifierDefinition modifier, float value) {
+            modifier = modifier.WithNormalizedStartTime(value);
+        }
 
         /************************************************************************************************************************/
     }

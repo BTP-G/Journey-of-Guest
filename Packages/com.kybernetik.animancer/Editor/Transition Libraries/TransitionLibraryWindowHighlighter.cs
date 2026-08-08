@@ -6,14 +6,12 @@ using Animancer.TransitionLibraries;
 using UnityEditor;
 using UnityEngine;
 
-namespace Animancer.Editor.TransitionLibraries
-{
+namespace Animancer.Editor.TransitionLibraries {
     /// <summary>[Editor-Only]
     /// An <see cref="EditorWindow"/> for configuring <see cref="TransitionLibraryAsset"/>.
     /// </summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor.TransitionLibraries/TransitionLibraryWindowHighlighter
-    public class TransitionLibraryWindowHighlighter
-    {
+    public class TransitionLibraryWindowHighlighter {
         /************************************************************************************************************************/
 
         private static readonly Color
@@ -34,8 +32,7 @@ namespace Animancer.Editor.TransitionLibraries
         /************************************************************************************************************************/
 
         /// <summary>Gathers the details of the <see cref="Event.current"/>.</summary>
-        public void BeginGUI(Rect area)
-        {
+        public void BeginGUI(Rect area) {
             var currentEvent = Event.current;
             EventType = currentEvent.type;
             IsMouseOver = area.Contains(currentEvent.mousePosition);
@@ -45,15 +42,11 @@ namespace Animancer.Editor.TransitionLibraries
         /************************************************************************************************************************/
 
         /// <summary>Repaints the `window` if necessary.</summary>
-        public void EndGUI(TransitionLibraryWindow window)
-        {
-            if (DidHoverHighlight && window != EditorWindow.mouseOverWindow)
-            {
+        public void EndGUI(TransitionLibraryWindow window) {
+            if (DidHoverHighlight && window != EditorWindow.mouseOverWindow) {
                 DidHoverHighlight = false;
                 window.Repaint();
-            }
-            else if (EventType == EventType.MouseMove)
-            {
+            } else if (EventType == EventType.MouseMove) {
                 window.Repaint();
             }
         }
@@ -61,15 +54,12 @@ namespace Animancer.Editor.TransitionLibraries
         /************************************************************************************************************************/
 
         /// <summary>Draws highlights for the `area`.</summary>
-        public void DrawHighlightGUI(Rect area, bool selected, bool hover)
-        {
-            if (selected)
-            {
+        public void DrawHighlightGUI(Rect area, bool selected, bool hover) {
+            if (selected) {
                 EditorGUI.DrawRect(area, SelectionHighlightColor);
             }
 
-            if (hover)
-            {
+            if (hover) {
                 DidHoverHighlight = true;
                 EditorGUI.DrawRect(area, HoverHighlightColor);
             }

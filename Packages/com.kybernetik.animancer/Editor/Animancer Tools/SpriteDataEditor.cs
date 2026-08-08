@@ -11,23 +11,18 @@ using UnityEditor.U2D.Sprites;
 #pragma warning disable CS0618 // Type or member is obsolete.
 #endif
 
-namespace Animancer.Editor.Tools
-{
+namespace Animancer.Editor.Tools {
     /// <summary>A wrapper around the '2D Sprite' package features for editing Sprite data.</summary>
-    public class SpriteDataEditor
-    {
+    public class SpriteDataEditor {
         /************************************************************************************************************************/
 #if UNITY_2D_SPRITE
         /************************************************************************************************************************/
 
         private static SpriteDataProviderFactories _Factories;
 
-        private static SpriteDataProviderFactories Factories
-        {
-            get
-            {
-                if (_Factories == null)
-                {
+        private static SpriteDataProviderFactories Factories {
+            get {
+                if (_Factories == null) {
                     _Factories = new();
                     _Factories.Init();
                 }
@@ -47,60 +42,79 @@ namespace Animancer.Editor.Tools
 
         /// <summary>The number of sprites in the target data.</summary>
         /// <remarks>Setting this value clears all sprites.</remarks>
-        public int SpriteCount
-        {
+        public int SpriteCount {
             get => _SpriteRects.Length;
-            set
-            {
+            set {
                 // Unity might have given a UnityEditor.U2D.Sprites.SpriteDataExt[].
                 // We need to ensure it's a base SpriteRect[] so we can new() them.
 
                 if (_SpriteRects == null ||
                     _SpriteRects.Length != value ||
-                    _SpriteRects.GetType() != typeof(SpriteRect[]))
+                    _SpriteRects.GetType() != typeof(SpriteRect[])) {
                     _SpriteRects = new SpriteRect[value];
+                }
 
-                for (int i = 0; i < _SpriteRects.Length; i++)
+                for (var i = 0; i < _SpriteRects.Length; i++) {
                     _SpriteRects[i] = new();
+                }
             }
         }
 
         /// <summary>Returns the name of the sprite at the specified `index`.</summary>
-        public string GetName(int index) => _SpriteRects[index].name;
+        public string GetName(int index) {
+            return _SpriteRects[index].name;
+        }
 
         /// <summary>Sets the name of the sprite at the specified `index`.</summary>
-        public void SetName(int index, string name) => _SpriteRects[index].name = name;
+        public void SetName(int index, string name) {
+            _SpriteRects[index].name = name;
+        }
 
         /// <summary>Returns the rect of the sprite at the specified `index`.</summary>
-        public Rect GetRect(int index) => _SpriteRects[index].rect;
+        public Rect GetRect(int index) {
+            return _SpriteRects[index].rect;
+        }
 
         /// <summary>Sets the rect of the sprite at the specified `index`.</summary>
-        public void SetRect(int index, Rect rect) => _SpriteRects[index].rect = rect;
+        public void SetRect(int index, Rect rect) {
+            _SpriteRects[index].rect = rect;
+        }
 
         /// <summary>Returns the pivot of the sprite at the specified `index`.</summary>
-        public Vector2 GetPivot(int index) => _SpriteRects[index].pivot;
+        public Vector2 GetPivot(int index) {
+            return _SpriteRects[index].pivot;
+        }
 
         /// <summary>Sets the pivot of the sprite at the specified `index`.</summary>
-        public void SetPivot(int index, Vector2 pivot)
-        {
+        public void SetPivot(int index, Vector2 pivot) {
             _SpriteRects[index].pivot = pivot;
             _SpriteRects[index].alignment = GetSpriteAlignment(pivot);
         }
 
         /// <summary>Returns the alignment of the sprite at the specified `index`.</summary>
-        public SpriteAlignment GetAlignment(int index) => _SpriteRects[index].alignment;
+        public SpriteAlignment GetAlignment(int index) {
+            return _SpriteRects[index].alignment;
+        }
 
         /// <summary>Sets the alignment of the sprite at the specified `index`.</summary>
-        public void SetAlignment(int index, SpriteAlignment alignment) => _SpriteRects[index].alignment = alignment;
+        public void SetAlignment(int index, SpriteAlignment alignment) {
+            _SpriteRects[index].alignment = alignment;
+        }
 
         /// <summary>Returns the border of the sprite at the specified `index`.</summary>
-        public Vector4 GetBorder(int index) => _SpriteRects[index].border;
+        public Vector4 GetBorder(int index) {
+            return _SpriteRects[index].border;
+        }
 
         /// <summary>Sets the border of the sprite at the specified `index`.</summary>
-        public void SetBorder(int index, Vector4 border) => _SpriteRects[index].border = border;
+        public void SetBorder(int index, Vector4 border) {
+            _SpriteRects[index].border = border;
+        }
 
         /// <summary>References the sprite at the specified `index`.</summary>
-        public ref SpriteRect RefSprite(int index) => ref _SpriteRects[index];
+        public ref SpriteRect RefSprite(int index) {
+            return ref _SpriteRects[index];
+        }
 
         /************************************************************************************************************************/
 #else
@@ -156,29 +170,24 @@ namespace Animancer.Editor.Tools
         /************************************************************************************************************************/
 
         /// <summary>Returns the appropriate alignment for the given `pivot`.</summary>
-        public static SpriteAlignment GetSpriteAlignment(Vector2 pivot)
-        {
-            switch (pivot.x)
-            {
+        public static SpriteAlignment GetSpriteAlignment(Vector2 pivot) {
+            switch (pivot.x) {
                 case 0:
-                    switch (pivot.y)
-                    {
+                    switch (pivot.y) {
                         case 0: return SpriteAlignment.BottomLeft;
                         case 0.5f: return SpriteAlignment.LeftCenter;
                         case 1: return SpriteAlignment.TopLeft;
                     }
                     break;
                 case 0.5f:
-                    switch (pivot.y)
-                    {
+                    switch (pivot.y) {
                         case 0: return SpriteAlignment.BottomCenter;
                         case 0.5f: return SpriteAlignment.Center;
                         case 1: return SpriteAlignment.TopCenter;
                     }
                     break;
                 case 1:
-                    switch (pivot.y)
-                    {
+                    switch (pivot.y) {
                         case 0: return SpriteAlignment.BottomRight;
                         case 0.5f: return SpriteAlignment.RightCenter;
                         case 1: return SpriteAlignment.TopRight;
@@ -196,8 +205,7 @@ namespace Animancer.Editor.Tools
         /************************************************************************************************************************/
 
         /// <summary>Creates a new <see cref="SpriteDataEditor"/>.</summary>
-        public SpriteDataEditor(TextureImporter importer)
-        {
+        public SpriteDataEditor(TextureImporter importer) {
             Importer = importer;
 
 #if UNITY_2D_SPRITE
@@ -219,31 +227,28 @@ namespace Animancer.Editor.Tools
         /// Returns -2 if there is more than one data matching the <see cref="UnityEngine.Object.name"/> but no
         /// <see cref="Sprite.rect"/> match.
         /// </remarks>
-        public int IndexOf(Sprite sprite)
-        {
+        public int IndexOf(Sprite sprite) {
             var nameMatchIndex = -1;
 
             var count = SpriteCount;
-            for (int i = 0; i < count; i++)
-            {
-                if (GetName(i) == sprite.name)
-                {
-                    if (GetRect(i) == sprite.rect)
+            for (var i = 0; i < count; i++) {
+                if (GetName(i) == sprite.name) {
+                    if (GetRect(i) == sprite.rect) {
                         return i;
+                    }
 
                     if (nameMatchIndex == -1)// First name match.
+{
                         nameMatchIndex = i;
-                    else
+                    } else {
                         nameMatchIndex = -2;// Already found 2 name matches.
+                    }
                 }
             }
 
-            if (nameMatchIndex == -1)
-            {
+            if (nameMatchIndex == -1) {
                 Debug.LogError($"No {nameof(SpriteMetaData)} for '{sprite.name}' was found.", sprite);
-            }
-            else if (nameMatchIndex == -2)
-            {
+            } else if (nameMatchIndex == -2) {
                 Debug.LogError($"More than one {nameof(SpriteMetaData)} for '{sprite.name}' was found" +
                     $" but none of them matched the {nameof(Sprite)}.{nameof(Sprite.rect)}." +
                     $" If the texture's Max Size is smaller than its actual size, increase the Max Size before performing this" +
@@ -256,14 +261,14 @@ namespace Animancer.Editor.Tools
         /************************************************************************************************************************/
 
         /// <summary>Logs an error and returns false if the data at the specified `index` is out of the texture bounds.</summary>
-        public bool ValidateBounds(int index, Sprite sprite)
-        {
+        public bool ValidateBounds(int index, Sprite sprite) {
             var rect = GetRect(index);
             if (rect.xMin >= 0 &&
                 rect.yMin >= 0 &&
                 rect.xMax <= sprite.texture.width &&
-                rect.yMax <= sprite.texture.height)
+                rect.yMax <= sprite.texture.height) {
                 return true;
+            }
 
             var path = AssetDatabase.GetAssetPath(sprite);
 
@@ -274,8 +279,9 @@ namespace Animancer.Editor.Tools
             if (rect.xMin >= 0 &&
                 rect.yMin >= 0 &&
                 rect.xMax <= width &&
-                rect.yMax <= height)
+                rect.yMax <= height) {
                 return true;
+            }
 
             Debug.LogError(
                 $"This modification would put '{sprite.name}' at {rect}" +
@@ -289,8 +295,7 @@ namespace Animancer.Editor.Tools
         /************************************************************************************************************************/
 
         /// <summary>Applies any modifications to the target asset.</summary>
-        public void Apply()
-        {
+        public void Apply() {
 #if UNITY_2D_SPRITE
             DataProvider.SetSpriteRects(_SpriteRects);
             DataProvider.Apply();

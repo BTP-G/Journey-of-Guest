@@ -1,7 +1,6 @@
-﻿using Cysharp.Text;
+using Cysharp.Text;
 using System;
 using System.Runtime.CompilerServices;
-using UnityEngine;
 
 namespace Xoderony.Extensions {
 

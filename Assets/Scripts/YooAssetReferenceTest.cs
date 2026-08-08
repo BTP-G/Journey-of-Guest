@@ -1,5 +1,5 @@
-using Xoderony.YooAsset;
 using UnityEngine;
+using Xoderony.YooAsset;
 
 namespace JoG {
 

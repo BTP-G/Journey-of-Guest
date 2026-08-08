@@ -1,12 +1,11 @@
 // Animancer // https://kybernetik.com.au/animancer // Copyright 2018-2026 Kybernetik //
 
 using System;
-using UnityEngine;
 using System.Runtime.CompilerServices;
+using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>
     /// A <see cref="ScriptableObject"/> which holds a <see cref="StringReference"/>
     /// based on its <see cref="Object.name"/>.
@@ -20,8 +19,7 @@ namespace Animancer
         IComparable<StringAsset>,
         IConvertable<StringReference>,
         IConvertable<string>,
-        IHasKey
-    {
+        IHasKey {
         /************************************************************************************************************************/
 
         private StringReference _Name;
@@ -31,8 +29,7 @@ namespace Animancer
         /// This value is gathered when first accessed, but will not be automatically updated after that
         /// because doing so causes some garbage allocation (except in the Unity Editor for convenience).
         /// </remarks>
-        public StringReference Name
-        {
+        public StringReference Name {
 #if UNITY_EDITOR
             // Don't do this at runtime because it allocates garbage every time.
             // But in the Unity Editor things could get renamed at any time.
@@ -53,19 +50,21 @@ namespace Animancer
 
         /// <summary>Compares the <see cref="StringReference.String"/>s.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Compare(StringAsset a, StringAsset b)
-            => a == b
-            ? 0
-            : a
-            ? a.CompareTo(b)
-            : -1;
+        public static int Compare(StringAsset a, StringAsset b) {
+            return a == b
+                                                                            ? 0
+                                                                            : a
+                                                                            ? a.CompareTo(b)
+                                                                            : -1;
+        }
 
         /// <summary>Compares the <see cref="StringReference.String"/>s.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int CompareTo(StringAsset other)
-            => other
-            ? Name.String.CompareTo(other.Name.String)
-            : 1;
+        public int CompareTo(StringAsset other) {
+            return other
+                                                            ? Name.String.CompareTo(other.Name.String)
+                                                            : 1;
+        }
 
         /************************************************************************************************************************/
         #endregion
@@ -74,58 +73,69 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Returns the <see cref="Name"/>.</summary>
-        public override string ToString()
-            => Name;
+        public override string ToString() {
+            return Name;
+        }
 
         /// <inheritdoc/>
-        StringReference IConvertable<StringReference>.Convert()
-            => Name;
+        StringReference IConvertable<StringReference>.Convert() {
+            return Name;
+        }
 
         /// <inheritdoc/>
-        string IConvertable<string>.Convert()
-            => Name;
+        string IConvertable<string>.Convert() {
+            return Name;
+        }
 
         /************************************************************************************************************************/
 
         /// <summary>Returns the <see cref="Name"/>.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator string(StringAsset key)
-            => key?.Name;
+        public static implicit operator string(StringAsset key) {
+            return key?.Name;
+        }
 
         /// <summary>Returns the <see cref="Name"/>.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator StringReference(StringAsset key)
-            => key?.Name;
+        public static implicit operator StringReference(StringAsset key) {
+            return key?.Name;
+        }
 
         /************************************************************************************************************************/
 
         /// <summary>Creates a new array containing the <see cref="Name"/>s.</summary>
-        public static StringReference[] ToStringReferences(params StringAsset[] keys)
-        {
-            if (keys == null)
+        public static StringReference[] ToStringReferences(params StringAsset[] keys) {
+            if (keys == null) {
                 return null;
+            }
 
-            if (keys.Length == 0)
+            if (keys.Length == 0) {
                 return Array.Empty<StringReference>();
+            }
 
             var strings = new StringReference[keys.Length];
-            for (int i = 0; i < keys.Length; i++)
+            for (var i = 0; i < keys.Length; i++) {
                 strings[i] = keys[i];
+            }
+
             return strings;
         }
 
         /// <summary>Creates a new array containing the <see cref="Name"/>s.</summary>
-        public static string[] ToStrings(params StringAsset[] keys)
-        {
-            if (keys == null)
+        public static string[] ToStrings(params StringAsset[] keys) {
+            if (keys == null) {
                 return null;
+            }
 
-            if (keys.Length == 0)
+            if (keys.Length == 0) {
                 return Array.Empty<string>();
+            }
 
             var strings = new string[keys.Length];
-            for (int i = 0; i < keys.Length; i++)
+            for (var i = 0; i < keys.Length; i++) {
                 strings[i] = keys[i];
+            }
+
             return strings;
         }
 
@@ -153,18 +163,17 @@ namespace Animancer
         /// <remarks>If multiple assets have the same `name`, any one of them will be returned.</remarks>
         public static StringAsset Find(
             StringReference name,
-            out string path)
-        {
+            out string path) {
             var filter = $"{name} t:{nameof(StringAsset)}";
             var guids = UnityEditor.AssetDatabase.FindAssets(filter);
 
-            for (int i = 0; i < guids.Length; i++)
-            {
+            for (var i = 0; i < guids.Length; i++) {
                 var guid = guids[i];
                 path = UnityEditor.AssetDatabase.GUIDToAssetPath(guid);
                 var asset = UnityEditor.AssetDatabase.LoadAssetAtPath<StringAsset>(path);
-                if (asset != null && asset.Name == name)
+                if (asset != null && asset.Name == name) {
                     return asset;
+                }
             }
 
             path = null;
@@ -178,17 +187,14 @@ namespace Animancer
         public static StringAsset Create(
             StringReference name,
             ref string directory,
-            out string path)
-        {
-            if (string.IsNullOrEmpty(directory))
-            {
+            out string path) {
+            if (string.IsNullOrEmpty(directory)) {
                 directory = UnityEditor.EditorUtility.SaveFolderPanel(
                     $"Select Folder to save String Asset - {name}",
                     "Assets",
                     "");
 
-                if (string.IsNullOrEmpty(directory))
-                {
+                if (string.IsNullOrEmpty(directory)) {
                     path = null;
                     return null;
                 }
@@ -198,8 +204,9 @@ namespace Animancer
             newAsset.name = name;
 
             var workingDirectory = Environment.CurrentDirectory.Replace('\\', '/');
-            if (directory.StartsWith(workingDirectory))
+            if (directory.StartsWith(workingDirectory)) {
                 directory = directory[(workingDirectory.Length + 1)..];
+            }
 
             path = System.IO.Path.Combine(directory, name + ".asset");
 
@@ -223,8 +230,7 @@ namespace Animancer
         public static StringAsset FindOrCreate(
             StringReference name,
             string createDirectory,
-            out string path)
-        {
+            out string path) {
             var asset = Find(name, out path);
             return asset != null
                 ? asset

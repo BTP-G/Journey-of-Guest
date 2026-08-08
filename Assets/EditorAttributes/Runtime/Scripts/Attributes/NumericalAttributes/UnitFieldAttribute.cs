@@ -1,12 +1,10 @@
-﻿using UnityEngine;
+using UnityEngine;
 
-namespace EditorAttributes
-{
+namespace EditorAttributes {
     /// <summary>
     /// Attribute to display a numerical field as a specified unit and convert it to another unit
     /// </summary>
-    public class UnitFieldAttribute : PropertyAttribute
-    {
+    public class UnitFieldAttribute : PropertyAttribute {
         public string DisplayUnit { get; private set; }
         public string ConversionUnit { get; private set; }
 
@@ -36,8 +34,7 @@ namespace EditorAttributes
         /// </summary>
         /// <param name="customDisplayUnit">The custom unit to display in the inspector</param>
         /// <param name="customConversionUnit">The custom unit to convert to</param>
-        public UnitFieldAttribute(string customDisplayUnit, string customConversionUnit)
-        {
+        public UnitFieldAttribute(string customDisplayUnit, string customConversionUnit) {
             DisplayUnit = customDisplayUnit;
             ConversionUnit = customConversionUnit;
         }

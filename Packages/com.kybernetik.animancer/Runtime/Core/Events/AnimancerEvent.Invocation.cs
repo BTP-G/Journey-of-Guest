@@ -5,15 +5,12 @@ using System.Runtime.CompilerServices;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Animancer
-{
+namespace Animancer {
     /// https://kybernetik.com.au/animancer/api/Animancer/AnimancerEvent
-    partial struct AnimancerEvent
-    {
+    public partial struct AnimancerEvent {
         /// <summary>An <see cref="AnimancerEvent"/> and other associated details used to invoke it.</summary>
         /// https://kybernetik.com.au/animancer/api/Animancer/Invocation
-        public readonly struct Invocation
-        {
+        public readonly struct Invocation {
             /************************************************************************************************************************/
 
             /// <summary>The details of the event currently being triggered.</summary>
@@ -37,8 +34,7 @@ namespace Animancer
             public Invocation(
                 AnimancerEvent animancerEvent,
                 StringReference eventName,
-                AnimancerState state)
-            {
+                AnimancerState state) {
                 Event = animancerEvent;
                 State = state;
                 Name = eventName;
@@ -53,8 +49,7 @@ namespace Animancer
             /// <remarks>This method catches and logs any exception thrown by the <see cref="callback"/>.</remarks>
             /// <exception cref="NullReferenceException">The <see cref="callback"/> is null.</exception>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public readonly void Invoke()
-            {
+            public readonly void Invoke() {
 #if UNITY_ASSERTIONS
                 var oldLayer = State.Layer;
                 var oldCommandCount = oldLayer.CommandCount;
@@ -66,12 +61,9 @@ namespace Animancer
                 Current = this;
                 CurrentParameter = null;
 
-                try
-                {
+                try {
                     Event.callback();
-                }
-                catch (Exception exception)
-                {
+                } catch (Exception exception) {
                     Debug.LogException(exception, State?.Graph?.Component as Object);
                 }
 
@@ -79,8 +71,9 @@ namespace Animancer
                 CurrentParameter = parameter;
 
 #if UNITY_ASSERTIONS
-                if (Name == EndEventName)
+                if (Name == EndEventName) {
                     AssertEndEventInvoked(oldLayer, oldCommandCount);
+                }
 #endif
             }
 
@@ -91,20 +84,22 @@ namespace Animancer
             /// with the <see cref="Name"/> (or null if there isn't one).
             /// </summary>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public readonly Action GetBoundCallback()
-                => Name.IsNullOrEmpty()
-                ? null
-                : State.Graph._Events?.Get(Name);
+            public readonly Action GetBoundCallback() {
+                return Name.IsNullOrEmpty()
+                                                                      ? null
+                                                                      : State.Graph._Events?.Get(Name);
+            }
 
             /************************************************************************************************************************/
 
             /// <summary>Returns a string describing the contents of this invocation.</summary>
-            public override string ToString()
-                => $"{nameof(AnimancerEvent)}.{nameof(Invocation)}(" +
-                $"{nameof(Name)}={AnimancerUtilities.ToStringOrNull(Name)}, " +
-                $"NormalizedTime={Event.normalizedTime:0.##}, " +
-                $"Callback=({AnimancerReflection.ToStringDetailed(Event.callback)}), " +
-                $"{nameof(State)}={AnimancerUtilities.ToStringOrNull(State)})";
+            public override string ToString() {
+                return $"{nameof(AnimancerEvent)}.{nameof(Invocation)}(" +
+                                                              $"{nameof(Name)}={AnimancerUtilities.ToStringOrNull(Name)}, " +
+                                                              $"NormalizedTime={Event.normalizedTime:0.##}, " +
+                                                              $"Callback=({AnimancerReflection.ToStringDetailed(Event.callback)}), " +
+                                                              $"{nameof(State)}={AnimancerUtilities.ToStringOrNull(State)})";
+            }
 
             /************************************************************************************************************************/
 
@@ -115,19 +110,16 @@ namespace Animancer
             /// <remarks>
             /// Logs <see cref="OptionalWarning.UselessEvent"/> if no callback is bound.
             /// </remarks>
-            public void InvokeBoundCallback()
-            {
+            public void InvokeBoundCallback() {
                 if (Name != null &&
                     State.Graph._Events != null &&
-                    State.Graph._Events.TryGetValue(Name, out var callback))
-                {
+                    State.Graph._Events.TryGetValue(Name, out var callback)) {
                     callback();
                 }
 #if UNITY_ASSERTIONS
                 // If the callback doesn't do anything else, then this is a useless event.
                 else if (Event.callback == AnimancerEvent.InvokeBoundCallback &&
-                    OptionalWarning.UselessEvent.IsEnabled())
-                {
+                    OptionalWarning.UselessEvent.IsEnabled()) {
                     OptionalWarning.UselessEvent.Log(
                         $"An {nameof(AnimancerEvent)} attempted to invoke the callback bound to the name" +
                         $" '{AnimancerUtilities.ToStringOrNull(Name)}' but there is no callback" +
@@ -147,10 +139,8 @@ namespace Animancer
             /// <summary>[Assert-Only]
             /// Call after invoking an end event to assert <see cref="OptionalWarning.EndEventInterrupt"/>.
             /// </summary>
-            private readonly void AssertEndEventInvoked(AnimancerLayer oldLayer, int oldCommandCount)
-            {
-                if (ShouldLogEndEventInterrupt(oldLayer, oldCommandCount))
-                {
+            private readonly void AssertEndEventInvoked(AnimancerLayer oldLayer, int oldCommandCount) {
+                if (ShouldLogEndEventInterrupt(oldLayer, oldCommandCount)) {
                     OptionalWarning.EndEventInterrupt.Log(
                         $"An End Event callback didn't stop the animation." +
                         $" Animancer doesn't handle End Events automatically," +
@@ -171,30 +161,34 @@ namespace Animancer
             /************************************************************************************************************************/
 
             /// <summary>[Assert-Only] Should <see cref="OptionalWarning.EndEventInterrupt"/> be logged?</summary>
-            private readonly bool ShouldLogEndEventInterrupt(AnimancerLayer oldLayer, int oldCommandCount)
-            {
-                if (!OptionalWarning.EndEventInterrupt.IsEnabled())
+            private readonly bool ShouldLogEndEventInterrupt(AnimancerLayer oldLayer, int oldCommandCount) {
+                if (!OptionalWarning.EndEventInterrupt.IsEnabled()) {
                     return false;
+                }
 
                 var events = State.SharedEvents;
                 if (events == null ||
-                    events.OnEnd != Event.callback)
+                    events.OnEnd != Event.callback) {
                     return false;
+                }
 
                 var newLayer = State.Layer;
                 if (oldLayer != newLayer ||
                     oldCommandCount != newLayer.CommandCount ||
                     !State.Graph.IsGraphPlaying ||
-                    !State.IsPlaying)
+                    !State.IsPlaying) {
                     return false;
+                }
 
                 var speed = State.EffectiveSpeed;
-                if (speed > 0)
+                if (speed > 0) {
                     return State.NormalizedTime > State.NormalizedEndTime;
-                else if (speed < 0)
+                } else if (speed < 0) {
                     return State.NormalizedTime < State.NormalizedEndTime;
-                else// Speed 0.
+                } else// Speed 0.
+                {
                     return false;
+                }
             }
 
             /************************************************************************************************************************/

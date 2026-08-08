@@ -1,4 +1,4 @@
-﻿using EditorAttributes;
+using EditorAttributes;
 using UnityEngine;
 
 namespace JoG {
@@ -20,11 +20,11 @@ namespace JoG {
             tex.Apply();
 
             // 保存为 PNG（可选）
-            byte[] bytes = tex.EncodeToPNG();
+            var bytes = tex.EncodeToPNG();
             System.IO.File.WriteAllBytes(Application.dataPath + "/AssetsPackage/Textures/" + targetObject.name + ".png", bytes);
 
             // 转换为 Sprite（用于 UI）
-            Sprite iconSprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));
+            var iconSprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));
         }
     }
 }

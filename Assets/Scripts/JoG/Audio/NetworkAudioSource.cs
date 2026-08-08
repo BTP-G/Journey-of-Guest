@@ -18,11 +18,17 @@ namespace JoG.Audio {
             }
         }
 
-        public void Play() => PlayRpc();
+        public void Play() {
+            PlayRpc();
+        }
 
-        public void PlayOneShot() => PlayOneShotRpc();
+        public void PlayOneShot() {
+            PlayOneShotRpc();
+        }
 
-        public void Stop() => StopRpc();
+        public void Stop() {
+            StopRpc();
+        }
 
         protected override void OnSynchronize<T>(ref BufferSerializer<T> serializer) {
             if (serializer.IsWriter) {

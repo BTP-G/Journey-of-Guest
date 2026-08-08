@@ -1,14 +1,12 @@
-﻿using System.Threading;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace AudioTool
-{
+namespace AudioTool {
     /// <summary>
     /// Abstraction for an audio file source, allowing the Audio Tool to work with different sources
     /// (standalone files from disk, assets in packages, etc.)
     /// </summary>
-    public interface IAudioSource
-    {
+    public interface IAudioSource {
         /// <summary>
         /// The display name of the audio file.
         /// </summary>

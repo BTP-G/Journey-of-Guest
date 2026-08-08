@@ -3,7 +3,6 @@ using DG.Tweening;
 using DG.Tweening.Core;
 using DG.Tweening.Plugins.Options;
 using EditorAttributes;
-using Xoderony.Extensions;
 using MessagePipe;
 using System;
 using System.Collections.Generic;
@@ -11,6 +10,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using VContainer;
+using Xoderony.Extensions;
 
 namespace JoG.Chat {
 
@@ -40,7 +40,10 @@ namespace JoG.Chat {
             }
             messageItem.SetText(stringBuilder);
             _messageItems.Enqueue(messageItem);
-            if (enabled) return;
+            if (enabled) {
+                return;
+            }
+
             _fadeTween.Restart();
         }
 
@@ -123,7 +126,10 @@ namespace JoG.Chat {
         }
 
         private void OnSubmit(string text) {
-            if (text.IsNullOrWhiteSpace()) return;
+            if (text.IsNullOrWhiteSpace()) {
+                return;
+            }
+
             EnqueuePlayerMessage(text, playerRegistry.LocalPlayer);
             chatService.SendMessage(text, ChatMessageTypes.Player);
             inputField.SetTextWithoutNotify(string.Empty);

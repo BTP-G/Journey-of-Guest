@@ -1,29 +1,23 @@
-﻿#if DOTWEEN_ENABLED
-using System;
+#if DOTWEEN_ENABLED
 using DG.Tweening;
-using DG.Tweening.Core;
-using DG.Tweening.Plugins.Options;
+using System;
 using UnityEngine;
 
-namespace BrunoMikoski.AnimationSequencer
-{
+namespace BrunoMikoski.AnimationSequencer {
     // Created by Pablo Huaxteco
     [Serializable]
-    public sealed class RT_AnchoredPositionTweenAction : TweenActionBase
-    {
+    public sealed class RT_AnchoredPositionTweenAction : TweenActionBase {
         public override Type TargetComponentType => typeof(RectTransform);
         public override string DisplayName => "Anchored Position";
 
-        public RT_AnchoredPositionTweenAction()
-        {
+        public RT_AnchoredPositionTweenAction() {
             toInputType = DataInputTypeWithAnchor.Anchor;
             toAnchorPosition = AnchorPosition.MiddleCenter;
         }
 
         [SerializeField]
         private DataInputTypeWithAnchor toInputType;
-        public DataInputTypeWithAnchor ToInputType
-        {
+        public DataInputTypeWithAnchor ToInputType {
             get => toInputType;
             set => toInputType = value;
         }
@@ -31,8 +25,7 @@ namespace BrunoMikoski.AnimationSequencer
         [ShowIf("toInputType", DataInputTypeWithAnchor.Vector)]
         [SerializeField]
         private Vector2 toPosition;
-        public Vector2 ToPosition
-        {
+        public Vector2 ToPosition {
             get => toPosition;
             set => toPosition = value;
         }
@@ -41,8 +34,7 @@ namespace BrunoMikoski.AnimationSequencer
         [ShowIf("toInputType", DataInputType.Vector)]
         [SerializeField]
         private bool toRelative;
-        public bool ToRelative
-        {
+        public bool ToRelative {
             get => toRelative;
             set => toRelative = value;
         }
@@ -52,8 +44,7 @@ namespace BrunoMikoski.AnimationSequencer
         [ShowIf("toInputType == DataInputTypeWithAnchor.Vector && toRelative == false")]
         [SerializeField]
         private bool toLocalSpace = true;
-        public bool ToLocalSpace
-        {
+        public bool ToLocalSpace {
             get => toLocalSpace;
             set => toLocalSpace = value;
         }
@@ -61,16 +52,14 @@ namespace BrunoMikoski.AnimationSequencer
         [ShowIf("toInputType", DataInputTypeWithAnchor.Object)]
         [SerializeField]
         private RectTransform toTarget;
-        public RectTransform ToTarget
-        {
+        public RectTransform ToTarget {
             get => toTarget;
             set => toTarget = value;
         }
 
         [SerializeField]
         private AnchorPosition toAnchorPosition;
-        public AnchorPosition ToAnchorPosition
-        {
+        public AnchorPosition ToAnchorPosition {
             get => toAnchorPosition;
             set => toAnchorPosition = value;
         }
@@ -80,8 +69,7 @@ namespace BrunoMikoski.AnimationSequencer
         [ShowIf("toInputType", DataInputTypeWithAnchor.Anchor)]
         [SerializeField]
         private bool toIncludeBounds = true;
-        public bool ToIncludeBounds
-        {
+        public bool ToIncludeBounds {
             get => toIncludeBounds;
             set => toIncludeBounds = value;
         }
@@ -89,8 +77,7 @@ namespace BrunoMikoski.AnimationSequencer
         [ShowIf("toInputType != DataInputTypeWithAnchor.Vector")]
         [SerializeField]
         private Vector2 toOffset;
-        public Vector2 ToOffset
-        {
+        public Vector2 ToOffset {
             get => toOffset;
             set => toOffset = value;
         }
@@ -99,8 +86,7 @@ namespace BrunoMikoski.AnimationSequencer
             "Use this to constrain movement to a single axis (X, Y, or Z) or a combination of them.")]
         [SerializeField]
         private AxisConstraint axisConstraint;
-        public AxisConstraint AxisConstraint
-        {
+        public AxisConstraint AxisConstraint {
             get => axisConstraint;
             set => axisConstraint = value;
         }
@@ -109,8 +95,7 @@ namespace BrunoMikoski.AnimationSequencer
             "Useful for animations that require precise, whole number positioning.")]
         [SerializeField]
         private bool snapping;
-        public bool Snapping
-        {
+        public bool Snapping {
             get => snapping;
             set => snapping = value;
         }
@@ -118,39 +103,33 @@ namespace BrunoMikoski.AnimationSequencer
         private RectTransform targetRectTransform;
         private Vector2 originalAnchorPosition;
         private RectTransform rootCanvasRectTransform;
-        private RectTransform RootCanvasRectTransform
-        {
-            get
-            {
-                if (rootCanvasRectTransform == null)
+        private RectTransform RootCanvasRectTransform {
+            get {
+                if (rootCanvasRectTransform == null) {
                     rootCanvasRectTransform = targetRectTransform.GetComponentInParent<Canvas>().rootCanvas.GetComponent<RectTransform>();
+                }
 
                 return rootCanvasRectTransform;
             }
         }
         private TweenStep tweenAnimationStep;
 
-        protected override void SetTweenAnimationStep(TweenStep tweenAnimationStep)
-        {
+        protected override void SetTweenAnimationStep(TweenStep tweenAnimationStep) {
             this.tweenAnimationStep = tweenAnimationStep;
         }
 
-        protected override Tweener GenerateTween_Internal(GameObject target, float duration)
-        {
-            if (targetRectTransform == null || targetRectTransform.gameObject != target)
-            {
+        protected override Tweener GenerateTween_Internal(GameObject target, float duration) {
+            if (targetRectTransform == null || targetRectTransform.gameObject != target) {
                 targetRectTransform = target.transform as RectTransform;
 
-                if (targetRectTransform == null)
-                {
+                if (targetRectTransform == null) {
                     Debug.LogWarning($"The <b>\"{target.name}\"</b> GameObject does not have a <b>{TargetComponentType.Name}</b> component required  for " +
                         $"the <b>\"{DisplayName}\"</b> action. Please consider assigning a <b>{TargetComponentType.Name}</b> component or removing the action.", target);
                     return null;
                 }
             }
 
-            if (toInputType == DataInputTypeWithAnchor.Object && this.toTarget == null)
-            {
+            if (toInputType == DataInputTypeWithAnchor.Object && toTarget == null) {
                 Debug.LogWarning($"The <b>\"{DisplayName}\"</b> Action does not have a <b>\"Target\"</b>. Please consider assigning a <b>\"Target\"</b>, " +
                     $"selecting another <b>\"Input Type\"</b> or removing the action.");
                 return null;
@@ -158,62 +137,53 @@ namespace BrunoMikoski.AnimationSequencer
 
             originalAnchorPosition = targetRectTransform.anchoredPosition;
 
-            TweenerCore<Vector2, Vector2, VectorOptions> tween = targetRectTransform.DOAnchorPos(GetPosition(), duration);
+            var tween = targetRectTransform.DOAnchorPos(GetPosition(), duration);
             tween.SetOptions(axisConstraint, snapping);
 
             return tween;
         }
 
-        private Vector2 GetPosition()
-        {
-            switch (toInputType)
-            {
-                case DataInputTypeWithAnchor.Vector:
-                    return GetPositionFromVectorInput();
-                case DataInputTypeWithAnchor.Object:
-                    return GetPositionFromObjectInput();
-                case DataInputTypeWithAnchor.Anchor:
-                    return GetPositionFromAnchorInput();
-            }
-
-            return Vector2.zero;
+        private Vector2 GetPosition() {
+            return toInputType switch {
+                DataInputTypeWithAnchor.Vector => GetPositionFromVectorInput(),
+                DataInputTypeWithAnchor.Object => GetPositionFromObjectInput(),
+                DataInputTypeWithAnchor.Anchor => GetPositionFromAnchorInput(),
+                _ => Vector2.zero,
+            };
         }
 
-        private Vector2 GetPositionFromVectorInput()
-        {
-            if(toRelative)
+        private Vector2 GetPositionFromVectorInput() {
+            if (toRelative) {
                 return targetRectTransform.anchoredPosition + toPosition;
+            }
 
-            if (toLocalSpace)
+            if (toLocalSpace) {
                 return toPosition;
-            
-            Vector3 targetWorldPosition = RootCanvasRectTransform.TransformPoint(toPosition);
+            }
+
+            var targetWorldPosition = RootCanvasRectTransform.TransformPoint(toPosition);
 
             return targetRectTransform.anchoredPosition + ConvertPositionFromWorldToCanvasSpace(targetWorldPosition);
         }
 
-        private Vector2 GetPositionFromObjectInput()
-        {
+        private Vector2 GetPositionFromObjectInput() {
             return targetRectTransform.anchoredPosition + ConvertPositionFromWorldToCanvasSpace(toTarget.position) + toOffset;
         }
 
-        private Vector2 GetPositionFromAnchorInput()
-        {
-            Vector2 anchorPosition = GetAnchorPosition();
-            Vector2 anchorOffset = GetAnchorOffset();
-            Vector2 cornerPosition = ConvertPositionFromWorldToCanvasSpace(anchorPosition) + anchorOffset;
+        private Vector2 GetPositionFromAnchorInput() {
+            var anchorPosition = GetAnchorPosition();
+            var anchorOffset = GetAnchorOffset();
+            var cornerPosition = ConvertPositionFromWorldToCanvasSpace(anchorPosition) + anchorOffset;
 
             return targetRectTransform.anchoredPosition + cornerPosition + toOffset;
         }
 
-        private Vector2 GetAnchorPosition()
-        {
-            Vector3[] parentCorners = new Vector3[4];
+        private Vector2 GetAnchorPosition() {
+            var parentCorners = new Vector3[4];
             targetRectTransform.parent.GetComponent<RectTransform>().GetWorldCorners(parentCorners);
-            Vector2 anchorPosition = Vector2.zero;
+            var anchorPosition = Vector2.zero;
 
-            switch (toAnchorPosition)
-            {
+            switch (toAnchorPosition) {
                 case AnchorPosition.TopLeft:
                     anchorPosition = parentCorners[1];
                     break;
@@ -246,25 +216,26 @@ namespace BrunoMikoski.AnimationSequencer
             return anchorPosition;
         }
 
-        private Vector2 GetAnchorOffset()
-        {
-            Vector2 anchorOffset = Vector2.zero;
-            if(!toIncludeBounds)
+        private Vector2 GetAnchorOffset() {
+            var anchorOffset = Vector2.zero;
+            if (!toIncludeBounds) {
                 return anchorOffset;
+            }
 
             //CalculateEndValuesFromOtherActions(out Vector3? endLocalScale, out Vector2? endSizeDelta, out Vector3? endRotation);
             //Vector2 sizeDelta = endSizeDelta.HasValue ? endSizeDelta.Value : targetRectTransform.rect.size;
             //Vector3 localScale = endLocalScale.HasValue ? endLocalScale.Value : targetRectTransform.localScale;
             //Quaternion rotation = endRotation.HasValue ? Quaternion.Euler(endRotation.Value) : targetRectTransform.localRotation;
-            Vector2 sizeDelta = targetRectTransform.rect.size;
-            Vector3 localScale = targetRectTransform.localScale;
-            Quaternion rotation = targetRectTransform.localRotation;
-            if (rotation != Quaternion.identity)
+            var sizeDelta = targetRectTransform.rect.size;
+            var localScale = targetRectTransform.localScale;
+            var rotation = targetRectTransform.localRotation;
+            if (rotation != Quaternion.identity) {
                 sizeDelta = GetRotatedSize(sizeDelta, rotation);
-            Vector2 rectMiddleSize = sizeDelta / 2 * localScale;
+            }
 
-            switch (toAnchorPosition)
-            {
+            var rectMiddleSize = sizeDelta / 2 * localScale;
+
+            switch (toAnchorPosition) {
                 case AnchorPosition.TopLeft:
                     anchorOffset = new Vector2(-rectMiddleSize.x, rectMiddleSize.y);
                     break;
@@ -302,66 +273,65 @@ namespace BrunoMikoski.AnimationSequencer
         /// <param name="endLocalScale">Returns the end scale value. Null if no "Scale" action is found.</param>
         /// <param name="endSizeDelta">Returns the end size delta value. Null if no "Size Delta" action is found.</param>
         /// <param name="endRotation">Returns the end rotation value. Null if no "Rotation" action is found.</param>
-        private void CalculateEndValuesFromOtherActions(out Vector3? endLocalScale, out Vector2? endSizeDelta, out Vector3? endRotation)
-        {
+        private void CalculateEndValuesFromOtherActions(out Vector3? endLocalScale, out Vector2? endSizeDelta, out Vector3? endRotation) {
             endLocalScale = null;
             endSizeDelta = null;
             endRotation = null;
 
-            if (tweenAnimationStep == null)
+            if (tweenAnimationStep == null) {
                 return;
+            }
 
             ScaleTweenAction transformScaleTweenAction = null;
             RT_SizeDeltaTweenAction rectTransformSizeDeltaTweenAction = null;
             RotationTweenAction transformRotationTweenAction = null;
 
-            foreach (var item in tweenAnimationStep.Actions)
-            {
-                if (transformScaleTweenAction != null && rectTransformSizeDeltaTweenAction != null && transformRotationTweenAction != null)
+            foreach (var item in tweenAnimationStep.Actions) {
+                if (transformScaleTweenAction != null && rectTransformSizeDeltaTweenAction != null && transformRotationTweenAction != null) {
                     break;
+                }
 
-                if (transformScaleTweenAction == null && item.GetType() == typeof(ScaleTweenAction))
+                if (transformScaleTweenAction == null && item.GetType() == typeof(ScaleTweenAction)) {
                     transformScaleTweenAction = item as ScaleTweenAction;
-                else if (rectTransformSizeDeltaTweenAction == null && item.GetType() == typeof(RT_SizeDeltaTweenAction))
+                } else if (rectTransformSizeDeltaTweenAction == null && item.GetType() == typeof(RT_SizeDeltaTweenAction)) {
                     rectTransformSizeDeltaTweenAction = item as RT_SizeDeltaTweenAction;
-                else if (transformRotationTweenAction == null && item.GetType() == typeof(RotationTweenAction))
+                } else if (transformRotationTweenAction == null && item.GetType() == typeof(RotationTweenAction)) {
                     transformRotationTweenAction = item as RotationTweenAction;
+                }
             }
 
-            if (transformScaleTweenAction != null)
-            {
-                if (direction == AnimationDirection.To)
+            if (transformScaleTweenAction != null) {
+                if (direction == AnimationDirection.To) {
                     endLocalScale = transformScaleTweenAction.GetEndValue(targetRectTransform.gameObject);
-                else
+                } else {
                     endLocalScale = transformScaleTweenAction.GetStartValue(targetRectTransform.gameObject);
+                }
             }
 
-            if (rectTransformSizeDeltaTweenAction != null)
-            {
-                if (direction == AnimationDirection.To)
+            if (rectTransformSizeDeltaTweenAction != null) {
+                if (direction == AnimationDirection.To) {
                     endSizeDelta = rectTransformSizeDeltaTweenAction.GetEndValue(targetRectTransform);
-                else
+                } else {
                     endSizeDelta = rectTransformSizeDeltaTweenAction.GetStartValue(targetRectTransform);
+                }
             }
 
-            if (transformRotationTweenAction != null)
-            {
-                if (direction == AnimationDirection.To)
+            if (transformRotationTweenAction != null) {
+                if (direction == AnimationDirection.To) {
                     endRotation = transformRotationTweenAction.GetEndValue(targetRectTransform.gameObject);
-                else
+                } else {
                     endRotation = transformRotationTweenAction.GetStartValue(targetRectTransform.gameObject);
+                }
             }
         }
 
-        private Vector2 GetRotatedSize(Vector2 size, Quaternion rotation)
-        {
-            Vector3[] rotatedCorners = CalculateRotatedCorners(size, rotation);
+        private Vector2 GetRotatedSize(Vector2 size, Quaternion rotation) {
+            var rotatedCorners = CalculateRotatedCorners(size, rotation);
             return GetBoundingBoxSize(rotatedCorners);
         }
 
-        private Vector3[] CalculateRotatedCorners(Vector2 size, Quaternion rotation)
-        {
-            Vector3[] corners = new Vector3[4];
+        private Vector3[] CalculateRotatedCorners(Vector2 size, Quaternion rotation) {
+            var corners = new Vector3[4];
 
             // Original corners in local coordinates (before rotation)
             Vector3 topLeft = new Vector2(-size.x / 2, size.y / 2);
@@ -378,22 +348,20 @@ namespace BrunoMikoski.AnimationSequencer
             return corners;
         }
 
-        private Vector2 GetBoundingBoxSize(Vector3[] corners)
-        {
-            float minX = Mathf.Min(corners[0].x, corners[1].x, corners[2].x, corners[3].x);
-            float maxX = Mathf.Max(corners[0].x, corners[1].x, corners[2].x, corners[3].x);
-            float minY = Mathf.Min(corners[0].y, corners[1].y, corners[2].y, corners[3].y);
-            float maxY = Mathf.Max(corners[0].y, corners[1].y, corners[2].y, corners[3].y);
+        private Vector2 GetBoundingBoxSize(Vector3[] corners) {
+            var minX = Mathf.Min(corners[0].x, corners[1].x, corners[2].x, corners[3].x);
+            var maxX = Mathf.Max(corners[0].x, corners[1].x, corners[2].x, corners[3].x);
+            var minY = Mathf.Min(corners[0].y, corners[1].y, corners[2].y, corners[3].y);
+            var maxY = Mathf.Max(corners[0].y, corners[1].y, corners[2].y, corners[3].y);
 
             return new Vector2(maxX - minX, maxY - minY);
         }
 
-        private Vector2 ConvertPositionFromWorldToCanvasSpace(Vector3 position)
-        {
+        private Vector2 ConvertPositionFromWorldToCanvasSpace(Vector3 position) {
             //Avoid wrong calculations.
-            Vector3 localEulerAngles = targetRectTransform.localEulerAngles;
+            var localEulerAngles = targetRectTransform.localEulerAngles;
             targetRectTransform.localEulerAngles = Vector3.zero;
-            Vector3 localScale = targetRectTransform.localScale;
+            var localScale = targetRectTransform.localScale;
             targetRectTransform.localScale = Vector3.one;
 
             //Calculate new position and reset the target values.
@@ -404,10 +372,10 @@ namespace BrunoMikoski.AnimationSequencer
             return targetCanvasLocalPosition;
         }
 
-        protected override void ResetToInitialState_Internal()
-        {
-            if (targetRectTransform == null)
+        protected override void ResetToInitialState_Internal() {
+            if (targetRectTransform == null) {
                 return;
+            }
 
             targetRectTransform.anchoredPosition = originalAnchorPosition;
         }

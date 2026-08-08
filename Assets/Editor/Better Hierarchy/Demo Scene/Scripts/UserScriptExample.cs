@@ -1,9 +1,7 @@
-﻿using UnityEngine;
+using UnityEngine;
 
-namespace BetterHierarchy.Example
-{
-    public class UserScriptExample : MonoBehaviour
-    {
+namespace BetterHierarchy.Example {
+    public class UserScriptExample : MonoBehaviour {
 
     }
 }

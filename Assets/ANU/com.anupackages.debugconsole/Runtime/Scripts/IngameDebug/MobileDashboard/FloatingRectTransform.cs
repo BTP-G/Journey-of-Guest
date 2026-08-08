@@ -1,12 +1,10 @@
-﻿using System;
+using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace ANU.IngameDebug.Console.Dashboard
-{
+namespace ANU.IngameDebug.Console.Dashboard {
     [RequireComponent(typeof(RectTransform))]
-    public class FloatingRectTransform : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler, IPointerClickHandler, IPointerDownHandler, IPointerUpHandler
-    {
+    public class FloatingRectTransform : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler, IPointerClickHandler, IPointerDownHandler, IPointerUpHandler {
         private bool _drag;
 
         private Vector2 _offset;
@@ -17,24 +15,26 @@ namespace ANU.IngameDebug.Console.Dashboard
         public RectTransform RT => transform as RectTransform;
         public RectTransform RTParent => transform.parent as RectTransform;
 
-        private void OnEnable() => ClampPosition(RT.localPosition);
+        private void OnEnable() {
+            ClampPosition(RT.localPosition);
+        }
 
-        void IBeginDragHandler.OnBeginDrag(PointerEventData eventData) => _drag = true;
-        void IEndDragHandler.OnEndDrag(PointerEventData eventData)
-        {
+        void IBeginDragHandler.OnBeginDrag(PointerEventData eventData) {
+            _drag = true;
+        }
+
+        void IEndDragHandler.OnEndDrag(PointerEventData eventData) {
             _drag = false;
             DragEnd?.Invoke(eventData);
         }
 
-        void IDragHandler.OnDrag(PointerEventData eventData)
-        {
+        void IDragHandler.OnDrag(PointerEventData eventData) {
             RectTransformUtility.ScreenPointToLocalPointInRectangle(RTParent, eventData.position, eventData.pressEventCamera, out var localPoint);
             localPoint -= _offset;
             ClampPosition(localPoint);
         }
 
-        private void ClampPosition(Vector2 localPoint)
-        {
+        private void ClampPosition(Vector2 localPoint) {
             var size = RTParent.rect.size;
             var localNormalized = (localPoint + (size / 2f)) / size;
             var rtNormalizedSize = RT.rect.size / size / 2f;
@@ -47,17 +47,17 @@ namespace ANU.IngameDebug.Console.Dashboard
             RT.anchoredPosition = Vector2.zero;
         }
 
-        void IPointerClickHandler.OnPointerClick(PointerEventData eventData)
-        {
-            if (_drag)
+        void IPointerClickHandler.OnPointerClick(PointerEventData eventData) {
+            if (_drag) {
                 return;
+            }
+
             Clicked?.Invoke(eventData);
         }
 
         void IPointerUpHandler.OnPointerUp(PointerEventData eventData) { }
 
-        void IPointerDownHandler.OnPointerDown(PointerEventData eventData)
-        {
+        void IPointerDownHandler.OnPointerDown(PointerEventData eventData) {
             RectTransformUtility.ScreenPointToLocalPointInRectangle(RT, eventData.position, eventData.pressEventCamera, out var localPoint);
             _offset = localPoint;
         }

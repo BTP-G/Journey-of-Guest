@@ -1,7 +1,7 @@
-using Xoderony;
 using Unity.Netcode;
 using UnityEngine;
 using VContainer;
+using Xoderony;
 
 namespace JoG.Health {
 
@@ -59,7 +59,5 @@ namespace JoG.Health {
             _localCurrent = next;
             healthChangedHandlers.Handlers?.Invoke(prev, next);
         }
-
     }
-
 }

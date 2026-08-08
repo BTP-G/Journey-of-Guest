@@ -2,14 +2,12 @@
 
 using System;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>[Editor-Conditional] Specifies the default value of a field and a secondary fallback.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer/DefaultValueAttribute
     [AttributeUsage(AttributeTargets.Field)]
     [System.Diagnostics.Conditional(Strings.UnityEditor)]
-    public class DefaultValueAttribute : Attribute
-    {
+    public class DefaultValueAttribute : Attribute {
         /************************************************************************************************************************/
 
         /// <summary>The main default value.</summary>
@@ -23,8 +21,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Creates a new <see cref="DefaultValueAttribute"/>.</summary>
-        public DefaultValueAttribute(object primary, object secondary = null)
-        {
+        public DefaultValueAttribute(object primary, object secondary = null) {
             Primary = primary;
             Secondary = secondary;
         }

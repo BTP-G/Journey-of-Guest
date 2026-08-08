@@ -1,16 +1,12 @@
-﻿using NUnit.Framework;
-using UnityEngine;
+using NUnit.Framework;
 
-namespace ANU.IngameDebug.Console.Editor.Tests
-{
+namespace ANU.IngameDebug.Console.Editor.Tests {
     [TestFixture]
-    public abstract class TestBase
-    {
+    public abstract class TestBase {
         protected DebugConsoleProcessor Context { get; private set; }
 
         [OneTimeSetUp]
-        public virtual void SetUpOnce()
-        {
+        public virtual void SetUpOnce() {
             Context = new DebugConsoleProcessor();
             Context.Initialize();
 
@@ -22,6 +18,8 @@ namespace ANU.IngameDebug.Console.Editor.Tests
         }
 
         [SetUp]
-        public void SetUp() => Context.Defines.Clear();
+        public void SetUp() {
+            Context.Defines.Clear();
+        }
     }
 }

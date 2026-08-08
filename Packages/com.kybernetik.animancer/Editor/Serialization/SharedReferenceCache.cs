@@ -7,16 +7,14 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only]
     /// A system which gathers information about <see cref="SerializeReference"/> fields to detect when multiple fields
     /// are referencing the same object.
     /// </summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/SharedReferenceCache
     public class SharedReferenceCache :
-        IEnumerable<KeyValuePair<object, List<SharedReferenceCache.Field>>>
-    {
+        IEnumerable<KeyValuePair<object, List<SharedReferenceCache.Field>>> {
         /************************************************************************************************************************/
         #region Static Caching
         /************************************************************************************************************************/
@@ -25,12 +23,12 @@ namespace Animancer.Editor
             SerializedObjectToCache = new();
 
         /// <summary>Returns a cached <see cref="SharedReferenceCache"/> for the `serializedObject`.</summary>
-        public static SharedReferenceCache Get(SerializedObject serializedObject)
-        {
+        public static SharedReferenceCache Get(SerializedObject serializedObject) {
             CheckFlush(serializedObject);
 
-            if (!SerializedObjectToCache.TryGetValue(serializedObject, out var cache))
+            if (!SerializedObjectToCache.TryGetValue(serializedObject, out var cache)) {
                 SerializedObjectToCache.Add(serializedObject, cache = new(serializedObject));
+            }
 
             return cache;
         }
@@ -47,16 +45,15 @@ namespace Animancer.Editor
             _LastFlushTime;
 
         /// <summary>Discards any caches not used during the last <see cref="FlushInterval"/> when it elapses.</summary>
-        private static void CheckFlush(SerializedObject serializedObject)
-        {
+        private static void CheckFlush(SerializedObject serializedObject) {
             var currentTime = EditorApplication.timeSinceStartup;
 
-            if (currentTime >= _LastFlushTime + FlushInterval)
-            {
+            if (currentTime >= _LastFlushTime + FlushInterval) {
                 _LastFlushTime = currentTime;
 
-                foreach (var unused in NotRecentlyUsed)
+                foreach (var unused in NotRecentlyUsed) {
                     SerializedObjectToCache.Remove(unused);
+                }
 
                 NotRecentlyUsed.Clear();
                 NotRecentlyUsed.UnionWith(SerializedObjectToCache.Keys);
@@ -70,8 +67,7 @@ namespace Animancer.Editor
         /// <summary>The number of editor updates that have occurred since startup.</summary>
         public static ulong FrameCount { get; private set; }
 
-        static SharedReferenceCache()
-        {
+        static SharedReferenceCache() {
             EditorApplication.update += () => FrameCount++;
         }
 
@@ -80,8 +76,7 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Information about a field.</summary>
-        public struct Field
-        {
+        public struct Field {
             /************************************************************************************************************************/
 
             /// <summary>The <see cref="Serialization.GetFriendlyPath"/> of the field.</summary>
@@ -93,8 +88,7 @@ namespace Animancer.Editor
             /************************************************************************************************************************/
 
             /// <summary>Creates a new <see cref="Field"/>.</summary>
-            public Field(string path)
-            {
+            public Field(string path) {
                 this.path = path;
                 area = default;
             }
@@ -116,8 +110,7 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Creates a new <see cref="SharedReferenceCache"/>.</summary>
-        public SharedReferenceCache(SerializedObject serializedObject)
-        {
+        public SharedReferenceCache(SerializedObject serializedObject) {
             SerializedObject = serializedObject;
         }
 
@@ -128,24 +121,25 @@ namespace Animancer.Editor
             => _LastGatherFrameCount != FrameCount;
 
         /// <summary>Updates the cached reference info.</summary>
-        public void GatherReferences()
-        {
+        public void GatherReferences() {
             _LastGatherFrameCount = FrameCount;
 
             ObjectToReferences.Clear();
 
             var property = SerializedObject.GetIterator();
-            while (property.Next(true))
-            {
-                if (property.propertyType != SerializedPropertyType.ManagedReference)
+            while (property.Next(true)) {
+                if (property.propertyType != SerializedPropertyType.ManagedReference) {
                     continue;
+                }
 
                 var reference = property.managedReferenceValue;
-                if (reference == null)
+                if (reference == null) {
                     continue;
+                }
 
-                if (!ObjectToReferences.TryGetValue(reference, out var paths))
+                if (!ObjectToReferences.TryGetValue(reference, out var paths)) {
                     ObjectToReferences.Add(reference, paths = new());
+                }
 
                 paths.Add(new(property.GetFriendlyPath()));
             }
@@ -154,10 +148,10 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Tries to get the info about all fields containing the `reference`.</summary>
-        public bool TryGetInfo(object reference, out List<Field> references)
-        {
-            if (ShouldGather)
+        public bool TryGetInfo(object reference, out List<Field> references) {
+            if (ShouldGather) {
                 GatherReferences();
+            }
 
             return ObjectToReferences.TryGetValue(reference, out references);
         }
@@ -165,21 +159,23 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Returns an enumerator for all references and their info.</summary>
-        public Dictionary<object, List<Field>>.Enumerator GetEnumerator()
-        {
-            if (ShouldGather)
+        public Dictionary<object, List<Field>>.Enumerator GetEnumerator() {
+            if (ShouldGather) {
                 GatherReferences();
+            }
 
             return ObjectToReferences.GetEnumerator();
         }
 
         /// <summary>Returns an enumerator for all references and their info.</summary>
-        IEnumerator<KeyValuePair<object, List<Field>>> IEnumerable<KeyValuePair<object, List<Field>>>.GetEnumerator()
-            => GetEnumerator();
+        IEnumerator<KeyValuePair<object, List<Field>>> IEnumerable<KeyValuePair<object, List<Field>>>.GetEnumerator() {
+            return GetEnumerator();
+        }
 
         /// <summary>Returns an enumerator for all references and their info.</summary>
-        IEnumerator IEnumerable.GetEnumerator()
-            => GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() {
+            return GetEnumerator();
+        }
 
         /************************************************************************************************************************/
     }

@@ -8,8 +8,7 @@ using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only] A cache to optimize repeated attribute access.</summary>
     /// <remarks>
     /// If <typeparamref name="TAttribute"/> implements <see cref="IInitializable{T}"/> for <see cref="MemberInfo"/>,
@@ -17,8 +16,7 @@ namespace Animancer.Editor
     /// </remarks>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/AttributeCache_1
     public static class AttributeCache<TAttribute>
-        where TAttribute : class
-    {
+        where TAttribute : class {
         /************************************************************************************************************************/
 
         private static readonly Dictionary<MemberInfo, TAttribute>
@@ -29,19 +27,15 @@ namespace Animancer.Editor
         /// <summary>
         /// Returns the <typeparamref name="TAttribute"/> attribute on the specified `member` (if there is one).
         /// </summary>
-        public static TAttribute GetAttribute(MemberInfo member)
-        {
-            if (!MemberToAttribute.TryGetValue(member, out var attribute))
-            {
-                try
-                {
+        public static TAttribute GetAttribute(MemberInfo member) {
+            if (!MemberToAttribute.TryGetValue(member, out var attribute)) {
+                try {
                     attribute = member.GetAttribute<TAttribute>();
 
-                    if (attribute is IInitializable<MemberInfo> initializable)
+                    if (attribute is IInitializable<MemberInfo> initializable) {
                         initializable.Initialize(member);
-                }
-                catch (Exception exception)
-                {
+                    }
+                } catch (Exception exception) {
                     Debug.LogException(exception);
                     attribute = null;
                 }
@@ -58,14 +52,15 @@ namespace Animancer.Editor
         /// Returns the <typeparamref name="TAttribute"/> attribute (if any)
         /// on the specified `type` or its <see cref="Type.BaseType"/> (recursively).
         /// </summary>
-        public static TAttribute GetAttribute(Type type)
-        {
-            if (type == null)
+        public static TAttribute GetAttribute(Type type) {
+            if (type == null) {
                 return null;
+            }
 
             var attribute = GetAttribute((MemberInfo)type);
-            if (attribute != null)
+            if (attribute != null) {
                 return attribute;
+            }
 
             return MemberToAttribute[type] = GetAttribute(type.BaseType);
         }
@@ -76,19 +71,21 @@ namespace Animancer.Editor
         /// Returns the <typeparamref name="TAttribute"/> attribute on the specified `field` or its
         /// <see cref="FieldInfo.FieldType"/> or <see cref="MemberInfo.DeclaringType"/>.
         /// </summary>
-        public static TAttribute FindAttribute(FieldInfo field)
-        {
+        public static TAttribute FindAttribute(FieldInfo field) {
             var attribute = GetAttribute(field);
-            if (attribute != null)
+            if (attribute != null) {
                 return attribute;
+            }
 
             attribute = GetAttribute(field.FieldType);
-            if (attribute != null)
+            if (attribute != null) {
                 return MemberToAttribute[field] = attribute;
+            }
 
             attribute = GetAttribute(field.DeclaringType);
-            if (attribute != null)
+            if (attribute != null) {
                 return MemberToAttribute[field] = attribute;
+            }
 
             return attribute;
         }
@@ -101,22 +98,21 @@ namespace Animancer.Editor
         /// <see cref="MemberInfo.DeclaringType"/> or any of the parent properties
         /// or the type of the <see cref="SerializedObject.targetObject"/>.
         /// </summary>
-        public static TAttribute FindAttribute(SerializedProperty property)
-        {
+        public static TAttribute FindAttribute(SerializedProperty property) {
             var accessor = property.GetAccessor();
-            while (accessor != null)
-            {
+            while (accessor != null) {
                 var field = accessor.GetField(property);
                 var attribute = GetAttribute(field);
-                if (attribute != null)
+                if (attribute != null) {
                     return attribute;
+                }
 
                 var value = accessor.GetValue(property);
-                if (value != null)
-                {
+                if (value != null) {
                     attribute = GetAttribute(value.GetType());
-                    if (attribute != null)
+                    if (attribute != null) {
                         return attribute;
+                    }
                 }
 
                 accessor = accessor.Parent;
@@ -125,8 +121,9 @@ namespace Animancer.Editor
             // If none of the fields of types they are declared in have names, try the actual type of the target.
             {
                 var attribute = GetAttribute(property.serializedObject.targetObject.GetType());
-                if (attribute != null)
+                if (attribute != null) {
                     return attribute;
+                }
             }
 
             return null;

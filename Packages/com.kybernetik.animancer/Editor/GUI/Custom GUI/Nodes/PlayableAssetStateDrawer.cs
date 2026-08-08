@@ -2,13 +2,11 @@
 
 #if UNITY_EDITOR && UNITY_IMGUI
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <inheritdoc/>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/PlayableAssetStateDrawer
     [CustomGUI(typeof(PlayableAssetState))]
-    public class PlayableAssetStateDrawer : AnimancerStateDrawer<PlayableAssetState>
-    {
+    public class PlayableAssetStateDrawer : AnimancerStateDrawer<PlayableAssetState> {
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
@@ -17,7 +15,6 @@ namespace Animancer.Editor
 
         /************************************************************************************************************************/
     }
-
 }
 
 #endif

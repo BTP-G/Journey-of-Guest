@@ -1,61 +1,52 @@
-﻿using System;
-using UnityEditor;
-using UnityEngine;
-using System.Reflection;
-using UnityEngine.UIElements;
-using UnityEditor.UIElements;
-using System.Collections.Generic;
 using EditorAttributes.Editor.Utility;
+using System;
+using System.Collections.Generic;
+using UnityEditor;
+using UnityEditor.UIElements;
+using UnityEngine;
+using UnityEngine.UIElements;
 
-namespace EditorAttributes.Editor
-{
+namespace EditorAttributes.Editor {
     [CustomPropertyDrawer(typeof(ValueButtonsAttribute))]
-    public class ValueButtonsDrawer : CollectionDisplayDrawer
-    {
-        public override VisualElement CreatePropertyGUI(SerializedProperty property)
-        {
+    public class ValueButtonsDrawer : CollectionDisplayDrawer {
+        public override VisualElement CreatePropertyGUI(SerializedProperty property) {
             var valueButtonsAttribute = attribute as ValueButtonsAttribute;
 
             HelpBox errorBox = new();
-            MemberInfo collectionInfo = ReflectionUtils.GetValidMemberInfo(valueButtonsAttribute.CollectionName, property);
+            var collectionInfo = ReflectionUtils.GetValidMemberInfo(valueButtonsAttribute.CollectionName, property);
 
-            List<string> propertyValues = ConvertCollectionValuesToStrings(valueButtonsAttribute.CollectionName, property, collectionInfo, errorBox);
-            List<string> displayValues = GetDisplayValues(collectionInfo, valueButtonsAttribute, property, propertyValues);
+            var propertyValues = ConvertCollectionValuesToStrings(valueButtonsAttribute.CollectionName, property, collectionInfo, errorBox);
+            var displayValues = GetDisplayValues(collectionInfo, valueButtonsAttribute, property, propertyValues);
 
-            if (!IsCollectionValid(displayValues))
+            if (!IsCollectionValid(displayValues)) {
                 return new HelpBox("The provided collection is empty", HelpBoxMessageType.Error);
+            }
 
-            int buttonsValueIndex = propertyValues.IndexOf(GetPropertyValueAsString(property));
+            var buttonsValueIndex = propertyValues.IndexOf(GetPropertyValueAsString(property));
 
-            ToggleButtonGroup valueButtons = DrawButtons(buttonsValueIndex, displayValues, valueButtonsAttribute, (value) =>
-            {
-                if (valueButtonsAttribute.DisplayNames != null || IsCollectionDictionary(collectionInfo, property, out _))
-                {
-                    if (value >= 0 && value < propertyValues.Count)
+            var valueButtons = DrawButtons(buttonsValueIndex, displayValues, valueButtonsAttribute, (value) => {
+                if (valueButtonsAttribute.DisplayNames != null || IsCollectionDictionary(collectionInfo, property, out _)) {
+                    if (value >= 0 && value < propertyValues.Count) {
                         SetPropertyValueFromString(propertyValues[value], property);
-                }
-                else
-                {
-                    if (value >= 0 && value < propertyValues.Count)
+                    }
+                } else {
+                    if (value >= 0 && value < propertyValues.Count) {
                         SetPropertyValueFromString(propertyValues[value], property);
+                    }
                 }
             });
 
-            valueButtons.TrackPropertyValue(property, (trackedProperty) =>
-            {
-                string propertyStringValue = GetPropertyValueAsString(trackedProperty);
+            valueButtons.TrackPropertyValue(property, (trackedProperty) => {
+                var propertyStringValue = GetPropertyValueAsString(trackedProperty);
 
-                if (propertyValues.Contains(propertyStringValue))
-                {
-                    int propertyValueIndex = propertyValues.IndexOf(propertyStringValue);
-                    bool[] selectionValues = new bool[propertyValues.Count];
+                if (propertyValues.Contains(propertyStringValue)) {
+                    var propertyValueIndex = propertyValues.IndexOf(propertyStringValue);
+                    var selectionValues = new bool[propertyValues.Count];
 
                     selectionValues[propertyValueIndex] = true;
 
                     valueButtons.SetValueWithoutNotify(ToggleButtonGroupState.CreateFromOptions(selectionValues));
-                }
-                else
-                {
+                } else {
                     Debug.LogWarning($"The value <b>{propertyStringValue}</b> set to the <b>{trackedProperty.name}</b> variable is not a value available in the button selection", trackedProperty.serializedObject.targetObject);
                 }
             });
@@ -66,15 +57,12 @@ namespace EditorAttributes.Editor
             return valueButtons;
         }
 
-        private ToggleButtonGroup DrawButtons(int buttonsValue, List<string> valueLabels, ValueButtonsAttribute selectionButtonsAttribute, Action<int> onValueChanged)
-        {
+        private ToggleButtonGroup DrawButtons(int buttonsValue, List<string> valueLabels, ValueButtonsAttribute selectionButtonsAttribute, Action<int> onValueChanged) {
             List<bool> activeButtonList = new();
             ToggleButtonGroup buttonGroup = new(selectionButtonsAttribute.ShowLabel ? preferredLabel : string.Empty);
 
-            foreach (string label in valueLabels)
-            {
-                Button toggle = new()
-                {
+            foreach (var label in valueLabels) {
+                Button toggle = new() {
                     text = label,
                     style = { height = selectionButtonsAttribute.ButtonsHeight }
                 };
@@ -91,12 +79,12 @@ namespace EditorAttributes.Editor
             return buttonGroup;
         }
 
-        private static Span<int> ConvertBoolsToSpan(List<bool> boolList)
-        {
+        private static Span<int> ConvertBoolsToSpan(List<bool> boolList) {
             var intArray = new int[boolList.Count];
 
-            for (int i = 0; i < boolList.Count; i++)
+            for (var i = 0; i < boolList.Count; i++) {
                 intArray[i] = boolList[i] ? 1 : 0;
+            }
 
             return new Span<int>(intArray);
         }

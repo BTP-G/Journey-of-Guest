@@ -1,12 +1,10 @@
-﻿using System;
-using UnityEngine;
-using System.Linq;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
-namespace EditorAttributes.Editor
-{
-    internal enum UnitCategory
-    {
+namespace EditorAttributes.Editor {
+    internal enum UnitCategory {
         Custom,
         Time,
         Length,
@@ -33,8 +31,7 @@ namespace EditorAttributes.Editor
     }
 
     [Serializable]
-    internal class UnitDefinition
-    {
+    internal class UnitDefinition {
         public string unitName;
 
         internal Unit unit;
@@ -48,8 +45,7 @@ namespace EditorAttributes.Editor
         [Tooltip("How many base units equal one of this unit. Must be 1 for the base unit")]
         public double baseFactor;
 
-        internal UnitDefinition(Unit unit, string unitLabel, UnitCategory category, double baseFactor)
-        {
+        internal UnitDefinition(Unit unit, string unitLabel, UnitCategory category, double baseFactor) {
             this.unit = unit;
             this.unitLabel = unitLabel;
             this.category = category;
@@ -59,13 +55,16 @@ namespace EditorAttributes.Editor
             unitName = unit.ToString();
         }
 
-        public override bool Equals(object obj) => obj is UnitDefinition other && unitName == other.unitName;
+        public override bool Equals(object obj) {
+            return obj is UnitDefinition other && unitName == other.unitName;
+        }
 
-        public override int GetHashCode() => unitName.GetHashCode();
+        public override int GetHashCode() {
+            return unitName.GetHashCode();
+        }
     }
 
-    internal class UnitConverter
-    {
+    internal class UnitConverter {
         internal string from;
         internal string to;
 
@@ -327,39 +326,37 @@ namespace EditorAttributes.Editor
 
         internal static Dictionary<(string from, string to), UnitConverter> UNIT_CONVERSION_MAP = new();
 
-        internal static UnitConverter GetConversion(string from, string to)
-        {
-            if (UNIT_CONVERSION_MAP.Count == 0)
+        internal static UnitConverter GetConversion(string from, string to) {
+            if (UNIT_CONVERSION_MAP.Count == 0) {
                 UNIT_CONVERSION_MAP = GenerateConversionMap();
+            }
 
-            if (UNIT_CONVERSION_MAP.TryGetValue((from, to), out var converter))
+            if (UNIT_CONVERSION_MAP.TryGetValue((from, to), out var converter)) {
                 return converter;
+            }
 
             return null;
         }
 
-        internal static bool IsUnitInCategory(Unit unit, UnitCategory category) => UNIT_DEFINITIONS.Any((unitDefinition) => unitDefinition.unitName == unit.ToString() && unitDefinition.categoryName == category.ToString());
+        internal static bool IsUnitInCategory(Unit unit, UnitCategory category) {
+            return UNIT_DEFINITIONS.Any((unitDefinition) => unitDefinition.unitName == unit.ToString() && unitDefinition.categoryName == category.ToString());
+        }
 
-        internal static Dictionary<(string from, string to), UnitConverter> GenerateConversionMap()
-        {
+        internal static Dictionary<(string from, string to), UnitConverter> GenerateConversionMap() {
             Dictionary<(string from, string to), UnitConverter> map = new();
 
             EditorAttributesSettings.instance.AddCustomDefinitions();
 
             var groups = UNIT_DEFINITIONS.GroupBy((unitDefinition) => unitDefinition.categoryName);
 
-            foreach (var group in groups)
-            {
-                List<UnitDefinition> unitDefinitions = group.ToList();
+            foreach (var group in groups) {
+                var unitDefinitions = group.ToList();
 
-                foreach (var fromDefinition in unitDefinitions)
-                {
-                    foreach (var toDefinition in unitDefinitions)
-                    {
-                        double conversion = fromDefinition.baseFactor != 0d ? fromDefinition.baseFactor / toDefinition.baseFactor : 0d;
+                foreach (var fromDefinition in unitDefinitions) {
+                    foreach (var toDefinition in unitDefinitions) {
+                        var conversion = fromDefinition.baseFactor != 0d ? fromDefinition.baseFactor / toDefinition.baseFactor : 0d;
 
-                        map[(fromDefinition.unitName, toDefinition.unitName)] = new UnitConverter
-                        {
+                        map[(fromDefinition.unitName, toDefinition.unitName)] = new UnitConverter {
                             from = fromDefinition.unitName,
                             to = toDefinition.unitName,
                             unitLabel = fromDefinition.unitLabel,

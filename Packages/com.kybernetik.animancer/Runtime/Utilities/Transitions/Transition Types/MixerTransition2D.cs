@@ -3,22 +3,19 @@
 using System;
 using UnityEngine;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <inheritdoc/>
     /// https://kybernetik.com.au/animancer/api/Animancer/MixerTransition2D
     [Serializable]
     public class MixerTransition2D : MixerTransition<Vector2MixerState, Vector2>,
-        ICopyable<MixerTransition2D>
-    {
+        ICopyable<MixerTransition2D> {
         /************************************************************************************************************************/
 
         /// <summary>
         /// A type of <see cref="ManualMixerState"/> which can be
         /// created by a <see cref="MixerTransition2D"/>.
         /// </summary>
-        public enum MixerType
-        {
+        public enum MixerType {
             /// <summary><see cref="CartesianMixerState"/></summary>
             Cartesian,
 
@@ -65,10 +62,8 @@ namespace Animancer
         /// <para></para>
         /// This method also assigns it as the <see cref="Transition{TState}.State"/>.
         /// </remarks>
-        public override Vector2MixerState CreateState()
-        {
-            State = _Type switch
-            {
+        public override Vector2MixerState CreateState() {
+            State = _Type switch {
                 MixerType.Cartesian => new CartesianMixerState(),
                 MixerType.Directional => new DirectionalMixerState(),
                 _ => throw new ArgumentOutOfRangeException(nameof(_Type)),
@@ -84,20 +79,19 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override Transition<Vector2MixerState> Clone(CloneContext context)
-        {
+        public override Transition<Vector2MixerState> Clone(CloneContext context) {
             var clone = new MixerTransition2D();
             clone.CopyFrom(this, context);
             return clone;
         }
 
         /// <inheritdoc/>
-        public sealed override void CopyFrom(MixerTransition<Vector2MixerState, Vector2> copyFrom, CloneContext context)
-            => this.CopyFromBase(copyFrom, context);
+        public sealed override void CopyFrom(MixerTransition<Vector2MixerState, Vector2> copyFrom, CloneContext context) {
+            this.CopyFromBase(copyFrom, context);
+        }
 
         /// <inheritdoc/>
-        public virtual void CopyFrom(MixerTransition2D copyFrom, CloneContext context)
-        {
+        public virtual void CopyFrom(MixerTransition2D copyFrom, CloneContext context) {
             base.CopyFrom(copyFrom, context);
 
             _Type = copyFrom._Type;

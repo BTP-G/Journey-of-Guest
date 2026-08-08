@@ -1,9 +1,9 @@
-using Xoderony.Localization;
 using JoG.Localization;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.UI;
+using Xoderony.Localization;
 
 namespace JoG.UI {
 

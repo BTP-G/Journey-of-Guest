@@ -4,12 +4,10 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>An object which can be converted to another type.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer/IConvertable_1
-    public interface IConvertable<out T>
-    {
+    public interface IConvertable<out T> {
         /************************************************************************************************************************/
 
         /// <summary>Returns the equivalent of this object as <typeparamref name="T"/>.</summary>
@@ -20,8 +18,7 @@ namespace Animancer
 
     /// <summary>Utility methods for <see cref="IConvertable{T}"/>.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer/ConvertableUtilities
-    public static partial class ConvertableUtilities
-    {
+    public static partial class ConvertableUtilities {
         /************************************************************************************************************************/
 
         /// <summary>
@@ -41,10 +38,10 @@ namespace Animancer
         /// <item>Otherwise, this method throws an <see cref="ArgumentException"/>.</item>
         /// </list>
         /// </remarks>
-        public static T ConvertOrThrow<T>(object original)
-        {
-            if (TryConvert<T>(original, out var converted))
+        public static T ConvertOrThrow<T>(object original) {
+            if (TryConvert<T>(original, out var converted)) {
                 return converted;
+            }
 
             throw new ArgumentException(
                 $"Unable to convert '{AnimancerUtilities.ToStringOrNull(original)}'" +
@@ -61,8 +58,7 @@ namespace Animancer
         /// <item>Otherwise, this method returns the <c>default(T)</c>.</item>
         /// </list>
         /// </remarks>
-        public static T ConvertOrDefault<T>(object original)
-        {
+        public static T ConvertOrDefault<T>(object original) {
             TryConvert<T>(original, out var converted);
             return converted;
         }
@@ -77,28 +73,23 @@ namespace Animancer
         /// <item>Otherwise, this method returns <c>false</c>.</item>
         /// </list>
         /// </remarks>
-        public static bool TryConvert<T>(object original, out T converted)
-        {
-            if (original is null)
-            {
+        public static bool TryConvert<T>(object original, out T converted) {
+            if (original is null) {
                 converted = default;
                 return converted == null;// True for value type, false for reference type.
             }
 
-            if (original is T t)
-            {
+            if (original is T t) {
                 converted = t;
                 return true;
             }
 
-            if (original is IConvertable<T> convertable)
-            {
+            if (original is IConvertable<T> convertable) {
                 converted = convertable.Convert();
                 return true;
             }
 
-            if (CustomConverters.TryGetValue(original.GetType(), out var converter))
-            {
+            if (CustomConverters.TryGetValue(original.GetType(), out var converter)) {
                 converted = (T)converter(original, typeof(T));
                 return converted != null;
             }
@@ -110,19 +101,18 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Initializes the inbuilt custom converters.</summary>
-        static ConvertableUtilities()
-        {
+        static ConvertableUtilities() {
             CustomConverters.Add(typeof(GameObject), TryGetComponent);
         }
 
         /************************************************************************************************************************/
 
         /// <summary>Tries to get a component if the `original` is a <see cref="GameObject"/>.</summary>
-        private static object TryGetComponent(object original, Type type)
-        {
+        private static object TryGetComponent(object original, Type type) {
             if (original is GameObject gameObject &&
-                gameObject.TryGetComponent(type, out var component))
+                gameObject.TryGetComponent(type, out var component)) {
                 return component;
+            }
 
             return null;
         }

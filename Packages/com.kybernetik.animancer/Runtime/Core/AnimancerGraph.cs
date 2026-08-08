@@ -10,8 +10,7 @@ using UnityEngine.Animations;
 using UnityEngine.Playables;
 using Object = UnityEngine.Object;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>The root node which manages Animancer's <see cref="UnityEngine.Playables.PlayableGraph"/>.</summary>
     /// 
     /// <remarks>
@@ -30,8 +29,7 @@ namespace Animancer
         IAnimationClipCollection,
         ICopyable<AnimancerGraph>,
         IEnumerator,
-        IHasDescription
-    {
+        IHasDescription {
         /************************************************************************************************************************/
         #region Fields and Properties
         /************************************************************************************************************************/
@@ -62,24 +60,19 @@ namespace Animancer
         /// <see cref="Editor.AnimancerSettings"/> because it needs to be initialized before Unity is able to load
         /// <see cref="ScriptableObject"/>s.
         /// </remarks>
-        static AnimancerGraph()
-        {
+        static AnimancerGraph() {
             var typeName = $"{DefaultFadeDurationNamespace}.{DefaultFadeDurationClass}";
 
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
 
             // Iterate backwards since it's more likely to be towards the end.
-            for (int iAssembly = assemblies.Length - 1; iAssembly >= 0; iAssembly--)
-            {
+            for (var iAssembly = assemblies.Length - 1; iAssembly >= 0; iAssembly--) {
                 var type = assemblies[iAssembly].GetType(typeName);
-                if (type != null)
-                {
+                if (type != null) {
                     var methods = type.GetMethods(AnimancerReflection.StaticBindings);
-                    for (int iMethod = 0; iMethod < methods.Length; iMethod++)
-                    {
+                    for (var iMethod = 0; iMethod < methods.Length; iMethod++) {
                         var method = methods[iMethod];
-                        if (method.IsDefined(typeof(RuntimeInitializeOnLoadMethodAttribute), false))
-                        {
+                        if (method.IsDefined(typeof(RuntimeInitializeOnLoadMethodAttribute), false)) {
                             method.Invoke(null, null);
                             return;
                         }
@@ -119,12 +112,10 @@ namespace Animancer
         /// Editor so that newly created transition fields can start with the correct value (using a
         /// <c>[UnityEditor.InitializeOnLoadMethod]</c> attribute would run it too late).
         /// </remarks>
-        public static float DefaultFadeDuration
-        {
+        public static float DefaultFadeDuration {
             get => _DefaultFadeDuration;
-            set
-            {
-                AnimancerUtilities.Assert(value >= 0 && value < float.PositiveInfinity,
+            set {
+                AnimancerUtilities.Assert(value is >= 0 and < float.PositiveInfinity,
                     $"{nameof(AnimancerGraph)}.{nameof(DefaultFadeDuration)} must not be negative or infinity.");
 
                 _DefaultFadeDuration = value;
@@ -145,8 +136,9 @@ namespace Animancer
             => _PlayableGraph;
 
         /// <summary>Returns the <see cref="PlayableGraph"/>.</summary>
-        public static implicit operator PlayableGraph(AnimancerGraph animancer)
-            => animancer.PlayableGraph;
+        public static implicit operator PlayableGraph(AnimancerGraph animancer) {
+            return animancer.PlayableGraph;
+        }
 
         /************************************************************************************************************************/
 
@@ -163,12 +155,11 @@ namespace Animancer
         private PlayableOutput _Output;
 
         /// <summary>The <see cref="PlayableOutput"/> connected to this <see cref="AnimancerGraph"/>.</summary>
-        public PlayableOutput Output
-        {
-            get
-            {
-                if (!_Output.IsOutputValid())
+        public PlayableOutput Output {
+            get {
+                if (!_Output.IsOutputValid()) {
                     _Output = _PlayableGraph.FindOutput(_PreUpdatePlayable);
+                }
 
                 return _Output;
             }
@@ -185,8 +176,9 @@ namespace Animancer
             => _Layers.Count;
 
         /// <inheritdoc/>
-        protected internal override AnimancerNode GetChildNode(int index)
-            => _Layers[index];
+        protected internal override AnimancerNode GetChildNode(int index) {
+            return _Layers[index];
+        }
 
         /************************************************************************************************************************/
 
@@ -198,29 +190,25 @@ namespace Animancer
         /// <see href="https://kybernetik.com.au/animancer/docs/manual/blending/layers">
         /// Layers</see>
         /// </remarks>
-        public AnimancerLayerList Layers
-        {
+        public AnimancerLayerList Layers {
             get => _Layers;
-            set
-            {
+            set {
 #if UNITY_ASSERTIONS
-                if (value.Graph != this)
+                if (value.Graph != this) {
                     throw new ArgumentException(
                         $"{nameof(AnimancerGraph)}.{nameof(AnimancerLayerList)}.{nameof(AnimancerLayerList.Graph)}" +
                         $" mismatch: cannot use a list in an {nameof(AnimancerGraph)} that is not its" +
                         $" {nameof(AnimancerLayerList.Graph)}");
+                }
 #endif
 
                 _Playable = value.Playable;
 
-                if (_Layers != null && _Playable.IsValid())
-                {
+                if (_Layers != null && _Playable.IsValid()) {
                     var count = _Layers.Count;
-                    for (int i = 0; i < count; i++)
-                    {
+                    for (var i = 0; i < count; i++) {
                         var layer = _Playable.GetInput(i);
-                        if (layer.IsValid())
-                        {
+                        if (layer.IsValid()) {
                             _Playable.DisconnectInput(i);
                             _PlayableGraph.Connect(_Playable, layer, i, _Layers[i].Weight);
                         }
@@ -298,8 +286,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Determines what time source is used to update the <see cref="UnityEngine.Playables.PlayableGraph"/>.</summary>
-        public DirectorUpdateMode UpdateMode
-        {
+        public DirectorUpdateMode UpdateMode {
             get => _PlayableGraph.GetTimeUpdateMode();
             set => _PlayableGraph.SetTimeUpdateMode(value);
         }
@@ -330,22 +317,21 @@ namespace Animancer
 
         /// <summary>Sets <see cref="KeepChildrenConnected"/>.</summary>
         /// <remarks>This method exists because the <see cref="KeepChildrenConnected"/> override can't add a setter.</remarks>
-        public void SetKeepChildrenConnected(bool value)
-        {
-            if (_KeepChildrenConnected == value)
+        public void SetKeepChildrenConnected(bool value) {
+            if (_KeepChildrenConnected == value) {
                 return;
+            }
 
             _KeepChildrenConnected = value;
 
-            if (value)
-            {
-                for (int i = _Layers.Count - 1; i >= 0; i--)
+            if (value) {
+                for (var i = _Layers.Count - 1; i >= 0; i--) {
                     _Layers.GetLayer(i).ConnectAllStates();
-            }
-            else
-            {
-                for (int i = _Layers.Count - 1; i >= 0; i--)
+                }
+            } else {
+                for (var i = _Layers.Count - 1; i >= 0; i--) {
                     _Layers.GetLayer(i).DisconnectInactiveStates();
+                }
             }
         }
 
@@ -362,15 +348,12 @@ namespace Animancer
         /// Setting this value to false ensures that the <see cref="AnimationLayerMixerPlayable"/> has at least two
         /// inputs because it ignores the <see cref="AnimancerNode.Weight"/> of the layer when there is only one.
         /// </remarks>
-        public bool SkipFirstFade
-        {
+        public bool SkipFirstFade {
             get => _SkipFirstFade;
-            set
-            {
+            set {
                 _SkipFirstFade = value;
 
-                if (!value && _Layers.Count < 2)
-                {
+                if (!value && _Layers.Count < 2) {
                     _Layers.Count = 1;
                     Playable.SetInputCount(2);
                 }
@@ -389,8 +372,7 @@ namespace Animancer
         /// </summary>
         public AnimancerGraph(
             PlayableGraph graph,
-            TransitionLibrary transitions = null)
-        {
+            TransitionLibrary transitions = null) {
             _PlayableGraph = graph;
             Transitions = transitions;
             Graph = this;
@@ -412,8 +394,7 @@ namespace Animancer
         /// <see cref="UnityEngine.Playables.PlayableGraph"/>.
         /// </summary>
         public AnimancerGraph(TransitionLibrary transitions = null)
-            : this(CreateGraph(), transitions)
-        {
+            : this(CreateGraph(), transitions) {
         }
 
         /************************************************************************************************************************/
@@ -424,24 +405,24 @@ namespace Animancer
         /// </summary>
         public void Initialize(
             IAnimancerComponent animancer,
-            bool createOutput = true)
-        {
+            bool createOutput = true) {
             var animator = animancer.Animator;
 
 #if UNITY_ASSERTIONS
-            if (animator == null)
+            if (animator == null) {
                 throw new ArgumentNullException(nameof(animator),
                     $"An {nameof(Animator)} component is required to play animations.");
+            }
 
 #if UNITY_EDITOR
-            if (UnityEditor.EditorUtility.IsPersistent(animator))
+            if (UnityEditor.EditorUtility.IsPersistent(animator)) {
                 throw new ArgumentException(
                     $"The specified {nameof(Animator)} component is a prefab which means it cannot play animations.",
                     nameof(animator));
+            }
 #endif
 
-            if (animancer != null)
-            {
+            if (animancer != null) {
                 Debug.Assert(animancer.IsGraphInitialized && animancer.Graph == this,
                     $"{nameof(Initialize)} was called on an {nameof(AnimancerGraph)} which does not match the" +
                     $" {nameof(IAnimancerComponent)}.{nameof(IAnimancerComponent.Graph)}.");
@@ -454,8 +435,7 @@ namespace Animancer
 #endif
             }
 
-            if (Output.IsOutputValid())
-            {
+            if (Output.IsOutputValid()) {
                 Debug.LogWarning(
                     $"A {nameof(PlayableGraph)} output is already connected to the {nameof(AnimancerGraph)}." +
                     $" The old output should be destroyed using `animancerComponent.Graph.DestroyOutput();`" +
@@ -472,8 +452,7 @@ namespace Animancer
 
             AnimancerEvent.Invoker.Initialize(animator.updateMode);
 
-            if (createOutput)
-            {
+            if (createOutput) {
 #pragma warning disable CS0618 // Type or member is obsolete.
                 // Unity 2022 marked this method as [Obsolete] even though it's the only way to use Animate Physics mode.
                 AnimationPlayableUtilities.Play(animator, _PreUpdatePlayable, _PlayableGraph);
@@ -493,8 +472,7 @@ namespace Animancer
         /// The caller is responsible for calling <see cref="Destroy()"/> on the returned object,
         /// except in Edit Mode where it will be called automatically.
         /// </remarks>
-        public static PlayableGraph CreateGraph()
-        {
+        public static PlayableGraph CreateGraph() {
 #if UNITY_EDITOR
             var name = _NextGraphName;
             _NextGraphName = null;
@@ -517,8 +495,7 @@ namespace Animancer
         /// Sets the display name for the next instance to give its <see cref="UnityEngine.Playables.PlayableGraph"/>.
         /// </summary>
         [System.Diagnostics.Conditional(Strings.UnityEditor)]
-        public static void SetNextGraphName(string name)
-        {
+        public static void SetNextGraphName(string name) {
 #if UNITY_EDITOR
             _NextGraphName = name;
 #endif
@@ -528,12 +505,13 @@ namespace Animancer
 
 #if UNITY_EDITOR
         /// <summary>[Editor-Only] Returns "Component Name (Animancer)".</summary>
-        public override string ToString()
-            => !Component.IsNullOrDestroyed()
-            ? $"{Component.gameObject.name} ({nameof(Animancer)})"
-            : _PlayableGraph.IsValid()
-            ? _PlayableGraph.GetEditorName()
-            : $"Destroyed ({nameof(Animancer)})";
+        public override string ToString() {
+            return !Component.IsNullOrDestroyed()
+                                                      ? $"{Component.gameObject.name} ({nameof(Animancer)})"
+                                                      : _PlayableGraph.IsValid()
+                                                      ? _PlayableGraph.GetEditorName()
+                                                      : $"Destroyed ({nameof(Animancer)})";
+        }
 #endif
 
         /************************************************************************************************************************/
@@ -545,8 +523,7 @@ namespace Animancer
         /// so that it can modify the final output.
         /// </summary>
         /// <remarks>It can be removed using <see cref="AnimancerUtilities.RemovePlayable"/>.</remarks>
-        public void InsertOutputPlayable(Playable playable)
-        {
+        public void InsertOutputPlayable(Playable playable) {
             var output = Output;
             _PlayableGraph.Connect(playable, output.GetSourcePlayable(), 0, 1);
             output.SetSourcePlayable(playable);
@@ -560,8 +537,7 @@ namespace Animancer
         /// It can can be removed by passing the returned value into <see cref="AnimancerUtilities.RemovePlayable"/>.
         /// </remarks>
         public AnimationScriptPlayable InsertOutputJob<T>(T data)
-            where T : struct, IAnimationJob
-        {
+            where T : struct, IAnimationJob {
             var playable = AnimationScriptPlayable.Create(_PlayableGraph, data, 1);
             InsertOutputPlayable(playable);
             return playable;
@@ -570,22 +546,22 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        void ICopyable<AnimancerGraph>.CopyFrom(AnimancerGraph copyFrom, CloneContext context)
-            => CopyFrom(copyFrom, context);
+        void ICopyable<AnimancerGraph>.CopyFrom(AnimancerGraph copyFrom, CloneContext context) {
+            CopyFrom(copyFrom, context);
+        }
 
         /// <summary>Copies all layers and states from `copyFrom` into this graph.</summary>
-        public void CopyFrom(AnimancerGraph copyFrom, bool includeInactiveStates = false)
-        {
+        public void CopyFrom(AnimancerGraph copyFrom, bool includeInactiveStates = false) {
             var context = CloneContext.Pool.Instance.Acquire();
             CopyFrom(copyFrom, context, includeInactiveStates);
             CloneContext.Pool.Instance.Release(context);
         }
 
         /// <summary>Copies all layers and states from `copyFrom` into this graph.</summary>
-        public void CopyFrom(AnimancerGraph copyFrom, CloneContext context, bool includeInactiveStates = false)
-        {
-            if (copyFrom == this)
+        public void CopyFrom(AnimancerGraph copyFrom, CloneContext context, bool includeInactiveStates = false) {
+            if (copyFrom == this) {
                 return;
+            }
 
             var wouldCloneUpdatables = context.WillCloneUpdatables;
             context.WillCloneUpdatables = true;
@@ -599,23 +575,23 @@ namespace Animancer
             context[copyFrom] = this;
 
             // Register states in the context.
-            foreach (var copyFromState in copyFrom.States)
-                if (States.TryGet(copyFromState.Key, out var copyToState))
+            foreach (var copyFromState in copyFrom.States) {
+                if (States.TryGet(copyFromState.Key, out var copyToState)) {
                     context[copyFromState] = copyToState;
+                }
+            }
 
             var layerCount = copyFrom._Layers.Count;
 
             // Register layers in the context.
-            for (int i = 0; i < layerCount; i++)
-            {
+            for (var i = 0; i < layerCount; i++) {
                 var copyFromLayer = copyFrom._Layers[i];
                 var copyToLayer = _Layers[i];
                 context[copyFromLayer] = copyToLayer;
             }
 
             // Copy existing layers.
-            for (int i = 0; i < layerCount; i++)
-            {
+            for (var i = 0; i < layerCount; i++) {
                 var copyFromLayer = copyFrom._Layers[i];
                 var copyToLayer = _Layers[i];
                 copyToLayer.CopyFrom(copyFromLayer, context);
@@ -623,8 +599,9 @@ namespace Animancer
             }
 
             // Stop any extra layers.
-            for (int i = layerCount; i < _Layers.Count; i++)
+            for (var i = layerCount; i < _Layers.Count; i++) {
                 _Layers[i].Stop();
+            }
 
             _PreUpdatables.CloneFrom(copyFrom._PreUpdatables, context);
             _PostUpdatables.CloneFrom(copyFrom._PostUpdatables, context);
@@ -640,10 +617,10 @@ namespace Animancer
 
         /// <summary>Is this <see cref="AnimancerGraph"/> currently usable (not destroyed)?</summary>
         /// <remarks>Calls <see cref="DisposeAll"/> if the <see cref="PlayableGraph"/> was already destroyed.</remarks>
-        public bool IsValidOrDispose()
-        {
-            if (_PlayableGraph.IsValid())
+        public bool IsValidOrDispose() {
+            if (_PlayableGraph.IsValid()) {
                 return true;
+            }
 
             DisposeAll();
             return false;
@@ -653,12 +630,10 @@ namespace Animancer
 
         /// <summary>Destroys the <see cref="PlayableGraph"/> and everything in it. This operation cannot be undone.</summary>
         /// <remarks>If the <see cref="PlayableGraph"/> is owned by another system, use <see cref="DestroyPlayables"/> instead.</remarks>
-        public void Destroy()
-        {
+        public void Destroy() {
             OnGraphDestroyed();
 
-            if (_PlayableGraph.IsValid())
-            {
+            if (_PlayableGraph.IsValid()) {
                 _PlayableGraph.Destroy();
 
 #if UNITY_EDITOR
@@ -675,22 +650,22 @@ namespace Animancer
         /// This can be useful if Animancer was initialized inside a <see cref="UnityEngine.Playables.PlayableGraph"/> owned by another
         /// system such as Unity's Animation Rigging package. Otherwise, use <see cref="Destroy"/>.
         /// </remarks>
-        public void DestroyPlayables()
-        {
+        public void DestroyPlayables() {
             OnGraphDestroyed();
 
-            if (_PlayableGraph.IsValid())
+            if (_PlayableGraph.IsValid()) {
                 _PlayableGraph.DestroySubgraph(_PreUpdatePlayable);
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <summary>Destroys the <see cref="Output"/> if it exists and returns true if successful.</summary>
-        public bool DestroyOutput()
-        {
+        public bool DestroyOutput() {
             var output = Output;
-            if (!output.IsOutputValid())
+            if (!output.IsOutputValid()) {
                 return false;
+            }
 
             _PlayableGraph.DestroyOutput(output);
             return true;
@@ -703,13 +678,12 @@ namespace Animancer
             => OnGraphDestroyed();
 
         /// <summary>Calls <see cref="AnimancerLayer.OnGraphDestroyed"/> on all layers.</summary>
-        private void OnGraphDestroyed()
-        {
-            if (_Layers != null)
-            {
+        private void OnGraphDestroyed() {
+            if (_Layers != null) {
                 var layerCount = _Layers.Count;
-                for (int i = 0; i < layerCount; i++)
+                for (var i = 0; i < layerCount; i++) {
                     _Layers[i].OnGraphDestroyed();
+                }
             }
 
             DisposeAll();
@@ -727,11 +701,11 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Calls <see cref="IDisposable.Dispose"/> on all <see cref="Disposables"/> and discards them.</summary>
-        private void DisposeAll()
-        {
+        private void DisposeAll() {
             if (_Disposables == null ||
-                _Disposables.Count == 0)
+                _Disposables.Count == 0) {
                 return;
+            }
 
             GC.SuppressFinalize(this);
 
@@ -739,18 +713,14 @@ namespace Animancer
             Current = this;
 
             var i = _Disposables.Count;
-            DisposeNext:
-            try
-            {
-                while (--i >= 0)
-                {
+        DisposeNext:
+            try {
+                while (--i >= 0) {
                     _Disposables[i].Dispose();
                 }
 
                 _Disposables.Clear();
-            }
-            catch (Exception exception)
-            {
+            } catch (Exception exception) {
                 Debug.LogException(exception, Component as Object);
                 goto DisposeNext;
             }
@@ -766,15 +736,14 @@ namespace Animancer
         private bool _ApplyAnimatorIK;
 
         /// <inheritdoc/>
-        public override bool ApplyAnimatorIK
-        {
+        public override bool ApplyAnimatorIK {
             get => _ApplyAnimatorIK;
-            set
-            {
+            set {
                 _ApplyAnimatorIK = value;
 
-                for (int i = _Layers.Count - 1; i >= 0; i--)
+                for (var i = _Layers.Count - 1; i >= 0; i--) {
                     _Layers.GetLayer(i).ApplyAnimatorIK = value;
+                }
             }
         }
 
@@ -783,15 +752,14 @@ namespace Animancer
         private bool _ApplyFootIK;
 
         /// <inheritdoc/>
-        public override bool ApplyFootIK
-        {
+        public override bool ApplyFootIK {
             get => _ApplyFootIK;
-            set
-            {
+            set {
                 _ApplyFootIK = value;
 
-                for (int i = _Layers.Count - 1; i >= 0; i--)
+                for (var i = _Layers.Count - 1; i >= 0; i--) {
                     _Layers.GetLayer(i).ApplyFootIK = value;
+                }
             }
         }
 
@@ -805,10 +773,11 @@ namespace Animancer
 
         /// <summary>Calls <see cref="IAnimancerComponent.GetKey"/> on the <see cref="Component"/>.</summary>
         /// <remarks>If the <see cref="Component"/> is null, this method returns the `clip` itself.</remarks>
-        public object GetKey(AnimationClip clip)
-            => Component != null
-            ? Component.GetKey(clip)
-            : clip;
+        public object GetKey(AnimationClip clip) {
+            return Component != null
+                                                             ? Component.GetKey(clip)
+                                                             : clip;
+        }
 
         /************************************************************************************************************************/
 
@@ -817,18 +786,19 @@ namespace Animancer
         /// stops and rewinds it to the start, then returns it.
         /// </summary>
         /// <remarks>Note that playing something new will automatically stop the old animation.</remarks>
-        public AnimancerState Stop(IHasKey hasKey)
-            => Stop(hasKey.Key);
+        public AnimancerState Stop(IHasKey hasKey) {
+            return Stop(hasKey.Key);
+        }
 
         /// <summary>
         /// Calls <see cref="AnimancerNode.Stop"/> on the state registered with the `key`
         /// to stop it from playing and rewind it to the start.
         /// </summary>
         /// <remarks>Note that playing something new will automatically stop the old animation.</remarks>
-        public AnimancerState Stop(object key)
-        {
-            if (States.TryGet(key, out var state))
+        public AnimancerState Stop(object key) {
+            if (States.TryGet(key, out var state)) {
                 state.Stop();
+            }
 
             return state;
         }
@@ -838,32 +808,36 @@ namespace Animancer
         /// to stop them from playing and rewind them to the start.
         /// </summary>
         /// <remarks>Note that playing something new will automatically stop the old animation.</remarks>
-        public void Stop()
-        {
-            for (int i = _Layers.Count - 1; i >= 0; i--)
+        public void Stop() {
+            for (var i = _Layers.Count - 1; i >= 0; i--) {
                 _Layers.GetLayer(i).Stop();
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <summary>Is a state registered with the <see cref="IHasKey.Key"/> and currently playing?</summary>
-        public bool IsPlaying(IHasKey hasKey)
-            => IsPlaying(hasKey.Key);
+        public bool IsPlaying(IHasKey hasKey) {
+            return IsPlaying(hasKey.Key);
+        }
 
         /// <summary>Is a state registered with the `key` and currently playing?</summary>
-        public bool IsPlaying(object key)
-            => States.TryGetAlias(key, out var state)
-            && state.IsPlaying;
+        public bool IsPlaying(object key) {
+            return States.TryGetAlias(key, out var state)
+                                                      && state.IsPlaying;
+        }
 
         /// <summary>Is any animation being played on any layer?</summary>
-        public bool IsPlaying()
-        {
-            if (!IsGraphPlaying)
+        public bool IsPlaying() {
+            if (!IsGraphPlaying) {
                 return false;
+            }
 
-            for (int i = _Layers.Count - 1; i >= 0; i--)
-                if (_Layers.GetLayer(i).IsAnyStatePlaying())
+            for (var i = _Layers.Count - 1; i >= 0; i--) {
+                if (_Layers.GetLayer(i).IsAnyStatePlaying()) {
                     return true;
+                }
+            }
 
             return false;
         }
@@ -875,14 +849,16 @@ namespace Animancer
         /// This method is inefficient because it searches through every state,
         /// unlike <see cref="IsPlaying(object)"/> which only checks the state registered using the specified key.
         /// </remarks>
-        public bool IsPlayingClip(AnimationClip clip)
-        {
-            if (!IsGraphPlaying)
+        public bool IsPlayingClip(AnimationClip clip) {
+            if (!IsGraphPlaying) {
                 return false;
+            }
 
-            for (int i = _Layers.Count - 1; i >= 0; i--)
-                if (_Layers.GetLayer(i).IsPlayingClip(clip))
+            for (var i = _Layers.Count - 1; i >= 0; i--) {
+                if (_Layers.GetLayer(i).IsPlayingClip(clip)) {
                     return true;
+                }
+            }
 
             return false;
         }
@@ -890,12 +866,12 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Calculates the total <see cref="AnimancerNode.Weight"/> of all states in all layers.</summary>
-        public float GetTotalWeight()
-        {
+        public float GetTotalWeight() {
             float weight = 0;
 
-            for (int i = _Layers.Count - 1; i >= 0; i--)
+            for (var i = _Layers.Count - 1; i >= 0; i--) {
                 weight += _Layers.GetLayer(i).GetTotalChildWeight();
+            }
 
             return weight;
         }
@@ -903,8 +879,9 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>[<see cref="IAnimationClipCollection"/>] Gathers all the animations in all layers.</summary>
-        public void GatherAnimationClips(ICollection<AnimationClip> clips)
-            => _Layers.GatherAnimationClips(clips);
+        public void GatherAnimationClips(ICollection<AnimationClip> clips) {
+            _Layers.GatherAnimationClips(clips);
+        }
 
         /************************************************************************************************************************/
         // IEnumerator for yielding in a coroutine to wait until animations have stopped.
@@ -912,11 +889,12 @@ namespace Animancer
 
         /// <summary>Are any animations playing?</summary>
         /// <remarks>This allows this object to be used as a custom yield instruction.</remarks>
-        bool IEnumerator.MoveNext()
-        {
-            for (int i = _Layers.Count - 1; i >= 0; i--)
-                if (_Layers.GetLayer(i).IsPlayingAndNotEnding())
+        bool IEnumerator.MoveNext() {
+            for (var i = _Layers.Count - 1; i >= 0; i--) {
+                if (_Layers.GetLayer(i).IsPlayingAndNotEnding()) {
                     return true;
+                }
+            }
 
             return false;
         }
@@ -940,8 +918,7 @@ namespace Animancer
         /// Just call <see cref="AnimancerNode.Stop"/>.
         /// </summary>
         [Obsolete("You should not use an AnimancerState as a key. Just call AnimancerState.Stop().", true)]
-        public AnimancerState Stop(AnimancerState key)
-        {
+        public AnimancerState Stop(AnimancerState key) {
             key.Stop();
             return key;
         }
@@ -951,7 +928,9 @@ namespace Animancer
         /// Just check <see cref="AnimancerState.IsPlaying"/>.
         /// </summary>
         [Obsolete("You should not use an AnimancerState as a key. Just check AnimancerState.IsPlaying.", true)]
-        public bool IsPlaying(AnimancerState key) => key.IsPlaying;
+        public bool IsPlaying(AnimancerState key) {
+            return key.IsPlaying;
+        }
 
         /************************************************************************************************************************/
 #endif
@@ -963,15 +942,14 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Indicates whether the <see cref="UnityEngine.Playables.PlayableGraph"/> is currently playing.</summary>
-        public bool IsGraphPlaying
-        {
+        public bool IsGraphPlaying {
             get => _PlayableGraph.IsPlaying();
-            set
-            {
-                if (value)
+            set {
+                if (value) {
                     UnpauseGraph();
-                else
+                } else {
                     PauseGraph();
+                }
             }
         }
 
@@ -982,14 +960,14 @@ namespace Animancer
         /// If you're using the <see cref="Animator.runtimeAnimatorController"/>,
         /// you can also unpause it by calling <c>animancerComponent.Animator.playableGraph.Play();</c>.
         /// </remarks>
-        public void UnpauseGraph()
-        {
+        public void UnpauseGraph() {
             _PlayableGraph.Play();
 
 #if UNITY_EDITOR
             // In Edit Mode, unpausing the graph doesn't work properly unless we force it to change.
-            if (!UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode)
+            if (!UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode) {
                 Evaluate(0.00001f);
+            }
 #endif
         }
 
@@ -1002,16 +980,16 @@ namespace Animancer
         /// If you're using the <see cref="Animator.runtimeAnimatorController"/>,
         /// you can also pause it by calling <c>animancerComponent.Animator.playableGraph.Stop();</c>.
         /// </remarks>
-        public void PauseGraph()
-            => _PlayableGraph.Stop();
+        public void PauseGraph() {
+            _PlayableGraph.Stop();
+        }
 
         /************************************************************************************************************************/
 
         /// <summary>
         /// Evaluates all of the currently playing animations to apply their states to the animated objects.
         /// </summary>
-        public void Evaluate()
-        {
+        public void Evaluate() {
             _PlayableGraph.Evaluate();
             AnimancerEvent.Invoker.InvokeAllAndClear();
         }
@@ -1024,8 +1002,7 @@ namespace Animancer
         /// This method doesn't update the <see cref="Animator.runtimeAnimatorController"/>.
         /// If you also want to do that, you can call <see cref="Animator.Update(float)"/> beforehand.
         /// </remarks>
-        public void Evaluate(float deltaTime)
-        {
+        public void Evaluate(float deltaTime) {
             _PlayableGraph.Evaluate(deltaTime);
             AnimancerEvent.Invoker.InvokeAllAndClear();
         }
@@ -1039,8 +1016,7 @@ namespace Animancer
         /// <inheritdoc/>
         public void AppendDescription(
             StringBuilder text,
-            string separator = "\n")
-        {
+            string separator = "\n") {
             text.AppendField(null, nameof(AnimancerGraph), Component);
 
             separator += Strings.Indent;
@@ -1050,8 +1026,7 @@ namespace Animancer
             AnimancerNode.AppendIKDetails(text, separator, this);
 
             var count = _Layers.Count;
-            for (int i = 0; i < count; i++)
-            {
+            for (var i = 0; i < count; i++) {
                 text.Append(separator);
                 _Layers[i].AppendDescription(text, layerDetailsSeparator);
             }
@@ -1068,8 +1043,7 @@ namespace Animancer
         public void AppendInternalDetails(
             StringBuilder text,
             string sectionPrefix,
-            string itemPrefix)
-        {
+            string itemPrefix) {
             AppendAll(text, sectionPrefix, itemPrefix, _PreUpdatables, "Pre Updatables");
             text.AppendLine();
             AppendAll(text, sectionPrefix, itemPrefix, _PostUpdatables, "Post Updatables");
@@ -1085,25 +1059,25 @@ namespace Animancer
             string sectionPrefix,
             string itemPrefix,
             ICollection collection,
-            string name)
-        {
+            string name) {
             var count = collection != null
                 ? collection.Count
                 : 0;
 
             text.AppendField(sectionPrefix, name, count);
-            if (collection == null)
+            if (collection == null) {
                 return;
+            }
 
             var separator = $"{itemPrefix}{Strings.Indent}";
-            foreach (var item in collection)
-            {
+            foreach (var item in collection) {
                 text.Append(itemPrefix);
 
-                if (item is AnimancerNode node)
+                if (item is AnimancerNode node) {
                     text.Append(node.GetPath());
-                else
+                } else {
                     text.AppendDescription(item, separator);
+                }
             }
         }
 
@@ -1115,13 +1089,11 @@ namespace Animancer
         public void AppendGraphDetails(
             StringBuilder text,
             string itemPrefix = "\n",
-            string indent = Strings.Indent)
-        {
+            string indent = Strings.Indent) {
             var indentedPrefix = itemPrefix + indent;
 
             var outputCount = _PlayableGraph.GetOutputCount();
-            for (int i = 0; i < outputCount; i++)
-            {
+            for (var i = 0; i < outputCount; i++) {
                 var output = _PlayableGraph.GetOutput(i);
 
                 text.Append(itemPrefix)
@@ -1145,12 +1117,10 @@ namespace Animancer
             StringBuilder text,
             Playable playable,
             string itemPrefix = "\n",
-            string indent = Strings.Indent)
-        {
+            string indent = Strings.Indent) {
             text.Append(itemPrefix);
 
-            if (!playable.IsValid())
-            {
+            if (!playable.IsValid()) {
                 text.Append(NoPlayable);
                 return;
             }
@@ -1158,13 +1128,13 @@ namespace Animancer
             text.Append(playable.GetPlayableType().Name);
 
             var inputCount = playable.GetInputCount();
-            if (inputCount == 0)
+            if (inputCount == 0) {
                 return;
+            }
 
             itemPrefix += indent;
 
-            for (int i = 0; i < inputCount; i++)
-            {
+            for (var i = 0; i < inputCount; i++) {
                 var child = playable.GetInput(i);
                 AppendGraphDetails(text, child, itemPrefix, indent);
             }
@@ -1188,11 +1158,9 @@ namespace Animancer
         /// <see cref="CancelPreUpdate"/> will change the order by swapping the last one into the place of the removed
         /// object.
         /// </remarks>
-        public void RequirePreUpdate(IUpdatable updatable)
-        {
+        public void RequirePreUpdate(IUpdatable updatable) {
 #if UNITY_ASSERTIONS
-            if (updatable is AnimancerNode node)
-            {
+            if (updatable is AnimancerNode node) {
                 Validate.AssertPlayable(node);
                 Validate.AssertGraph(node, this);
             }
@@ -1215,11 +1183,9 @@ namespace Animancer
         /// Specifically, the most recently added will be updated first and <see cref="CancelPostUpdate"/>
         /// will change the order by swapping the last one into the place of the removed object.
         /// </remarks>
-        public void RequirePostUpdate(IUpdatable updatable)
-        {
+        public void RequirePostUpdate(IUpdatable updatable) {
 #if UNITY_ASSERTIONS
-            if (updatable is AnimancerNode node)
-            {
+            if (updatable is AnimancerNode node) {
                 Validate.AssertPlayable(node);
                 Validate.AssertGraph(node, this);
             }
@@ -1241,8 +1207,9 @@ namespace Animancer
         /// so that the rest of them don't need to be moved down one place to fill the gap.
         /// This is more efficient, but means that the update order can change.
         /// </remarks>
-        public bool CancelPreUpdate(IUpdatable updatable)
-            => _PreUpdatables.Remove(updatable);
+        public bool CancelPreUpdate(IUpdatable updatable) {
+            return _PreUpdatables.Remove(updatable);
+        }
 
         /// <summary>
         /// Removes the `updatable` from the list of objects
@@ -1255,8 +1222,9 @@ namespace Animancer
         /// so that the rest of them don't need to be moved down one place to fill the gap.
         /// This is more efficient, but means that the update order can change.
         /// </remarks>
-        public bool CancelPostUpdate(IUpdatable updatable)
-            => _PostUpdatables.Remove(updatable);
+        public bool CancelPostUpdate(IUpdatable updatable) {
+            return _PostUpdatables.Remove(updatable);
+        }
 
         /************************************************************************************************************************/
 
@@ -1284,8 +1252,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>[Internal] Calls <see cref="IUpdatable.Update"/> on each of the `updatables`.</summary>
-        internal void UpdateAll(IUpdatable.List updatables, float deltaTime, ulong frameID)
-        {
+        internal void UpdateAll(IUpdatable.List updatables, float deltaTime, ulong frameID) {
             var previous = Current;
             Current = this;
 
@@ -1300,11 +1267,11 @@ namespace Animancer
                 FrameID = frameID;
 
                 AssertPreUpdate();
-            }
-            else// Post-Update.
-            {
-                for (int i = _Layers.Count - 1; i >= 0; i--)
+            } else// Post-Update.
+              {
+                for (var i = _Layers.Count - 1; i >= 0; i--) {
                     _Layers[i].UpdateEvents();
+                }
             }
 
             Current = previous;
@@ -1314,17 +1281,14 @@ namespace Animancer
 
         /// <summary>[Assert-Conditional] Called during the pre-update to perform msome safety checks.</summary>
         [System.Diagnostics.Conditional(Strings.Assertions)]
-        private void AssertPreUpdate()
-        {
+        private void AssertPreUpdate() {
 #if UNITY_ASSERTIONS
             if (OptionalWarning.AnimatorSpeed.IsEnabled() &&
-                Component != null)
-            {
+                Component != null) {
                 var animator = Component.Animator;
                 if (animator != null &&
                     animator.speed != 1 &&
-                    animator.runtimeAnimatorController == null)
-                {
+                    animator.runtimeAnimatorController == null) {
                     animator.speed = 1;
                     OptionalWarning.AnimatorSpeed.Log(
                         $"{nameof(Animator)}.{nameof(Animator.speed)} doesn't affect {nameof(Animancer)}." +

@@ -1,24 +1,21 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
-namespace Antlr4.Runtime.Tree
-{
+namespace Antlr4.Runtime.Tree {
     /// <summary>The basic notion of a tree has a parent, a payload, and a list of children.</summary>
     /// <remarks>
     /// The basic notion of a tree has a parent, a payload, and a list of children.
     /// It is the most abstract interface for all the trees used by ANTLR.
     /// </remarks>
-    public interface ITree
-    {
+    public interface ITree {
         /// <summary>The parent of this node.</summary>
         /// <remarks>
         /// The parent of this node. If the return value is null, then this
         /// node is the root of the tree.
         /// </remarks>
-        ITree Parent
-        {
+        ITree Parent {
             get;
         }
 
@@ -35,8 +32,7 @@ namespace Antlr4.Runtime.Tree
         /// <see cref="Antlr4.Runtime.IToken"/>
         /// object.
         /// </remarks>
-        object Payload
-        {
+        object Payload {
             get;
         }
 
@@ -55,8 +51,7 @@ namespace Antlr4.Runtime.Tree
         /// How many children are there? If there is none, then this
         /// node represents a leaf node.
         /// </remarks>
-        int ChildCount
-        {
+        int ChildCount {
             get;
         }
 

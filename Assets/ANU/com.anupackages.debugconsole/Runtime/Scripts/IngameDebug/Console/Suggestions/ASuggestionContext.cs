@@ -1,14 +1,11 @@
-﻿using System;
+using ANU.IngameDebug.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using ANU.IngameDebug.Utils;
 
-namespace ANU.IngameDebug.Console
-{
-    public abstract class ASuggestionContext<T> : ISuggestionsContext
-    {
-        public virtual IEnumerable<Suggestion> GetSuggestions(string input)
-        {
+namespace ANU.IngameDebug.Console {
+    public abstract class ASuggestionContext<T> : ISuggestionsContext {
+        public virtual IEnumerable<Suggestion> GetSuggestions(string input) {
             return FilterItems(
                 Collection,
                 input,
@@ -29,30 +26,25 @@ namespace ANU.IngameDebug.Console
         protected abstract string GetFilteringName(T item);
         protected abstract string GetFullSuggestedText(Suggestion item, string fullInput);
 
-        private protected virtual IEnumerable<T> FilterItems(IEnumerable<T> items, string input, Func<T, string> filteredStringGetter)
-        {
+        private protected virtual IEnumerable<T> FilterItems(IEnumerable<T> items, string input, Func<T, string> filteredStringGetter) {
             return items
-                .Select(c => new
-                {
+                .Select(c => new {
                     item = c,
                     str = filteredStringGetter.Invoke(c)
                 })
-                .Select(c => new
-                {
-                    item = c.item,
+                .Select(c => new {
+                    c.item,
                     matches = c.str.FindMatches(input),
-                    str = c.str
+                    c.str
                 })
-                .Select(c =>
-                {
+                .Select(c => {
                     var freeInput = input;
                     c.matches.ForEach(m => freeInput = freeInput.Replace(m.Value, ""));
 
-                    var item = new
-                    {
-                        item = c.item,
-                        matches = c.matches,
-                        str = c.str,
+                    var item = new {
+                        c.item,
+                        c.matches,
+                        c.str,
                         freeInputChars = freeInput
                     };
 

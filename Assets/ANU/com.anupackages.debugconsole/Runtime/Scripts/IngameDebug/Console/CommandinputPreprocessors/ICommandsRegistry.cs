@@ -1,36 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using ANU.IngameDebug.Console.Commands;
 using ANU.IngameDebug.Console.Commands.Implementations;
 using NDesk.Options;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 
-namespace ANU.IngameDebug.Console.Converters
-{
-    public interface ICommandMetaData
-    {
+namespace ANU.IngameDebug.Console.Converters {
+    public interface ICommandMetaData {
         IReadOnlyList<IOptionMetaData> Options { get; }
     }
 
-    public interface IOptionMetaData
-    {
+    public interface IOptionMetaData {
         [Obsolete("Not implemented yet. Because of bug in OptionSet.Remove method", error: true)]
-        public HashSet<string> Names { get; set; }
+        HashSet<string> Names { get; set; }
         [Obsolete("Not implemented yet. Because of bug in OptionSet.Remove method", error: true)]
-        public string Description { get; set; }
+        string Description { get; set; }
 
-        public HashSet<string> AvailableValues { get; set; }
+        HashSet<string> AvailableValues { get; set; }
     }
 
-    public interface IReadOnlyCommandsRegistry
-    {
+    public interface IReadOnlyCommandsRegistry {
         event Action<ADebugCommand> CommandRegistered;
         IReadOnlyDictionary<string, ADebugCommand> Commands { get; }
     }
 
-    public interface ICommandsRegistry : IReadOnlyCommandsRegistry
-    {
+    public interface ICommandsRegistry : IReadOnlyCommandsRegistry {
         void RegisterCommands(params ADebugCommand[] commands);
         void RegisterCommand(ADebugCommand command);
 
@@ -57,134 +52,138 @@ namespace ANU.IngameDebug.Console.Converters
         void RegisterCommand(MethodInfo method, object instance = null, Action<ICommandMetaData> metaDataCustomize = null);
     }
 
-    internal class CommandsRegistry : ICommandsRegistry
-    {
+    internal class CommandsRegistry : ICommandsRegistry {
         private readonly Dictionary<string, ADebugCommand> _commands = new();
 
         public event Action<ADebugCommand> CommandRegistered;
 
-        public CommandsRegistry(IReadOnlyDebugConsoleProcessor context) => Context = context;
+        public CommandsRegistry(IReadOnlyDebugConsoleProcessor context) {
+            Context = context;
+        }
 
         private IReadOnlyDebugConsoleProcessor Context { get; }
         public IReadOnlyDictionary<string, ADebugCommand> Commands => _commands;
 
-        private class CommandMetaData : ICommandMetaData
-        {
+        private class CommandMetaData : ICommandMetaData {
             public IReadOnlyList<IOptionMetaData> Options { get; set; }
         }
 
-        private class OptionMetaData : IOptionMetaData
-        {
+        private class OptionMetaData : IOptionMetaData {
             public Option Key { get; set; }
             public HashSet<string> Names { get; set; }
             public string Description { get; set; }
             public HashSet<string> AvailableValues { get; set; }
         }
 
-        public void RegisterCommands(params ADebugCommand[] commands)
-        {
-            foreach (var command in commands)
+        public void RegisterCommands(params ADebugCommand[] commands) {
+            foreach (var command in commands) {
                 RegisterCommand(command);
+            }
         }
 
-        public void RegisterCommand(ADebugCommand command)
-        {
+        public void RegisterCommand(ADebugCommand command) {
             _commands[command.Name] = command;
             command.Logger = Context.Logger;
 
-            if (command is IInjectDebugConsoleContext consoleContext)
+            if (command is IInjectDebugConsoleContext consoleContext) {
                 consoleContext.Context = Context;
-
-            try
-            {
-                CommandRegistered?.Invoke(command);
             }
-            catch (Exception ex) { Context.Logger.LogException(ex); }
+
+            try {
+                CommandRegistered?.Invoke(command);
+            } catch (Exception ex) { Context.Logger.LogException(ex); }
         }
 
-        public void RegisterCommand(string name, string description, Action command, Action<ICommandMetaData> metaDataCustomize = null)
-            => RegisterCommand(name, description, command.Method, command.Target, metaDataCustomize);
+        public void RegisterCommand(string name, string description, Action command, Action<ICommandMetaData> metaDataCustomize = null) {
+            RegisterCommand(name, description, command.Method, command.Target, metaDataCustomize);
+        }
 
-        public void RegisterCommand(Delegate command, Action<ICommandMetaData> metaDataCustomize = null)
-            => RegisterCommand(command.Method, command.Target, metaDataCustomize);
+        public void RegisterCommand(Delegate command, Action<ICommandMetaData> metaDataCustomize = null) {
+            RegisterCommand(command.Method, command.Target, metaDataCustomize);
+        }
 
-        public void RegisterCommand(string name, string description, Delegate command, Action<ICommandMetaData> metaDataCustomize = null)
-            => RegisterCommand(name, description, command.Method, command.Target, metaDataCustomize);
+        public void RegisterCommand(string name, string description, Delegate command, Action<ICommandMetaData> metaDataCustomize = null) {
+            RegisterCommand(name, description, command.Method, command.Target, metaDataCustomize);
+        }
 
-        public void RegisterCommand<T1>(string name, string description, Action<T1> command, Action<ICommandMetaData> metaDataCustomize = null)
-            => RegisterCommand(name, description, command.Method, command.Target, metaDataCustomize);
+        public void RegisterCommand<T1>(string name, string description, Action<T1> command, Action<ICommandMetaData> metaDataCustomize = null) {
+            RegisterCommand(name, description, command.Method, command.Target, metaDataCustomize);
+        }
 
-        public void RegisterCommand<T1, T2>(string name, string description, Action<T1, T2> command, Action<ICommandMetaData> metaDataCustomize = null)
-            => RegisterCommand(name, description, command.Method, command.Target, metaDataCustomize);
+        public void RegisterCommand<T1, T2>(string name, string description, Action<T1, T2> command, Action<ICommandMetaData> metaDataCustomize = null) {
+            RegisterCommand(name, description, command.Method, command.Target, metaDataCustomize);
+        }
 
-        public void RegisterCommand<T1, T2, T3>(string name, string description, Action<T1, T2, T3> command, Action<ICommandMetaData> metaDataCustomize = null)
-            => RegisterCommand(name, description, command.Method, command.Target, metaDataCustomize);
+        public void RegisterCommand<T1, T2, T3>(string name, string description, Action<T1, T2, T3> command, Action<ICommandMetaData> metaDataCustomize = null) {
+            RegisterCommand(name, description, command.Method, command.Target, metaDataCustomize);
+        }
 
-        public void RegisterCommand<T1, T2, T3, T4>(string name, string description, Action<T1, T2, T3, T4> command, Action<ICommandMetaData> metaDataCustomize = null)
-            => RegisterCommand(name, description, command.Method, command.Target, metaDataCustomize);
+        public void RegisterCommand<T1, T2, T3, T4>(string name, string description, Action<T1, T2, T3, T4> command, Action<ICommandMetaData> metaDataCustomize = null) {
+            RegisterCommand(name, description, command.Method, command.Target, metaDataCustomize);
+        }
 
-        public void RegisterCommand<T1>(string name, string description, Func<T1> command, Action<ICommandMetaData> metaDataCustomize = null)
-            => RegisterCommand(name, description, command.Method, command.Target, metaDataCustomize);
+        public void RegisterCommand<T1>(string name, string description, Func<T1> command, Action<ICommandMetaData> metaDataCustomize = null) {
+            RegisterCommand(name, description, command.Method, command.Target, metaDataCustomize);
+        }
 
-        public void RegisterCommand<T1, T2>(string name, string description, Func<T1, T2> command, Action<ICommandMetaData> metaDataCustomize = null)
-            => RegisterCommand(name, description, command.Method, command.Target, metaDataCustomize);
+        public void RegisterCommand<T1, T2>(string name, string description, Func<T1, T2> command, Action<ICommandMetaData> metaDataCustomize = null) {
+            RegisterCommand(name, description, command.Method, command.Target, metaDataCustomize);
+        }
 
-        public void RegisterCommand<T1, T2, T3>(string name, string description, Func<T1, T2, T3> command, Action<ICommandMetaData> metaDataCustomize = null)
-            => RegisterCommand(name, description, command.Method, command.Target, metaDataCustomize);
+        public void RegisterCommand<T1, T2, T3>(string name, string description, Func<T1, T2, T3> command, Action<ICommandMetaData> metaDataCustomize = null) {
+            RegisterCommand(name, description, command.Method, command.Target, metaDataCustomize);
+        }
 
-        public void RegisterCommand<T1, T2, T3, T4>(string name, string description, Func<T1, T2, T3, T4> command, Action<ICommandMetaData> metaDataCustomize = null)
-            => RegisterCommand(name, description, command.Method, command.Target, metaDataCustomize);
+        public void RegisterCommand<T1, T2, T3, T4>(string name, string description, Func<T1, T2, T3, T4> command, Action<ICommandMetaData> metaDataCustomize = null) {
+            RegisterCommand(name, description, command.Method, command.Target, metaDataCustomize);
+        }
 
-        public void RegisterCommand<T1, T2, T3, T4, T5>(string name, string description, Func<T1, T2, T3, T4, T5> command, Action<ICommandMetaData> metaDataCustomize = null)
-            => RegisterCommand(name, description, command.Method, command.Target, metaDataCustomize);
+        public void RegisterCommand<T1, T2, T3, T4, T5>(string name, string description, Func<T1, T2, T3, T4, T5> command, Action<ICommandMetaData> metaDataCustomize = null) {
+            RegisterCommand(name, description, command.Method, command.Target, metaDataCustomize);
+        }
 
-        public void RegisterCommand(string name, string description, MethodInfo method, object target = null, Action<ICommandMetaData> metaDataCustomize = null)
-        {
+        public void RegisterCommand(string name, string description, MethodInfo method, object target = null, Action<ICommandMetaData> metaDataCustomize = null) {
             var methodCommand = new MethodCommand(name, description, method, target);
             RegisterCommand(methodCommand, metaDataCustomize);
         }
 
-        public void RegisterCommand(MethodInfo method, object target = null, Action<ICommandMetaData> metaDataCustomize = null)
-        {
+        public void RegisterCommand(MethodInfo method, object target = null, Action<ICommandMetaData> metaDataCustomize = null) {
             var methodCommand = new MethodCommand(method, target);
             RegisterCommand(methodCommand, metaDataCustomize);
         }
 
-        public void RegisterCommand(string methodName, Type ownerType, Action<ICommandMetaData> metaDataCustomize = null)
-        {
+        public void RegisterCommand(string methodName, Type ownerType, Action<ICommandMetaData> metaDataCustomize = null) {
             var method = ownerType?.GetMethod(methodName, BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
-            if (method != null)
+            if (method != null) {
                 RegisterCommand(method, null, metaDataCustomize);
+            }
         }
 
-        public void RegisterCommand(string name, string description, string methodName, Type ownerType, Action<ICommandMetaData> metaDataCustomize = null)
-        {
+        public void RegisterCommand(string name, string description, string methodName, Type ownerType, Action<ICommandMetaData> metaDataCustomize = null) {
             var method = ownerType?.GetMethod(methodName, BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
-            if (method != null)
+            if (method != null) {
                 RegisterCommand(name, description, method, null, metaDataCustomize);
+            }
         }
 
-        public void RegisterCommand(string methodName, object instance, Action<ICommandMetaData> metaDataCustomize = null)
-        {
+        public void RegisterCommand(string methodName, object instance, Action<ICommandMetaData> metaDataCustomize = null) {
             var method = instance?.GetType()?.GetMethod(methodName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            if (method != null)
+            if (method != null) {
                 RegisterCommand(method, null, metaDataCustomize);
+            }
         }
 
-        public void RegisterCommand(string name, string description, string methodName, object instance, Action<ICommandMetaData> metaDataCustomize = null)
-        {
+        public void RegisterCommand(string name, string description, string methodName, object instance, Action<ICommandMetaData> metaDataCustomize = null) {
             var method = instance?.GetType()?.GetMethod(methodName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            if (method != null)
+            if (method != null) {
                 RegisterCommand(name, description, method, null, metaDataCustomize);
+            }
         }
 
-        private void RegisterCommand(MethodCommand command, Action<ICommandMetaData> metaDataCustomize)
-        {
+        private void RegisterCommand(MethodCommand command, Action<ICommandMetaData> metaDataCustomize) {
             var methodCommand = command;
-            var metaData = new CommandMetaData
-            {
-                Options = methodCommand.Options.Select(v => new OptionMetaData
-                {
+            var metaData = new CommandMetaData {
+                Options = methodCommand.Options.Select(v => new OptionMetaData {
                     Key = v,
                     Names = v.GetNames().ToHashSet(),
                     Description = v.Description,
@@ -194,8 +193,7 @@ namespace ANU.IngameDebug.Console.Converters
 
             metaDataCustomize?.Invoke(metaData);
 
-            for (int i = 0; i < metaData.Options.Count; i++)
-            {
+            for (var i = 0; i < metaData.Options.Count; i++) {
                 var optionMetaData = metaData.Options[i] as OptionMetaData;
 
                 // methodCommand.Options.Remove(optionMetaData.Key);

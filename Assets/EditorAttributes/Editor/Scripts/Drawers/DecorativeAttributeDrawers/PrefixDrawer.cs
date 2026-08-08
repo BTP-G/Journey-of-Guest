@@ -1,22 +1,17 @@
-﻿using UnityEngine;
 using UnityEditor;
+using UnityEngine;
 using UnityEngine.UIElements;
-using UnityEditor.UIElements;
 
-namespace EditorAttributes.Editor
-{
+namespace EditorAttributes.Editor {
     [CustomPropertyDrawer(typeof(PrefixAttribute))]
-    public class PrefixDrawer : PropertyDrawerBase
-    {
-        public override VisualElement CreatePropertyGUI(SerializedProperty property)
-        {
+    public class PrefixDrawer : PropertyDrawerBase {
+        public override VisualElement CreatePropertyGUI(SerializedProperty property) {
             var prefixAttribute = attribute as PrefixAttribute;
 
             HelpBox errorBox = new();
-            PropertyField propertyField = CreatePropertyField(property);
+            var propertyField = CreatePropertyField(property);
 
-            Label prefixLabel = new()
-            {
+            Label prefixLabel = new() {
                 style = {
                     fontSize = 12,
                     maxWidth = 200f,
@@ -29,14 +24,12 @@ namespace EditorAttributes.Editor
 
             prefixLabel.style.color = CanApplyGlobalColor ? EditorExtension.GLOBAL_COLOR : Color.gray;
 
-            propertyField.RegisterCallbackOnce<GeometryChangedEvent>((callback) =>
-            {
+            propertyField.RegisterCallbackOnce<GeometryChangedEvent>((callback) => {
                 var field = propertyField.Q<Label>();
                 field.Add(prefixLabel);
             });
 
-            UpdateVisualElement(prefixLabel, () =>
-            {
+            UpdateVisualElement(prefixLabel, () => {
                 prefixLabel.text = GetDynamicString(prefixAttribute.Prefix, property, prefixAttribute, errorBox);
                 DisplayErrorBox(propertyField, errorBox);
             });

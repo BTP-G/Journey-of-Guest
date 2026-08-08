@@ -1,10 +1,8 @@
 using Cysharp.Threading.Tasks;
 using EditorAttributes;
-using Xoderony.Localization;
-using Xoderony.Logging;
-using JoG.UI.Popup;
 using JoG.Localization;
 using JoG.UI;
+using JoG.UI.Popup;
 using System;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -12,6 +10,8 @@ using Unity.Services.Multiplayer;
 using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
+using Xoderony.Localization;
+using Xoderony.Logging;
 
 namespace JoG.Networking {
 

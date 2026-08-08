@@ -1,20 +1,16 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-using System;
 using Antlr4.Runtime.Misc;
-using Antlr4.Runtime.Sharpen;
+using System;
 
-namespace Antlr4.Runtime.Atn
-{
+namespace Antlr4.Runtime.Atn {
     /// <author>Sam Harwell</author>
-    public class ATNDeserializationOptions
-    {
+    public class ATNDeserializationOptions {
         private static readonly Antlr4.Runtime.Atn.ATNDeserializationOptions defaultOptions;
 
-        static ATNDeserializationOptions()
-        {
+        static ATNDeserializationOptions() {
             defaultOptions = new Antlr4.Runtime.Atn.ATNDeserializationOptions();
             defaultOptions.MakeReadOnly();
         }
@@ -27,88 +23,70 @@ namespace Antlr4.Runtime.Atn
 
         private bool optimize;
 
-        public ATNDeserializationOptions()
-        {
-            this.verifyATN = true;
-            this.generateRuleBypassTransitions = false;
-            this.optimize = true;
+        public ATNDeserializationOptions() {
+            verifyATN = true;
+            generateRuleBypassTransitions = false;
+            optimize = true;
         }
 
-        public ATNDeserializationOptions(Antlr4.Runtime.Atn.ATNDeserializationOptions options)
-        {
-            this.verifyATN = options.verifyATN;
-            this.generateRuleBypassTransitions = options.generateRuleBypassTransitions;
-            this.optimize = options.optimize;
+        public ATNDeserializationOptions(Antlr4.Runtime.Atn.ATNDeserializationOptions options) {
+            verifyATN = options.verifyATN;
+            generateRuleBypassTransitions = options.generateRuleBypassTransitions;
+            optimize = options.optimize;
         }
 
         [NotNull]
-        public static Antlr4.Runtime.Atn.ATNDeserializationOptions Default
-        {
-            get
-            {
+        public static Antlr4.Runtime.Atn.ATNDeserializationOptions Default {
+            get {
                 return defaultOptions;
             }
         }
 
-        public bool IsReadOnly
-        {
-            get
-            {
+        public bool IsReadOnly {
+            get {
                 return readOnly;
             }
         }
 
-        public void MakeReadOnly()
-        {
+        public void MakeReadOnly() {
             readOnly = true;
         }
 
-        public bool VerifyAtn
-        {
-            get
-            {
+        public bool VerifyAtn {
+            get {
                 return verifyATN;
             }
-            set
-            {
-                bool verifyATN = value;
+            set {
+                var verifyATN = value;
                 ThrowIfReadOnly();
                 this.verifyATN = verifyATN;
             }
         }
 
-        public bool GenerateRuleBypassTransitions
-        {
-            get
-            {
+        public bool GenerateRuleBypassTransitions {
+            get {
                 return generateRuleBypassTransitions;
             }
-            set
-            {
-                bool generateRuleBypassTransitions = value;
+            set {
+                var generateRuleBypassTransitions = value;
                 ThrowIfReadOnly();
                 this.generateRuleBypassTransitions = generateRuleBypassTransitions;
             }
         }
 
-        public bool Optimize
-        {
-            get
-            {
+        public bool Optimize {
+            get {
                 return optimize;
             }
-            set
-            {
-                bool optimize = value;
+            set {
+                var optimize = value;
                 ThrowIfReadOnly();
                 this.optimize = optimize;
             }
         }
 
-        protected internal virtual void ThrowIfReadOnly()
-        {
-            if (IsReadOnly)
-            {
+        protected internal virtual void ThrowIfReadOnly() {
+            if (IsReadOnly) {
                 throw new InvalidOperationException("The object is read only.");
             }
         }

@@ -1,12 +1,8 @@
-﻿using UnityEngine;
-using System.Collections;
+using UnityEngine;
 
+namespace TMPro.Examples {
 
-namespace TMPro.Examples
-{
-    
-    public class TMPro_InstructionOverlay : MonoBehaviour
-    {
+    public class TMPro_InstructionOverlay : MonoBehaviour {
 
         public enum FpsCounterAnchorPositions { TopLeft, BottomLeft, TopRight, BottomRight };
 
@@ -21,18 +17,17 @@ namespace TMPro.Examples
 
         //private FpsCounterAnchorPositions last_AnchorPosition;
 
-        void Awake()
-        {
-            if (!enabled)
+        private void Awake() {
+            if (!enabled) {
                 return;
+            }
 
             m_camera = Camera.main;
 
-            GameObject frameCounter = new GameObject("Frame Counter");
+            var frameCounter = new GameObject("Frame Counter");
             m_frameCounter_transform = frameCounter.transform;
             m_frameCounter_transform.parent = m_camera.transform;
             m_frameCounter_transform.localRotation = Quaternion.identity;
-
 
             m_TextMeshPro = frameCounter.AddComponent<TextMeshPro>();
             m_TextMeshPro.font = Resources.Load<TMP_FontAsset>("Fonts & Materials/LiberationSans SDF");
@@ -50,14 +45,9 @@ namespace TMPro.Examples
 
         }
 
+        private void Set_FrameCounter_Position(FpsCounterAnchorPositions anchor_position) {
 
-
-
-        void Set_FrameCounter_Position(FpsCounterAnchorPositions anchor_position)
-        {
-
-            switch (anchor_position)
-            {
+            switch (anchor_position) {
                 case FpsCounterAnchorPositions.TopLeft:
                     //m_TextMeshPro.anchor = AnchorPositions.TopLeft;
                     m_textContainer.anchorPosition = TextContainerAnchors.TopLeft;

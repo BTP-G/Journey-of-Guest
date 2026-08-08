@@ -64,6 +64,7 @@
 - `Stat.Value` 始终是整数；连续 Unity API 只在消费边界接收普通的 int-to-float 数值转换，不通过 Q16 表示属性值。
 - 普通 `IComponent` `CharacterMaxHealthController` 将最大生命属性变化写入 `HealthComponent.Max`，属性对象本身不依赖生命组件。
 - `HealthChangeRouter` 负责生命变化的网络广播、实体局部委托路由和全局报告发布；目标实体的 `IHealthChangeResolver` 负责结算变化并生成报告，默认可序列化的普通 `IComponent`——`HealthComponentChangeResolver`——通过 `Entity.Components` 将其连接到 `HealthComponent`。
+- 对 `HealthChangeMessage.Value` 的乘数运算使用 Q16 定点数：数值修改器倍率与基于实际伤害的比例伤害（反甲、命中施加周期伤害、条件范围伤害）不再经过 float；连续 Unity API 只在消费边界做 int-to-float 转换。
 - `Faction` 是 `JoG` 包内可序列化的普通 `IComponent`，使用整数 ID 表达阵营；当前 PVE 关系规则是同 ID 友方、不同 ID 敌方，空来源可造成环境伤害但不能治疗。伤害/治疗、AI 选敌、击杀目标和敌人掉落均使用该组件，Unity Tag 不再承担阵营语义。
 - `CharacterLifeController` 根据 `HealthComponent` 的存活/死亡零点跨越发布 Life Start、Life Stop 和 `DeathMessage`；初始死亡实例只同步本地生命表现，不重复发布死亡事实。`CharacterHealthRegenerationController` 独立处理回复，`CharacterRootStateMachine` 订阅生命事件切换根状态，不再逐帧轮询生命值。
 - `CharacterHurtBoxLifeController` 和 `CharacterMotorNetworkController` 分别承接旧 `CharacterBody` 的 HurtBox 生命周期与 Motor Spawn、Despawn、Ownership 职责；`CharacterHitImpulseController` 独立处理受击冲量。
@@ -102,7 +103,7 @@
 | 角色整体、输入、能力 | `Assets/Scripts/JoG/Character/CharacterEntity.cs`、`Packages/io.github.xoderony.jog/Runtime/Character/InputBanks`、项目 `Components` |
 | 状态机、动画、移动 | `Packages/io.github.xoderony.jog/Runtime/StateMachines`、`States`、`Assets/Scripts/JoG/Character/States`、`Packages/io.github.xoderony.movement` |
 | 状态网络同步 | `Packages/io.github.xoderony.jog/Runtime/StateMachines/NetworkStateMachine.cs`、具体项目子类、包内 `Entity.cs` |
-| 属性、角色效果、生命 | `Packages/io.github.xoderony.gameplay-effects`、`Assets/Scripts/JoG/Gameplay/Effects`、`Assets/Scripts/JoG/Character`、`Packages/io.github.xoderony.jog/Runtime/Health` |
+| 属性、角色效果、生命 | `Packages/io.github.xoderony.gameplay-effects`、`Assets/Scripts/JoG/GameplayEffects`、`Assets/Scripts/JoG/Character`、`Packages/io.github.xoderony.jog/Runtime/Health` |
 | 会话、网络消息、Prefab | `Assets/Scripts/JoG/Networking`、`Packages/io.github.xoderony.jog/Runtime/Networking` |
 | UI | `Assets/Scripts/JoG/UI`、对应 UXML、Prefab、Scene |
 | Xoderony 包或程序集 | 目标 `Packages/io.github.xoderony.*`、使用方 asmdef、包清单 |

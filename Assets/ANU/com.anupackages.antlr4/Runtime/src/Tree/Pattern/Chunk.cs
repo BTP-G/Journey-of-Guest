@@ -1,12 +1,8 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-using Antlr4.Runtime.Sharpen;
-using Antlr4.Runtime.Tree.Pattern;
-
-namespace Antlr4.Runtime.Tree.Pattern
-{
+namespace Antlr4.Runtime.Tree.Pattern {
     /// <summary>
     /// A chunk is either a token tag, a rule tag, or a span of literal text within a
     /// tree pattern.
@@ -30,7 +26,6 @@ namespace Antlr4.Runtime.Tree.Pattern
     /// , or the
     /// regular tokens of the text surrounding the tags.</p>
     /// </remarks>
-    internal abstract class Chunk
-    {
+    internal abstract class Chunk {
     }
 }

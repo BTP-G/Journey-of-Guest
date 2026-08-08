@@ -26,12 +26,6 @@ namespace JoG.Health {
 
         public Vector3 Position;
 
-        /// <summary>Scales Value by a percentage factor (e.g 150 = 150% = ×1.5).</summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ScaleByPercent(int percent) {
-            Value = (int)Math.Clamp((long)Value * percent / 100L, MinValueLong, MaxValueLong);
-        }
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly bool HasFlag(HealthChangeFlag flag) {
             return (Flags & flag) != 0;
@@ -39,7 +33,7 @@ namespace JoG.Health {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly bool HasFlags(HealthChangeFlag flags) {
-            return (this.Flags & flags) == flags;
+            return (Flags & flags) == flags;
         }
 
         public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter {

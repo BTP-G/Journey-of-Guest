@@ -1,4 +1,3 @@
-﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -11,10 +10,8 @@ using DamageNumbersPro.Internal;
 using UnityEngine.InputSystem;
 #endif
 
-namespace DamageNumbersPro
-{
-    public abstract class DamageNumber : MonoBehaviour
-    {
+namespace DamageNumbersPro {
+    public abstract class DamageNumber : MonoBehaviour {
         #region Main Settings
         // Lifetime
         [Tooltip("Damage number will not fade out on it's own.")]
@@ -224,16 +221,16 @@ namespace DamageNumbersPro
         #endregion
 
         // References
-        TextMeshPro textMeshPro;
-        MeshRenderer textMeshRenderer;
-        MeshRenderer meshRendererA;
-        MeshRenderer meshRendererB;
-        MeshFilter meshFilterA;
-        MeshFilter meshFilterB;
+        private TextMeshPro textMeshPro;
+        private MeshRenderer textMeshRenderer;
+        private MeshRenderer meshRendererA;
+        private MeshRenderer meshRendererB;
+        private MeshFilter meshFilterA;
+        private MeshFilter meshFilterB;
         protected Transform transformA;
         protected Transform transformB;
-        List<System.Tuple<MeshRenderer, MeshRenderer>> subMeshRenderers;
-        List<System.Tuple<MeshFilter, MeshFilter>> subMeshFilters;
+        private List<System.Tuple<MeshRenderer, MeshRenderer>> subMeshRenderers;
+        private List<System.Tuple<MeshFilter, MeshFilter>> subMeshFilters;
         protected List<Mesh> meshs;
         protected List<Color[]> colors;
         protected List<float[]> alphas;
@@ -241,88 +238,86 @@ namespace DamageNumbersPro
         // Fading
         protected float currentFade;
         protected float startTime;
-        float startLifeTime;
+        private float startLifeTime;
         protected float currentLifetime;
-        float fadeInSpeed;
-        float fadeOutSpeed;
+        private float fadeInSpeed;
+        private float fadeOutSpeed;
         protected float baseAlpha;
-        Vector2 currentScaleInOffset;
-        Vector2 currentScaleOutOffset;
+        private Vector2 currentScaleInOffset;
+        private Vector2 currentScaleOutOffset;
 
         // Position
         public Vector3 position;
-        Vector3 finalPosition;
+        private Vector3 finalPosition;
         protected Vector3 remainingOffset;
         protected Vector2 currentVelocity;
 
         // Scaling
         protected Vector3 originalScale;
-        float numberScale;
-        float combinationScale;
-        float destructionScale;
-        float renderThroughWallsScale = 0.1f;
-        float lastScaleFactor = 1f;
-        bool firstFrameScale;
+        private float numberScale;
+        private float combinationScale;
+        private float destructionScale;
+        private float renderThroughWallsScale = 0.1f;
+        private float lastScaleFactor = 1f;
+        private bool firstFrameScale;
 
         // Rotation
-        float currentRotationSpeed;
-        float currentRotation;
+        private float currentRotationSpeed;
+        private float currentRotation;
 
         // Following
-        Vector3 lastTargetPosition;
-        Vector3 targetOffset;
-        float currentFollowSpeed;
-        bool followingInitialized;
+        private Vector3 lastTargetPosition;
+        private Vector3 targetOffset;
+        private float currentFollowSpeed;
+        private bool followingInitialized;
 
         // Spam Control
-        static Dictionary<string, HashSet<DamageNumber>> spamGroupDictionary;
-        bool removedFromDictionary;
+        private static Dictionary<string, HashSet<DamageNumber>> spamGroupDictionary;
+        private bool removedFromDictionary;
 
         // Combination
-        DamageNumber myAbsorber;
-        bool givenNumber;
-        float absorbStartTime;
-        Vector3 absorbStartPosition;
+        private DamageNumber myAbsorber;
+        private bool givenNumber;
+        private float absorbStartTime;
+        private Vector3 absorbStartPosition;
 
         // 3D
-        Transform targetCamera;
-        Camera targetFovCamera;
-        float simulatedScale;
-        float lastFOV;
+        private Transform targetCamera;
+        private Camera targetFovCamera;
+        private float simulatedScale;
+        private float lastFOV;
 
         // Orthographic Sclaing
-        Camera targetOrthographicCamera;
+        private Camera targetOrthographicCamera;
 
         // Destruction
-        bool isDestroyed;
-        float destructionStartTime;
+        private bool isDestroyed;
+        private float destructionStartTime;
 
         // Collision & Push
-        bool collided;
-        bool pushed;
+        private bool collided;
+        private bool pushed;
 
         // Pooling
-        DamageNumber originalPrefab;
+        private DamageNumber originalPrefab;
         public static Transform poolParent;
-        static Dictionary<int, HashSet<DamageNumber>> pools;
+        private static Dictionary<int, HashSet<DamageNumber>> pools;
         public static HashSet<DamageNumber> activeInstances;
-        int poolingID;
-        bool performRestart;
-        bool destroyAfterSpawning;
+        private int poolingID;
+        private bool performRestart;
+        private bool destroyAfterSpawning;
 
         // Fallback font fix
-        static Dictionary<TMP_FontAsset, GameObject> fallbackDictionary;
+        private static Dictionary<TMP_FontAsset, GameObject> fallbackDictionary;
 
         // Custom Events
         protected bool isFadingOut;
 
-        void Start()
-        {
+        private void Start() {
             // Once
             GetReferencesIfNecessary();
 
-            if(enablePooling && disableOnSceneLoad)
-            {
+            if (enablePooling && disableOnSceneLoad) {
                 SceneManager.sceneLoaded += OnSceneLoaded;
             }
 
@@ -330,20 +325,16 @@ namespace DamageNumbersPro
             Restart();
         }
 
-        void Update()
-        {
+        private void Update() {
             // For Pooling
-            if (performRestart)
-            {
+            if (performRestart) {
                 Restart();
                 performRestart = false;
             }
         }
 
-        void LateUpdate()
-        {
-            if (!performRestart)
-            {
+        private void LateUpdate() {
+            if (!performRestart) {
                 UpdateScaleAnd3D();
             }
 
@@ -354,11 +345,9 @@ namespace DamageNumbersPro
         /// This is called by DNPUpdater for improved performance.
         /// You can ignore this function.
         /// </summary>
-        public void UpdateDamageNumber(float delta, float time)
-        {
+        public void UpdateDamageNumber(float delta, float time) {
             // Check activity
-            if(isActiveAndEnabled == false)
-            {
+            if (isActiveAndEnabled == false) {
                 startTime += delta;
                 startLifeTime += delta;
                 absorbStartTime += delta;
@@ -367,18 +356,14 @@ namespace DamageNumbersPro
             }
 
             // Vectors
-            if(DNPUpdater.vectorsNeedUpdate)
-            {
+            if (DNPUpdater.vectorsNeedUpdate) {
                 DNPUpdater.UpdateVectors(transform);
             }
 
             // Fading
-            if (IsAlive(time))
-            {
+            if (IsAlive(time)) {
                 HandleFadeIn(delta);
-            }
-            else
-            {
+            } else {
                 HandleFadeOut(delta);
             }
 
@@ -386,42 +371,35 @@ namespace DamageNumbersPro
             InternalUpdate(delta);
 
             // Movement
-            if (enableLerp)
-            {
+            if (enableLerp) {
                 HandleLerp(delta);
             }
-            if (enableVelocity)
-            {
+            if (enableVelocity) {
                 HandleVelocity(delta);
             }
-            if (enableFollowing)
-            {
+            if (enableFollowing) {
                 HandleFollowing(delta);
             }
 
             // Rotation
-            if (enableRotateOverTime)
-            {
+            if (enableRotateOverTime) {
                 HandleRotateOverTime(delta, time);
                 UpdateRotationZ();
             }
 
             // Combination
-            if (enableCombination)
-            {
+            if (enableCombination) {
                 HandleCombination(delta, time);
             }
 
             // Destruction
-            if (enableDestruction)
-            {
+            if (enableDestruction) {
                 HandleDestruction(time);
             }
 
             // Offset
             finalPosition = position;
-            if (enableShaking)
-            {
+            if (enableShaking) {
                 finalPosition = ApplyShake(finalPosition, shakeSettings, time);
             }
 
@@ -434,30 +412,24 @@ namespace DamageNumbersPro
         /// Spawns a new popup and handles pooling.
         /// </summary>
         /// <returns>The spawned popup, which can be modified at runtime.</returns>
-        public DamageNumber Spawn()
-        {
+        public DamageNumber Spawn() {
             DamageNumber newDN = default;
-            int instanceID = GetInstanceID();
+            var instanceID = GetInstanceID();
 
             // Check Pool
-            if (enablePooling && PoolAvailable(instanceID))
-            {
+            if (enablePooling && PoolAvailable(instanceID)) {
                 // Get from Pool
-                foreach (DamageNumber dn in pools[instanceID])
-                {
+                foreach (var dn in pools[instanceID]) {
                     newDN = dn; // This is the only way I can get a unknown element from a hashset, using a single loop iteration
                     break;
                 }
                 pools[instanceID].Remove(newDN);
-            }
-            else
-            {
+            } else {
                 // Create New
-                GameObject newGO = Instantiate<GameObject>(gameObject);
+                var newGO = Instantiate<GameObject>(gameObject);
                 newDN = newGO.GetComponent<DamageNumber>();
 
-                if (enablePooling)
-                {
+                if (enablePooling) {
                     newDN.originalPrefab = this;
                 }
             }
@@ -465,8 +437,7 @@ namespace DamageNumbersPro
             newDN.gameObject.SetActive(true); // Active Gameobject
             newDN.InternalOnPreSpawn();
 
-            if (enablePooling)
-            {
+            if (enablePooling) {
                 newDN.SetPoolingID(instanceID);
                 newDN.destroyAfterSpawning = false;
             }
@@ -479,9 +450,8 @@ namespace DamageNumbersPro
         /// </summary>
         /// <param name="newPosition">The worldspace position of this popup.</param>
         /// <returns>The spawned popup, which can be modified at runtime.</returns>
-        public DamageNumber Spawn(Vector3 newPosition)
-        {
-            DamageNumber newDN = Spawn();
+        public DamageNumber Spawn(Vector3 newPosition) {
+            var newDN = Spawn();
 
             // Position
             newDN.SetPosition(newPosition);
@@ -496,9 +466,8 @@ namespace DamageNumbersPro
         /// <param name="newPosition">The worldspace position of this popup.</param>
         /// <param name="newNumber">The displayed number of this popup.</param>
         /// <returns>The spawned popup, which can be modified at runtime.</returns>
-        public DamageNumber Spawn(Vector3 newPosition, float newNumber)
-        {
-            DamageNumber newDN = Spawn(newPosition);
+        public DamageNumber Spawn(Vector3 newPosition, float newNumber) {
+            var newDN = Spawn(newPosition);
 
             // Number
             newDN.enableNumber = true;
@@ -515,9 +484,8 @@ namespace DamageNumbersPro
         /// <param name="newNumber">The displayed number of this popup.</param>
         /// <param name="followedTransform">The transform, which this popup should follow.</param>
         /// <returns>The spawned popup, which can be modified at runtime.</returns>
-        public DamageNumber Spawn(Vector3 newPosition, float newNumber, Transform followedTransform)
-        {
-            DamageNumber newDN = Spawn(newPosition, newNumber);
+        public DamageNumber Spawn(Vector3 newPosition, float newNumber, Transform followedTransform) {
+            var newDN = Spawn(newPosition, newNumber);
 
             // Following
             newDN.SetFollowedTarget(followedTransform);
@@ -532,9 +500,8 @@ namespace DamageNumbersPro
         /// <param name="newPosition">The worldspace position of this popup.</param>
         /// <param name="followedTransform">The transform, which this popup should follow.</param>
         /// <returns>The spawned popup, which can be modified at runtime.</returns>
-        public DamageNumber Spawn(Vector3 newPosition, Transform followedTransform)
-        {
-            DamageNumber newDN = Spawn(newPosition);
+        public DamageNumber Spawn(Vector3 newPosition, Transform followedTransform) {
+            var newDN = Spawn(newPosition);
 
             // Following
             newDN.SetFollowedTarget(followedTransform);
@@ -549,9 +516,8 @@ namespace DamageNumbersPro
         /// <param name="newPosition">The worldspace position of this popup.</param>
         /// <param name="newText">The text displayed by this popup.</param>
         /// <returns>The spawned popup, which can be modified at runtime.</returns>
-        public DamageNumber Spawn(Vector3 newPosition, string newText)
-        {
-            DamageNumber newDN = Spawn(newPosition);
+        public DamageNumber Spawn(Vector3 newPosition, string newText) {
+            var newDN = Spawn(newPosition);
 
             // Disable Number
             newDN.enableNumber = false;
@@ -572,9 +538,8 @@ namespace DamageNumbersPro
         /// <param name="newText">The text displayed by this popup.</param>
         /// <param name="followedTransform">The transform, which this popup should follow.</param>
         /// <returns>The spawned popup, which can be modified at runtime.</returns>
-        public DamageNumber Spawn(Vector3 newPosition, string newText, Transform followedTransform)
-        {
-            DamageNumber newDN = Spawn(newPosition, newText);
+        public DamageNumber Spawn(Vector3 newPosition, string newText, Transform followedTransform) {
+            var newDN = Spawn(newPosition, newText);
 
             // Following
             newDN.SetFollowedTarget(followedTransform);
@@ -591,9 +556,8 @@ namespace DamageNumbersPro
         /// <param name="rectParent">The RectTransform, which this popup should be parented to. Spam Control features like Combination only work under the same parent.</param>
         /// <param name="anchoredPosition">The anchored position relative to rectParent.</param>
         /// <returns>The spawned popup, which can be modified at runtime.</returns>
-        public DamageNumber SpawnGUI(RectTransform rectParent, Vector2 anchoredPosition)
-        {
-            DamageNumber newDN = Spawn();
+        public DamageNumber SpawnGUI(RectTransform rectParent, Vector2 anchoredPosition) {
+            var newDN = Spawn();
 
             // Position
             newDN.SetAnchoredPosition(rectParent, anchoredPosition);
@@ -609,9 +573,8 @@ namespace DamageNumbersPro
         /// <param name="rectPosition">The RectTransform, which this popup's anchored position is relative to.</param>
         /// <param name="anchoredPosition">This popup's anchored position relative to rectPosition.</param>
         /// <returns>The spawned popup, which can be modified at runtime.</returns>
-        public DamageNumber SpawnGUI(RectTransform rectParent, RectTransform rectPosition, Vector2 anchoredPosition)
-        {
-            DamageNumber newDN = Spawn();
+        public DamageNumber SpawnGUI(RectTransform rectParent, RectTransform rectPosition, Vector2 anchoredPosition) {
+            var newDN = Spawn();
 
             // Position
             newDN.SetAnchoredPosition(rectParent, rectPosition, anchoredPosition);
@@ -627,9 +590,8 @@ namespace DamageNumbersPro
         /// <param name="anchoredPosition">The anchored position relative to rectParent.</param>
         /// <param name="newNumber">The displayed number of this popup.</param>
         /// <returns>The spawned popup, which can be modified at runtime.</returns>
-        public DamageNumber SpawnGUI(RectTransform rectParent, Vector2 anchoredPosition, float newNumber)
-        {
-            DamageNumber newDN = SpawnGUI(rectParent, anchoredPosition);
+        public DamageNumber SpawnGUI(RectTransform rectParent, Vector2 anchoredPosition, float newNumber) {
+            var newDN = SpawnGUI(rectParent, anchoredPosition);
 
             // Number
             newDN.enableNumber = true;
@@ -647,9 +609,8 @@ namespace DamageNumbersPro
         /// <param name="anchoredPosition">This popup's anchored position relative to rectPosition.</param>
         /// <param name="newNumber">The displayed number of this popup.</param>
         /// <returns>The spawned popup, which can be modified at runtime.</returns>
-        public DamageNumber SpawnGUI(RectTransform rectParent, RectTransform rectPosition, Vector2 anchoredPosition, float newNumber)
-        {
-            DamageNumber newDN = SpawnGUI(rectParent, rectPosition, anchoredPosition);
+        public DamageNumber SpawnGUI(RectTransform rectParent, RectTransform rectPosition, Vector2 anchoredPosition, float newNumber) {
+            var newDN = SpawnGUI(rectParent, rectPosition, anchoredPosition);
 
             // Number
             newDN.enableNumber = true;
@@ -666,9 +627,8 @@ namespace DamageNumbersPro
         /// <param name="anchoredPosition">The anchored position relative to rectParent.</param>
         /// <param name="newText">The text displayed by this popup.</param>
         /// <returns>The spawned popup, which can be modified at runtime.</returns>
-        public DamageNumber SpawnGUI(RectTransform rectParent, Vector2 anchoredPosition, string newText)
-        {
-            DamageNumber newDN = SpawnGUI(rectParent, anchoredPosition);
+        public DamageNumber SpawnGUI(RectTransform rectParent, Vector2 anchoredPosition, string newText) {
+            var newDN = SpawnGUI(rectParent, anchoredPosition);
 
             // Disable Number
             newDN.enableNumber = false;
@@ -689,9 +649,8 @@ namespace DamageNumbersPro
         /// <param name="anchoredPosition">This popup's anchored position relative to rectPosition.</param>
         /// <param name="newText">The text displayed by this popup.</param>
         /// <returns>The spawned popup, which can be modified at runtime.</returns>
-        public DamageNumber SpawnGUI(RectTransform rectParent, RectTransform rectPosition, Vector2 anchoredPosition, string newText)
-        {
-            DamageNumber newDN = SpawnGUI(rectParent, rectPosition, anchoredPosition);
+        public DamageNumber SpawnGUI(RectTransform rectParent, RectTransform rectPosition, Vector2 anchoredPosition, string newText) {
+            var newDN = SpawnGUI(rectParent, rectPosition, anchoredPosition);
 
             // Disable Number
             newDN.enableNumber = false;
@@ -831,113 +790,94 @@ namespace DamageNumbersPro
         /// Makes the damage number follow a transform.
         /// Can also modify the spamGroup so that only damage numbers following this taget interact with each other.
         /// </summary>
-        public void SetFollowedTarget(Transform followedTransform, bool modifySpamGroup = true)
-        {
+        public void SetFollowedTarget(Transform followedTransform, bool modifySpamGroup = true) {
             // Following
             enableFollowing = true;
             followedTarget = followedTransform;
 
             // Spam Group
-            if (modifySpamGroup)
-            {
+            if (modifySpamGroup) {
                 spamGroup += followedTransform.GetInstanceID();
             }
         }
-        public void SetColor(Color newColor)
-        {
+        public void SetColor(Color newColor) {
             // References
             GetReferencesIfNecessary();
 
             // Set Color
-            foreach (TMP_Text tmp in GetTextMeshs())
-            {
+            foreach (var tmp in GetTextMeshs()) {
                 tmp.color = newColor;
             }
         }
-        public void SetGradientColor(VertexGradient newGradient)
-        {
+        public void SetGradientColor(VertexGradient newGradient) {
             // References
             GetReferencesIfNecessary();
 
             // Set Gradient
-            foreach (TMP_Text tmp in GetTextMeshs())
-            {
+            foreach (var tmp in GetTextMeshs()) {
                 tmp.enableVertexGradient = true;
                 tmp.colorGradient = newGradient;
             }
         }
-        public void SetRandomColor(Color from, Color to)
-        {
+        public void SetRandomColor(Color from, Color to) {
             SetColor(Color.Lerp(from, to, Random.value));
         }
-        public void SetRandomColor(Gradient gradient)
-        {
+        public void SetRandomColor(Gradient gradient) {
             SetColor(gradient.Evaluate(Random.value));
         }
-        public void SetGradientColor(Color topLeft, Color topRight, Color bottomLeft, Color bottomRight)
-        {
-            VertexGradient newGradient = new VertexGradient();
-            newGradient.topLeft = topLeft;
-            newGradient.topRight = topRight;
-            newGradient.bottomLeft = bottomLeft;
-            newGradient.bottomRight = bottomRight;
+        public void SetGradientColor(Color topLeft, Color topRight, Color bottomLeft, Color bottomRight) {
+            var newGradient = new VertexGradient {
+                topLeft = topLeft,
+                topRight = topRight,
+                bottomLeft = bottomLeft,
+                bottomRight = bottomRight
+            };
 
             SetGradientColor(newGradient);
         }
-        public void SetFontMaterial(TMP_FontAsset font)
-        {
+        public void SetFontMaterial(TMP_FontAsset font) {
             // References
             GetReferencesIfNecessary();
 
             // Set Font
-            foreach (TMP_Text tmp in GetTextMeshs())
-            {
+            foreach (var tmp in GetTextMeshs()) {
                 tmp.font = font;
             }
         }
-        public TMP_FontAsset GetFontMaterial()
-        {
+        public TMP_FontAsset GetFontMaterial() {
             // References
             GetReferencesIfNecessary();
 
             // Get Font
-            foreach (TMP_Text tmp in GetTextMeshs())
-            {
-                if (tmp.font != null)
-                {
+            foreach (var tmp in GetTextMeshs()) {
+                if (tmp.font != null) {
                     return tmp.font;
                 }
             }
 
             return null;
         }
-        public void SetScale(float newScale)
-        {
+        public void SetScale(float newScale) {
             originalScale = transform.localScale = new Vector3(newScale, newScale, newScale);
         }
 
-        public virtual Vector3 GetUpVector()
-        {
+        public virtual Vector3 GetUpVector() {
             return DNPUpdater.upVector;
         }
-        public virtual Vector3 GetRightVector()
-        {
+        public virtual Vector3 GetRightVector() {
             return DNPUpdater.rightVector;
         }
-        public virtual Vector3 GetFreshUpVector()
-        {
+        public virtual Vector3 GetFreshUpVector() {
             return transform.up;
         }
-        public virtual Vector3 GetFreshRightVector()
-        {
+        public virtual Vector3 GetFreshRightVector() {
             return transform.right;
         }
 
         #endregion
 
         #region Utility Functions
-        public virtual void GetReferences()
-        {
+        public virtual void GetReferences() {
             baseAlpha = 1f;
 
             textMeshPro = transform.Find("TMP").GetComponent<TextMeshPro>();
@@ -952,21 +892,18 @@ namespace DamageNumbersPro
             subMeshRenderers = new List<System.Tuple<MeshRenderer, MeshRenderer>>();
             subMeshFilters = new List<System.Tuple<MeshFilter, MeshFilter>>();
 
-            Transform parentA = meshRendererA.transform;
-            Transform parentB = meshRendererB.transform;
-            for (int n = 0; n < parentA.childCount; n++)
-            {
-                Transform childA = parentA.GetChild(n);
-                Transform childB = parentB.GetChild(n);
+            var parentA = meshRendererA.transform;
+            var parentB = meshRendererB.transform;
+            for (var n = 0; n < parentA.childCount; n++) {
+                var childA = parentA.GetChild(n);
+                var childB = parentB.GetChild(n);
                 subMeshRenderers.Add(new System.Tuple<MeshRenderer, MeshRenderer>(childA.GetComponent<MeshRenderer>(), childB.GetComponent<MeshRenderer>()));
                 subMeshFilters.Add(new System.Tuple<MeshFilter, MeshFilter>(childA.GetComponent<MeshFilter>(), childB.GetComponent<MeshFilter>()));
             }
         }
 
-        public virtual void GetReferencesIfNecessary()
-        {
-            if (textMeshPro == null || subMeshRenderers == null)
-            {
+        public virtual void GetReferencesIfNecessary() {
+            if (textMeshPro == null || subMeshRenderers == null) {
                 GetReferences();
             }
         }
@@ -975,8 +912,7 @@ namespace DamageNumbersPro
         /// Starts fading out this damage number.
         /// Use this to fade out damage numbers early.
         /// </summary>
-        public void FadeOut()
-        {
+        public void FadeOut() {
             permanent = false;
             startLifeTime = -1000;
         }
@@ -985,13 +921,11 @@ namespace DamageNumbersPro
         /// Restarts the fade-in animation.
         /// Could be used for fixed gui texts with permanent lifetime.
         /// </summary>
-        public void FadeIn()
-        {
+        public void FadeIn() {
             currentFade = 0;
             startLifeTime = unscaledTime ? Time.unscaledTime : Time.time;
 
-            if(originalPrefab != null)
-            {
+            if (originalPrefab != null) {
                 permanent = originalPrefab.permanent;
             }
         }
@@ -1001,8 +935,7 @@ namespace DamageNumbersPro
         /// Returns 2 text mesh pro components on the gui version.
         /// </summary>
         /// <returns></returns>
-        public virtual TMP_Text[] GetTextMeshs()
-        {
+        public virtual TMP_Text[] GetTextMeshs() {
             return new TMP_Text[] { textMeshPro };
         }
 
@@ -1011,25 +944,20 @@ namespace DamageNumbersPro
         /// Use this to change text mesh pro settings at runtime.
         /// </summary>
         /// <returns></returns>
-        public virtual TMP_Text GetTextMesh()
-        {
+        public virtual TMP_Text GetTextMesh() {
             return textMeshPro;
         }
 
-        public virtual Material[] GetSharedMaterials()
-        {
+        public virtual Material[] GetSharedMaterials() {
             return textMeshRenderer.sharedMaterials;
         }
-        public virtual Material[] GetMaterials()
-        {
+        public virtual Material[] GetMaterials() {
             return textMeshRenderer.materials;
         }
-        public virtual Material GetSharedMaterial()
-        {
+        public virtual Material GetSharedMaterial() {
             return textMeshRenderer.sharedMaterial;
         }
-        public virtual Material GetMaterial()
-        {
+        public virtual Material GetMaterial() {
             return textMeshRenderer.material;
         }
 
@@ -1039,10 +967,8 @@ namespace DamageNumbersPro
         /// </summary>
         /// <param name="time"></param>
         /// <returns></returns>
-        public virtual bool IsAlive(float time)
-        {
-            if (permanent)
-            {
+        public virtual bool IsAlive(float time) {
+            if (permanent) {
                 return true;
             }
 
@@ -1053,27 +979,20 @@ namespace DamageNumbersPro
         /// Use this function to manually destroy a damage number.
         /// This will also handle pooling.
         /// </summary>
-        public void DestroyDNP()
-        {
+        public void DestroyDNP() {
             // Event
             OnDespawn?.Invoke();
 
             // Pooling / Destroying
-            if (enablePooling && originalPrefab != null)
-            {
-                if (pools == null)
-                {
-                    pools = new Dictionary<int, HashSet<DamageNumber>>();
-                }
+            if (enablePooling && originalPrefab != null) {
+                pools ??= new Dictionary<int, HashSet<DamageNumber>>();
 
-                if (!pools.ContainsKey(poolingID))
-                {
+                if (!pools.ContainsKey(poolingID)) {
                     pools.Add(poolingID, new HashSet<DamageNumber>());
                 }
 
                 // Static Reference
-                if (activeInstances != null && activeInstances.Contains(this))
-                {
+                if (activeInstances != null && activeInstances.Contains(this)) {
                     activeInstances.Remove(this);
                 }
 
@@ -1084,35 +1003,26 @@ namespace DamageNumbersPro
                 RemoveFromDictionary();
 
                 // Pooling
-                if (pools[poolingID].Count < poolSize)
-                {
+                if (pools[poolingID].Count < poolSize) {
                     PreparePooling();
-                }
-                else
-                {
+                } else {
                     Destroy(gameObject); // Not enough pool space
                 }
-            }
-            else
-            {
+            } else {
                 Destroy(gameObject);
             }
         }
 
-        public virtual void CheckAndEnable3D()
-        {
+        public virtual void CheckAndEnable3D() {
             // Dimension Check
-            Camera camera = Camera.main;
+            var camera = Camera.main;
 
-            if (camera == null)
-            {
+            if (camera == null) {
                 camera = Camera.current;
             }
 
-            if (camera != null)
-            {
-                if (!camera.orthographic)
-                {
+            if (camera != null) {
+                if (!camera.orthographic) {
                     enable3DGame = true;
                 }
             }
@@ -1122,19 +1032,18 @@ namespace DamageNumbersPro
         /// Returns true if this is a Mesh or false if this is a GUI Component.
         /// </summary>
         /// <returns></returns>
-        public virtual bool IsMesh()
-        {
+        public virtual bool IsMesh() {
             return true;
         }
-        public static GameObject NewMesh(string tmName, Transform parent)
-        {
+        public static GameObject NewMesh(string tmName, Transform parent) {
             // GameObject
-            GameObject newTM = new GameObject();
-            newTM.name = tmName;
-            newTM.layer = parent.gameObject.layer;
+            var newTM = new GameObject {
+                name = tmName,
+                layer = parent.gameObject.layer
+            };
 
             // Mesh
-            MeshRenderer mr = newTM.AddComponent<MeshRenderer>();
+            var mr = newTM.AddComponent<MeshRenderer>();
             newTM.AddComponent<MeshFilter>();
             mr.receiveShadows = false;
             mr.allowOcclusionWhenDynamic = false;
@@ -1143,7 +1052,7 @@ namespace DamageNumbersPro
             mr.reflectionProbeUsage = ReflectionProbeUsage.Off;
 
             // Transform
-            Transform transform = newTM.transform;
+            var transform = newTM.transform;
             transform.SetParent(parent, true);
             transform.localPosition = Vector3.zero;
             transform.localScale = Vector3.one;
@@ -1158,31 +1067,23 @@ namespace DamageNumbersPro
         /// Use this function ONCE PER PREFAB to prewarm it's pool at the start of your game.
         /// It will generate enough damage numbers to fill the pool size.
         /// </summary>
-        public void PrewarmPool()
-        {
-            if (enablePooling)
-            {
-                int instanceId = GetInstanceID();
+        public void PrewarmPool() {
+            if (enablePooling) {
+                var instanceId = GetInstanceID();
 
                 // Initialize Dictionary
-                if (pools == null)
-                {
-                    pools = new Dictionary<int, HashSet<DamageNumber>>();
-                }
+                pools ??= new Dictionary<int, HashSet<DamageNumber>>();
 
                 // Initialize Pool
-                if (!pools.ContainsKey(instanceId))
-                {
+                if (!pools.ContainsKey(instanceId)) {
                     pools.Add(instanceId, new HashSet<DamageNumber>());
                 }
 
                 // Fill Pool
-                int amount = poolSize - pools[instanceId].Count;
-                if(amount > poolSize * 0.5f)
-                {
-                    for (int n = 0; n < amount; n++)
-                    {
-                        DamageNumber dn = Spawn(new Vector3(-9999, -9999, 0));
+                var amount = poolSize - pools[instanceId].Count;
+                if (amount > poolSize * 0.5f) {
+                    for (var n = 0; n < amount; n++) {
+                        var dn = Spawn(new Vector3(-9999, -9999, 0));
                         dn.destroyAfterSpawning = true;
                     }
                 }
@@ -1193,23 +1094,17 @@ namespace DamageNumbersPro
         /// Clears all pooled popups.
         /// </summary>
         /// <param name="type">The type of pooled popups to clear. All by default.</param>
-        public static void ClearPooled(DNPType type = DNPType.All)
-        {
+        public static void ClearPooled(DNPType type = DNPType.All) {
             // Check if pools exist
-            if(pools != null)
-            {
+            if (pools != null) {
                 // Iterate through pools
-                foreach (KeyValuePair<int, HashSet<DamageNumber>> entry in pools)
-                {
+                foreach (var entry in pools) {
                     // Check if pool contains popups
-                    if (entry.Value != null)
-                    {
+                    if (entry.Value != null) {
                         // Iterate through the pool's popups
-                        foreach (DamageNumber popup in entry.Value)
-                        {
+                        foreach (var popup in entry.Value) {
                             // Check type
-                            if (type == DNPType.All || (popup.IsMesh() == (type == DNPType.Mesh)))
-                            {
+                            if (type == DNPType.All || (popup.IsMesh() == (type == DNPType.Mesh))) {
                                 // Destroy pooled popup
                                 Destroy(popup.gameObject);
                             }
@@ -1225,46 +1120,33 @@ namespace DamageNumbersPro
         /// <param name="type">The type of popup to destroy. All by default.</param>
         /// <param name="allowPooling">Whether destroyed popups are allowed to pool.</param>
         /// <param name="ignorePermanent">Whether permanent popups should be destroyed.</param>
-        public static void ClearActive(DNPType type = DNPType.All, bool allowPooling = true, bool ignorePermanent = true)
-        {
-            if (allowPooling)
-            {
+        public static void ClearActive(DNPType type = DNPType.All, bool allowPooling = true, bool ignorePermanent = true) {
+            if (allowPooling) {
                 // Get all active popups
-                List<DamageNumber> popups = new List<DamageNumber>();
-                foreach (DamageNumber dn in activeInstances)
-                {
-                    if (dn != null)
-                    {
+                var popups = new List<DamageNumber>();
+                foreach (var dn in activeInstances) {
+                    if (dn != null) {
                         popups.Add(dn);
                     }
                 }
 
                 // Destroy all active popups with potential pooling
-                foreach(DamageNumber popup in popups)
-                {
+                foreach (var popup in popups) {
                     // Check permanent
-                    if (!ignorePermanent || !popup.permanent)
-                    {
+                    if (!ignorePermanent || !popup.permanent) {
                         // Check type
-                        if (type == DNPType.All || (popup.IsMesh() == (type == DNPType.Mesh)))
-                        {
+                        if (type == DNPType.All || (popup.IsMesh() == (type == DNPType.Mesh))) {
                             popup.DestroyDNP();
                         }
                     }
                 }
-            }
-            else
-            {
-                foreach (DamageNumber popup in activeInstances)
-                {
-                    if (popup != null)
-                    {
+            } else {
+                foreach (var popup in activeInstances) {
+                    if (popup != null) {
                         // Check permanent
-                        if (!ignorePermanent || !popup.permanent)
-                        {
+                        if (!ignorePermanent || !popup.permanent) {
                             // Check type
-                            if (type == DNPType.All || (popup.IsMesh() == (type == DNPType.Mesh)))
-                            {
+                            if (type == DNPType.All || (popup.IsMesh() == (type == DNPType.Mesh))) {
                                 Destroy(popup.gameObject);
                             }
                         }
@@ -1278,18 +1160,13 @@ namespace DamageNumbersPro
         /// </summary>
         /// <param name="type">The type of the popup to fade out. All by default.</param>
         /// <param name="ignorePermanent">Whether permanent popups should be faded out.</param>
-        public static void FadeOutActive(DNPType type = DNPType.All, bool ignorePermanent = true)
-        {
-            foreach(DamageNumber popup in activeInstances)
-            {
-                if (popup != null)
-                {
+        public static void FadeOutActive(DNPType type = DNPType.All, bool ignorePermanent = true) {
+            foreach (var popup in activeInstances) {
+                if (popup != null) {
                     // Check permanent
-                    if (!ignorePermanent || !popup.permanent)
-                    {
+                    if (!ignorePermanent || !popup.permanent) {
                         // Check type
-                        if (type == DNPType.All || (popup.IsMesh() == (type == DNPType.Mesh)))
-                        {
+                        if (type == DNPType.All || (popup.IsMesh() == (type == DNPType.Mesh))) {
                             popup.FadeOut();
                         }
                     }
@@ -1297,15 +1174,10 @@ namespace DamageNumbersPro
             }
         }
 
-        protected void Restart()
-        {
+        protected void Restart() {
             // Static Reference
-            if(activeInstances == null)
-            {
-                activeInstances = new HashSet<DamageNumber>();
-            }
-            if (activeInstances.Contains(this) == false)
-            {
+            activeInstances ??= new HashSet<DamageNumber>();
+            if (activeInstances.Contains(this) == false) {
                 activeInstances.Add(this);
             }
 
@@ -1313,8 +1185,7 @@ namespace DamageNumbersPro
             DNPUpdater.RegisterPopup(unscaledTime, updateDelay, this);
 
             // Get Scale
-            if (originalScale.x < 0.02f)
-            {
+            if (originalScale.x < 0.02f) {
                 originalScale = transform.localScale;
             }
 
@@ -1328,76 +1199,57 @@ namespace DamageNumbersPro
             InternalOnSpawn();
 
             #region Fallback Fix
-            if (IsMesh())
-            {
+            if (IsMesh()) {
                 // Create fallback dictionary
-                if (fallbackDictionary == null)
-                {
-                    fallbackDictionary = new Dictionary<TMP_FontAsset, GameObject>();
-                }
+                fallbackDictionary ??= new Dictionary<TMP_FontAsset, GameObject>();
 
                 // Get font material
-                TMP_FontAsset fontAsset = GetFontMaterial();
+                var fontAsset = GetFontMaterial();
 
                 // Check if in dictionary
-                if (!fallbackDictionary.ContainsKey(fontAsset) && fontAsset != null)
-                {
-                    bool usesFallbackFonts = fontAsset.fallbackFontAssetTable != null && fontAsset.fallbackFontAssetTable.Count > 0;
-                    if (fontAsset.isMultiAtlasTexturesEnabled || usesFallbackFonts)
-                    { 
+                if (!fallbackDictionary.ContainsKey(fontAsset) && fontAsset != null) {
+                    var usesFallbackFonts = fontAsset.fallbackFontAssetTable != null && fontAsset.fallbackFontAssetTable.Count > 0;
+                    if (fontAsset.isMultiAtlasTexturesEnabled || usesFallbackFonts) {
                         // New tmp for fallback assets
-                        GameObject fallbackAsset = Instantiate<GameObject>(textMeshPro.gameObject);
+                        var fallbackAsset = Instantiate<GameObject>(textMeshPro.gameObject);
                         fallbackAsset.transform.localScale = Vector3.zero;
                         fallbackAsset.SetActive(true);
                         fallbackAsset.hideFlags = HideFlags.HideAndDontSave;
                         DontDestroyOnLoad(fallbackAsset);
 
                         // Create base string containing a single character of the base font
-                        string textString = System.Char.ConvertFromUtf32((int) fontAsset.characterTable[0].unicode);
+                        var textString = char.ConvertFromUtf32((int)fontAsset.characterTable[0].unicode);
 
                         // Add all characters to support multi-atlas fonts
-                        if (fontAsset.isMultiAtlasTexturesEnabled)
-                        {
-                            foreach (TMP_Character character in fontAsset.characterTable)
-                            {
-                                if(character != null && character.unicode > 0)
-                                {
-                                    textString += System.Char.ConvertFromUtf32((int)character.unicode);
+                        if (fontAsset.isMultiAtlasTexturesEnabled) {
+                            foreach (var character in fontAsset.characterTable) {
+                                if (character != null && character.unicode > 0) {
+                                    textString += char.ConvertFromUtf32((int)character.unicode);
                                 }
                             }
                         }
 
                         // Create a new string containing various unicode characters of the fallback fonts
-                        if (usesFallbackFonts)
-                        {
-                            for (int f = 0; f < fontAsset.fallbackFontAssetTable.Count; f++)
-                            {
-                                TMP_FontAsset fallbackFont = fontAsset.fallbackFontAssetTable[f];
+                        if (usesFallbackFonts) {
+                            for (var f = 0; f < fontAsset.fallbackFontAssetTable.Count; f++) {
+                                var fallbackFont = fontAsset.fallbackFontAssetTable[f];
 
-                                if (fallbackFont != null && fallbackFont.characterTable != null)
-                                {
-                                    bool success = false;
+                                if (fallbackFont != null && fallbackFont.characterTable != null) {
+                                    var success = false;
 
-                                    foreach (TMP_Character fallbackCharacter in fallbackFont.characterTable)
-                                    {
-                                        if (fallbackCharacter != null)
-                                        {
-                                            if (AddFallbackCharacterToString(ref textString, fallbackCharacter.unicode, fontAsset, f))
-                                            {
+                                    foreach (var fallbackCharacter in fallbackFont.characterTable) {
+                                        if (fallbackCharacter != null) {
+                                            if (AddFallbackCharacterToString(ref textString, fallbackCharacter.unicode, fontAsset, f)) {
                                                 success = true;
                                                 break;
                                             }
                                         }
                                     }
 
-                                    if (!success && fallbackFont.atlasPopulationMode == AtlasPopulationMode.Dynamic)
-                                    {
-                                        for (int unicode = 0; unicode < 40959; unicode++)
-                                        {
-                                            if (fallbackFont.TryAddCharacters(new uint[] { (uint) unicode }))
-                                            {
-                                                if (AddFallbackCharacterToString(ref textString, (uint)unicode, fontAsset, f))
-                                                {
+                                    if (!success && fallbackFont.atlasPopulationMode == AtlasPopulationMode.Dynamic) {
+                                        for (var unicode = 0; unicode < 40959; unicode++) {
+                                            if (fallbackFont.TryAddCharacters(new uint[] { (uint)unicode })) {
+                                                if (AddFallbackCharacterToString(ref textString, (uint)unicode, fontAsset, f)) {
                                                     break;
                                                 }
                                             }
@@ -1410,9 +1262,7 @@ namespace DamageNumbersPro
                         // Assign text and add to dictionary
                         fallbackAsset.GetComponent<TextMeshPro>().text = textString;
                         fallbackDictionary.Add(fontAsset, fallbackAsset);
-                    }
-                    else
-                    {
+                    } else {
                         fallbackDictionary.Add(fontAsset, null);
                     }
                 }
@@ -1420,7 +1270,7 @@ namespace DamageNumbersPro
             #endregion
 
             // Called right after spawn
-            float time = unscaledTime ? Time.unscaledTime : Time.time;
+            var time = unscaledTime ? Time.unscaledTime : Time.time;
             Initialize(time);
 
             // Spam Control
@@ -1428,36 +1278,27 @@ namespace DamageNumbersPro
 
             // Scale to Zero
             firstFrameScale = true;
-            if(destroyAfterSpawning)
-            {
+            if (destroyAfterSpawning) {
                 destroyAfterSpawning = false;
                 startLifeTime = -100;
             }
         }
 
-        bool AddFallbackCharacterToString(ref string textString, uint unicode, TMP_FontAsset mainFontAsset, int fallbackIndex)
-        {
+        private bool AddFallbackCharacterToString(ref string textString, uint unicode, TMP_FontAsset mainFontAsset, int fallbackIndex) {
             // The unicode 0 can cause issues
-            if(unicode < 1)
-            {
+            if (unicode < 1) {
                 return false;
             }
 
-            if (mainFontAsset.characterLookupTable.ContainsKey(unicode) || (mainFontAsset.atlasPopulationMode == AtlasPopulationMode.Dynamic && mainFontAsset.TryAddCharacters(new uint[] { unicode })))
-            {
+            if (mainFontAsset.characterLookupTable.ContainsKey(unicode) || (mainFontAsset.atlasPopulationMode == AtlasPopulationMode.Dynamic && mainFontAsset.TryAddCharacters(new uint[] { unicode }))) {
                 // Character already in main font
-            }
-            else
-            {
-                bool addCharacter = true;
+            } else {
+                var addCharacter = true;
 
-                for (int pF = 0; pF < fallbackIndex; pF++)
-                {
-                    TMP_FontAsset previousFallbackFont = mainFontAsset.fallbackFontAssetTable[pF];
-                    if (previousFallbackFont != null)
-                    {
-                        if (previousFallbackFont.characterLookupTable.ContainsKey(unicode) || (previousFallbackFont.atlasPopulationMode == AtlasPopulationMode.Dynamic && previousFallbackFont.TryAddCharacters(new uint[] { unicode })))
-                        {
+                for (var pF = 0; pF < fallbackIndex; pF++) {
+                    var previousFallbackFont = mainFontAsset.fallbackFontAssetTable[pF];
+                    if (previousFallbackFont != null) {
+                        if (previousFallbackFont.characterLookupTable.ContainsKey(unicode) || (previousFallbackFont.atlasPopulationMode == AtlasPopulationMode.Dynamic && previousFallbackFont.TryAddCharacters(new uint[] { unicode }))) {
                             // Character already in a higher priority fallback font
                             addCharacter = false;
                             break;
@@ -1465,9 +1306,8 @@ namespace DamageNumbersPro
                     }
                 }
 
-                if (addCharacter)
-                {
-                    textString += System.Char.ConvertFromUtf32((int) unicode);
+                if (addCharacter) {
+                    textString += char.ConvertFromUtf32((int)unicode);
                     return true;
                 }
             }
@@ -1475,8 +1315,7 @@ namespace DamageNumbersPro
             return false;
         }
 
-        void Initialize(float time)
-        {
+        private void Initialize(float time) {
             // Reset variables
             numberScale = destructionScale = combinationScale = currentFollowSpeed = 1f;
             baseAlpha = 1f;
@@ -1487,52 +1326,34 @@ namespace DamageNumbersPro
             followingInitialized = false;
 
             // 3D Game
-            if (enable3DGame)
-            {
-                if (cameraOverride != null)
-                {
+            if (enable3DGame) {
+                if (cameraOverride != null) {
                     targetCamera = cameraOverride;
-                }
-                else if (Camera.main != null)
-                {
+                } else if (Camera.main != null) {
                     targetCamera = Camera.main.transform;
-                }
-                else if (Camera.current != null)
-                {
+                } else if (Camera.current != null) {
                     targetCamera = Camera.current.transform;
                 }
 
                 // Scale with FOV
-                if (scaleWithFov)
-                {
-                    if (fovCamera != null)
-                    {
+                if (scaleWithFov) {
+                    if (fovCamera != null) {
                         targetFovCamera = fovCamera;
-                    }
-                    else if (Camera.main != null)
-                    {
+                    } else if (Camera.main != null) {
                         targetFovCamera = Camera.main;
-                    }
-                    else if (Camera.current != null)
-                    {
+                    } else if (Camera.current != null) {
                         targetFovCamera = Camera.current;
                     }
                 }
             }
 
             // Orthographic Scaling
-            if (enableOrthographicScaling)
-            {
-                if (orthographicCamera != null)
-                {
+            if (enableOrthographicScaling) {
+                if (orthographicCamera != null) {
                     targetOrthographicCamera = orthographicCamera;
-                }
-                else if (Camera.main != null)
-                {
+                } else if (Camera.main != null) {
                     targetOrthographicCamera = Camera.main;
-                }
-                else if (Camera.current != null)
-                {
+                } else if (Camera.current != null) {
                     targetOrthographicCamera = Camera.current;
                 }
             }
@@ -1541,12 +1362,10 @@ namespace DamageNumbersPro
             UpdateScaleAnd3D(true);
 
             // Rotation
-            if (enableRotateOverTime)
-            {
+            if (enableRotateOverTime) {
                 currentRotationSpeed = Random.Range(minRotationSpeed, maxRotationSpeed);
 
-                if(rotationSpeedRandomFlip && Random.value < 0.5f)
-                {
+                if (rotationSpeedRandomFlip && Random.value < 0.5f) {
                     currentRotationSpeed *= -1;
                 }
             }
@@ -1555,40 +1374,32 @@ namespace DamageNumbersPro
             AddToDictionary();
 
             // Lerp
-            if (enableLerp)
-            {
-                float xOffset = Random.Range(lerpSettings.minX, lerpSettings.maxX) * GetPositionFactor();
-                if(lerpSettings.randomFlip && Random.value < 0.5f)
-                {
+            if (enableLerp) {
+                var xOffset = Random.Range(lerpSettings.minX, lerpSettings.maxX) * GetPositionFactor();
+                if (lerpSettings.randomFlip && Random.value < 0.5f) {
                     xOffset = -xOffset;
                 }
 
-                remainingOffset = GetFreshRightVector() * xOffset + GetFreshUpVector() * (Random.Range(lerpSettings.minY, lerpSettings.maxY) * GetPositionFactor());
+                remainingOffset = (GetFreshRightVector() * xOffset) + (GetFreshUpVector() * (Random.Range(lerpSettings.minY, lerpSettings.maxY) * GetPositionFactor()));
             }
 
             // Velocity
-            if (enableVelocity)
-            {
+            if (enableVelocity) {
                 currentVelocity = new Vector2(Random.Range(velocitySettings.minX, velocitySettings.maxX), Random.Range(velocitySettings.minY, velocitySettings.maxY)) * GetPositionFactor();
 
-                if(velocitySettings.randomFlip && Random.value < 0.5f)
-                {
+                if (velocitySettings.randomFlip && Random.value < 0.5f) {
                     currentVelocity.x = -currentVelocity.x;
                 }
             }
 
             // Start Rotation
-            if (enableStartRotation)
-            {
+            if (enableStartRotation) {
                 currentRotation = Random.Range(minRotation, maxRotation);
 
-                if (rotationRandomFlip && Random.value < 0.5f)
-                {
+                if (rotationRandomFlip && Random.value < 0.5f) {
                     currentRotation *= -1;
                 }
-            }
-            else
-            {
+            } else {
                 currentRotation = 0;
             }
 
@@ -1597,20 +1408,28 @@ namespace DamageNumbersPro
 
             // Fade In
             fadeInSpeed = 1f / Mathf.Max(0.0001f, durationFadeIn);
-            if (enableCrossScaleFadeIn)
-            {
+            if (enableCrossScaleFadeIn) {
                 currentScaleInOffset = crossScaleFadeIn;
-                if (currentScaleInOffset.x == 0) currentScaleInOffset.x += 0.001f;
-                if (currentScaleInOffset.y == 0) currentScaleInOffset.y += 0.001f;
+                if (currentScaleInOffset.x == 0) {
+                    currentScaleInOffset.x += 0.001f;
+                }
+
+                if (currentScaleInOffset.y == 0) {
+                    currentScaleInOffset.y += 0.001f;
+                }
             }
 
             // Fade Out
             fadeOutSpeed = 1f / Mathf.Max(0.0001f, durationFadeOut);
-            if (enableCrossScaleFadeOut)
-            {
+            if (enableCrossScaleFadeOut) {
                 currentScaleOutOffset = crossScaleFadeOut;
-                if (currentScaleOutOffset.x == 0) currentScaleOutOffset.x += 0.001f;
-                if (currentScaleOutOffset.y == 0) currentScaleOutOffset.y += 0.001f;
+                if (currentScaleOutOffset.x == 0) {
+                    currentScaleOutOffset.x += 0.001f;
+                }
+
+                if (currentScaleOutOffset.y == 0) {
+                    currentScaleOutOffset.y += 0.001f;
+                }
             }
 
             lastTargetPosition = Vector3.zero;
@@ -1622,8 +1441,7 @@ namespace DamageNumbersPro
             UpdateRotationZ();
         }
 
-        void PreparePooling()
-        {
+        private void PreparePooling() {
             // Add to Pool
             pools[poolingID].Add(this);
 
@@ -1650,12 +1468,9 @@ namespace DamageNumbersPro
             enablePush = originalPrefab.enablePush;
         }
 
-        bool PoolAvailable(int id)
-        {
-            if (pools != null && pools.ContainsKey(id))
-            {
-                if (pools[id].Count > 0)
-                {
+        private bool PoolAvailable(int id) {
+            if (pools != null && pools.ContainsKey(id)) {
+                if (pools[id].Count > 0) {
                     return true;
                 }
             }
@@ -1663,20 +1478,15 @@ namespace DamageNumbersPro
             return false;
         }
 
-        void SetPoolingID(int id)
-        {
+        private void SetPoolingID(int id) {
             poolingID = id;
 
             // Initiate Dictionaries
-            if (pools == null)
-            {
-                pools = new Dictionary<int, HashSet<DamageNumber>>();
-            }
+            pools ??= new Dictionary<int, HashSet<DamageNumber>>();
 
             // Initiate Pool Parent
-            if (poolParent == null)
-            {
-                GameObject poolGameobject = new GameObject("Damage Number Pool");
+            if (poolParent == null) {
+                var poolGameobject = new GameObject("Damage Number Pool");
                 DontDestroyOnLoad(poolGameobject);
 
                 poolParent = poolGameobject.transform;
@@ -1690,133 +1500,107 @@ namespace DamageNumbersPro
         #endregion
 
         #region Text
-        public void UpdateText()
-        {
+        public void UpdateText() {
             // Number
-            string numberText = "";
-            if (enableNumber)
-            {
+            var numberText = "";
+            if (enableNumber) {
                 string numberString;
                 bool shortened;
 
-                if (digitSettings.decimals <= 0)
-                {
+                if (digitSettings.decimals <= 0) {
                     numberString = ProcessIntegers(Mathf.Round(number).ToString("F0"), out shortened);
-                }
-                else
-                {
+                } else {
                     // Digits
-                    string allDigits = (Mathf.Abs(number) * Mathf.Pow(10, digitSettings.decimals)).ToString("F0");
+                    var allDigits = (Mathf.Abs(number) * Mathf.Pow(10, digitSettings.decimals)).ToString("F0");
 
-                    bool hasMinus = number < 0;
+                    var hasMinus = number < 0;
 
                     // Add zeros to the left to fix numbers less than 1
-                    int usedDecimals = digitSettings.decimals;
-                    int currentLength = allDigits.Length;
-                    if(currentLength < usedDecimals)
-                    {
-                        for(int i = 0; i < usedDecimals - currentLength; i++)
-                        {
+                    var usedDecimals = digitSettings.decimals;
+                    var currentLength = allDigits.Length;
+                    if (currentLength < usedDecimals) {
+                        for (var i = 0; i < usedDecimals - currentLength; i++) {
                             allDigits = "0" + allDigits;
                         }
                     }
 
-                    while (digitSettings.hideZeros && allDigits.EndsWith("0") && usedDecimals > 0)
-                    {
-                        allDigits = allDigits.Substring(0, allDigits.Length - 1);
+                    while (digitSettings.hideZeros && allDigits.EndsWith("0") && usedDecimals > 0) {
+                        allDigits = allDigits[..^1];
                         usedDecimals--;
                     }
 
-                    string integers = allDigits.Substring(0, Mathf.Max(0, allDigits.Length - usedDecimals));
+                    var integers = allDigits[..Mathf.Max(0, allDigits.Length - usedDecimals)];
 
                     integers = ProcessIntegers(integers, out shortened);
 
-                    if (integers == "")
-                    {
+                    if (integers == "") {
                         integers = "0";
                     }
 
-                    int digitLength = allDigits.Length;
-                    while (digitLength < usedDecimals)
-                    {
-                        if(digitSettings.hideZeros)
-                        {
+                    var digitLength = allDigits.Length;
+                    while (digitLength < usedDecimals) {
+                        if (digitSettings.hideZeros) {
                             usedDecimals--;
-                        }
-                        else
-                        {
+                        } else {
                             allDigits += "0";
                             digitLength = allDigits.Length;
                         }
                     }
 
-                    string decimals = allDigits.Substring(allDigits.Length - usedDecimals);
+                    var decimals = allDigits[^usedDecimals..];
 
-                    if (usedDecimals > 0 && !shortened)
-                    {
+                    if (usedDecimals > 0 && !shortened) {
                         numberString = integers + digitSettings.decimalChar + decimals;
-                    }
-                    else
-                    {
+                    } else {
                         numberString = integers;
                     }
 
-                    if (hasMinus)
-                    {
+                    if (hasMinus) {
                         numberString = "-" + numberString;
                     }
                 }
 
                 numberText = ApplyTextSettings(numberString, numberSettings);
 
-                if (enableScaleByNumber)
-                {
-                    numberScale = scaleByNumberSettings.fromScale + (scaleByNumberSettings.toScale - scaleByNumberSettings.fromScale) * Mathf.Clamp01((number - scaleByNumberSettings.fromNumber) / (scaleByNumberSettings.toNumber - scaleByNumberSettings.fromNumber));
+                if (enableScaleByNumber) {
+                    numberScale = scaleByNumberSettings.fromScale + ((scaleByNumberSettings.toScale - scaleByNumberSettings.fromScale) * Mathf.Clamp01((number - scaleByNumberSettings.fromNumber) / (scaleByNumberSettings.toNumber - scaleByNumberSettings.fromNumber)));
                 }
 
-                if(enableColorByNumber)
-                {
+                if (enableColorByNumber) {
                     SetColor(colorByNumberSettings.colorGradient.Evaluate(Mathf.Clamp01((number - colorByNumberSettings.fromNumber) / (colorByNumberSettings.toNumber - colorByNumberSettings.fromNumber))));
                 }
             }
 
             // Prefix
-            string prefixText = "";
-            if (enableTopText)
-            {
+            var prefixText = "";
+            if (enableTopText) {
                 prefixText += ApplyTextSettings(topText, topTextSettings) + System.Environment.NewLine;
             }
-            if (enableLeftText)
-            {
+            if (enableLeftText) {
                 prefixText += ApplyTextSettings(leftText, leftTextSettings);
             }
 
             // Suffix
-            string suffixText = "";
-            if (enableRightText)
-            {
+            var suffixText = "";
+            if (enableRightText) {
                 suffixText += ApplyTextSettings(rightText, rightTextSettings);
             }
-            if (enableBottomText)
-            {
+            if (enableBottomText) {
                 suffixText += System.Environment.NewLine + ApplyTextSettings(bottomText, bottomTextSettings);
             }
 
             GetReferencesIfNecessary();
 
             // Scale Fix
-            Vector3 currentLocalScale = transform.localScale;
-            if(!enable3DGame || !renderThroughWalls)
-            {
+            var currentLocalScale = transform.localScale;
+            if (!enable3DGame || !renderThroughWalls) {
                 renderThroughWallsScale = 1f;
             }
-            if (lastScaleFactor < 1)
-            {
+            if (lastScaleFactor < 1) {
                 lastScaleFactor = 1f;
             }
-            float minScale = renderThroughWallsScale * lastScaleFactor;
-            if (currentLocalScale.x < minScale)
-            {
+            var minScale = renderThroughWallsScale * lastScaleFactor;
+            if (currentLocalScale.x < minScale) {
                 transform.localScale = new Vector3(minScale, minScale, minScale);
             }
 
@@ -1828,25 +1612,20 @@ namespace DamageNumbersPro
             colors = new List<Color[]>();
             alphas = new List<float[]>();
 
-            for (int n = 0; n < meshs.Count; n++)
-            {
-                Mesh mesh = meshs[n];
+            for (var n = 0; n < meshs.Count; n++) {
+                var mesh = meshs[n];
 
-                if(mesh != null)
-                {
-                    Color[] color = mesh.colors;
-                    float[] alpha = new float[color.Length];
+                if (mesh != null) {
+                    var color = mesh.colors;
+                    var alpha = new float[color.Length];
 
-                    for (int c = 0; c < color.Length; c++)
-                    {
+                    for (var c = 0; c < color.Length; c++) {
                         alpha[c] = color[c].a;
                     }
 
                     alphas.Add(alpha);
                     colors.Add(color);
-                }
-                else
-                {
+                } else {
                     colors.Add(new Color[0]);
                     alphas.Add(new float[0]);
                 }
@@ -1859,8 +1638,7 @@ namespace DamageNumbersPro
             OnUpdateText?.Invoke();
         }
 
-        protected virtual void SetTextString(string fullString)
-        {
+        protected virtual void SetTextString(string fullString) {
             // Generate Mesh
             textMeshPro.gameObject.SetActive(true);
             textMeshPro.text = fullString;
@@ -1869,36 +1647,34 @@ namespace DamageNumbersPro
             // Clear Meshs
             ClearMeshs();
 
-            meshs = new List<Mesh>();
-            meshs.Add(Instantiate<Mesh>(textMeshPro.mesh));
+            meshs = new List<Mesh> {
+                Instantiate<Mesh>(textMeshPro.mesh)
+            };
             meshFilterA.mesh = meshFilterB.mesh = meshs[0];
             meshRendererA.sharedMaterials = meshRendererB.sharedMaterials = textMeshRenderer.sharedMaterials;
 
             // Submeshes
-            int usedSubMeshes = 0;
-            for (int c = 0; c < textMeshPro.transform.childCount; c++)
-            {
-                MeshRenderer subMeshRenderer = textMeshPro.transform.GetChild(c).GetComponent<MeshRenderer>();
+            var usedSubMeshes = 0;
+            for (var c = 0; c < textMeshPro.transform.childCount; c++) {
+                var subMeshRenderer = textMeshPro.transform.GetChild(c).GetComponent<MeshRenderer>();
 
-                if (subMeshRenderer != null)
-                {
-                    MeshFilter subMeshFilter = subMeshRenderer.GetComponent<MeshFilter>();
+                if (subMeshRenderer != null) {
+                    var subMeshFilter = subMeshRenderer.GetComponent<MeshFilter>();
 
                     // Create new Submesh
-                    if (subMeshRenderers.Count <= c)
-                    {
-                        GameObject subMeshA = NewMesh("Sub", meshRendererA.transform);
-                        GameObject subMeshB = NewMesh("Sub", meshRendererB.transform);
+                    if (subMeshRenderers.Count <= c) {
+                        var subMeshA = NewMesh("Sub", meshRendererA.transform);
+                        var subMeshB = NewMesh("Sub", meshRendererB.transform);
                         subMeshRenderers.Add(new System.Tuple<MeshRenderer, MeshRenderer>(subMeshA.GetComponent<MeshRenderer>(), subMeshB.GetComponent<MeshRenderer>()));
                         subMeshFilters.Add(new System.Tuple<MeshFilter, MeshFilter>(subMeshA.GetComponent<MeshFilter>(), subMeshB.GetComponent<MeshFilter>()));
                     }
 
                     // Apply
-                    System.Tuple<MeshRenderer, MeshRenderer> subRenderers = subMeshRenderers[c];
-                    System.Tuple<MeshFilter, MeshFilter> subFilters = subMeshFilters[c];
+                    var subRenderers = subMeshRenderers[c];
+                    var subFilters = subMeshFilters[c];
                     subRenderers.Item1.sharedMaterials = subRenderers.Item2.sharedMaterials = subMeshRenderer.sharedMaterials;
 
-                    Mesh newSubMesh = Instantiate<Mesh>(subMeshFilter.sharedMesh);
+                    var newSubMesh = Instantiate<Mesh>(subMeshFilter.sharedMesh);
                     subFilters.Item1.mesh = subFilters.Item2.mesh = newSubMesh;
                     meshs.Add(newSubMesh);
 
@@ -1910,8 +1686,7 @@ namespace DamageNumbersPro
             }
 
             // Hide Unused Meshs
-            for (int n = usedSubMeshes; n < subMeshRenderers.Count; n++)
-            {
+            for (var n = usedSubMeshes; n < subMeshRenderers.Count; n++) {
                 subMeshRenderers[n].Item1.transform.localScale = subMeshRenderers[n].Item2.transform.localScale = Vector3.zero;
             }
 
@@ -1919,49 +1694,38 @@ namespace DamageNumbersPro
             textMeshPro.gameObject.SetActive(false);
         }
 
-        string ProcessIntegers(string integers, out bool shortened)
-        {
+        private string ProcessIntegers(string integers, out bool shortened) {
             shortened = false;
 
             // Short Suffix
-            if (digitSettings.suffixShorten)
-            {
-                int currentSuffix = -1;
-                int integerLength = integers.Length;
-                while (integerLength > digitSettings.maxDigits && currentSuffix < digitSettings.suffixes.Count - 1 && integerLength - digitSettings.suffixDigits[currentSuffix + 1] > 0)
-                {
+            if (digitSettings.suffixShorten) {
+                var currentSuffix = -1;
+                var integerLength = integers.Length;
+                while (integerLength > digitSettings.maxDigits && currentSuffix < digitSettings.suffixes.Count - 1 && integerLength - digitSettings.suffixDigits[currentSuffix + 1] > 0) {
                     currentSuffix++;
                     integerLength -= digitSettings.suffixDigits[currentSuffix];
                 }
 
-                if (currentSuffix >= 0)
-                {
+                if (currentSuffix >= 0) {
                     // Get shortened integers
-                    string shortenedIntegers = integers.Substring(0, integerLength);
+                    var shortenedIntegers = integers[..integerLength];
 
-                    if (digitSettings.suffixDecimals > 0)
-                    {
+                    if (digitSettings.suffixDecimals > 0) {
                         // Get decimals after the shortened integers
-                        string decimals = integers.Substring(integerLength, digitSettings.suffixDecimals);
+                        var decimals = integers.Substring(integerLength, digitSettings.suffixDecimals);
 
                         // Hide zeros
-                        while(digitSettings.suffixHideZeros && decimals.EndsWith("0"))
-                        {
-                            decimals = decimals.Substring(0, decimals.Length - 1);
+                        while (digitSettings.suffixHideZeros && decimals.EndsWith("0")) {
+                            decimals = decimals[..^1];
                         }
 
                         // Combine
-                        if(decimals.Length > 0)
-                        {
+                        if (decimals.Length > 0) {
                             integers = shortenedIntegers + digitSettings.suffixDecimalChar + decimals + digitSettings.suffixes[currentSuffix];
-                        }
-                        else
-                        {
+                        } else {
                             integers = shortenedIntegers + digitSettings.suffixes[currentSuffix];
                         }
-                    }
-                    else
-                    {
+                    } else {
                         integers = shortenedIntegers + digitSettings.suffixes[currentSuffix];
                     }
 
@@ -1971,16 +1735,13 @@ namespace DamageNumbersPro
             }
 
             // Dots
-            if (digitSettings.dotSeparation && digitSettings.dotDistance > 0)
-            {
-                char[] chars = integers.ToCharArray();
+            if (digitSettings.dotSeparation && digitSettings.dotDistance > 0) {
+                var chars = integers.ToCharArray();
                 integers = "";
-                for (int n = chars.Length - 1; n > -1; n--)
-                {
+                for (var n = chars.Length - 1; n > -1; n--) {
                     integers = chars[n] + integers;
 
-                    if ((chars.Length - n) % digitSettings.dotDistance == 0 && n > 0)
-                    {
+                    if ((chars.Length - n) % digitSettings.dotDistance == 0 && n > 0) {
                         integers = digitSettings.dotChar + integers;
                     }
                 }
@@ -1988,74 +1749,59 @@ namespace DamageNumbersPro
 
             return integers;
         }
-        string ApplyTextSettings(string text, TextSettings settings)
-        {
-            string newString = text;
+        private string ApplyTextSettings(string text, TextSettings settings) {
+            var newString = text;
 
-            if (text == "")
-            {
+            if (text == "") {
                 return "";
             }
 
             // Formatting
-            if (settings.bold)
-            {
+            if (settings.bold) {
                 newString = "<b>" + newString + "</b>";
             }
-            if (settings.italic)
-            {
+            if (settings.italic) {
                 newString = "<i>" + newString + "</i>";
             }
-            if (settings.underline)
-            {
+            if (settings.underline) {
                 newString = "<u>" + newString + "</u>";
             }
-            if (settings.strike)
-            {
+            if (settings.strike) {
                 newString = "<s>" + newString + "</s>";
             }
 
             // Custom Color
-            if (settings.customColor)
-            {
+            if (settings.customColor) {
                 newString = "<color=#" + ColorUtility.ToHtmlStringRGBA(settings.color) + ">" + newString + "</color>";
             }
 
-            if (settings.mark)
-            {
+            if (settings.mark) {
                 newString = "<mark=#" + ColorUtility.ToHtmlStringRGBA(settings.markColor) + ">" + newString + "</mark>";
             }
 
-            if (settings.alpha < 1)
-            {
-                newString = "<alpha=#" + ColorUtility.ToHtmlStringRGBA(new Color(1, 1, 1, settings.alpha)).Substring(6) + ">" + newString + "<alpha=#FF>";
+            if (settings.alpha < 1) {
+                newString = "<alpha=#" + ColorUtility.ToHtmlStringRGBA(new Color(1, 1, 1, settings.alpha))[6..] + ">" + newString + "<alpha=#FF>";
             }
 
             // Change Size
-            if (settings.size > 0)
-            {
+            if (settings.size > 0) {
                 newString = "<size=+" + settings.size.ToString().Replace(',', '.') + ">" + newString + "</size>";
-            }
-            else if (settings.size < 0)
-            {
+            } else if (settings.size < 0) {
                 newString = "<size=-" + Mathf.Abs(settings.size).ToString().Replace(',', '.') + ">" + newString + "</size>";
             }
 
             // Character Spacing
-            if (settings.characterSpacing != 0)
-            {
+            if (settings.characterSpacing != 0) {
                 newString = "<cspace=" + settings.characterSpacing.ToString().Replace(',', '.') + ">" + newString + "</cspace>";
             }
 
             // Spacing
-            if (settings.horizontal > 0)
-            {
-                string space = "<space=" + settings.horizontal.ToString().Replace(',', '.') + "em>";
+            if (settings.horizontal > 0) {
+                var space = "<space=" + settings.horizontal.ToString().Replace(',', '.') + "em>";
                 newString = space + newString + space;
             }
 
-            if (settings.vertical != 0)
-            {
+            if (settings.vertical != 0) {
                 newString = "<voffset=" + settings.vertical.ToString().Replace(',', '.') + "em>" + newString + "</voffset>";
             }
 
@@ -2063,21 +1809,14 @@ namespace DamageNumbersPro
             return newString;
         }
 
-        private void ClearMeshs()
-        {
-            if (meshs != null)
-            {
-                if (Application.isPlaying)
-                {
-                    foreach (Mesh mesh in meshs)
-                    {
+        private void ClearMeshs() {
+            if (meshs != null) {
+                if (Application.isPlaying) {
+                    foreach (var mesh in meshs) {
                         Destroy(mesh);
                     }
-                }
-                else
-                {
-                    foreach (Mesh mesh in meshs)
-                    {
+                } else {
+                    foreach (var mesh in meshs) {
                         DestroyImmediate(mesh);
                     }
                 }
@@ -2086,62 +1825,50 @@ namespace DamageNumbersPro
         #endregion
 
         #region Fading
-        void HandleFadeIn(float delta)
-        {
-            if (currentFade < 1)
-            {
-                currentFade = Mathf.Min(1, currentFade + delta * fadeInSpeed);
+        private void HandleFadeIn(float delta) {
+            if (currentFade < 1) {
+                currentFade = Mathf.Min(1, currentFade + (delta * fadeInSpeed));
                 UpdateFade(enableOffsetFadeIn, offsetFadeIn, enableCrossScaleFadeIn, currentScaleInOffset, enableScaleFadeIn, scaleFadeIn, enableShakeFadeIn, shakeOffsetFadeIn, shakeFrequencyFadeIn);
             }
         }
-        void HandleFadeOut(float delta)
-        {
+        private void HandleFadeOut(float delta) {
             // Event
-            if (isFadingOut == false)
-            {
+            if (isFadingOut == false) {
                 isFadingOut = true;
                 OnFadeOut?.Invoke();
             }
 
             // Update fade value
-            currentFade = Mathf.Max(0, currentFade - delta * fadeOutSpeed);
+            currentFade = Mathf.Max(0, currentFade - (delta * fadeOutSpeed));
             UpdateFade(enableOffsetFadeOut, offsetFadeOut, enableCrossScaleFadeOut, currentScaleOutOffset, enableScaleFadeOut, scaleFadeOut, enableShakeFadeOut, shakeOffsetFadeOut, shakeFrequencyFadeOut);
 
             // Remove from dictionaries
             RemoveFromDictionary();
-            if (currentFade <= 0)
-            {
+            if (currentFade <= 0) {
                 DestroyDNP();
             }
         }
-        void UpdateFade(bool enablePositionOffset, Vector2 positionOffset, bool enableScaleOffset, Vector2 scaleOffset, bool enableScale, Vector2 scale, bool enableShake, Vector2 shakeOffset, float shakeFrequency)
-        {
-            Vector2 basePosition = Vector2.zero;
-            float inverseFade = currentFade - 1;
+        private void UpdateFade(bool enablePositionOffset, Vector2 positionOffset, bool enableScaleOffset, Vector2 scaleOffset, bool enableScale, Vector2 scale, bool enableShake, Vector2 shakeOffset, float shakeFrequency) {
+            var basePosition = Vector2.zero;
+            var inverseFade = currentFade - 1;
 
-            if (enableShake)
-            {
+            if (enableShake) {
                 basePosition = shakeOffset * Mathf.Sin(inverseFade * shakeFrequency) * inverseFade;
             }
 
             // Position Offset
-            if (enablePositionOffset)
-            {
-                Vector2 posOffset = positionOffset * inverseFade;
+            if (enablePositionOffset) {
+                var posOffset = positionOffset * inverseFade;
                 SetLocalPositionA(basePosition + posOffset);
                 SetLocalPositionB(basePosition - posOffset);
-            }
-            else
-            {
+            } else {
                 SetLocalPositionA(basePosition);
                 SetLocalPositionB(basePosition);
             }
 
             // Scale & Scale Offset
-            if (enableScaleOffset)
-            {
-                if (enableScale)
-                {
+            if (enableScaleOffset) {
+                if (enableScale) {
                     Vector3 scaleA = Vector2.Lerp(scaleOffset * scale, Vector2.one, currentFade);
                     scaleA.z = 1;
                     Vector3 scaleB = Vector2.Lerp(new Vector3(1f / scaleOffset.x, 1f / scaleOffset.y, 1) * scale, Vector2.one, currentFade);
@@ -2149,9 +1876,7 @@ namespace DamageNumbersPro
 
                     transformA.localScale = scaleA;
                     transformB.localScale = scaleB;
-                }
-                else
-                {
+                } else {
                     Vector3 scaleA = Vector2.Lerp(scaleOffset, Vector2.one, currentFade);
                     scaleA.z = 1;
                     Vector3 scaleB = Vector2.Lerp(new Vector3(1f / scaleOffset.x, 1f / scaleOffset.y, 1), Vector2.one, currentFade);
@@ -2160,9 +1885,7 @@ namespace DamageNumbersPro
                     transformA.localScale = scaleA;
                     transformB.localScale = scaleB;
                 }
-            }
-            else if (enableScale)
-            {
+            } else if (enableScale) {
                 Vector3 newScale = Vector2.Lerp(scale, Vector2.one, currentFade);
                 newScale.z = 1;
                 transformA.localScale = transformB.localScale = newScale;
@@ -2171,21 +1894,16 @@ namespace DamageNumbersPro
             // Alpha
             UpdateAlpha(currentFade);
         }
-        public void UpdateAlpha(float progress)
-        {
-            float alphaFactor = progress * progress * baseAlpha * baseAlpha;
+        public void UpdateAlpha(float progress) {
+            var alphaFactor = progress * progress * baseAlpha * baseAlpha;
 
-            if(meshs != null)
-            {
-                for (int n = 0; n < meshs.Count; n++)
-                {
-                    if (colors[n] != null && meshs[n] != null)
-                    {
-                        Color[] color = colors[n];
-                        float[] alpha = alphas[n];
+            if (meshs != null) {
+                for (var n = 0; n < meshs.Count; n++) {
+                    if (colors[n] != null && meshs[n] != null) {
+                        var color = colors[n];
+                        var alpha = alphas[n];
 
-                        for (int c = 0; c < color.Length; c++)
-                        {
+                        for (var c = 0; c < color.Length; c++) {
                             color[c].a = alphaFactor * alpha[c];
                         }
 
@@ -2193,7 +1911,7 @@ namespace DamageNumbersPro
                     }
                 }
             }
-            
+
             // Event
             OnUpdateFade?.Invoke(progress);
 
@@ -2203,42 +1921,35 @@ namespace DamageNumbersPro
         #endregion
 
         #region Movement
-        void HandleFollowing(float deltaTime)
-        {
+        private void HandleFollowing(float deltaTime) {
             // Cancel if there is no target
-            if(followedTarget == null)
-            {
+            if (followedTarget == null) {
                 followingInitialized = false;
                 return;
             }
 
             // Get target position
-            Vector3 targetPosition = GetOtherPosition(followedTarget);
+            var targetPosition = GetOtherPosition(followedTarget);
 
             // Check if initialized
-            if (followingInitialized)
-            {
+            if (followingInitialized) {
                 // Get offset to target
                 targetOffset += targetPosition - lastTargetPosition;
 
                 // Apply drag
-                if (followSettings.drag > 0 && currentFollowSpeed > 0)
-                {
+                if (followSettings.drag > 0 && currentFollowSpeed > 0) {
                     currentFollowSpeed -= followSettings.drag * deltaTime;
 
-                    if (currentFollowSpeed < 0)
-                    {
+                    if (currentFollowSpeed < 0) {
                         currentFollowSpeed = 0;
                     }
                 }
 
                 // Move to target
-                Vector3 followMovement = targetOffset * Mathf.Min(deltaTime * followSettings.speed * currentFollowSpeed, 1f);
+                var followMovement = targetOffset * Mathf.Min(deltaTime * followSettings.speed * currentFollowSpeed, 1f);
                 position += followMovement;
                 targetOffset -= followMovement;
-            }
-            else
-            {
+            } else {
                 // Following will initialize after a single frame
                 followingInitialized = true;
             }
@@ -2247,74 +1958,61 @@ namespace DamageNumbersPro
             lastTargetPosition = targetPosition;
         }
 
-        void HandleLerp(float deltaTime)
-        {
-            float deltaFactor = Mathf.Min(1, deltaTime * lerpSettings.speed);
-            Vector3 deltaOffset = remainingOffset * deltaFactor;
+        private void HandleLerp(float deltaTime) {
+            var deltaFactor = Mathf.Min(1, deltaTime * lerpSettings.speed);
+            var deltaOffset = remainingOffset * deltaFactor;
             remainingOffset -= deltaOffset;
             position += deltaOffset;
         }
 
-        void HandleVelocity(float deltaTime)
-        {
-            if (velocitySettings.dragX > 0)
-            {
+        private void HandleVelocity(float deltaTime) {
+            if (velocitySettings.dragX > 0) {
                 currentVelocity.x = Mathf.Lerp(currentVelocity.x, 0, deltaTime * velocitySettings.dragX);
             }
-            if (velocitySettings.dragY > 0)
-            {
+            if (velocitySettings.dragY > 0) {
                 currentVelocity.y = Mathf.Lerp(currentVelocity.y, 0, deltaTime * velocitySettings.dragY);
             }
 
             currentVelocity.y -= velocitySettings.gravity * deltaTime * GetPositionFactor();
-            position += (GetUpVector() * currentVelocity.y + GetRightVector() * currentVelocity.x) * deltaTime;
+            position += ((GetUpVector() * currentVelocity.y) + (GetRightVector() * currentVelocity.x)) * deltaTime;
         }
 
-        Vector3 ApplyShake(Vector3 vector, ShakeSettings shakeSettings, float time)
-        {
-            float currentTime = time - startTime;
-            float currentFactor = Mathf.Sin(shakeSettings.frequency * currentTime) * GetPositionFactor();
+        private Vector3 ApplyShake(Vector3 vector, ShakeSettings shakeSettings, float time) {
+            var currentTime = time - startTime;
+            var currentFactor = Mathf.Sin(shakeSettings.frequency * currentTime) * GetPositionFactor();
 
-            if (shakeSettings.offset.y != 0)
-            {
+            if (shakeSettings.offset.y != 0) {
                 vector += GetUpVector() * currentFactor * shakeSettings.offset.y;
             }
 
-            if (shakeSettings.offset.x != 0)
-            {
+            if (shakeSettings.offset.x != 0) {
                 vector += GetRightVector() * currentFactor * shakeSettings.offset.x;
             }
 
             return vector;
         }
 
-        public Vector3 GetTargetPosition()
-        {
+        public Vector3 GetTargetPosition() {
             return position + remainingOffset;
         }
 
-        public virtual Vector3 GetPosition()
-        {
+        public virtual Vector3 GetPosition() {
             return transform.position;
         }
 
-        protected virtual void SetLocalPositionA(Vector3 localPosition)
-        {
+        protected virtual void SetLocalPositionA(Vector3 localPosition) {
             transformA.localPosition = localPosition;
         }
 
-        protected virtual void SetLocalPositionB(Vector3 localPosition)
-        {
+        protected virtual void SetLocalPositionB(Vector3 localPosition) {
             transformB.localPosition = localPosition;
         }
 
-        public virtual void SetPosition(Vector3 newPosition)
-        {
+        public virtual void SetPosition(Vector3 newPosition) {
             position = transform.position = newPosition;
         }
 
-        protected virtual Vector3 GetOtherPosition(Transform other)
-        {
+        protected virtual Vector3 GetOtherPosition(Transform other) {
             return other.position;
         }
 
@@ -2322,8 +2020,7 @@ namespace DamageNumbersPro
         /// Updates position without changing the position variable.
         /// Used for temporary position changes like shaking movement.
         /// </summary>
-        protected virtual void SetFinalPosition(Vector3 newPosition)
-        {
+        protected virtual void SetFinalPosition(Vector3 newPosition) {
             transform.position = newPosition;
         }
 
@@ -2332,18 +2029,16 @@ namespace DamageNumbersPro
         /// It will position the damage number at your mouse position.
         /// Leave 'canvasCamera' as 'null' if your canvas render mode is "Screen Space - Overlay"e
         /// </summary>
-        public virtual void SetToMousePosition(RectTransform rectParent, Camera canvasCamera)
-        {
+        public virtual void SetToMousePosition(RectTransform rectParent, Camera canvasCamera) {
             Vector2 mousePosition = Vector3.zero;
 
 #if ENABLE_INPUT_SYSTEM && DNP_NewInputSystem
-            if(Mouse.current != null) {
+            if (Mouse.current != null) {
                 RectTransformUtility.ScreenPointToLocalPointInRectangle(rectParent, Mouse.current.position.ReadValue(), canvasCamera, out mousePosition);
             }
 #else
             RectTransformUtility.ScreenPointToLocalPointInRectangle(rectParent, Input.mousePosition, canvasCamera, out mousePosition);
 #endif
-
 
             SetAnchoredPosition(rectParent, mousePosition);
         }
@@ -2351,11 +2046,10 @@ namespace DamageNumbersPro
         /// <summary>
         /// Use this function after you spawn a GUI version of damage numbers pro.
         /// </summary>
-        public virtual void SetAnchoredPosition(Transform rectParent, Vector2 anchoredPosition)
-        {
+        public virtual void SetAnchoredPosition(Transform rectParent, Vector2 anchoredPosition) {
             // Old Transform
-            Vector3 oldScale = transform.localScale;
-            Vector3 oldRotation = transform.eulerAngles;
+            var oldScale = transform.localScale;
+            var oldRotation = transform.eulerAngles;
 
             // Set Parent and Position
             transform.SetParent(rectParent, false);
@@ -2369,11 +2063,10 @@ namespace DamageNumbersPro
         /// <summary>
         /// Use this function after you spawn a GUI version of damage numbers pro.
         /// </summary>
-        public virtual void SetAnchoredPosition(Transform rectParent, Transform rectPosition, Vector2 relativeAnchoredPosition)
-        {
+        public virtual void SetAnchoredPosition(Transform rectParent, Transform rectPosition, Vector2 relativeAnchoredPosition) {
             // Old Transform
-            Vector3 oldScale = transform.localScale;
-            Vector3 oldRotation = transform.eulerAngles;
+            var oldScale = transform.localScale;
+            var oldRotation = transform.eulerAngles;
 
             // Set Parent and Position
             transform.SetParent(rectParent, false);
@@ -2384,8 +2077,7 @@ namespace DamageNumbersPro
             transform.eulerAngles = oldRotation;
         }
 
-        protected virtual float GetPositionFactor()
-        {
+        protected virtual float GetPositionFactor() {
             return 1f;
         }
         #endregion
@@ -2395,8 +2087,7 @@ namespace DamageNumbersPro
         /// Use this function to change the spam group of the popup.
         /// Using the public spamGroup variable will also work within the spawn frame.
         /// </summary>
-        public void SetSpamGroup(string newSpamGroup)
-        {
+        public void SetSpamGroup(string newSpamGroup) {
             RemoveFromDictionary();
             spamGroup = newSpamGroup;
             AddToDictionary();
@@ -2405,11 +2096,9 @@ namespace DamageNumbersPro
         /// <summary>
         /// Use this function to manually trigger spam control features like Combination, Destruction, Collision and Push.
         /// </summary>
-        public void TriggerSpamControl()
-        {
-            if (spamGroup != "")
-            {
-                float time = unscaledTime ? Time.unscaledTime : Time.time;
+        public void TriggerSpamControl() {
+            if (spamGroup != "") {
+                var time = unscaledTime ? Time.unscaledTime : Time.time;
 
                 TryCombination(time);
                 TryDestruction(time);
@@ -2418,43 +2107,30 @@ namespace DamageNumbersPro
             }
         }
 
-        void AddToDictionary()
-        {
-            if (spamGroup != "")
-            {
+        private void AddToDictionary() {
+            if (spamGroup != "") {
                 // Create Dictionary
-                if (spamGroupDictionary == null)
-                {
-                    spamGroupDictionary = new Dictionary<string, HashSet<DamageNumber>>();
-                }
+                spamGroupDictionary ??= new Dictionary<string, HashSet<DamageNumber>>();
 
                 // Create HashSet
-                if (spamGroupDictionary.ContainsKey(spamGroup) == false)
-                {
+                if (spamGroupDictionary.ContainsKey(spamGroup) == false) {
                     spamGroupDictionary.Add(spamGroup, new HashSet<DamageNumber>());
                 }
 
                 // Add to HashSet
-                if (spamGroupDictionary[spamGroup].Contains(this) == false)
-                {
+                if (spamGroupDictionary[spamGroup].Contains(this) == false) {
                     spamGroupDictionary[spamGroup].Add(this);
                 }
 
                 removedFromDictionary = false;
-            }
-            else
-            {
+            } else {
                 removedFromDictionary = true;
             }
         }
-        void RemoveFromDictionary()
-        {
-            if (!removedFromDictionary && spamGroup != "")
-            {
-                if (spamGroupDictionary != null && spamGroupDictionary.ContainsKey(spamGroup))
-                {
-                    if (spamGroupDictionary[spamGroup].Contains(this))
-                    {
+        private void RemoveFromDictionary() {
+            if (!removedFromDictionary && spamGroup != "") {
+                if (spamGroupDictionary != null && spamGroupDictionary.ContainsKey(spamGroup)) {
+                    if (spamGroupDictionary[spamGroup].Contains(this)) {
                         spamGroupDictionary[spamGroup].Remove(this);
                         removedFromDictionary = true;
                     }
@@ -2464,17 +2140,13 @@ namespace DamageNumbersPro
         #endregion
 
         #region Combination
-        void HandleCombination(float delta, float time)
-        {
-            if (myAbsorber != null)
-            {
-                if(myAbsorber.myAbsorber != null)
-                {
+        private void HandleCombination(float delta, float time) {
+            if (myAbsorber != null) {
+                if (myAbsorber.myAbsorber != null) {
                     myAbsorber = myAbsorber.myAbsorber;
                 }
 
-                if (time - startTime < combinationSettings.spawnDelay)
-                {
+                if (time - startTime < combinationSettings.spawnDelay) {
                     absorbStartPosition = position;
                     absorbStartTime = time;
                     return;
@@ -2484,11 +2156,10 @@ namespace DamageNumbersPro
                 startLifeTime = time;
 
                 // Combination Progress
-                float combinationProgress = combinationSettings.absorbDuration > 0 ? (time - absorbStartTime) / combinationSettings.absorbDuration : 1f;
+                var combinationProgress = combinationSettings.absorbDuration > 0 ? (time - absorbStartTime) / combinationSettings.absorbDuration : 1f;
 
                 // Move
-                if (combinationSettings.moveToAbsorber)
-                {
+                if (combinationSettings.moveToAbsorber) {
                     position = Vector3.Lerp(absorbStartPosition, myAbsorber.position, combinationProgress);
                 }
 
@@ -2499,58 +2170,48 @@ namespace DamageNumbersPro
                 baseAlpha = 1f * combinationSettings.alphaCurve.Evaluate(combinationProgress);
                 UpdateAlpha(currentFade);
 
-                if(combinationSettings.instantGain && combinationProgress > 0)
-                {
+                if (combinationSettings.instantGain && combinationProgress > 0) {
                     GiveNumber(time);
                 }
 
-                if (combinationProgress >= 1)
-                {
+                if (combinationProgress >= 1) {
                     GiveNumber(time);
                     DestroyDNP();
                 }
             }
         }
 
-        void TryCombination(float time)
-        {
-            if (enableCombination == false) return; // No Combination
+        private void TryCombination(float time) {
+            if (enableCombination == false) {
+                return; // No Combination
+            }
 
             myAbsorber = null;
 
             // Combination Methods
-            switch (combinationSettings.method)
-            {
-                case (CombinationMethod.ABSORB_NEW):
-                    float oldestStartTime = time + 0.5f;
+            switch (combinationSettings.method) {
+                case CombinationMethod.ABSORB_NEW:
+                    var oldestStartTime = time + 0.5f;
                     DamageNumber oldestNumber = null;
 
-                    foreach (DamageNumber otherNumber in spamGroupDictionary[spamGroup])
-                    {
-                        if (otherNumber != this && otherNumber.enableCombination && otherNumber.myAbsorber == null && otherNumber.startTime <= oldestStartTime)
-                        {
-                            if (Vector3.Distance(otherNumber.GetTargetPosition(), GetTargetPosition()) < combinationSettings.maxDistance * GetPositionFactor())
-                            {
+                    foreach (var otherNumber in spamGroupDictionary[spamGroup]) {
+                        if (otherNumber != this && otherNumber.enableCombination && otherNumber.myAbsorber == null && otherNumber.startTime <= oldestStartTime) {
+                            if (Vector3.Distance(otherNumber.GetTargetPosition(), GetTargetPosition()) < combinationSettings.maxDistance * GetPositionFactor()) {
                                 oldestStartTime = otherNumber.startTime;
                                 oldestNumber = otherNumber;
                             }
                         }
                     }
 
-                    if (oldestNumber != null)
-                    {
+                    if (oldestNumber != null) {
                         GetAbsorbed(oldestNumber, time);
                     }
                     break;
-                case (CombinationMethod.REPLACE_OLD):
-                    foreach (DamageNumber otherNumber in spamGroupDictionary[spamGroup])
-                    {
-                        if (otherNumber != this && otherNumber.enableCombination)
-                        {
-                            if (Vector3.Distance(otherNumber.position, position) < combinationSettings.maxDistance * GetPositionFactor())
-                            {
-                                if (otherNumber.myAbsorber == null)
-                                {
+                case CombinationMethod.REPLACE_OLD:
+                    foreach (var otherNumber in spamGroupDictionary[spamGroup]) {
+                        if (otherNumber != this && otherNumber.enableCombination) {
+                            if (Vector3.Distance(otherNumber.position, position) < combinationSettings.maxDistance * GetPositionFactor()) {
+                                if (otherNumber.myAbsorber == null) {
                                     otherNumber.startTime = time - 0.01f;
                                 }
 
@@ -2559,15 +2220,11 @@ namespace DamageNumbersPro
                         }
                     }
                     break;
-                case (CombinationMethod.IS_ALWAYS_ABSORBER):
-                    foreach (DamageNumber otherNumber in spamGroupDictionary[spamGroup])
-                    {
-                        if (otherNumber != this && otherNumber.enableCombination && otherNumber.combinationSettings.method == CombinationMethod.IS_ALWAYS_VICTIM)
-                        {
-                            if (Vector3.Distance(otherNumber.position, position) < combinationSettings.maxDistance * GetPositionFactor())
-                            {
-                                if (otherNumber.myAbsorber == null)
-                                {
+                case CombinationMethod.IS_ALWAYS_ABSORBER:
+                    foreach (var otherNumber in spamGroupDictionary[spamGroup]) {
+                        if (otherNumber != this && otherNumber.enableCombination && otherNumber.combinationSettings.method == CombinationMethod.IS_ALWAYS_VICTIM) {
+                            if (Vector3.Distance(otherNumber.position, position) < combinationSettings.maxDistance * GetPositionFactor()) {
+                                if (otherNumber.myAbsorber == null) {
                                     otherNumber.startTime = time - 0.01f;
                                 }
 
@@ -2576,13 +2233,10 @@ namespace DamageNumbersPro
                         }
                     }
                     break;
-                case (CombinationMethod.IS_ALWAYS_VICTIM):
-                    foreach (DamageNumber otherNumber in spamGroupDictionary[spamGroup])
-                    {
-                        if (otherNumber != this && otherNumber.enableCombination && otherNumber.myAbsorber == null && otherNumber.combinationSettings.method == CombinationMethod.IS_ALWAYS_ABSORBER)
-                        {
-                            if (Vector3.Distance(otherNumber.GetTargetPosition(), GetTargetPosition()) < combinationSettings.maxDistance * GetPositionFactor())
-                            {
+                case CombinationMethod.IS_ALWAYS_VICTIM:
+                    foreach (var otherNumber in spamGroupDictionary[spamGroup]) {
+                        if (otherNumber != this && otherNumber.enableCombination && otherNumber.myAbsorber == null && otherNumber.combinationSettings.method == CombinationMethod.IS_ALWAYS_ABSORBER) {
+                            if (Vector3.Distance(otherNumber.GetTargetPosition(), GetTargetPosition()) < combinationSettings.maxDistance * GetPositionFactor()) {
                                 GetAbsorbed(otherNumber, time);
                                 break;
                             }
@@ -2593,10 +2247,8 @@ namespace DamageNumbersPro
             }
         }
 
-        void GetAbsorbed(DamageNumber otherNumber, float time)
-        {
-            if (myAbsorber != null)
-            {
+        private void GetAbsorbed(DamageNumber otherNumber, float time) {
+            if (myAbsorber != null) {
                 return;
             }
 
@@ -2615,22 +2267,18 @@ namespace DamageNumbersPro
             myAbsorber.startLifeTime = time;
 
             // Spawn in Absorber
-            if (combinationSettings.teleportToAbsorber)
-            {
+            if (combinationSettings.teleportToAbsorber) {
                 position = otherNumber.position;
             }
         }
 
-        void GiveNumber(float time)
-        {
-            if (!givenNumber)
-            {
+        private void GiveNumber(float time) {
+            if (!givenNumber) {
                 givenNumber = true;
 
                 myAbsorber.number += number;
 
-                if (myAbsorber.myAbsorber == null)
-                {
+                if (myAbsorber.myAbsorber == null) {
                     myAbsorber.combinationScale = combinationSettings.absorberScaleFactor;
                     myAbsorber.startTime = time;
                     myAbsorber.currentLifetime = myAbsorber.lifetime + combinationSettings.bonusLifetime;
@@ -2645,24 +2293,18 @@ namespace DamageNumbersPro
         #endregion
 
         #region Destruction
-        void HandleDestruction(float time)
-        {
-            if (enableDestruction && isDestroyed)
-            {
-                if (time - startTime < destructionSettings.spawnDelay)
-                {
+        private void HandleDestruction(float time) {
+            if (enableDestruction && isDestroyed) {
+                if (time - startTime < destructionSettings.spawnDelay) {
                     destructionStartTime = time;
                     return;
                 }
 
-                float destructionProgress = destructionSettings.duration > 0 ? (time - destructionStartTime) / destructionSettings.duration : 1f;
+                var destructionProgress = destructionSettings.duration > 0 ? (time - destructionStartTime) / destructionSettings.duration : 1f;
 
-                if (destructionProgress >= 1)
-                {
+                if (destructionProgress >= 1) {
                     DestroyDNP();
-                }
-                else
-                {
+                } else {
                     baseAlpha = 1f * destructionSettings.alphaCurve.Evaluate(destructionProgress);
                     UpdateAlpha(currentFade);
 
@@ -2671,18 +2313,13 @@ namespace DamageNumbersPro
             }
         }
 
-        void TryDestruction(float time)
-        {
-            if (enableDestruction)
-            {
+        private void TryDestruction(float time) {
+            if (enableDestruction) {
                 isDestroyed = false;
 
-                foreach (DamageNumber otherNumber in spamGroupDictionary[spamGroup])
-                {
-                    if (otherNumber.isDestroyed == false && otherNumber != this && otherNumber.enableDestruction)
-                    {
-                        if (Vector3.Distance(otherNumber.GetTargetPosition(), GetTargetPosition()) < destructionSettings.maxDistance * GetPositionFactor())
-                        {
+                foreach (var otherNumber in spamGroupDictionary[spamGroup]) {
+                    if (otherNumber.isDestroyed == false && otherNumber != this && otherNumber.enableDestruction) {
+                        if (Vector3.Distance(otherNumber.GetTargetPosition(), GetTargetPosition()) < destructionSettings.maxDistance * GetPositionFactor()) {
                             otherNumber.isDestroyed = true;
                             otherNumber.destructionStartTime = time;
                         }
@@ -2693,48 +2330,38 @@ namespace DamageNumbersPro
         #endregion
 
         #region Collision
-        void TryCollision()
-        {
-            if (enableCollision)
-            {
-                foreach (DamageNumber otherNumber in spamGroupDictionary[spamGroup])
-                {
+        private void TryCollision() {
+            if (enableCollision) {
+                foreach (var otherNumber in spamGroupDictionary[spamGroup]) {
                     otherNumber.collided = false;
                 }
 
                 TryCollision(GetTargetPosition());
             }
         }
-        void TryCollision(Vector3 sourcePosition)
-        {
-            if (enableCollision)
-            {
+        private void TryCollision(Vector3 sourcePosition) {
+            if (enableCollision) {
                 collided = true;
 
-                Vector3 myTargetPosition = GetTargetPosition();
-                float radius = collisionSettings.radius * simulatedScale * GetPositionFactor();
+                var myTargetPosition = GetTargetPosition();
+                var radius = collisionSettings.radius * simulatedScale * GetPositionFactor();
 
-                foreach (DamageNumber otherNumber in spamGroupDictionary[spamGroup])
-                {
-                    if (otherNumber.enableCollision && otherNumber != this)
-                    {
-                        Vector3 otherTargetPosition = otherNumber.GetTargetPosition();
-                        Vector3 offset = otherTargetPosition - myTargetPosition;
-                        float distance = offset.magnitude;
+                foreach (var otherNumber in spamGroupDictionary[spamGroup]) {
+                    if (otherNumber.enableCollision && otherNumber != this) {
+                        var otherTargetPosition = otherNumber.GetTargetPosition();
+                        var offset = otherTargetPosition - myTargetPosition;
+                        var distance = offset.magnitude;
 
-                        if (distance < radius)
-                        {
-                            Vector3 offsetOrigin = otherTargetPosition - sourcePosition + offset + collisionSettings.desiredDirection * GetPositionFactor();
+                        if (distance < radius) {
+                            var offsetOrigin = otherTargetPosition - sourcePosition + offset + (collisionSettings.desiredDirection * GetPositionFactor());
 
-                            if (offsetOrigin == Vector3.zero)
-                            {
+                            if (offsetOrigin == Vector3.zero) {
                                 offsetOrigin = new Vector3(Random.value - 0.5f, Random.value - 0.5f, Random.value - 0.5f);
                             }
 
                             otherNumber.remainingOffset += offsetOrigin.normalized * (radius - distance) * collisionSettings.pushFactor;
 
-                            if(!otherNumber.collided)
-                            {
+                            if (!otherNumber.collided) {
                                 otherNumber.TryCollision(sourcePosition);
                             }
                         }
@@ -2745,47 +2372,38 @@ namespace DamageNumbersPro
         #endregion
 
         #region Push
-        void TryPush()
-        {
-            if (enablePush)
-            {
-                foreach (DamageNumber otherNumber in spamGroupDictionary[spamGroup])
-                {
+        private void TryPush() {
+            if (enablePush) {
+                foreach (var otherNumber in spamGroupDictionary[spamGroup]) {
                     otherNumber.pushed = false;
                 }
 
                 TryPush(GetTargetPosition());
             }
         }
-        void TryPush(Vector3 sourcePosition)
-        {
-            if (enablePush)
-            {
+        private void TryPush(Vector3 sourcePosition) {
+            if (enablePush) {
                 pushed = true;
 
-                Vector3 myTargetPosition = GetTargetPosition();
-                float radius = pushSettings.radius * simulatedScale * GetPositionFactor();
+                var myTargetPosition = GetTargetPosition();
+                var radius = pushSettings.radius * simulatedScale * GetPositionFactor();
 
                 DamageNumber bestPushTarget = null;
                 float pushDirection = pushSettings.pushOffset > 0 ? 1 : -1;
-                float heightCap = myTargetPosition.y + 1000 * pushDirection;
-                foreach (DamageNumber otherNumber in spamGroupDictionary[spamGroup])
-                {
-                    if (otherNumber.enablePush && !otherNumber.pushed)
-                    {
-                        Vector3 targetPosition = otherNumber.GetTargetPosition();
-                        if (targetPosition.y * pushDirection < heightCap* pushDirection && Vector3.Distance(myTargetPosition, targetPosition) < radius)
-                        {
+                var heightCap = myTargetPosition.y + (1000 * pushDirection);
+                foreach (var otherNumber in spamGroupDictionary[spamGroup]) {
+                    if (otherNumber.enablePush && !otherNumber.pushed) {
+                        var targetPosition = otherNumber.GetTargetPosition();
+                        if (targetPosition.y * pushDirection < heightCap * pushDirection && Vector3.Distance(myTargetPosition, targetPosition) < radius) {
                             heightCap = targetPosition.y;
                             bestPushTarget = otherNumber;
                         }
                     }
                 }
 
-                if (bestPushTarget != null)
-                {
-                    float heightDifference = (heightCap - myTargetPosition.y);
-                    float pushDistance = (pushSettings.pushOffset * GetPositionFactor() - heightDifference);
+                if (bestPushTarget != null) {
+                    var heightDifference = heightCap - myTargetPosition.y;
+                    var pushDistance = (pushSettings.pushOffset * GetPositionFactor()) - heightDifference;
                     bestPushTarget.remainingOffset.y += pushDirection > 0 ? Mathf.Max(pushDistance, 0) : Mathf.Min(pushDistance, 0);
 
                     bestPushTarget.TryPush(sourcePosition);
@@ -2795,74 +2413,60 @@ namespace DamageNumbersPro
         #endregion
 
         #region Scale and Rotation
-        protected virtual void UpdateRotationZ()
-        {
+        protected virtual void UpdateRotationZ() {
             SetRotationZ(meshRendererA.transform);
             SetRotationZ(meshRendererB.transform);
         }
 
-        protected void SetRotationZ(Transform transformTarget)
-        {
-            Vector3 localRotation = transformTarget.localEulerAngles;
+        protected void SetRotationZ(Transform transformTarget) {
+            var localRotation = transformTarget.localEulerAngles;
             localRotation.z = currentRotation;
             transformTarget.localEulerAngles = localRotation;
         }
 
-        void HandleRotateOverTime(float delta, float time)
-        {
+        private void HandleRotateOverTime(float delta, float time) {
             currentRotation += currentRotationSpeed * delta * rotateOverTime.Evaluate((time - startTime) / currentLifetime);
         }
 
-        void UpdateScaleAnd3D(bool beforeMeshBuild = false)
-        {
-            Vector3 appliedScale = originalScale;
+        private void UpdateScaleAnd3D(bool beforeMeshBuild = false) {
+            var appliedScale = originalScale;
             lastScaleFactor = 1f;
 
             // Scale Down from Combination
-            if (enableCombination)
-            {
+            if (enableCombination) {
                 combinationScale = Mathf.Lerp(combinationScale, 1f, Time.deltaTime * combinationSettings.absorberScaleFade);
                 lastScaleFactor *= combinationScale;
             }
 
             // Scale by Number Size
-            if (enableScaleByNumber)
-            {
+            if (enableScaleByNumber) {
                 lastScaleFactor *= numberScale;
             }
 
             // Scale over Lifetime
-            if (enableScaleOverTime)
-            {
-                float time = unscaledTime ? Time.unscaledTime : Time.time;
+            if (enableScaleOverTime) {
+                var time = unscaledTime ? Time.unscaledTime : Time.time;
                 appliedScale *= scaleOverTime.Evaluate((time - startTime) / (currentLifetime + durationFadeOut));
             }
 
             // Destruction Scale
-            if (enableDestruction)
-            {
+            if (enableDestruction) {
                 appliedScale *= destructionScale;
             }
 
             // Orthographic Scale
-            if (enableOrthographicScaling && !beforeMeshBuild)
-            {
+            if (enableOrthographicScaling && !beforeMeshBuild) {
                 appliedScale *= Mathf.Min(maxOrthographicSize, targetOrthographicCamera.orthographicSize / defaultOrthographicSize);
             }
 
             // Perspective
             #region Perspective
-            if (enable3DGame && targetCamera != null)
-            {
+            if (enable3DGame && targetCamera != null) {
                 // Face Camera
-                if(faceCameraView)
-                {
-                    if(lookAtCamera)
-                    {
+                if (faceCameraView) {
+                    if (lookAtCamera) {
                         transform.LookAt(transform.position + (transform.position - targetCamera.position));
-                    }
-                    else
-                    {
+                    } else {
                         transform.rotation = targetCamera.rotation;
                     }
                 }
@@ -2872,8 +2476,7 @@ namespace DamageNumbersPro
                 float distance = default;
 
                 // Consistent Screen Size
-                if (consistentScreenSize)
-                {
+                if (consistentScreenSize) {
                     // Calculate Offset
                     offset = finalPosition - targetCamera.position;
                     distance = Mathf.Max(0.004f, offset.magnitude);
@@ -2881,23 +2484,17 @@ namespace DamageNumbersPro
                     // Calculate Scale
                     lastScaleFactor *= distance / distanceScalingSettings.baseDistance;
 
-                    if (distance < distanceScalingSettings.closeDistance)
-                    {
+                    if (distance < distanceScalingSettings.closeDistance) {
                         lastScaleFactor *= distanceScalingSettings.closeScale;
-                    }
-                    else if (distance > distanceScalingSettings.farDistance)
-                    {
+                    } else if (distance > distanceScalingSettings.farDistance) {
                         lastScaleFactor *= distanceScalingSettings.farScale;
-                    }
-                    else
-                    {
-                        lastScaleFactor *= distanceScalingSettings.farScale + (distanceScalingSettings.closeScale - distanceScalingSettings.farScale) * Mathf.Clamp01(1 - (distance - distanceScalingSettings.closeScale) / Mathf.Max(0.01f, distanceScalingSettings.farDistance - distanceScalingSettings.closeScale));
+                    } else {
+                        lastScaleFactor *= distanceScalingSettings.farScale + ((distanceScalingSettings.closeScale - distanceScalingSettings.farScale) * Mathf.Clamp01(1 - ((distance - distanceScalingSettings.closeScale) / Mathf.Max(0.01f, distanceScalingSettings.farDistance - distanceScalingSettings.closeScale))));
                     }
                 }
 
                 // FOV Scaling
-                if (scaleWithFov && !beforeMeshBuild)
-                {
+                if (scaleWithFov && !beforeMeshBuild) {
                     lastScaleFactor *= targetFovCamera.fieldOfView / defaultFov;
                 }
 
@@ -2906,31 +2503,26 @@ namespace DamageNumbersPro
                 simulatedScale = appliedScale.x;
 
                 // Render Through Walls
-                if (renderThroughWalls)
-                {
-                    float near = 0.3f;
-                    if (Camera.main != null)
-                    {
+                if (renderThroughWalls) {
+                    var near = 0.3f;
+                    if (Camera.main != null) {
                         near = Camera.main.nearClipPlane;
                     }
 
                     // Move close to camera
-                    if (!consistentScreenSize)
-                    {
+                    if (!consistentScreenSize) {
                         offset = finalPosition - targetCamera.position;
                         distance = Mathf.Max(0.004f, offset.magnitude);
                     }
-                    near += 0.0005f * distance + 0.02f + near * 0.02f * Vector3.Angle(offset, targetCamera.forward);
+                    near += (0.0005f * distance) + 0.02f + (near * 0.02f * Vector3.Angle(offset, targetCamera.forward));
 
-                    transform.position = offset.normalized * near + targetCamera.position;
+                    transform.position = (offset.normalized * near) + targetCamera.position;
 
                     // Adjust Scale
                     renderThroughWallsScale = near / distance;
                     appliedScale *= renderThroughWallsScale;
                 }
-            }
-            else
-            {
+            } else {
                 appliedScale *= lastScaleFactor;
                 simulatedScale = appliedScale.x;
             }
@@ -2940,10 +2532,8 @@ namespace DamageNumbersPro
             transform.localScale = appliedScale;
 
             // First Frame Fix
-            if (firstFrameScale)
-            {
-                if(durationFadeIn > 0)
-                {
+            if (firstFrameScale) {
+                if (durationFadeIn > 0) {
                     transform.localScale = Vector3.zero;
                 }
                 firstFrameScale = false;
@@ -2990,8 +2580,7 @@ namespace DamageNumbersPro
         /// This function is called while fading in or out.
         /// </summary>
         /// <param name="currentFade">The current fade and alpha factor meaning 0 = 0% and 1 = 100% faded in.</param>
-        protected virtual void InternalUpdateFade(float currentFade)
-        {
+        protected virtual void InternalUpdateFade(float currentFade) {
 
         }
 
@@ -2999,43 +2588,37 @@ namespace DamageNumbersPro
         /// This function is called on every update interval.
         /// Frequency can be configured under performance settings.
         /// </summary>
-        protected virtual void InternalUpdate(float deltaTime)
-        {
+        protected virtual void InternalUpdate(float deltaTime) {
 
         }
 
         /// <summary>
         /// This function is called whenever a damage number is spawned.
         /// </summary>
-        protected virtual void InternalOnSpawn()
-        {
+        protected virtual void InternalOnSpawn() {
 
         }
 
         /// <summary>
         /// Called every late update.
         /// </summary>
-        protected virtual void OnLateUpdate()
-        {
+        protected virtual void OnLateUpdate() {
 
         }
 
         /// <summary>
         /// This event was created to fix a GUI specific issue.
         /// </summary>
-        protected virtual void InternalOnPreSpawn()
-        {
-            
+        protected virtual void InternalOnPreSpawn() {
+
         }
 
         #endregion
 
         #region Unity Events
-        void OnDestroy()
-        {
+        private void OnDestroy() {
             // Static Reference
-            if (activeInstances != null && activeInstances.Contains(this))
-            {
+            if (activeInstances != null && activeInstances.Contains(this)) {
                 activeInstances.Remove(this);
             }
 
@@ -3049,35 +2632,27 @@ namespace DamageNumbersPro
             ClearMeshs();
 
             // Remove from Pool
-            if (enablePooling && pools != null)
-            {
-                if (pools.ContainsKey(poolingID))
-                {
-                    if (pools[poolingID].Contains(this))
-                    {
+            if (enablePooling && pools != null) {
+                if (pools.ContainsKey(poolingID)) {
+                    if (pools[poolingID].Contains(this)) {
                         pools[poolingID].Remove(this);
                     }
                 }
             }
 
-            if (enablePooling && disableOnSceneLoad)
-            {
+            if (enablePooling && disableOnSceneLoad) {
                 SceneManager.sceneLoaded -= OnSceneLoaded;
             }
         }
 
-        void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-        {
-            if(currentFade > 0)
-            {
+        private void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
+            if (currentFade > 0) {
                 DestroyDNP();
             }
         }
 
-        void Reset()
-        {
-            if (!Application.isPlaying)
-            {
+        private void Reset() {
+            if (!Application.isPlaying) {
                 CheckAndEnable3D();
             }
         }

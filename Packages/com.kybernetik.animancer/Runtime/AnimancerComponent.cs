@@ -7,8 +7,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Playables;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>
     /// The main component through which other scripts can interact with <see cref="Animancer"/>. It allows you to play
     /// animations on an <see cref="UnityEngine.Animator"/> without using a <see cref="RuntimeAnimatorController"/>.
@@ -32,8 +31,7 @@ namespace Animancer
         IAnimancerComponent,
         IEnumerator,
         IAnimationClipSource,
-        IAnimationClipCollection
-    {
+        IAnimationClipCollection {
         /************************************************************************************************************************/
         #region Fields and Properties
         /************************************************************************************************************************/
@@ -54,14 +52,11 @@ namespace Animancer
         /// <remarks>
         /// The <see cref="Animator.runtimeAnimatorController"/> should be empty unless you intend to use it.
         /// </remarks>
-        public Animator Animator
-        {
+        public Animator Animator {
             get => _Animator;
-            set
-            {
+            set {
                 _Animator = value;
-                if (IsGraphInitialized)
-                {
+                if (IsGraphInitialized) {
                     _Graph.DestroyOutput();
                     _Graph.Initialize(this);
                 }
@@ -85,14 +80,13 @@ namespace Animancer
         /// An optional <see cref="TransitionLibraryAsset"/>
         /// which can modify the way Animancer transitions between animations.
         /// </summary>
-        public TransitionLibraryAsset Transitions
-        {
+        public TransitionLibraryAsset Transitions {
             get => _Transitions;
-            set
-            {
+            set {
                 _Transitions = value;
-                if (IsGraphInitialized)
+                if (IsGraphInitialized) {
                     _Graph.Transitions = value?.Library;
+                }
             }
         }
 
@@ -104,10 +98,8 @@ namespace Animancer
         /// The internal system which manages the playing animations.
         /// Accessing this property will automatically initialize it.
         /// </summary>
-        public AnimancerGraph Graph
-        {
-            get
-            {
+        public AnimancerGraph Graph {
+            get {
                 InitializeGraph();
                 return _Graph;
             }
@@ -139,12 +131,14 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Returns the <see cref="Graph"/>.</summary>
-        public static implicit operator AnimancerGraph(AnimancerComponent animancer)
-            => animancer.Graph;
+        public static implicit operator AnimancerGraph(AnimancerComponent animancer) {
+            return animancer.Graph;
+        }
 
         /// <summary>Returns layer 0.</summary>
-        public static implicit operator AnimancerLayer(AnimancerComponent animancer)
-            => animancer.Graph.Layers[0];
+        public static implicit operator AnimancerLayer(AnimancerComponent animancer) {
+            return animancer.Graph.Layers[0];
+        }
 
         /************************************************************************************************************************/
 
@@ -191,8 +185,7 @@ namespace Animancer
         /// An action to perform when disabling an <see cref="AnimancerComponent"/>.
         /// See <see cref="ActionOnDisable"/>.
         /// </summary>
-        public enum DisableAction
-        {
+        public enum DisableAction {
             /// <summary>
             /// Stop and reset all animations, but leave all animated values as they are (unlike <see cref="Reset"/>).
             /// </summary>
@@ -237,30 +230,26 @@ namespace Animancer
         /// at runtime has no effect due to limitations in the Playables API.
         /// </remarks>
         /// <exception cref="NullReferenceException">No <see cref="Animator"/> is assigned.</exception>
-        public AnimatorUpdateMode UpdateMode
-        {
+        public AnimatorUpdateMode UpdateMode {
             get => _Animator.updateMode;
-            set
-            {
+            set {
                 _Animator.updateMode = value;
 
-                if (!IsGraphInitialized)
+                if (!IsGraphInitialized) {
                     return;
+                }
 
                 // UnscaledTime on the Animator is actually identical to Normal when using the Playables API so we need
                 // to set the graph's DirectorUpdateMode to determine how it gets its delta time.
-                _Graph.UpdateMode = value == AnimatorUpdateMode.UnscaledTime ?
-                    DirectorUpdateMode.UnscaledGameTime :
-                    DirectorUpdateMode.GameTime;
+                _Graph.UpdateMode = value == AnimatorUpdateMode.UnscaledTime
+                    ? DirectorUpdateMode.UnscaledGameTime
+                    : DirectorUpdateMode.GameTime;
 
 #if UNITY_EDITOR
-                if (InitialUpdateMode == null)
-                {
+                if (InitialUpdateMode == null) {
                     InitialUpdateMode = value;
-                }
-                else if (UnityEditor.EditorApplication.isPlaying)
-                {
-                    if (Editor.AnimancerGraphCleanup.HasChangedToOrFromAnimatePhysics(InitialUpdateMode, value))
+                } else if (UnityEditor.EditorApplication.isPlaying) {
+                    if (Editor.AnimancerGraphCleanup.HasChangedToOrFromAnimatePhysics(InitialUpdateMode, value)) {
                         Debug.LogWarning(
                             $"Changing the {nameof(Animator)}.{nameof(Animator.updateMode)} to or from " +
 #if UNITY_2023_1_OR_NEWER
@@ -270,6 +259,7 @@ namespace Animancer
 #endif
                             " at runtime will have no effect." +
                             " You must set it in the Unity Editor or on startup.", this);
+                    }
                 }
 #endif
             }
@@ -295,8 +285,7 @@ namespace Animancer
         /// Destroys the <see cref="Graph"/> if it was initialized and searches for an <see cref="Animator"/> on
         /// this object, or it's children or parents.
         /// </summary>
-        protected virtual void Reset()
-        {
+        protected virtual void Reset() {
             OnDestroy();
             gameObject.GetComponentInParentOrChildren(ref _Animator);
         }
@@ -305,10 +294,8 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Ensures that the <see cref="PlayableGraph"/> is playing.</summary>
-        protected virtual void OnEnable()
-        {
-            if (IsGraphInitialized)
-            {
+        protected virtual void OnEnable() {
+            if (IsGraphInitialized) {
                 _Graph.UnpauseGraph();
 
 #if UNITY_EDITOR
@@ -318,13 +305,12 @@ namespace Animancer
         }
 
         /// <summary>Acts according to the <see cref="ActionOnDisable"/>.</summary>
-        protected virtual void OnDisable()
-        {
-            if (!IsGraphInitialized)
+        protected virtual void OnDisable() {
+            if (!IsGraphInitialized) {
                 return;
+            }
 
-            switch (_ActionOnDisable)
-            {
+            switch (_ActionOnDisable) {
                 case DisableAction.Stop:
                     _Graph.Stop();
                     _Graph.PauseGraph();
@@ -367,10 +353,10 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Creates and initializes the <see cref="Graph"/> if it wasn't already initialized.</summary>
-        public void InitializeGraph()
-        {
-            if (IsGraphInitialized)
+        public void InitializeGraph() {
+            if (IsGraphInitialized) {
                 return;
+            }
 
             TryGetAnimator();
 
@@ -387,14 +373,14 @@ namespace Animancer
         /// The <see cref="AnimancerGraph"/> is already initialized.
         /// You must call <see cref="AnimancerGraph.Destroy"/> before re-initializing it.
         /// </exception>
-        public void InitializeGraph(AnimancerGraph graph, bool createOutput = true)
-        {
-            if (IsGraphInitialized)
+        public void InitializeGraph(AnimancerGraph graph, bool createOutput = true) {
+            if (IsGraphInitialized) {
                 throw new InvalidOperationException(
                     $"The {nameof(AnimancerGraph)} is already initialized." +
                     $" Either call this method before anything else uses it or call" +
                     $" animancerComponent.{nameof(Graph)}.{nameof(AnimancerGraph.Destroy)}" +
                     $" before re-initializing it.");
+            }
 
             TryGetAnimator();
 
@@ -407,8 +393,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Called right after the <see cref="Graph"/> is initialized.</summary>
-        protected virtual void OnInitializeGraph()
-        {
+        protected virtual void OnInitializeGraph() {
 #if UNITY_ASSERTIONS
             ValidateGraphInitialization();
 #endif
@@ -420,9 +405,10 @@ namespace Animancer
         /// Tries to ensure that an <see cref="Animator"/> is present using
         /// <see cref="Component.TryGetComponent{T}(out T)"/> if necessary.
         /// </summary>
-        public bool TryGetAnimator()
-            => _Animator != null
-            || TryGetComponent(out _Animator);
+        public bool TryGetAnimator() {
+            return _Animator != null
+                                                 || TryGetComponent(out _Animator);
+        }
 
         /************************************************************************************************************************/
 
@@ -430,11 +416,11 @@ namespace Animancer
         /// <summary>[Assert-Only]
         /// Validates various conditions relating to <see cref="AnimancerGraph"/> initialization.
         /// </summary>
-        private void ValidateGraphInitialization()
-        {
+        private void ValidateGraphInitialization() {
 #if UNITY_EDITOR
-            if (_Animator != null)
+            if (_Animator != null) {
                 InitialUpdateMode = UpdateMode;
+            }
 
 #if UNITY_IMGUI
             if (OptionalWarning.CreateGraphDuringGuiEvent.IsEnabled())
@@ -456,19 +442,20 @@ namespace Animancer
 #endif
 #endif
 
-            if (_Animator != null)
-            {
-                if (!_Animator.enabled)
+            if (_Animator != null) {
+                if (!_Animator.enabled) {
                     OptionalWarning.AnimatorDisabled.Log(Strings.AnimatorDisabledMessage, this);
+                }
 
                 if (_Animator.isHuman &&
-                    _Animator.runtimeAnimatorController != null)
+                    _Animator.runtimeAnimatorController != null) {
                     OptionalWarning.NativeControllerHumanoid.Log(
                         $"An Animator Controller is assigned to the {nameof(Animator)} component" +
                         $" but the Rig is Humanoid so it can't be blended with Animancer." +
                         $" See the documentation for more information:" +
                         $" {Strings.DocsURLs.AnimatorControllersNative.AsHtmlLink()}",
                         this);
+                }
             }
         }
 #endif
@@ -476,10 +463,8 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Ensures that the <see cref="Graph"/> is properly cleaned up.</summary>
-        protected virtual void OnDestroy()
-        {
-            if (IsGraphInitialized)
-            {
+        protected virtual void OnDestroy() {
+            if (IsGraphInitialized) {
                 _Graph.Destroy();
                 _Graph = null;
             }
@@ -492,14 +477,12 @@ namespace Animancer
         /// Ensures that the <see cref="AnimancerGraph"/> is destroyed in Edit Mode, but not in Play Mode since we want
         /// to let Unity complain if that happens.
         /// </summary>
-        ~AnimancerComponent()
-        {
-            if (_Graph != null)
-            {
-                UnityEditor.EditorApplication.delayCall += () =>
-                {
-                    if (!UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode)
+        ~AnimancerComponent() {
+            if (_Graph != null) {
+                UnityEditor.EditorApplication.delayCall += () => {
+                    if (!UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode) {
                         OnDestroy();
+                    }
                 };
             }
         }
@@ -516,8 +499,9 @@ namespace Animancer
         /// This method is used to determine the dictionary key to use for an animation when none is specified by the
         /// caller, such as in <see cref="Play(AnimationClip)"/>.
         /// </remarks>
-        public virtual object GetKey(AnimationClip clip)
-            => clip;
+        public virtual object GetKey(AnimationClip clip) {
+            return clip;
+        }
 
         /************************************************************************************************************************/
         // Play Immediately.
@@ -530,8 +514,9 @@ namespace Animancer
         /// <para></para>
         /// This method is safe to call repeatedly without checking whether the `clip` was already playing.
         /// </remarks>
-        public AnimancerState Play(AnimationClip clip)
-            => Graph.Layers[0].Play(States.GetOrCreate(clip));
+        public AnimancerState Play(AnimationClip clip) {
+            return Graph.Layers[0].Play(States.GetOrCreate(clip));
+        }
 
         /// <summary>Stops all other animations on the same layer, plays the `state`, and returns it.</summary>
         /// <remarks>
@@ -540,8 +525,9 @@ namespace Animancer
         /// <para></para>
         /// This method is safe to call repeatedly without checking whether the `state` was already playing.
         /// </remarks>
-        public AnimancerState Play(AnimancerState state)
-            => Graph.Layers[0].Play(state);
+        public AnimancerState Play(AnimancerState state) {
+            return Graph.Layers[0].Play(state);
+        }
 
         /************************************************************************************************************************/
         // Cross Fade.
@@ -562,8 +548,9 @@ namespace Animancer
         /// <para></para>
         /// <em>Animancer Lite only allows the default `fadeDuration` (0.25 seconds) in runtime builds.</em>
         /// </remarks>
-        public AnimancerState Play(AnimationClip clip, float fadeDuration, FadeMode mode = default)
-            => Graph.Layers[0].Play(States.GetOrCreate(clip), fadeDuration, mode);
+        public AnimancerState Play(AnimationClip clip, float fadeDuration, FadeMode mode = default) {
+            return Graph.Layers[0].Play(States.GetOrCreate(clip), fadeDuration, mode);
+        }
 
         /// <summary>
         /// Starts fading in the `state` while fading out all others in the same layer over the course of the
@@ -580,8 +567,9 @@ namespace Animancer
         /// <para></para>
         /// <em>Animancer Lite only allows the default `fadeDuration` (0.25 seconds) in runtime builds.</em>
         /// </remarks>
-        public AnimancerState Play(AnimancerState state, float fadeDuration, FadeMode mode = default)
-            => Graph.Layers[0].Play(state, fadeDuration, mode);
+        public AnimancerState Play(AnimancerState state, float fadeDuration, FadeMode mode = default) {
+            return Graph.Layers[0].Play(state, fadeDuration, mode);
+        }
 
         /************************************************************************************************************************/
         // Transition.
@@ -595,8 +583,9 @@ namespace Animancer
         /// <remarks>
         /// This method is safe to call repeatedly without checking whether the `transition` was already playing.
         /// </remarks>
-        public AnimancerState Play(ITransition transition)
-            => Graph.Layers[0].Play(transition);
+        public AnimancerState Play(ITransition transition) {
+            return Graph.Layers[0].Play(transition);
+        }
 
         /// <summary>
         /// Creates a state for the `transition` if it didn't already exist, then calls
@@ -606,8 +595,9 @@ namespace Animancer
         /// <remarks>
         /// This method is safe to call repeatedly without checking whether the `transition` was already playing.
         /// </remarks>
-        public AnimancerState Play(ITransition transition, float fadeDuration, FadeMode mode = default)
-            => Graph.Layers[0].Play(transition, fadeDuration, mode);
+        public AnimancerState Play(ITransition transition, float fadeDuration, FadeMode mode = default) {
+            return Graph.Layers[0].Play(transition, fadeDuration, mode);
+        }
 
         /************************************************************************************************************************/
         // Try Play.
@@ -627,8 +617,9 @@ namespace Animancer
         /// This method is safe to call repeatedly without checking whether the animation was already playing.
         /// </remarks>
         /// <exception cref="ArgumentNullException">The `key` is null.</exception>
-        public AnimancerState TryPlay(object key)
-            => Graph.Layers[0].TryPlay(key);
+        public AnimancerState TryPlay(object key) {
+            return Graph.Layers[0].TryPlay(key);
+        }
 
         /// <summary>
         /// Stops all other animations on the base layer,
@@ -643,8 +634,9 @@ namespace Animancer
         /// <para></para>
         /// This method is safe to call repeatedly without checking whether the animation was already playing.
         /// </remarks>
-        public AnimancerState TryPlay(IHasKey hasKey)
-            => TryPlay(hasKey.Key);
+        public AnimancerState TryPlay(IHasKey hasKey) {
+            return TryPlay(hasKey.Key);
+        }
 
         /// <summary>
         /// Starts fading in the animation registered with the `key` while fading out all others in the same layer
@@ -663,8 +655,9 @@ namespace Animancer
         /// <em>Animancer Lite only allows the default `fadeDuration` (0.25 seconds) in runtime builds.</em>
         /// </remarks>
         /// <exception cref="ArgumentNullException">The `key` is null.</exception>
-        public AnimancerState TryPlay(object key, float fadeDuration, FadeMode mode = default)
-            => Graph.Layers[0].TryPlay(key, fadeDuration, mode);
+        public AnimancerState TryPlay(object key, float fadeDuration, FadeMode mode = default) {
+            return Graph.Layers[0].TryPlay(key, fadeDuration, mode);
+        }
 
         /// <summary>
         /// Starts fading in the animation registered with the `key`
@@ -687,35 +680,39 @@ namespace Animancer
         public AnimancerState TryPlay(
             IHasKey hasKey,
             float fadeDuration,
-            FadeMode mode = default)
-            => TryPlay(hasKey.Key, fadeDuration, mode);
+            FadeMode mode = default) {
+            return TryPlay(hasKey.Key, fadeDuration, mode);
+        }
 
         /************************************************************************************************************************/
 
         /// <summary>
         /// Gets the state associated with the `clip`, stops and rewinds it to the start, then returns it.
         /// </summary>
-        public AnimancerState Stop(AnimationClip clip)
-            => Stop(GetKey(clip));
+        public AnimancerState Stop(AnimationClip clip) {
+            return Stop(GetKey(clip));
+        }
 
         /// <summary>
         /// Gets the state registered with the <see cref="IHasKey.Key"/>, stops and rewinds it to the start, then
         /// returns it.
         /// </summary>
-        public AnimancerState Stop(IHasKey hasKey)
-            => _Graph?.Stop(hasKey);
+        public AnimancerState Stop(IHasKey hasKey) {
+            return _Graph?.Stop(hasKey);
+        }
 
         /// <summary>
         /// Gets the state associated with the `key`, stops and rewinds it to the start, then returns it.
         /// </summary>
-        public AnimancerState Stop(object key)
-            => _Graph?.Stop(key);
+        public AnimancerState Stop(object key) {
+            return _Graph?.Stop(key);
+        }
 
         /// <summary>Stops all animations and rewinds them to the start.</summary>
-        public void Stop()
-        {
-            if (IsGraphInitialized)
+        public void Stop() {
+            if (IsGraphInitialized) {
                 _Graph.Stop();
+            }
         }
 
         /************************************************************************************************************************/
@@ -725,29 +722,33 @@ namespace Animancer
         /// <para></para>
         /// The actual dictionary key is determined using <see cref="GetKey"/>.
         /// </summary>
-        public bool IsPlaying(AnimationClip clip)
-            => IsPlaying(GetKey(clip));
+        public bool IsPlaying(AnimationClip clip) {
+            return IsPlaying(GetKey(clip));
+        }
 
         /// <summary>
         /// Returns true if a state is registered with the <see cref="IHasKey.Key"/> and it is currently playing.
         /// </summary>
-        public bool IsPlaying(IHasKey hasKey)
-            => IsGraphInitialized
-            && _Graph.IsPlaying(hasKey);
+        public bool IsPlaying(IHasKey hasKey) {
+            return IsGraphInitialized
+                                                          && _Graph.IsPlaying(hasKey);
+        }
 
         /// <summary>
         /// Returns true if a state is registered with the `key` and it is currently playing.
         /// </summary>
-        public bool IsPlaying(object key)
-            => IsGraphInitialized
-            && _Graph.IsPlaying(key);
+        public bool IsPlaying(object key) {
+            return IsGraphInitialized
+                                                      && _Graph.IsPlaying(key);
+        }
 
         /// <summary>
         /// Returns true if at least one animation is being played.
         /// </summary>
-        public bool IsPlaying()
-            => IsGraphInitialized
-            && _Graph.IsPlaying();
+        public bool IsPlaying() {
+            return IsGraphInitialized
+                                            && _Graph.IsPlaying();
+        }
 
         /************************************************************************************************************************/
 
@@ -757,24 +758,27 @@ namespace Animancer
         /// This method is inefficient because it searches through every state to find any that are playing the `clip`,
         /// unlike <see cref="IsPlaying(AnimationClip)"/> which only checks the state registered using the `clip`s key.
         /// </summary>
-        public bool IsPlayingClip(AnimationClip clip)
-            => IsGraphInitialized
-            && _Graph.IsPlayingClip(clip);
+        public bool IsPlayingClip(AnimationClip clip) {
+            return IsGraphInitialized
+                                                                  && _Graph.IsPlayingClip(clip);
+        }
 
         /************************************************************************************************************************/
 
         /// <summary>
         /// Immediately applies the current states of all animations to the animated objects.
         /// </summary>
-        public void Evaluate()
-            => Graph.Evaluate();
+        public void Evaluate() {
+            Graph.Evaluate();
+        }
 
         /// <summary>
         /// Advances time by the specified value (in seconds)
         /// and immediately applies the current states of all animations to the animated objects.
         /// </summary>
-        public void Evaluate(float deltaTime)
-            => Graph.Evaluate(deltaTime);
+        public void Evaluate(float deltaTime) {
+            Graph.Evaluate(deltaTime);
+        }
 
         /************************************************************************************************************************/
         #region Key Error Methods
@@ -789,8 +793,7 @@ namespace Animancer
         /// Just call <see cref="AnimancerState.Stop"/>.
         /// </summary>
         [Obsolete("You should not use an AnimancerState as a key. Just call AnimancerState.Stop().", true)]
-        public AnimancerState Stop(AnimancerState key)
-        {
+        public AnimancerState Stop(AnimancerState key) {
             key.Stop();
             return key;
         }
@@ -800,8 +803,9 @@ namespace Animancer
         /// Just check <see cref="AnimancerState.IsPlaying"/>.
         /// </summary>
         [Obsolete("You should not use an AnimancerState as a key. Just check AnimancerState.IsPlaying.", true)]
-        public bool IsPlaying(AnimancerState key)
-            => key.IsPlaying;
+        public bool IsPlaying(AnimancerState key) {
+            return key.IsPlaying;
+        }
 
         /************************************************************************************************************************/
 #endif
@@ -816,25 +820,24 @@ namespace Animancer
 
         /// <summary>Are any animations are still playing?</summary>
         /// <remarks>This allows this object to be used as a custom yield instruction.</remarks>
-        bool IEnumerator.MoveNext()
-            => IsGraphInitialized
-            && ((IEnumerator)_Graph).MoveNext();
+        bool IEnumerator.MoveNext() {
+            return IsGraphInitialized
+                                                && ((IEnumerator)_Graph).MoveNext();
+        }
 
         /// <summary>Returns null.</summary>
         object IEnumerator.Current
             => null;
 
         /// <summary>Does nothing.</summary>
-        void IEnumerator.Reset()
-        { }
+        void IEnumerator.Reset() { }
 
         /************************************************************************************************************************/
 
         /// <summary>[<see cref="IAnimationClipSource"/>]
         /// Calls <see cref="GatherAnimationClips(ICollection{AnimationClip})"/>.
         /// </summary>
-        public void GetAnimationClips(List<AnimationClip> clips)
-        {
+        public void GetAnimationClips(List<AnimationClip> clips) {
             var set = SetPool.Acquire<AnimationClip>();
             set.UnionWith(clips);
 
@@ -842,9 +845,11 @@ namespace Animancer
 
             clips.Clear();
 
-            foreach (var clip in set)
-                if (clip != null)
+            foreach (var clip in set) {
+                if (clip != null) {
                     clips.Add(clip);
+                }
+            }
 
             SetPool.Release(set);
         }
@@ -857,19 +862,21 @@ namespace Animancer
         /// <remarks>
         /// In the Unity Editor this method also gathers animations from other components on parent and child objects.
         /// </remarks>
-        public virtual void GatherAnimationClips(ICollection<AnimationClip> clips)
-        {
-            if (_Transitions != null)
+        public virtual void GatherAnimationClips(ICollection<AnimationClip> clips) {
+            if (_Transitions != null) {
                 _Transitions.GatherAnimationClips(clips);
+            }
 
-            if (IsGraphInitialized)
+            if (IsGraphInitialized) {
                 _Graph.GatherAnimationClips(clips);
+            }
 
 #if UNITY_EDITOR
             Editor.AnimationGatherer.GatherFromGameObject(gameObject, clips);
 
-            if (_Animator != null && _Animator.gameObject != gameObject)
+            if (_Animator != null && _Animator.gameObject != gameObject) {
                 Editor.AnimationGatherer.GatherFromGameObject(_Animator.gameObject, clips);
+            }
 #endif
         }
 

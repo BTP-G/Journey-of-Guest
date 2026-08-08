@@ -5,13 +5,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>An object that can be cloned.</summary>
     /// <remarks>See <see cref="Clone(CloneContext)"/> for example usage.</remarks>
     /// https://kybernetik.com.au/animancer/api/Animancer/ICloneable_1
-    public interface ICloneable<out T>
-    {
+    public interface ICloneable<out T> {
         /************************************************************************************************************************/
 
         /// <summary>Creates a new object with the same type and values this.</summary>
@@ -57,8 +55,7 @@ namespace Animancer
 
     /// <summary>Extension methods for <see cref="ICloneable{T}"/>.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer/CloneableExtensions
-    public static partial class CloneableExtensions
-    {
+    public static partial class CloneableExtensions {
         /************************************************************************************************************************/
 
         /// <summary>
@@ -71,10 +68,10 @@ namespace Animancer
         /// Use <see cref="CloneContext.GetOrCreateClone{T}(ICloneable{T})"/>
         /// if you already have a <see cref="CloneContext"/>.
         /// </remarks>
-        public static T Clone<T>(this ICloneable<T> original)
-        {
-            if (original == null)
+        public static T Clone<T>(this ICloneable<T> original) {
+            if (original == null) {
                 return default;
+            }
 
             var context = CloneContext.Pool.Instance.Acquire();
             var clone = original.Clone(context);
@@ -86,16 +83,16 @@ namespace Animancer
 
         /// <summary>[Assert-Conditional] Asserts that the `clone` has the same type as the `original`.</summary>
         [System.Diagnostics.Conditional(Strings.Assertions)]
-        internal static void AssertCloneType<T>(this ICloneable<T> original, object clone)
-        {
+        internal static void AssertCloneType<T>(this ICloneable<T> original, object clone) {
 #if UNITY_ASSERTIONS
             var cloneType = clone.GetType();
             var originalType = original.GetType();
-            if (cloneType != originalType)
+            if (cloneType != originalType) {
                 Debug.LogError($"Cloned object type ({cloneType.FullName}" +
                     $" doesn't match original {originalType.FullName}." +
                     $"\n• Original: {original}" +
                     $"\n• Clone: {clone}");
+            }
 #endif
         }
 
@@ -107,8 +104,7 @@ namespace Animancer
     /// This class is used to clone complex object trees with potentially interconnected references so that
     /// references to original objects can be replaced with references to their equivalent clones.
     /// </remarks>
-    public class CloneContext : Dictionary<object, object>
-    {
+    public class CloneContext : Dictionary<object, object> {
         /************************************************************************************************************************/
 
         /// <summary>Will the <see cref="IUpdatable"/>s be cloned as part of the current operation?</summary>
@@ -125,8 +121,7 @@ namespace Animancer
 
         /// <summary>An <see cref="ObjectPool{T}"/> for <see cref="CloneContext"/>.</summary>
         /// https://kybernetik.com.au/animancer/api/Animancer/Pool
-        public class Pool : ObjectPool<CloneContext>
-        {
+        public class Pool : ObjectPool<CloneContext> {
             /************************************************************************************************************************/
 
             /// <summary>Singleton.</summary>
@@ -135,14 +130,14 @@ namespace Animancer
             /************************************************************************************************************************/
 
             /// <inheritdoc/>
-            protected override CloneContext New()
-                => new();
+            protected override CloneContext New() {
+                return new();
+            }
 
             /************************************************************************************************************************/
 
             /// <inheritdoc/>
-            public override CloneContext Acquire()
-            {
+            public override CloneContext Acquire() {
                 var context = base.Acquire();
                 CollectionPool<KeyValuePair<object, object>, CloneContext>.AssertEmpty(context);
                 return context;
@@ -151,8 +146,7 @@ namespace Animancer
             /************************************************************************************************************************/
 
             /// <inheritdoc/>
-            public override void Release(CloneContext context)
-            {
+            public override void Release(CloneContext context) {
                 context.Clear();
                 base.Release(context);
             }
@@ -168,13 +162,14 @@ namespace Animancer
         /// Returns the value registered using `original` as its key if there is one.
         /// Otherwise, calls <see cref="CloneableExtensions.Clone"/>, adds the clone to this dictionary, and returns it.
         /// </summary>
-        public T GetOrCreateClone<T>(ICloneable<T> original)
-        {
-            if (original == null)
+        public T GetOrCreateClone<T>(ICloneable<T> original) {
+            if (original == null) {
                 return default;
+            }
 
-            if (TryGetValue(original, out var value))
+            if (TryGetValue(original, out var value)) {
                 return (T)value;
+            }
 
             return Clone(original);
         }
@@ -191,8 +186,7 @@ namespace Animancer
         /// If <typeparamref name="T"/> is <see cref="ICloneable{T}"/>,
         /// use <see cref="GetOrCreateClone{T}(ICloneable{T})"/> instead.
         /// </remarks>
-        public T GetOrCreateCloneOrOriginal<T>(T original)
-        {
+        public T GetOrCreateCloneOrOriginal<T>(T original) {
             TryGetOrCreateCloneOrOriginal(original, out original);
             return original;
         }
@@ -204,22 +198,18 @@ namespace Animancer
         /// Otherwise, outputs the `original` as the `clone` and returns <c>false</c>.
         /// </summary>
         /// <remarks>Outputs <c>null</c> and returns <c>true</c> if the `original` is <c>null</c>.</remarks>
-        public bool TryGetOrCreateCloneOrOriginal<T>(T original, out T clone)
-        {
-            if (original == null)
-            {
+        public bool TryGetOrCreateCloneOrOriginal<T>(T original, out T clone) {
+            if (original == null) {
                 clone = default;
                 return true;
             }
 
-            if (TryGetValue(original, out var value))
-            {
+            if (TryGetValue(original, out var value)) {
                 clone = (T)value;
                 return true;
             }
 
-            if (original is ICloneable<T> cloneable)
-            {
+            if (original is ICloneable<T> cloneable) {
                 clone = Clone(cloneable);
                 return true;
             }
@@ -232,11 +222,9 @@ namespace Animancer
 
         /// <summary>Calls <see cref="ICloneable{T}.Clone"/> and registers the clone.</summary>
         /// <exception cref="System.ArgumentException">A clone is already registered for the `original`.</exception>
-        public T Clone<T>(ICloneable<T> original)
-        {
+        public T Clone<T>(ICloneable<T> original) {
             var clone = original.Clone(this);
-            if (clone != null)
-            {
+            if (clone != null) {
                 original.AssertCloneType(clone);
                 Add(original, clone);
             }
@@ -247,28 +235,29 @@ namespace Animancer
 
         /// <summary>Returns the clone of the `original` if one was registered. Otherwise, throws.</summary>
         /// <exception cref="KeyNotFoundException">No clone of the `original` is registered.</exception>
-        public T GetClone<T>(T original)
-            => (T)this[original];
+        public T GetClone<T>(T original) {
+            return (T)this[original];
+        }
 
         /************************************************************************************************************************/
 
         /// <summary>Returns the clone of the `original` if one is registered. Otherwise, returns the `original`.</summary>
-        public T GetCloneOrOriginal<T>(T original)
-            => original != null && TryGetValue(original, out var value)
-            ? (T)value
-            : original;
+        public T GetCloneOrOriginal<T>(T original) {
+            return original != null && TryGetValue(original, out var value)
+                                                               ? (T)value
+                                                               : original;
+        }
 
         /************************************************************************************************************************/
 
         /// <summary>Replaces the `item` with its clone and returns true if one is registered.</summary>
-        public bool TryGetClone<T>(ref T item)
-        {
-            if (item == null)
+        public bool TryGetClone<T>(ref T item) {
+            if (item == null) {
                 return false;
+            }
 
             if (!TryGetValue(item, out var value) ||
-                value is not T valueT)
-            {
+                value is not T valueT) {
                 item = default;
                 return false;
             }
@@ -278,8 +267,7 @@ namespace Animancer
         }
 
         /// <summary>Calls <see cref="Dictionary{TKey, TValue}.TryGetValue(TKey, out TValue)"/> and casts the result.</summary>
-        public bool TryGetClone<T>(T original, out T clone)
-        {
+        public bool TryGetClone<T>(T original, out T clone) {
             clone = original;
             return TryGetClone(ref clone);
         }
@@ -291,19 +279,17 @@ namespace Animancer
         /// then clones all its items to the `destination`.
         /// </summary>
         public void CloneArray<T>(T[] source, ref T[] destination)
-            where T : class
-        {
-            if (source == null)
-            {
+            where T : class {
+            if (source == null) {
                 destination = null;
                 return;
             }
 
-            if (destination == null || destination.Length != source.Length)
+            if (destination == null || destination.Length != source.Length) {
                 destination = new T[source.Length];
+            }
 
-            for (int i = 0; i < source.Length; i++)
-            {
+            for (var i = 0; i < source.Length; i++) {
                 var item = source[i];
                 destination[i] = item != null ? GetCloneOrOriginal(item) : null;
             }

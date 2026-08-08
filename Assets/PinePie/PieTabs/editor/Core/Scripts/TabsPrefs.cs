@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2025 PinePie. All rights reserved.
+// Copyright (c) 2025 PinePie. All rights reserved.
 
 #if UNITY_EDITOR
 using System.Collections.Generic;
@@ -7,11 +7,9 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace PinePie.PieTabs
-{
-    static class PieTabsPrefs
-    {
-        static readonly EventModifiers[] modifierOptions = new[]
+namespace PinePie.PieTabs {
+    internal static class PieTabsPrefs {
+        private static readonly EventModifiers[] modifierOptions = new[]
         {
             EventModifiers.None,
             EventModifiers.Control,
@@ -22,7 +20,7 @@ namespace PinePie.PieTabs
             EventModifiers.Shift | EventModifiers.Alt,
         };
 
-        static readonly string[] mouseOptions = { "LMB", "RMB" };
+        private static readonly string[] mouseOptions = { "LMB", "RMB" };
 
         private const string AskBeforeDeleteKey = "PieTabs_AskBeforeDelete";
         private const string InstantCreatorTabKey = "PieTabs_InstantCreatorTab";
@@ -33,53 +31,42 @@ namespace PinePie.PieTabs
         private const string FastShaderGraphOpenKey = "PieTabs_FastShaderGraphOpen";
         private const string FastVisScrGraphOpenKey = "PieTabs_FastVisScrGraphOpen";
 
-
-
-        public static bool AskBeforeDelete
-        {
+        public static bool AskBeforeDelete {
             get => EditorPrefs.GetBool(AskBeforeDeleteKey, false);
             set => EditorPrefs.SetBool(AskBeforeDeleteKey, value);
         }
 
-        public static bool InstantCreatorTab
-        {
+        public static bool InstantCreatorTab {
             get => EditorPrefs.GetBool(InstantCreatorTabKey, true);
             set => EditorPrefs.SetBool(InstantCreatorTabKey, value);
         }
 
-
-        public static bool FastFolderOpen
-        {
+        public static bool FastFolderOpen {
             get => EditorPrefs.GetBool(FastFolderOpenKey, true);
             set => EditorPrefs.SetBool(FastFolderOpenKey, value);
         }
 
-        public static bool FastSceneOpen
-        {
+        public static bool FastSceneOpen {
             get => EditorPrefs.GetBool(FastSceneOpenKey, false);
             set => EditorPrefs.SetBool(FastSceneOpenKey, value);
         }
 
-        public static bool FastPrefabOpen
-        {
+        public static bool FastPrefabOpen {
             get => EditorPrefs.GetBool(FastPrefabOpenKey, false);
             set => EditorPrefs.SetBool(FastPrefabOpenKey, value);
         }
 
-        public static bool FastScriptOpen
-        {
+        public static bool FastScriptOpen {
             get => EditorPrefs.GetBool(FastScriptOpenKey, false);
             set => EditorPrefs.SetBool(FastScriptOpenKey, value);
         }
 
-        public static bool FastShaderGraphOpen
-        {
+        public static bool FastShaderGraphOpen {
             get => EditorPrefs.GetBool(FastShaderGraphOpenKey, false);
             set => EditorPrefs.SetBool(FastShaderGraphOpenKey, value);
         }
 
-         public static bool FastVisScrGraphOpen
-        {
+        public static bool FastVisScrGraphOpen {
             get => EditorPrefs.GetBool(FastVisScrGraphOpenKey, false);
             set => EditorPrefs.SetBool(FastVisScrGraphOpenKey, value);
         }
@@ -98,15 +85,11 @@ namespace PinePie.PieTabs
 
         private const int LabelWidth = 270;
 
-
         [SettingsProvider]
-        public static SettingsProvider CreatePieTabsProvider()
-        {
-            var provider = new SettingsProvider("Preferences/PieTabs", SettingsScope.User)
-            {
+        public static SettingsProvider CreatePieTabsProvider() {
+            var provider = new SettingsProvider("Preferences/PieTabs", SettingsScope.User) {
                 label = "PieTabs",
-                guiHandler = (searchContext) =>
-                {
+                guiHandler = (searchContext) => {
                     EditorGUILayout.Space();
 
                     EditorGUILayout.BeginHorizontal();
@@ -149,7 +132,7 @@ namespace PinePie.PieTabs
                     // visual scripting graph
                     EditorGUILayout.BeginHorizontal();
                     EditorGUILayout.LabelField(new GUIContent("VisualScripting Graph Tab in Left click", "Without even using ctrl key"), GUILayout.Width(LabelWidth));
-                   FastVisScrGraphOpen = EditorGUILayout.Toggle("",FastVisScrGraphOpen);
+                    FastVisScrGraphOpen = EditorGUILayout.Toggle("", FastVisScrGraphOpen);
                     EditorGUILayout.EndHorizontal();
 
                     EditorGUILayout.Space();
@@ -175,13 +158,12 @@ namespace PinePie.PieTabs
             return provider;
         }
 
-        static KeyCombination DrawShortcut(string label, KeyCombination shortcut)
-        {
+        private static KeyCombination DrawShortcut(string label, KeyCombination shortcut) {
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField(label, GUILayout.Width(LabelWidth));
 
             // Modifier (Ctrl/Shift/Alt)
-            int modIndex = System.Array.IndexOf(modifierOptions, shortcut.modifier);
+            var modIndex = System.Array.IndexOf(modifierOptions, shortcut.modifier);
             modIndex = EditorGUILayout.Popup(
                 modIndex,
                 modifierOptions.Select(m => m.ToString()).ToArray(),
@@ -201,16 +183,15 @@ namespace PinePie.PieTabs
             return shortcut;
         }
 
-        static bool ValidateShortcuts()
-        {
+        private static bool ValidateShortcuts() {
             var warnings = new List<string>();
 
             HashSet<string> collisionSet = new();
 
-            void CheckBare(string name, KeyCombination kc)
-            {
-                if (IsBareLeftClick(kc))
+            void CheckBare(string name, KeyCombination kc) {
+                if (IsBareLeftClick(kc)) {
                     warnings.Add($"{name}: Only LMB is reserved. Use any other combination.");
+                }
             }
 
             CheckBare("Color Popup", colorShortcut);
@@ -228,21 +209,19 @@ namespace PinePie.PieTabs
                 ("Change Menu Entry", changeMenuEntryShortcut),
             };
 
-            for (int i = 0; i < all.Length; i++)
-            {
-                for (int j = i + 1; j < all.Length; j++)
-                {
-                    bool allowed = i == all.Length - 2 && j == all.Length - 1;
-                    if (allowed) continue;
+            for (var i = 0; i < all.Length; i++) {
+                for (var j = i + 1; j < all.Length; j++) {
+                    var allowed = i == all.Length - 2 && j == all.Length - 1;
+                    if (allowed) {
+                        continue;
+                    }
 
-                    if (Collides(all[i].kc, all[j].kc))
-                    {
-                        string a = all[i].name;
-                        string b = all[j].name;
-                        string key = string.Compare(a, b) < 0 ? $"{a} <-> {b}" : $"{b} <-> {a}";
+                    if (Collides(all[i].kc, all[j].kc)) {
+                        var a = all[i].name;
+                        var b = all[j].name;
+                        var key = string.Compare(a, b) < 0 ? $"{a} <-> {b}" : $"{b} <-> {a}";
 
-                        if (!collisionSet.Contains(key))
-                        {
+                        if (!collisionSet.Contains(key)) {
                             collisionSet.Add(key);
                             warnings.Add($"{a} and {b} use the same shortcut.");
                         }
@@ -250,19 +229,20 @@ namespace PinePie.PieTabs
                 }
             }
 
-            if (warnings.Count > 0)
-            {
+            if (warnings.Count > 0) {
                 EditorGUILayout.HelpBox(string.Join("\n", warnings), MessageType.Warning);
                 return false;
+            } else {
+                return true;
             }
-            else return true;
         }
 
-        public static bool KeyMatches(PointerUpEvent evt, KeyCombination shortcut)
-        {
-            if (evt.button != shortcut.mouseButton) return false;
+        public static bool KeyMatches(PointerUpEvent evt, KeyCombination shortcut) {
+            if (evt.button != shortcut.mouseButton) {
+                return false;
+            }
 
-            EventModifiers evtMods = evt.modifiers & (EventModifiers.Control | EventModifiers.Shift | EventModifiers.Alt);
+            var evtMods = evt.modifiers & (EventModifiers.Control | EventModifiers.Shift | EventModifiers.Alt);
 
             // // Prevent bare LMB from matching anything that expects modifiers
             // if (shortcut.modifier != EventModifiers.None && evtMods == EventModifiers.None)
@@ -273,22 +253,16 @@ namespace PinePie.PieTabs
             return evtMods == shortcut.modifier;
         }
 
-
-
-        public static bool IsBareLeftClick(KeyCombination kc)
-        {
+        public static bool IsBareLeftClick(KeyCombination kc) {
             return kc.mouseButton == 0 && kc.modifier == EventModifiers.None;
         }
 
-        static bool Collides(KeyCombination a, KeyCombination b)
-        {
+        private static bool Collides(KeyCombination a, KeyCombination b) {
             return a.modifier == b.modifier && a.mouseButton == b.mouseButton;
         }
 
-
         // save
-        static void Save()
-        {
+        private static void Save() {
             SaveShortcut(ColorPopupKey, colorShortcut);
             SaveShortcut(ToggleMinimalKey, minimalShortcut);
             SaveShortcut(TabRemoveKey, deleteShortcut);
@@ -297,15 +271,13 @@ namespace PinePie.PieTabs
             SaveShortcut(ChangeMenuEntryKey, changeMenuEntryShortcut);
         }
 
-        static void SaveShortcut(string prefix, KeyCombination sc)
-        {
+        private static void SaveShortcut(string prefix, KeyCombination sc) {
             EditorPrefs.SetInt(prefix + "_Modifier", (int)sc.modifier);
             EditorPrefs.SetInt(prefix + "_MouseButton", sc.mouseButton);
         }
 
         // load
-        public static void LoadKeyComb()
-        {
+        public static void LoadKeyComb() {
             colorShortcut = LoadShortcut(ColorPopupKey, EventModifiers.Alt, 0);
             minimalShortcut = LoadShortcut(ToggleMinimalKey, EventModifiers.Shift, 0);
             deleteShortcut = LoadShortcut(TabRemoveKey, EventModifiers.None, 1);
@@ -314,8 +286,7 @@ namespace PinePie.PieTabs
             changeMenuEntryShortcut = LoadShortcut(ChangeMenuEntryKey, EventModifiers.Control, 0);
         }
 
-        static KeyCombination LoadShortcut(string prefix, EventModifiers defaultMod, int defaultBtn)
-        {
+        private static KeyCombination LoadShortcut(string prefix, EventModifiers defaultMod, int defaultBtn) {
             KeyCombination sc;
 
             sc.modifier = (EventModifiers)EditorPrefs.GetInt(prefix + "_Modifier", (int)defaultMod);
@@ -323,16 +294,13 @@ namespace PinePie.PieTabs
 
             return sc;
         }
-
     }
 
     [System.Serializable]
-    public struct KeyCombination
-    {
+    public struct KeyCombination {
         public EventModifiers modifier;
         public int mouseButton;
     }
-
 }
 #endif
 

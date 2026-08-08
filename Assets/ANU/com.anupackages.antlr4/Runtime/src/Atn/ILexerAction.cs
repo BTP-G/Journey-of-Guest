@@ -1,14 +1,10 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-using Antlr4.Runtime;
-using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Misc;
-using Antlr4.Runtime.Sharpen;
 
-namespace Antlr4.Runtime.Atn
-{
+namespace Antlr4.Runtime.Atn {
     /// <summary>
     /// Represents a single action which can be executed following the successful
     /// match of a lexer rule.
@@ -20,14 +16,12 @@ namespace Antlr4.Runtime.Atn
     /// </remarks>
     /// <author>Sam Harwell</author>
     /// <since>4.2</since>
-    public interface ILexerAction
-    {
+    public interface ILexerAction {
         /// <summary>Gets the serialization type of the lexer action.</summary>
         /// <remarks>Gets the serialization type of the lexer action.</remarks>
         /// <returns>The serialization type of the lexer action.</returns>
         [NotNull]
-        LexerActionType ActionType
-        {
+        LexerActionType ActionType {
             get;
         }
 
@@ -60,8 +54,7 @@ namespace Antlr4.Runtime.Atn
         /// <see langword="false"/>
         /// .
         /// </returns>
-        bool IsPositionDependent
-        {
+        bool IsPositionDependent {
             get;
         }
 

@@ -1,11 +1,8 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-using Antlr4.Runtime.Sharpen;
-
-namespace Antlr4.Runtime.Dfa
-{
+namespace Antlr4.Runtime.Dfa {
     /// <summary>
     /// Stores information about a
     /// <see cref="DFAState"/>
@@ -17,20 +14,17 @@ namespace Antlr4.Runtime.Dfa
     /// state.
     /// </summary>
     /// <author>Sam Harwell</author>
-    public class AcceptStateInfo
-    {
+    public class AcceptStateInfo {
         private readonly int prediction;
 
         private readonly Antlr4.Runtime.Atn.LexerActionExecutor lexerActionExecutor;
 
-        public AcceptStateInfo(int prediction)
-        {
+        public AcceptStateInfo(int prediction) {
             this.prediction = prediction;
-            this.lexerActionExecutor = null;
+            lexerActionExecutor = null;
         }
 
-        public AcceptStateInfo(int prediction, Antlr4.Runtime.Atn.LexerActionExecutor lexerActionExecutor)
-        {
+        public AcceptStateInfo(int prediction, Antlr4.Runtime.Atn.LexerActionExecutor lexerActionExecutor) {
             this.prediction = prediction;
             this.lexerActionExecutor = lexerActionExecutor;
         }
@@ -46,10 +40,8 @@ namespace Antlr4.Runtime.Dfa
         /// the accept state will be determined by the result of predicate
         /// evaluation.
         /// </remarks>
-        public virtual int Prediction
-        {
-            get
-            {
+        public virtual int Prediction {
+            get {
                 return prediction;
             }
         }
@@ -60,10 +52,8 @@ namespace Antlr4.Runtime.Dfa
         /// which can be used to execute actions
         /// and/or commands after the lexer matches a token.
         /// </summary>
-        public virtual Antlr4.Runtime.Atn.LexerActionExecutor LexerActionExecutor
-        {
-            get
-            {
+        public virtual Antlr4.Runtime.Atn.LexerActionExecutor LexerActionExecutor {
+            get {
                 return lexerActionExecutor;
             }
         }

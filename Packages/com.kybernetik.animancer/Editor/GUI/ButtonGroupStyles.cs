@@ -5,12 +5,10 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only] <see cref="GUIStyle"/>s for a group of connected buttons.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/ButtonGroupStyles
-    public struct ButtonGroupStyles
-    {
+    public struct ButtonGroupStyles {
         /************************************************************************************************************************/
 
         /// <summary>The style for the button on the far left.</summary>
@@ -28,8 +26,7 @@ namespace Animancer.Editor
         public ButtonGroupStyles(
             GUIStyle left,
             GUIStyle middle,
-            GUIStyle right)
-        {
+            GUIStyle right) {
             this.left = left;
             this.middle = middle;
             this.right = right;
@@ -38,8 +35,7 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Copies any <c>null</c> values from another group.</summary>
-        public void CopyMissingStyles(ButtonGroupStyles copyFrom)
-        {
+        public void CopyMissingStyles(ButtonGroupStyles copyFrom) {
             left ??= copyFrom.left;
             middle ??= copyFrom.middle;
             right ??= copyFrom.right;
@@ -58,10 +54,8 @@ namespace Animancer.Editor
         private static ButtonGroupStyles _Button;
 
         /// <summary>The default styles for a button.</summary>
-        public static ButtonGroupStyles Button
-        {
-            get
-            {
+        public static ButtonGroupStyles Button {
+            get {
                 _Button.left ??= MiniToRegularButtonStyle(EditorStyles.miniButtonLeft);
                 _Button.middle ??= MiniToRegularButtonStyle(EditorStyles.miniButtonMid);
                 _Button.right ??= MiniToRegularButtonStyle(EditorStyles.miniButtonRight);
@@ -72,13 +66,13 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Creates a copy of the `style` with the size of a regular button.</summary>
-        public static GUIStyle MiniToRegularButtonStyle(GUIStyle style)
-            => new(style)
-            {
+        public static GUIStyle MiniToRegularButtonStyle(GUIStyle style) {
+            return new(style) {
                 fixedHeight = 0,
                 padding = GUI.skin.button.padding,
                 stretchWidth = false,
             };
+        }
 
         /************************************************************************************************************************/
     }

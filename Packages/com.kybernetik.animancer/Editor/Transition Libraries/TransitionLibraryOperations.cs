@@ -9,28 +9,25 @@ using UnityEngine;
 using static Animancer.Editor.AnimancerGUI;
 using static Animancer.Editor.TransitionLibraries.TransitionLibrarySelection;
 
-namespace Animancer.Editor.TransitionLibraries
-{
+namespace Animancer.Editor.TransitionLibraries {
     /// <summary>[Editor-Only]
     /// Operations for modifying a <see cref="TransitionLibraryAsset"/>.
     /// </summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor.TransitionLibraries/TransitionLibraryOperations
-    public static class TransitionLibraryOperations
-    {
+    public static class TransitionLibraryOperations {
         /************************************************************************************************************************/
 
         /// <summary>Handles input events for the background of the `window`.</summary>
         public static void HandleBackgroundInput(
             Rect area,
-            TransitionLibraryWindow window)
-        {
+            TransitionLibraryWindow window) {
             // Click to select the library.
-            if (TryUseClickEvent(area, 0))
+            if (TryUseClickEvent(area, 0)) {
                 window.Selection.Select(window, window.SourceObject, -1, SelectionType.Library);
+            }
 
             var currentEvent = Event.current;
-            switch (currentEvent.type)
-            {
+            switch (currentEvent.type) {
                 // Drag and drop to add transition.
                 case EventType.DragUpdated:
                 case EventType.DragPerform:
@@ -39,8 +36,7 @@ namespace Animancer.Editor.TransitionLibraries
 
                 case EventType.ValidateCommand:
                 case EventType.ExecuteCommand:
-                    switch (currentEvent.commandName)
-                    {
+                    switch (currentEvent.commandName) {
                         // Delete to remove the selection.
                         case Commands.Delete:
                         case Commands.SoftDelete:
@@ -56,22 +52,20 @@ namespace Animancer.Editor.TransitionLibraries
         /// <summary>Handles drag and drop events to add transitions to the `window`.</summary>
         private static void HandleDragAndDrop(
             Event currentEvent,
-            TransitionLibraryWindow window)
-        {
+            TransitionLibraryWindow window) {
             var dragging = DragAndDrop.objectReferences;
 
             TransitionAssetBase dropped = null;
-            int index = -1;
+            var index = -1;
 
-            for (int i = dragging.Length - 1; i >= 0; i--)
-            {
+            for (var i = dragging.Length - 1; i >= 0; i--) {
                 var transition = TryCreateTransitionAttribute.TryCreateTransitionAsset(dragging[i]);
                 if (transition != null &&
-                    Array.IndexOf(window.Data.Transitions, transition) >= 0)
+                    Array.IndexOf(window.Data.Transitions, transition) >= 0) {
                     continue;
+                }
 
-                switch (currentEvent.type)
-                {
+                switch (currentEvent.type) {
                     case EventType.DragUpdated:
                         DragAndDrop.visualMode = DragAndDropVisualMode.Link;
                         currentEvent.Use();
@@ -85,8 +79,7 @@ namespace Animancer.Editor.TransitionLibraries
                 }
             }
 
-            if (dropped != null)
-            {
+            if (dropped != null) {
                 window.Selection.Select(
                     window,
                     dropped,
@@ -102,14 +95,12 @@ namespace Animancer.Editor.TransitionLibraries
         /// <summary>Creates a new group in the <see cref="TransitionLibraryEditorDataInternal.TransitionGroups"/>.</summary>
         public static TransitionGroup CreateGroup(
             TransitionLibraryWindow window,
-            TransitionLibraryEditorDataInternal data)
-        {
+            TransitionLibraryEditorDataInternal data) {
             window.Repaint();
 
             var groups = data.TransitionGroups;
 
-            var group = new TransitionGroup
-            {
+            var group = new TransitionGroup {
                 Name = $"Transition Group {groups.Count}",
             };
 
@@ -124,11 +115,9 @@ namespace Animancer.Editor.TransitionLibraries
 
         /// <summary>Creates a new transition as a sub-asset of the `window`'s library.</summary>
         public static TransitionAssetBase CreateTransition(
-            TransitionLibraryWindow window)
-        {
+            TransitionLibraryWindow window) {
             var createInstance = TransitionAssetBase.CreateInstance;
-            if (createInstance == null)
-            {
+            if (createInstance == null) {
                 Debug.LogError(
                     $"{nameof(CreateTransition)} failed because " +
                     $"{nameof(TransitionAssetBase)}.{nameof(TransitionAssetBase.CreateInstance)}" +
@@ -156,50 +145,51 @@ namespace Animancer.Editor.TransitionLibraries
         /// <summary>Handles a delete event.</summary>
         private static void HandleDelete(
             Event currentEvent,
-            TransitionLibraryWindow window)
-        {
-            if (currentEvent.type == EventType.ExecuteCommand)
+            TransitionLibraryWindow window) {
+            if (currentEvent.type == EventType.ExecuteCommand) {
                 HandleDelete(window);
+            }
 
             currentEvent.Use();
         }
 
         /// <summary>Handles a delete event.</summary>
         public static void HandleDelete(
-            TransitionLibraryWindow window)
-        {
-            if (!window.Selection.Validate())
+            TransitionLibraryWindow window) {
+            if (!window.Selection.Validate()) {
                 return;
+            }
 
-            switch (window.Selection.Type)
-            {
+            switch (window.Selection.Type) {
                 case SelectionType.FromTransition:
-                    if (window.Selection.Selected is TransitionAssetBase fromTransition)
+                    if (window.Selection.Selected is TransitionAssetBase fromTransition) {
                         AskHowToDeleteTransition(
                             fromTransition,
                             window.Selection.FromIndex,
                             window);
+                    }
+
                     break;
 
                 case SelectionType.ToTransition:
-                    if (window.Selection.Selected is TransitionAssetBase toTransition)
+                    if (window.Selection.Selected is TransitionAssetBase toTransition) {
                         AskHowToDeleteTransition(
                             toTransition,
                             window.Selection.ToIndex,
                             window);
+                    }
+
                     break;
 
                 case SelectionType.Modifier:
-                    if (window.Selection.Selected is TransitionModifierDefinition modifier)
-                    {
+                    if (window.Selection.Selected is TransitionModifierDefinition modifier) {
                         window.Selection.Deselect();
                         window.RecordUndo().RemoveModifier(modifier);
                     }
                     break;
 
                 case SelectionType.Group:
-                    if (window.Selection.Selected is TransitionGroup group)
-                    {
+                    if (window.Selection.Selected is TransitionGroup group) {
                         window.Selection.Deselect();
                         window.RecordUndo();
                         window.EditorData.TransitionGroups.Remove(group);
@@ -214,13 +204,12 @@ namespace Animancer.Editor.TransitionLibraries
         public static void AskHowToDeleteTransition(
             TransitionAssetBase transition,
             int index,
-            TransitionLibraryWindow window)
-        {
+            TransitionLibraryWindow window) {
             var assetPath = AssetDatabase.GetAssetPath(transition);
-            if (string.IsNullOrEmpty(assetPath))
-            {
-                if (transition != null)
+            if (string.IsNullOrEmpty(assetPath)) {
+                if (transition != null) {
                     Undo.DestroyObjectImmediate(transition);
+                }
 
                 window.RecordUndo().RemoveTransition(index);
                 return;
@@ -233,25 +222,24 @@ namespace Animancer.Editor.TransitionLibraries
                 assetPath == AssetDatabase.GetAssetPath(window.SourceObject);
 
             var message = assetPath;
-            if (!isSubAssetOfLibrary)
+            if (!isSubAssetOfLibrary) {
                 message += "\n\nRemove Transition: removes it from this Transition Library.";
+            }
 
             message += $"\n\nDelete {assetType}: deletes the Transition {assetType} from your project (cannot be undone).";
 
             int choice;
-            if (isSubAssetOfLibrary)
-            {
+            if (isSubAssetOfLibrary) {
                 if (EditorUtility.DisplayDialog(
                     "Delete transition?",
                     message,
                     "Delete " + assetType,
-                    "Cancel"))
+                    "Cancel")) {
                     choice = 2;
-                else
+                } else {
                     return;
-            }
-            else
-            {
+                }
+            } else {
                 choice = EditorUtility.DisplayDialogComplex(
                     "Remove or Delete transition?",
                     message,
@@ -260,8 +248,7 @@ namespace Animancer.Editor.TransitionLibraries
                     "Delete " + assetType);
             }
 
-            switch (choice)
-            {
+            switch (choice) {
                 case 0:// Remove.
                     window.Selection.Deselect();
                     window.RecordUndo().RemoveTransition(index);
@@ -269,12 +256,9 @@ namespace Animancer.Editor.TransitionLibraries
 
                 case 2:// Delete.
                     window.Selection.Deselect();
-                    if (isMainAsset)
-                    {
+                    if (isMainAsset) {
                         AssetDatabase.DeleteAsset(assetPath);
-                    }
-                    else
-                    {
+                    } else {
                         AnimancerEditorUtilities.DeleteSubAsset(transition);
                     }
 

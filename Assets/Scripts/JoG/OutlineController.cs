@@ -11,7 +11,10 @@ namespace JoG {
         public float OutlineWidth { get => outline.OutlineWidth; set => outline.OutlineWidth = value; }
 
         public void ShowOutline(float duration) {
-            if (duration < _outlineDuration) return;
+            if (duration < _outlineDuration) {
+                return;
+            }
+
             _outlineDuration = duration;
             outline.enabled = true;
             enabled = true;

@@ -1,6 +1,6 @@
-using Xoderony.YooAsset;
 using Unity.Netcode;
 using UnityEngine;
+using Xoderony.YooAsset;
 
 namespace JoG.Networking {
 
@@ -15,7 +15,10 @@ namespace JoG.Networking {
         }
 
         protected override void OnNetworkPostSpawn() {
-            if (!IsSessionOwner) return;
+            if (!IsSessionOwner) {
+                return;
+            }
+
             base.OnNetworkPostSpawn();
             transform.GetPositionAndRotation(out var position, out var rotation);
             NetworkManager.SpawnManager.InstantiateAndSpawn(networkPrefab,

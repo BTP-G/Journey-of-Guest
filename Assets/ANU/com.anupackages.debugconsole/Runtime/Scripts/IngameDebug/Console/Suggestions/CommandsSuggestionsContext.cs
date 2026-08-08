@@ -1,44 +1,51 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
 using ANU.IngameDebug.Console.Commands;
 using ANU.IngameDebug.Console.Commands.Implementations;
 using ANU.IngameDebug.Utils;
 using NDesk.Options;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace ANU.IngameDebug.Console
-{
-    public class CommandsSuggestionsContext : ASuggestionContext<ADebugCommand>
-    {
+namespace ANU.IngameDebug.Console {
+    public class CommandsSuggestionsContext : ASuggestionContext<ADebugCommand> {
         private readonly IReadOnlyDictionary<string, ADebugCommand> _commands;
 
-        public CommandsSuggestionsContext(IReadOnlyDictionary<string, ADebugCommand> commands)
-            => _commands = commands;
+        public CommandsSuggestionsContext(IReadOnlyDictionary<string, ADebugCommand> commands) {
+            _commands = commands;
+        }
 
         public override string Title => "commands";
 
         protected override IEnumerable<ADebugCommand> Collection => _commands
             .Values
-            .Where(c => c is not MemberCommand m 
-                || m.DebugCommandAttribute == null 
+            .Where(c => c is not MemberCommand m
+                || m.DebugCommandAttribute == null
                 || m.DebugCommandAttribute.DisplayOptions.HasFlag(CommandDisplayOptions.Console)
             );
 
-        protected override string GetDisplayName(ADebugCommand item) => $"{item.Name} {item.OptionsHint}";
-        protected override string GetFilteringName(ADebugCommand item) => item.Name;
-        protected override string GetFullSuggestedText(Suggestion item, string fullInput) => (item.Source as ADebugCommand).Name + " ";
+        protected override string GetDisplayName(ADebugCommand item) {
+            return $"{item.Name} {item.OptionsHint}";
+        }
 
-        public override IEnumerable<Suggestion> GetSuggestions(string input)
-        {
+        protected override string GetFilteringName(ADebugCommand item) {
+            return item.Name;
+        }
+
+        protected override string GetFullSuggestedText(Suggestion item, string fullInput) {
+            return (item.Source as ADebugCommand).Name + " ";
+        }
+
+        public override IEnumerable<Suggestion> GetSuggestions(string input) {
             input = input.Trim(' ');
 
             var names = input.SplitCommandLine().ToArray();
-            if (!names.Any())
+            if (!names.Any()) {
                 return base.GetSuggestions(input);
+            }
 
-            if (!_commands.TryGetValue(names.First(), out var command))
+            if (!_commands.TryGetValue(names.First(), out var command)) {
                 return base.GetSuggestions(input);
+            }
 
             var last = names.Skip(1).LastOrDefault() ?? "";
 
@@ -47,29 +54,20 @@ namespace ANU.IngameDebug.Console
             var optionName = "";
             var valueName = "";
 
-            if (last.Contains("="))
-            {
+            if (last.Contains("=")) {
                 var split = last.Split(new string[] { "=" }, StringSplitOptions.RemoveEmptyEntries);
                 optionName = split.FirstOrDefault();
                 valueName = split.Skip(1).LastOrDefault();
-            }
-            else
-            {
-                if (last.StartsWith("-"))
-                {
+            } else {
+                if (last.StartsWith("-")) {
                     optionName = last;
                     valueName = null;
-                }
-                else
-                {
+                } else {
                     valueName = last;
                     var prev = names.Reverse().Skip(1).Take(1).FirstOrDefault();
-                    if (prev != null && prev.Trim().StartsWith("-"))
-                    {
+                    if (prev != null && prev.Trim().StartsWith("-")) {
                         optionName = prev;
-                    }
-                    else
-                    {
+                    } else {
                         optionName = last;
                         valueName = null;
                     }
@@ -81,44 +79,38 @@ namespace ANU.IngameDebug.Console
 
             var option = command.Options.FirstOrDefault(o => Array.IndexOf(o.GetNames(), trimOption) > -1);
 
-            if (option == null && optionName.Trim().StartsWith("-"))
+            if (option == null && optionName.Trim().StartsWith("-")) {
                 return new CommandParameterNameSuggestionContext(command, input).GetSuggestions(trimOption ?? "");
+            }
 
-            if (option == null)
-            {
+            if (option == null) {
                 var namedParameterGroup = input.GetFirstNamedParameter();
 
-                if (!namedParameterGroup.Success)
-                {
+                if (!namedParameterGroup.Success) {
                     // -1 to skip first value - which one is command name
                     // one more -1 to make index from count
                     var parametersIndex = names.Count() - 1 - 1;
-                    if (parametersIndex >= 0 && parametersIndex < command.Options.Count)
-                    {
+                    if (parametersIndex >= 0 && parametersIndex < command.Options.Count) {
                         option = command.Options[parametersIndex];
                         valueName = trimOption;
-                    }
-                    else
-                    {
+                    } else {
                         option = command.Options.FirstOrDefault();
                     }
                 }
             }
 
-            if (option != null)
+            if (option != null) {
                 return new CommandParameterValueSuggestionContext(command, option).GetSuggestions(valueName?.Trim(' ') ?? "");
+            }
 
             return base.GetSuggestions(input);
         }
 
-
-        private class CommandParameterNameSuggestionContext : ASuggestionContext<Option>
-        {
+        private class CommandParameterNameSuggestionContext : ASuggestionContext<Option> {
             private readonly ADebugCommand _command;
             private readonly string _fullInput;
 
-            public CommandParameterNameSuggestionContext(ADebugCommand command, string fullInput)
-            {
+            public CommandParameterNameSuggestionContext(ADebugCommand command, string fullInput) {
                 _fullInput = fullInput;
                 _command = command;
             }
@@ -127,11 +119,15 @@ namespace ANU.IngameDebug.Console
 
             protected override IEnumerable<Option> Collection => _command.Options;
 
-            protected override string GetDisplayName(Option item) => string.Join("|", item.GetNames());
-            protected override string GetFilteringName(Option item) => item.GetNames().First();
+            protected override string GetDisplayName(Option item) {
+                return string.Join("|", item.GetNames());
+            }
 
-            protected override string GetFullSuggestedText(Suggestion item, string fullInput)
-            {
+            protected override string GetFilteringName(Option item) {
+                return item.GetNames().First();
+            }
+
+            protected override string GetFullSuggestedText(Suggestion item, string fullInput) {
                 var paramStr = " --";
                 var optString = " -";
 
@@ -141,13 +137,10 @@ namespace ANU.IngameDebug.Console
                 var delimiter = paramStr;
                 var name = (item.Source as Option).GetNames().First();
 
-                if (lastParam > -1)
-                {
-                    fullInput = fullInput.Substring(0, lastParam);
-                }
-                else if (lastOpt > -1)
-                {
-                    fullInput = fullInput.Substring(0, lastOpt);
+                if (lastParam > -1) {
+                    fullInput = fullInput[..lastParam];
+                } else if (lastOpt > -1) {
+                    fullInput = fullInput[..lastOpt];
                     delimiter = optString;
                     name = (item.Source as Option).GetNames().OrderBy(d => d.Length).First();
                 }
@@ -155,8 +148,7 @@ namespace ANU.IngameDebug.Console
                 return $"{fullInput}{delimiter}{name}";
             }
 
-            private protected override IEnumerable<Option> FilterItems(IEnumerable<Option> items, string input, Func<Option, string> filteredStringGetter)
-            {
+            private protected override IEnumerable<Option> FilterItems(IEnumerable<Option> items, string input, Func<Option, string> filteredStringGetter) {
                 // find existing names to exclude from suggestions
                 IEnumerable<Option> names;
 
@@ -165,10 +157,9 @@ namespace ANU.IngameDebug.Console
                 var doNOtSkip = false;
 
                 var namedParameter = _fullInput.GetFirstNamedParameter();
-                if (namedParameter.Success)
-                {
-                    noNamedParameters = _fullInput.Substring(0, namedParameter.Index);
-                    getNamed = _fullInput.Substring(noNamedParameters.Length);
+                if (namedParameter.Success) {
+                    noNamedParameters = _fullInput[..namedParameter.Index];
+                    getNamed = _fullInput[noNamedParameters.Length..];
                     doNOtSkip = true;
                 }
 
@@ -177,8 +168,9 @@ namespace ANU.IngameDebug.Console
                 names = _command.Options.Take(cnt);
 
                 values = getNamed.SplitCommandLine();
-                if (!doNOtSkip)
+                if (!doNOtSkip) {
                     values = values.Skip(1);
+                }
 
                 var set = values.Where(v => v.Trim().StartsWith("-")).Select(p => p.Trim('-')).ToHashSet();
                 names = names.Concat(
@@ -192,45 +184,48 @@ namespace ANU.IngameDebug.Console
             }
         }
 
-        private class CommandParameterValueSuggestionContext : ASuggestionContext<string>
-        {
+        private class CommandParameterValueSuggestionContext : ASuggestionContext<string> {
             private readonly ADebugCommand _command;
             private readonly Option _option;
 
-            public CommandParameterValueSuggestionContext(ADebugCommand command, Option option)
-            {
+            public CommandParameterValueSuggestionContext(ADebugCommand command, Option option) {
                 _option = option;
                 _command = command;
             }
 
             public override string Title => _command.Name;
 
-            protected override IEnumerable<string> Collection
-            {
-                get
-                {
-                    if (_command.ValueHints.ContainsKey(_option))
+            protected override IEnumerable<string> Collection {
+                get {
+                    if (_command.ValueHints.ContainsKey(_option)) {
                         return _command.ValueHints[_option];
-                    else
+                    } else {
                         return Array.Empty<string>();
+                    }
                 }
             }
 
-            protected override string GetDisplayName(string item) => item;
-            protected override string GetFilteringName(string item) => item;
+            protected override string GetDisplayName(string item) {
+                return item;
+            }
 
-            protected override string GetFullSuggestedText(Suggestion item, string fullInput)
-            {
+            protected override string GetFilteringName(string item) {
+                return item;
+            }
+
+            protected override string GetFullSuggestedText(Suggestion item, string fullInput) {
                 var paramStr = "=";
                 var last = fullInput.LastIndexOf(paramStr);
-                if (last > -1)
-                    fullInput = fullInput.Substring(0, last);
+                if (last > -1) {
+                    fullInput = fullInput[..last];
+                }
 
                 fullInput = fullInput.Trim();
 
                 var lastOption = fullInput.Split(' ', StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
-                if (lastOption == null || !lastOption.StartsWith("-"))
+                if (lastOption == null || !lastOption.StartsWith("-")) {
                     paramStr = " ";
+                }
 
                 return $"{fullInput}{paramStr}{item.Source} ";
             }

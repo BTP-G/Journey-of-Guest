@@ -5,15 +5,13 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>A very simple timer system based on a <see cref="System.Diagnostics.Stopwatch"/>.</summary>
-    public struct SimpleTimer : IDisposable
-    {
+    public struct SimpleTimer : IDisposable {
         /************************************************************************************************************************/
 
         /// <summary>The default <see cref="format"/> contains 3 decimal places.</summary>
-        const string Format3DP = "0.000";
+        private const string Format3DP = "0.000";
 
         /// <summary>A default timer that hasn't been started.</summary>
         public static SimpleTimer Default = new(null);
@@ -70,8 +68,7 @@ namespace Animancer
         /// Use <c>null</c> as the `format` to have <see cref="Format"/> return the ticks instead of seconds.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public SimpleTimer(string name, string format = Format3DP)
-        {
+        public SimpleTimer(string name, string format = Format3DP) {
             this.name = name;
             this.format = format;
             startTicks = -1;
@@ -83,13 +80,13 @@ namespace Animancer
         /// <summary>Creates a new <see cref="SimpleTimer"/> with the specified `name` and starts it.</summary>
         /// <remarks>Use <c>null</c> as the `format` to have <see cref="Format"/> return the ticks instead of seconds.</remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SimpleTimer Start(string name = null, string format = Format3DP)
-             => new()
-             {
-                 name = name,
-                 format = format,
-                 startTicks = Stopwatch.ElapsedTicks,
-             };
+        public static SimpleTimer Start(string name = null, string format = Format3DP) {
+            return new() {
+                name = name,
+                format = format,
+                startTicks = Stopwatch.ElapsedTicks,
+            };
+        }
 
         /************************************************************************************************************************/
 
@@ -98,13 +95,15 @@ namespace Animancer
         /// so that <see cref="Count"/> will be able to calculate how much time has passed.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Start()
-            => startTicks = Stopwatch.ElapsedTicks;
+        public void Start() {
+            startTicks = Stopwatch.ElapsedTicks;
+        }
 
         /// <summary>Clears the <see cref="startTicks"/>.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Cancel()
-            => startTicks = -1;
+        public void Cancel() {
+            startTicks = -1;
+        }
 
         /************************************************************************************************************************/
 
@@ -115,18 +114,14 @@ namespace Animancer
         /// </summary>
         /// <remarks>Returns -1 if this timer wasn't started.</remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public long Count()
-        {
+        public long Count() {
             var endTicks = Stopwatch.ElapsedTicks;
 
             long count;
-            if (startTicks >= 0)
-            {
+            if (startTicks >= 0) {
                 count = endTicks - startTicks;
                 totalTicks += count;
-            }
-            else
-            {
+            } else {
                 count = -1;
             }
 
@@ -140,21 +135,21 @@ namespace Animancer
         private static StringBuilder _StringBuilder;
 
         /// <summary>Calls <see cref="Count"/> and returns a string describing the current values of this timer.</summary>
-        public override string ToString()
-        {
+        public override string ToString() {
             var count = Count();
 
-            if (_StringBuilder == null)
+            if (_StringBuilder == null) {
                 _StringBuilder = new();
-            else
+            } else {
                 _StringBuilder.Length = 0;
+            }
 
-            if (!string.IsNullOrEmpty(name))
+            if (!string.IsNullOrEmpty(name)) {
                 _StringBuilder.Append(name)
                     .Append(": ");
+            }
 
-            if (count != totalTicks && count >= 0)
-            {
+            if (count != totalTicks && count >= 0) {
                 _StringBuilder
                     .Append("Count ")
                     .Append(Format(count))
@@ -169,16 +164,16 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Converts the given `ticks` to a string using the <see cref="format"/>.</summary>
-        public readonly string Format(long ticks)
-            => format is null
-            ? $"{ticks} Ticks"
-            : $"{(ticks / (double)Stopwatch.Frequency).ToString(format)}s";
+        public readonly string Format(long ticks) {
+            return format is null
+                                                              ? $"{ticks} Ticks"
+                                                              : $"{(ticks / (double)Stopwatch.Frequency).ToString(format)}s";
+        }
 
         /************************************************************************************************************************/
 
         /// <summary>Logs <see cref="ToString"/> and calls <see cref="Cancel"/>.</summary>
-        public void Dispose()
-        {
+        public void Dispose() {
             UnityEngine.Debug.Log(ToString());
             Cancel();
             totalTicks = 0;

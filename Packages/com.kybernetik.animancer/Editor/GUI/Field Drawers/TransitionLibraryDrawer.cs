@@ -7,13 +7,11 @@ using UnityEditor;
 using UnityEngine;
 using static Animancer.Editor.AnimancerGUI;
 
-namespace Animancer.Editor.TransitionLibraries
-{
+namespace Animancer.Editor.TransitionLibraries {
     /// <summary>[Editor-Only] A custom Inspector for <see cref="TransitionLibraryAsset"/> fields.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor.TransitionLibraries/TransitionLibraryDrawer
     [CustomPropertyDrawer(typeof(TransitionLibraryAsset), true)]
-    public class TransitionLibraryDrawer : PropertyDrawer
-    {
+    public class TransitionLibraryDrawer : PropertyDrawer {
         /************************************************************************************************************************/
 
         private const string EditLabel = "Edit";
@@ -23,26 +21,27 @@ namespace Animancer.Editor.TransitionLibraries
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-            => LineHeight;
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
+            return LineHeight;
+        }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void OnGUI(Rect area, SerializedProperty property, GUIContent label)
-        {
+        public override void OnGUI(Rect area, SerializedProperty property, GUIContent label) {
             var library = property.objectReferenceValue as TransitionLibraryAsset;
-            if (library != null)
-            {
+            if (library != null) {
                 var style = EditorStyles.miniButton;
 
-                if (_EditButtonWidth <= 0)
+                if (_EditButtonWidth <= 0) {
                     _EditButtonWidth = style.CalculateWidth(EditLabel);
+                }
 
                 var editArea = StealFromRight(ref area, _EditButtonWidth, StandardSpacing);
 
-                if (GUI.Button(editArea, EditLabel, style))
+                if (GUI.Button(editArea, EditLabel, style)) {
                     TransitionLibraryWindow.Open(library);
+                }
             }
 
             EditorGUI.PropertyField(area, property, label);

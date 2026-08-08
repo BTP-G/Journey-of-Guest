@@ -1,14 +1,11 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 using System;
 using System.Collections.Generic;
-using Antlr4.Runtime;
-using Antlr4.Runtime.Sharpen;
 
-namespace Antlr4.Runtime
-{
+namespace Antlr4.Runtime {
     /// <summary>
     /// Provides an implementation of
     /// <see cref="ITokenSource"/>
@@ -24,8 +21,7 @@ namespace Antlr4.Runtime
     /// after the end of the
     /// list is reached. Otherwise, an EOF token will be created.</p>
     /// </summary>
-    public class ListTokenSource : ITokenSource
-    {
+    public class ListTokenSource : ITokenSource {
         /// <summary>
         /// The wrapped collection of
         /// <see cref="IToken"/>
@@ -91,8 +87,7 @@ namespace Antlr4.Runtime
         /// <see langword="null"/>
         /// </exception>
         public ListTokenSource(IList<IToken> tokens)
-            : this(tokens, null)
-        {
+            : this(tokens, null) {
         }
 
         /// <summary>
@@ -130,10 +125,8 @@ namespace Antlr4.Runtime
         /// is
         /// <see langword="null"/>
         /// </exception>
-        public ListTokenSource(IList<IToken> tokens, string sourceName)
-        {
-            if (tokens == null)
-            {
+        public ListTokenSource(IList<IToken> tokens, string sourceName) {
+            if (tokens == null) {
                 throw new ArgumentNullException("tokens cannot be null");
             }
             this.tokens = tokens;
@@ -141,33 +134,22 @@ namespace Antlr4.Runtime
         }
 
         /// <summary><inheritDoc/></summary>
-        public virtual int Column
-        {
-            get
-            {
-                if (i < tokens.Count)
-                {
+        public virtual int Column {
+            get {
+                if (i < tokens.Count) {
                     return tokens[i].Column;
-                }
-                else
-                {
-                    if (eofToken != null)
-                    {
+                } else {
+                    if (eofToken != null) {
                         return eofToken.Column;
-                    }
-                    else
-                    {
-                        if (tokens.Count > 0)
-                        {
+                    } else {
+                        if (tokens.Count > 0) {
                             // have to calculate the result from the line/column of the previous
                             // token, along with the text of the token.
-                            IToken lastToken = tokens[tokens.Count - 1];
-                            string tokenText = lastToken.Text;
-                            if (tokenText != null)
-                            {
-                                int lastNewLine = tokenText.LastIndexOf('\n');
-                                if (lastNewLine >= 0)
-                                {
+                            var lastToken = tokens[tokens.Count - 1];
+                            var tokenText = lastToken.Text;
+                            if (tokenText != null) {
+                                var lastNewLine = tokenText.LastIndexOf('\n');
+                                if (lastNewLine >= 0) {
                                     return tokenText.Length - lastNewLine - 1;
                                 }
                             }
@@ -182,29 +164,23 @@ namespace Antlr4.Runtime
         }
 
         /// <summary><inheritDoc/></summary>
-        public virtual IToken NextToken()
-        {
-            if (i >= tokens.Count)
-            {
-                if (eofToken == null)
-                {
-                    int start = -1;
-                    if (tokens.Count > 0)
-                    {
-                        int previousStop = tokens[tokens.Count - 1].StopIndex;
-                        if (previousStop != -1)
-                        {
+        public virtual IToken NextToken() {
+            if (i >= tokens.Count) {
+                if (eofToken == null) {
+                    var start = -1;
+                    if (tokens.Count > 0) {
+                        var previousStop = tokens[tokens.Count - 1].StopIndex;
+                        if (previousStop != -1) {
                             start = previousStop + 1;
                         }
                     }
-                    int stop = Math.Max(-1, start - 1);
+                    var stop = Math.Max(-1, start - 1);
                     eofToken = _factory.Create(Tuple.Create((ITokenSource)this, InputStream), TokenConstants.EOF, "EOF", TokenConstants.DefaultChannel, start, stop, Line, Column);
                 }
                 return eofToken;
             }
-            IToken t = tokens[i];
-            if (i == tokens.Count - 1 && t.Type == TokenConstants.EOF)
-            {
+            var t = tokens[i];
+            if (i == tokens.Count - 1 && t.Type == TokenConstants.EOF) {
                 eofToken = t;
             }
             i++;
@@ -212,35 +188,23 @@ namespace Antlr4.Runtime
         }
 
         /// <summary><inheritDoc/></summary>
-        public virtual int Line
-        {
-            get
-            {
-                if (i < tokens.Count)
-                {
+        public virtual int Line {
+            get {
+                if (i < tokens.Count) {
                     return tokens[i].Line;
-                }
-                else
-                {
-                    if (eofToken != null)
-                    {
+                } else {
+                    if (eofToken != null) {
                         return eofToken.Line;
-                    }
-                    else
-                    {
-                        if (tokens.Count > 0)
-                        {
+                    } else {
+                        if (tokens.Count > 0) {
                             // have to calculate the result from the line/column of the previous
                             // token, along with the text of the token.
-                            IToken lastToken = tokens[tokens.Count - 1];
-                            int line = lastToken.Line;
-                            string tokenText = lastToken.Text;
-                            if (tokenText != null)
-                            {
-                                for (int j = 0; j < tokenText.Length; j++)
-                                {
-                                    if (tokenText[j] == '\n')
-                                    {
+                            var lastToken = tokens[tokens.Count - 1];
+                            var line = lastToken.Line;
+                            var tokenText = lastToken.Text;
+                            if (tokenText != null) {
+                                for (var j = 0; j < tokenText.Length; j++) {
+                                    if (tokenText[j] == '\n') {
                                         line++;
                                     }
                                 }
@@ -257,24 +221,15 @@ namespace Antlr4.Runtime
         }
 
         /// <summary><inheritDoc/></summary>
-        public virtual ICharStream InputStream
-        {
-            get
-            {
-                if (i < tokens.Count)
-                {
+        public virtual ICharStream InputStream {
+            get {
+                if (i < tokens.Count) {
                     return tokens[i].InputStream;
-                }
-                else
-                {
-                    if (eofToken != null)
-                    {
+                } else {
+                    if (eofToken != null) {
                         return eofToken.InputStream;
-                    }
-                    else
-                    {
-                        if (tokens.Count > 0)
-                        {
+                    } else {
+                        if (tokens.Count > 0) {
                             return tokens[tokens.Count - 1].InputStream;
                         }
                     }
@@ -285,17 +240,13 @@ namespace Antlr4.Runtime
         }
 
         /// <summary><inheritDoc/></summary>
-        public virtual string SourceName
-        {
-            get
-            {
-                if (sourceName != null)
-                {
+        public virtual string SourceName {
+            get {
+                if (sourceName != null) {
                     return sourceName;
                 }
-                ICharStream inputStream = InputStream;
-                if (inputStream != null)
-                {
+                var inputStream = InputStream;
+                if (inputStream != null) {
                     return inputStream.SourceName;
                 }
                 return "List";
@@ -304,16 +255,13 @@ namespace Antlr4.Runtime
 
         /// <summary><inheritDoc/></summary>
         /// <summary><inheritDoc/></summary>
-        public virtual ITokenFactory TokenFactory
-        {
-            get
-            {
+        public virtual ITokenFactory TokenFactory {
+            get {
                 return _factory;
             }
-            set
-            {
-                ITokenFactory factory = value;
-                this._factory = factory;
+            set {
+                var factory = value;
+                _factory = factory;
             }
         }
     }

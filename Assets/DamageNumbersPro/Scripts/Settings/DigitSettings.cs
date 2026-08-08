@@ -1,14 +1,10 @@
-﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace DamageNumbersPro
-{
+namespace DamageNumbersPro {
     [System.Serializable]
-    public struct DigitSettings
-    {
-        public DigitSettings(float customDefault)
-        {
+    public struct DigitSettings {
+        public DigitSettings(float customDefault) {
             decimals = 0;
             decimalChar = ".";
             hideZeros = false;
@@ -27,7 +23,7 @@ namespace DamageNumbersPro
         }
 
         [Header("Decimals:")]
-        [Range(0,3)]
+        [Range(0, 3)]
         [Tooltip("Amount of digits visible after the dot.")]
         public int decimals;
         [Tooltip("The character used for the dot.")]

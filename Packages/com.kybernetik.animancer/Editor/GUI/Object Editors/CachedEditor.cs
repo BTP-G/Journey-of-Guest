@@ -6,14 +6,12 @@ using System;
 using UnityEditor;
 using Object = UnityEngine.Object;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only]
     /// A utility for manually drawing a <see cref="UnityEditor.Editor"/>.
     /// </summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/CachedEditor
-    public class CachedEditor : IDisposable
-    {
+    public class CachedEditor : IDisposable {
         /************************************************************************************************************************/
 
         [NonSerialized] private Object[] _Targets = Array.Empty<Object>();
@@ -26,12 +24,12 @@ namespace Animancer.Editor
         /// Creates a <see cref="UnityEditor.Editor"/> for the `target`
         /// and caches it to be returned by subsequent calls with the same `target`.
         /// </summary>
-        public UnityEditor.Editor GetEditor(Object target)
-        {
+        public UnityEditor.Editor GetEditor(Object target) {
             if (_Targets.Length == 1 &&
                 _Targets[0] == target &&
-                _Editor != null)
+                _Editor != null) {
                 return _Editor;
+            }
 
             Dispose();
 
@@ -46,11 +44,11 @@ namespace Animancer.Editor
         /// Creates a <see cref="UnityEditor.Editor"/> for the `targets`
         /// and caches it to be returned by subsequent calls with the same `targets`.
         /// </summary>
-        public UnityEditor.Editor GetEditor(Object[] targets)
-        {
+        public UnityEditor.Editor GetEditor(Object[] targets) {
             if (AnimancerUtilities.ContentsAreEqual(targets, _Targets) &&
-                _Editor != null)
+                _Editor != null) {
                 return _Editor;
+            }
 
             Dispose();
 
@@ -63,16 +61,17 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Destroys the cached <see cref="UnityEditor.Editor"/>.</summary>
-        public void Dispose()
-            => Object.DestroyImmediate(_Editor);
+        public void Dispose() {
+            Object.DestroyImmediate(_Editor);
+        }
 
         /************************************************************************************************************************/
 
         /// <summary>Ensures that <see cref="Dispose"/> will be called before assemblies are reloaded.</summary>
-        private void EnsureCleanup()
-        {
-            if (_WillCleanup)
+        private void EnsureCleanup() {
+            if (_WillCleanup) {
                 return;
+            }
 
             _WillCleanup = true;
 

@@ -8,15 +8,13 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace Animancer.Editor.TransitionLibraries
-{
+namespace Animancer.Editor.TransitionLibraries {
     /// <summary>[Editor-Only]
     /// Additional data for a <see cref="TransitionLibraryAsset"/> which is excluded from Runtime Builds.
     /// </summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor.TransitionLibraries/TransitionLibraryEditorDataAsset
     [AnimancerHelpUrl(typeof(TransitionLibraryEditorDataAsset))]
-    public partial class TransitionLibraryEditorDataAsset : ScriptableObject
-    {
+    public partial class TransitionLibraryEditorDataAsset : ScriptableObject {
         /************************************************************************************************************************/
 
         /// <summary>Libraries mapped to their editor data.</summary>
@@ -48,11 +46,9 @@ namespace Animancer.Editor.TransitionLibraries
         private TransitionLibraryEditorDataInternal _Data;
 
         /// <summary>[<see cref="SerializeField"/>] The data contained in this asset.</summary>
-        public TransitionLibraryEditorDataInternal Data
-        {
+        public TransitionLibraryEditorDataInternal Data {
             get => _Data ??= new();
-            set
-            {
+            set {
                 SetLibrary(this, _Library);
                 _Data = value;
                 EditorUtility.SetDirty(this);
@@ -62,31 +58,32 @@ namespace Animancer.Editor.TransitionLibraries
         /************************************************************************************************************************/
 
         /// <summary>Registers this data for the <see cref="Library"/>.</summary>
-        protected virtual void OnEnable()
-        {
-            if (_Library != null)
+        protected virtual void OnEnable() {
+            if (_Library != null) {
                 LibraryToEditorData[_Library] = this;
+            }
         }
 
         /// <summary>Un-registers this data for the <see cref="Library"/>.</summary>
-        protected virtual void OnDisable()
-        {
-            if (_Library != null)
+        protected virtual void OnDisable() {
+            if (_Library != null) {
                 LibraryToEditorData.Remove(_Library);
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <summary>Sets the <see cref="Library"/>.</summary>
-        public static void SetLibrary(TransitionLibraryEditorDataAsset data, TransitionLibraryAsset library)
-        {
-            if (library != null)
+        public static void SetLibrary(TransitionLibraryEditorDataAsset data, TransitionLibraryAsset library) {
+            if (library != null) {
                 LibraryToEditorData.Remove(library);
+            }
 
             data._Library = library;
 
-            if (library != null)
+            if (library != null) {
                 LibraryToEditorData.Add(library, data);
+            }
         }
 
         /************************************************************************************************************************/
@@ -94,13 +91,12 @@ namespace Animancer.Editor.TransitionLibraries
         /// <summary>Tries to get the `data` associated with the `library`.</summary>
         private static bool TryGet(
             TransitionLibraryAsset library,
-            out TransitionLibraryEditorDataAsset asset)
-        {
-            if (!LibraryToEditorData.TryGetValue(library, out asset))
+            out TransitionLibraryEditorDataAsset asset) {
+            if (!LibraryToEditorData.TryGetValue(library, out asset)) {
                 return false;
+            }
 
-            if (asset != null)
-            {
+            if (asset != null) {
                 SetLibrary(asset, library);
                 return true;
             }
@@ -114,21 +110,20 @@ namespace Animancer.Editor.TransitionLibraries
         /// <summary>
         /// Returns the <see cref="TransitionLibraryEditorDataInternal"/> sub-asset of the `library` if one exists.
         /// </summary>
-        public static TransitionLibraryEditorDataAsset GetEditorData(TransitionLibraryAsset library)
-        {
-            if (TryGet(library, out var asset))
+        public static TransitionLibraryEditorDataAsset GetEditorData(TransitionLibraryAsset library) {
+            if (TryGet(library, out var asset)) {
                 return asset;
+            }
 
             var assetPath = AssetDatabase.GetAssetPath(library);
-            if (string.IsNullOrEmpty(assetPath))
+            if (string.IsNullOrEmpty(assetPath)) {
                 return null;
+            }
 
             var subAssets = AssetDatabase.LoadAllAssetsAtPath(assetPath);
 
-            for (int i = 0; i < subAssets.Length; i++)
-            {
-                if (subAssets[i] is TransitionLibraryEditorDataAsset editorData)
-                {
+            for (var i = 0; i < subAssets.Length; i++) {
+                if (subAssets[i] is TransitionLibraryEditorDataAsset editorData) {
                     asset = editorData;
                     SetLibrary(asset, library);
                     return asset;
@@ -144,11 +139,11 @@ namespace Animancer.Editor.TransitionLibraries
         /// Returns the <see cref="TransitionLibraryEditorDataAsset"/> sub-asset of the `library` if one exists.
         /// Otherwise, creates and saves a new one.
         /// </summary>
-        public static TransitionLibraryEditorDataAsset GetOrCreateEditorData(TransitionLibraryAsset library)
-        {
+        public static TransitionLibraryEditorDataAsset GetOrCreateEditorData(TransitionLibraryAsset library) {
             var data = library.GetEditorData();
-            if (data != null)
+            if (data != null) {
                 return data;
+            }
 
             data = CreateInstance<TransitionLibraryEditorDataAsset>();
             data.name = "Editor Data";
@@ -158,10 +153,8 @@ namespace Animancer.Editor.TransitionLibraries
 
             EditorApplication.CallbackFunction addSubAsset = null;
 
-            addSubAsset = () =>
-            {
-                if (AssetDatabase.Contains(library))
-                {
+            addSubAsset = () => {
+                if (AssetDatabase.Contains(library)) {
                     EditorApplication.update -= addSubAsset;
 
                     AssetDatabase.AddObjectToAsset(data, library);
@@ -179,17 +172,18 @@ namespace Animancer.Editor.TransitionLibraries
 
     /// <summary>[Editor-Only] Extension methods for <see cref="TransitionLibraryEditorDataAsset"/>.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor.TransitionLibraries/TransitionLibraryEditorDataExtensions
-    public static class TransitionLibraryEditorDataExtensions
-    {
+    public static class TransitionLibraryEditorDataExtensions {
         /************************************************************************************************************************/
 
         /// <summary><see cref="TransitionLibraryEditorDataAsset.GetEditorData"/></summary>
-        public static TransitionLibraryEditorDataAsset GetEditorData(this TransitionLibraryAsset library)
-            => TransitionLibraryEditorDataAsset.GetEditorData(library);
+        public static TransitionLibraryEditorDataAsset GetEditorData(this TransitionLibraryAsset library) {
+            return TransitionLibraryEditorDataAsset.GetEditorData(library);
+        }
 
         /// <summary><see cref="TransitionLibraryEditorDataAsset.GetOrCreateEditorData"/></summary>
-        public static TransitionLibraryEditorDataAsset GetOrCreateEditorData(this TransitionLibraryAsset library)
-            => TransitionLibraryEditorDataAsset.GetOrCreateEditorData(library);
+        public static TransitionLibraryEditorDataAsset GetOrCreateEditorData(this TransitionLibraryAsset library) {
+            return TransitionLibraryEditorDataAsset.GetOrCreateEditorData(library);
+        }
 
         /************************************************************************************************************************/
     }

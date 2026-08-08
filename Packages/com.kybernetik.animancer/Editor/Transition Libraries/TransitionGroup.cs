@@ -6,21 +6,17 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Animancer.Editor.TransitionLibraries
-{
+namespace Animancer.Editor.TransitionLibraries {
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor.TransitionLibraries/TransitionLibraryEditorDataInternal
-    public partial class TransitionLibraryEditorDataInternal
-    {
+    public partial class TransitionLibraryEditorDataInternal {
         /************************************************************************************************************************/
 
         [SerializeField]
         private List<TransitionGroup> _TransitionGroups;
 
         /// <summary>[<see cref="SerializeField"/>] The groups which transitions are organised in.</summary>
-        public ref List<TransitionGroup> TransitionGroups
-        {
-            get
-            {
+        public ref List<TransitionGroup> TransitionGroups {
+            get {
                 _TransitionGroups ??= new();
                 return ref _TransitionGroups;
             }
@@ -36,8 +32,7 @@ namespace Animancer.Editor.TransitionLibraries
     [Serializable]
     public class TransitionGroup :
         ICopyable<TransitionGroup>,
-        IEquatable<TransitionGroup>
-    {
+        IEquatable<TransitionGroup> {
         /************************************************************************************************************************/
         #region Fields and Properties
         /************************************************************************************************************************/
@@ -77,10 +72,8 @@ namespace Animancer.Editor.TransitionLibraries
         /// <summary>[<see cref="SerializeField"/>]
         /// The indices of the transitions in the <see cref="Animancer.TransitionLibraries.TransitionLibraryDefinition"/>.
         /// </summary>
-        public ref List<int> TransitionIndices
-        {
-            get
-            {
+        public ref List<int> TransitionIndices {
+            get {
                 _TransitionIndices ??= new();
                 return ref _TransitionIndices;
             }
@@ -103,42 +96,46 @@ namespace Animancer.Editor.TransitionLibraries
         /************************************************************************************************************************/
 
         /// <summary>Are all fields in this object equal to the equivalent in `obj`?</summary>
-        public override bool Equals(object obj)
-            => Equals(obj as TransitionGroup);
+        public override bool Equals(object obj) {
+            return Equals(obj as TransitionGroup);
+        }
 
         /// <summary>Are all fields in this object equal to the equivalent fields in `other`?</summary>
-        public bool Equals(TransitionGroup other)
-            => other != null
-            && _Name == other._Name
-            && _Index == other._Index
-            && _IsExpanded == other._IsExpanded
-            && AnimancerUtilities.ContentsAreEqual(TransitionIndices, other.TransitionIndices);
+        public bool Equals(TransitionGroup other) {
+            return other != null
+                                                              && _Name == other._Name
+                                                              && _Index == other._Index
+                                                              && _IsExpanded == other._IsExpanded
+                                                              && AnimancerUtilities.ContentsAreEqual(TransitionIndices, other.TransitionIndices);
+        }
 
         /// <summary>Are all fields in `a` equal to the equivalent fields in `b`?</summary>
-        public static bool operator ==(TransitionGroup a, TransitionGroup b)
-            => a is null
-            ? b is null
-            : a.Equals(b);
+        public static bool operator ==(TransitionGroup a, TransitionGroup b) {
+            return a is null
+                                                                                         ? b is null
+                                                                                         : a.Equals(b);
+        }
 
         /// <summary>Are any fields in `a` not equal to the equivalent fields in `b`?</summary>
-        public static bool operator !=(TransitionGroup a, TransitionGroup b)
-            => !(a == b);
+        public static bool operator !=(TransitionGroup a, TransitionGroup b) {
+            return !(a == b);
+        }
 
         /************************************************************************************************************************/
 
         /// <summary>Returns a hash code based on the values of this object's fields.</summary>
-        public override int GetHashCode()
-            => AnimancerUtilities.Hash(1598151553,
-                _Name.GetHashCode(),
-                _Index.GetHashCode(),
-                _IsExpanded.GetHashCode(),
-                TransitionIndices.GetHashCode());
+        public override int GetHashCode() {
+            return AnimancerUtilities.Hash(1598151553,
+                                                          _Name.GetHashCode(),
+                                                          _Index.GetHashCode(),
+                                                          _IsExpanded.GetHashCode(),
+                                                          TransitionIndices.GetHashCode());
+        }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public void CopyFrom(TransitionGroup copyFrom, CloneContext context)
-        {
+        public void CopyFrom(TransitionGroup copyFrom, CloneContext context) {
             _Name = copyFrom._Name;
             _Index = copyFrom._Index;
             _IsExpanded = copyFrom._IsExpanded;
@@ -150,8 +147,9 @@ namespace Animancer.Editor.TransitionLibraries
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override string ToString()
-            => $"{nameof(TransitionGroup)}({_Name}, {_Index}, {TransitionIndices.Count})";
+        public override string ToString() {
+            return $"{nameof(TransitionGroup)}({_Name}, {_Index}, {TransitionIndices.Count})";
+        }
 
         /************************************************************************************************************************/
         #endregion

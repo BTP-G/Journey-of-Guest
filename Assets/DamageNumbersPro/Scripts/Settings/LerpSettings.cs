@@ -1,14 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace DamageNumbersPro
-{
+namespace DamageNumbersPro {
     [System.Serializable]
-    public struct LerpSettings
-    {
-        public LerpSettings (int customDefault)
-        {
+    public struct LerpSettings {
+        public LerpSettings(int customDefault) {
             minX = -0.4f;
             maxX = 0.4f;
             minY = 0.5f;

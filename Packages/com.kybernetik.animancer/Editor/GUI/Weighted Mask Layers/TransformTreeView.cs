@@ -19,8 +19,7 @@ namespace Animancer.Editor
     /// <summary>An object that provides data to a <see cref="TransformTreeView"/>.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/ITransformTreeViewSource
     /// https://kybernetik.com.au/flexi-motion/api/FlexiMotion.Editor/ITransformTreeViewSource
-    public interface ITransformTreeViewSource
-    {
+    public interface ITransformTreeViewSource {
         /************************************************************************************************************************/
 
         /// <summary>The object at the top of the target hierarchy.</summary>
@@ -47,8 +46,7 @@ namespace Animancer.Editor
     /// <summary>A <see cref="TreeView"/> for displaying <see cref="Transform"/>s alongside other data.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/TransformTreeView
     /// https://kybernetik.com.au/flexi-motion/api/FlexiMotion.Editor/TransformTreeView
-    public class TransformTreeView : TreeView, IDisposable
-    {
+    public class TransformTreeView : TreeView, IDisposable {
         /************************************************************************************************************************/
 
         /// <summary>The ID of the root item.</summary>
@@ -72,8 +70,7 @@ namespace Animancer.Editor
             TreeViewState state,
             MultiColumnHeader header,
             ITransformTreeViewSource source)
-            : base(state, header)
-        {
+            : base(state, header) {
             Source = source;
 
             Selection.selectionChanged += OnObjectSelectionChanged;
@@ -82,16 +79,14 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Cleans up this view.</summary>
-        public void Dispose()
-        {
+        public void Dispose() {
             Selection.selectionChanged -= OnObjectSelectionChanged;
         }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override TreeViewItem BuildRoot()
-        {
+        protected override TreeViewItem BuildRoot() {
             Transforms.Clear();
 
             var id = RootID;
@@ -106,8 +101,7 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Adds a new item for the `transform` as a child of the `parent` and increments the `id`.</summary>
-        public virtual TreeViewItem AddItem(ref int id, TreeViewItem parent, Transform transform)
-        {
+        public virtual TreeViewItem AddItem(ref int id, TreeViewItem parent, Transform transform) {
             Transforms.Add(transform);
 
             var item = CreateItem(ref id, parent.depth + 1, transform.name);
@@ -116,24 +110,24 @@ namespace Animancer.Editor
         }
 
         /// <summary>Adds a new item for each child of the `transform` recursively.</summary>
-        public void AddItemRecursive(ref int id, TreeViewItem parent, Transform transform)
-        {
+        public void AddItemRecursive(ref int id, TreeViewItem parent, Transform transform) {
             parent = Source.AddItem(ref id, parent, transform);
 
-            foreach (Transform child in transform)
+            foreach (Transform child in transform) {
                 AddItemRecursive(ref id, parent, child);
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <summary>Creates a new <see cref="TreeViewItem"/> and increments the `id`.</summary>
-        public static TreeViewItem CreateItem(ref int id, int depth, string displayName)
-            => new()
-            {
+        public static TreeViewItem CreateItem(ref int id, int depth, string displayName) {
+            return new() {
                 id = id++,
                 depth = depth,
                 displayName = displayName,
             };
+        }
 
         /************************************************************************************************************************/
         #endregion
@@ -142,16 +136,14 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Draws the <see cref="SearchField"/> for filtering this view.</summary>
-        public void DrawSearchField(Rect area)
-        {
+        public void DrawSearchField(Rect area) {
             searchString = Search.OnGUI(area, searchString);
         }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override void RowGUI(RowGUIArgs args)
-        {
+        protected override void RowGUI(RowGUIArgs args) {
             Source.BeforeRowGUI(args.rowRect, args.item);
 
             var currentEvent = Event.current;
@@ -160,17 +152,18 @@ namespace Animancer.Editor
                 args.rowRect.Contains(currentEvent.mousePosition);
 
             var visibleColumnCount = args.GetNumVisibleColumns();
-            for (int i = 0; i < visibleColumnCount; ++i)
-            {
+            for (var i = 0; i < visibleColumnCount; ++i) {
                 var area = args.GetCellRect(i);
-                if (i == 0)
+                if (i == 0) {
                     area.xMin += (args.item.depth + 1) * depthIndentWidth;
+                }
 
                 Source.DrawCellGUI(area, args.GetColumn(i), args.row, args.item, ref isClick);
             }
 
-            if (isClick && currentEvent.type == EventType.Used)
+            if (isClick && currentEvent.type == EventType.Used) {
                 SelectionClick(args.item, false);
+            }
         }
 
         /************************************************************************************************************************/
@@ -182,15 +175,16 @@ namespace Animancer.Editor
         public event Action<IList<int>> OnSelectionChanged;
 
         /// <inheritdoc/>
-        protected override void SelectionChanged(IList<int> selectedIds)
-        {
+        protected override void SelectionChanged(IList<int> selectedIds) {
             base.SelectionChanged(selectedIds);
 
             SelectedObjects.Clear();
 
-            for (int i = 0; i < selectedIds.Count; i++)
-                if (Transforms.TryGetObject(selectedIds[i], out var transform))
+            for (var i = 0; i < selectedIds.Count; i++) {
+                if (Transforms.TryGetObject(selectedIds[i], out var transform)) {
                     SelectedObjects.Add(transform.gameObject);
+                }
+            }
 
             Selection.objects = SelectedObjects.ToArray();
 
@@ -203,53 +197,50 @@ namespace Animancer.Editor
             SelectedIDs = new();
 
         /// <summary>Called whenever the <see cref="Selection.objects"/> change.</summary>
-        public void OnObjectSelectionChanged()
-        {
+        public void OnObjectSelectionChanged() {
             var selectedObjects = Selection.objects;
 
             SelectedIDs.Clear();
             SelectedIDs.AddRange(GetSelection());
 
             // Remove IDs that aren't in the Selection.
-            for (int i = SelectedIDs.Count - 1; i >= 0; i--)
-            {
+            for (var i = SelectedIDs.Count - 1; i >= 0; i--) {
                 if (!Transforms.TryGetObject(SelectedIDs[i], out var transform) ||
-                    Array.IndexOf(selectedObjects, transform.gameObject) < 0)
-                {
+                    Array.IndexOf(selectedObjects, transform.gameObject) < 0) {
                     SelectedIDs.RemoveAt(i);
                 }
             }
 
             // If no selected rows correspond to a selected object, add all rows of that object.
-            foreach (var selected in selectedObjects)
-            {
+            foreach (var selected in selectedObjects) {
                 if (!AnimancerUtilities.TryGetTransform(selected, out var selectedTransform) ||
-                    IsAlreadySelected(selectedTransform))
+                    IsAlreadySelected(selectedTransform)) {
                     continue;
+                }
 
                 var index = Transforms.IndexOf(selectedTransform);
-                if (index >= 0)
-                {
+                if (index >= 0) {
                     SelectedIDs.Add(index);
 
                     while (Transforms.TryGetObject(++index, out var transform) &&
-                        transform == selectedTransform)
+                        transform == selectedTransform) {
                         SelectedIDs.Add(index);
+                    }
                 }
             }
 
             SetSelection(SelectedIDs);
         }
 
-        private bool IsAlreadySelected(Transform transform)
-        {
-            for (int i = 0; i < SelectedIDs.Count; i++)
-            {
-                if (!Transforms.TryGetObject(SelectedIDs[i], out var selectedTransform))
+        private bool IsAlreadySelected(Transform transform) {
+            for (var i = 0; i < SelectedIDs.Count; i++) {
+                if (!Transforms.TryGetObject(SelectedIDs[i], out var selectedTransform)) {
                     continue;
+                }
 
-                if (selectedTransform == transform)
+                if (selectedTransform == transform) {
                     return true;
+                }
             }
 
             return false;

@@ -6,8 +6,7 @@ using UnityEngine;
 using UnityEngine.Playables;
 using Object = UnityEngine.Object;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>
     /// An <see cref="AnimancerComponent"/> which uses the <see cref="Object.name"/>s of <see cref="AnimationClip"/>s
     /// so they can be referenced using strings as well as the clips themselves.
@@ -30,8 +29,7 @@ namespace Animancer
     /// 
     [AddComponentMenu(Strings.MenuPrefix + "Named Animancer Component")]
     [AnimancerHelpUrl(typeof(NamedAnimancerComponent))]
-    public class NamedAnimancerComponent : AnimancerComponent
-    {
+    public class NamedAnimancerComponent : AnimancerComponent {
         /************************************************************************************************************************/
         #region Fields and Properties
         /************************************************************************************************************************/
@@ -64,11 +62,9 @@ namespace Animancer
         /// Optional names for the <see cref="Animations"/>.
         /// If not set, they will use their <see cref="Object.name"/>.
         /// </summary>
-        public StringAsset[] Names
-        {
+        public StringAsset[] Names {
             get => _Names;
-            set
-            {
+            set {
                 _Names = value;
 
                 Debug.Assert(
@@ -95,11 +91,9 @@ namespace Animancer
         /// retrieved using their name and the first element will be played by <see cref="OnEnable"/> if
         /// <see cref="PlayAutomatically"/> is true.
         /// </summary>
-        public AnimationClip[] Animations
-        {
+        public AnimationClip[] Animations {
             get => _Animations;
-            set
-            {
+            set {
                 _Animations = value;
                 States.CreateIfNew(value);
             }
@@ -111,15 +105,14 @@ namespace Animancer
         /// The first element in the <see cref="Animations"/> array. It will be automatically played by
         /// <see cref="OnEnable"/> if <see cref="PlayAutomatically"/> is true.
         /// </summary>
-        public AnimationClip DefaultAnimation
-        {
+        public AnimationClip DefaultAnimation {
             get => _Animations.IsNullOrEmpty() ? null : _Animations[0];
-            set
-            {
-                if (_Animations.IsNullOrEmpty())
+            set {
+                if (_Animations.IsNullOrEmpty()) {
                     _Animations = new AnimationClip[] { value };
-                else
+                } else {
                     _Animations[0] = value;
+                }
             }
         }
 
@@ -135,24 +128,21 @@ namespace Animancer
         /// array are supported by the <see cref="Animancer"/> system and removes any others.
         /// </summary>
         /// <remarks>Called in Edit Mode whenever this script is loaded or a value is changed in the Inspector.</remarks>
-        protected virtual void OnValidate()
-        {
-            if (_Animations == null)
+        protected virtual void OnValidate() {
+            if (_Animations == null) {
                 return;
+            }
 
-            for (int i = 0; i < _Animations.Length; i++)
-            {
+            for (var i = 0; i < _Animations.Length; i++) {
                 var clip = _Animations[i];
-                if (clip == null)
-                    continue;
-
-                try
-                {
-                    Validate.AssertAnimationClip(clip, true, $"add animation to {nameof(NamedAnimancerComponent)}");
+                if (clip == null) {
                     continue;
                 }
-                catch (Exception exception)
-                {
+
+                try {
+                    Validate.AssertAnimationClip(clip, true, $"add animation to {nameof(NamedAnimancerComponent)}");
+                    continue;
+                } catch (Exception exception) {
                     Debug.LogException(exception, clip);
                 }
 
@@ -166,31 +156,25 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Creates a state for each clip in the <see cref="Animations"/> array.</summary>
-        protected virtual void Awake()
-        {
-            if (!TryGetAnimator())
+        protected virtual void Awake() {
+            if (!TryGetAnimator()) {
                 return;
-
-            if (_Names == null || _Names.Length == 0)
-            {
-                States.CreateIfNew(_Animations);
             }
-            else
-            {
+
+            if (_Names == null || _Names.Length == 0) {
+                States.CreateIfNew(_Animations);
+            } else {
                 var nameCount = _Names.Length;
                 var clipCount = _Animations.Length;
-                for (int i = 0; i < clipCount; i++)
-                {
+                for (var i = 0; i < clipCount; i++) {
                     var clip = _Animations[i];
-                    if (clip != null)
-                    {
+                    if (clip != null) {
                         var key = i < nameCount ? (object)(StringReference)_Names[i] : null;
                         key ??= GetKey(clip);
                         States.GetOrCreate(key, clip);
                     }
                 }
             }
-
         }
 
         /************************************************************************************************************************/
@@ -199,18 +183,18 @@ namespace Animancer
         /// Plays the first clip in the <see cref="Animations"/> array if <see cref="PlayAutomatically"/> is true.
         /// </summary>
         /// <remarks>This method also ensures that the <see cref="PlayableGraph"/> is playing.</remarks>
-        protected override void OnEnable()
-        {
-            if (!TryGetAnimator())
+        protected override void OnEnable() {
+            if (!TryGetAnimator()) {
                 return;
+            }
 
             base.OnEnable();
 
-            if (_PlayAutomatically && !_Animations.IsNullOrEmpty())
-            {
+            if (_PlayAutomatically && !_Animations.IsNullOrEmpty()) {
                 var clip = _Animations[0];
-                if (clip != null)
+                if (clip != null) {
                     Play(clip);
+                }
             }
         }
 
@@ -221,13 +205,14 @@ namespace Animancer
         /// This method is used to determine the dictionary key to use for an animation when none is specified by the
         /// caller, such as in <see cref="AnimancerComponent.Play(AnimationClip)"/>.
         /// </remarks>
-        public override object GetKey(AnimationClip clip) => clip.name;
+        public override object GetKey(AnimationClip clip) {
+            return clip.name;
+        }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void GatherAnimationClips(ICollection<AnimationClip> clips)
-        {
+        public override void GatherAnimationClips(ICollection<AnimationClip> clips) {
             base.GatherAnimationClips(clips);
             clips.Gather(_Animations);
         }

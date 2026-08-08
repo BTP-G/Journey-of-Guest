@@ -1,12 +1,8 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-using Antlr4.Runtime;
-using Antlr4.Runtime.Sharpen;
-
-namespace Antlr4.Runtime
-{
+namespace Antlr4.Runtime {
     /// <summary>A simple stream of symbols whose values are represented as integers.</summary>
     /// <remarks>
     /// A simple stream of symbols whose values are represented as integers. This
@@ -30,8 +26,7 @@ namespace Antlr4.Runtime
     /// </li>
     /// </ul>
     /// </remarks>
-    public interface IIntStream
-    {
+    public interface IIntStream {
         /// <summary>Consumes the current symbol in the stream.</summary>
         /// <remarks>
         /// Consumes the current symbol in the stream. This method has the following
@@ -231,8 +226,7 @@ namespace Antlr4.Runtime
         /// has occurred after this stream was
         /// constructed.</p>
         /// </summary>
-        int Index
-        {
+        int Index {
             get;
         }
 
@@ -298,8 +292,7 @@ namespace Antlr4.Runtime
         /// if the size of the stream is
         /// unknown.
         /// </exception>
-        int Size
-        {
+        int Size {
             get;
         }
 
@@ -311,14 +304,12 @@ namespace Antlr4.Runtime
         /// <see cref="IntStreamConstants.UnknownSourceName"/>
         /// .
         /// </remarks>
-        string SourceName
-        {
+        string SourceName {
             get;
         }
     }
 
-    public static class IntStreamConstants
-    {
+    public static class IntStreamConstants {
         /// <summary>
         /// The value returned by
         /// <see cref="IIntStream.LA(int)">LA()</see>

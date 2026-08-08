@@ -1,26 +1,21 @@
-﻿namespace BrunoMikoski.AnimationSequencer
-{
-    public enum AnimationDirection
-    {
+namespace BrunoMikoski.AnimationSequencer {
+    public enum AnimationDirection {
         From,
         To
     }
 
-    public enum DataInputType
-    {
+    public enum DataInputType {
         Vector,
         Object
     }
 
-    public enum DataInputTypeWithAnchor
-    {
+    public enum DataInputTypeWithAnchor {
         Vector,
         Object,
         Anchor
     }
 
-    public enum AnchorPosition
-    {
+    public enum AnchorPosition {
         TopLeft,
         TopCenter,
         TopRight,

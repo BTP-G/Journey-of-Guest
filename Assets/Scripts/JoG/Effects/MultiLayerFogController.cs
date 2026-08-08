@@ -32,56 +32,62 @@ namespace JoG.Effects {
                 return;
             }
 
-            for (int i = 0; i < fogLayers.Length; i++) {
+            for (var i = 0; i < fogLayers.Length; i++) {
                 ConfigureFogLayer(fogLayers[i], i);
             }
         }
 
         private void ConfigureFogLayer(DynamicFogController layer, int index) {
-            if (layer == null) return;
+            if (layer == null) {
+                return;
+            }
 
-            float normalizedIndex = (float)index / Mathf.Max(1, fogLayers.Length - 1);
+            var normalizedIndex = (float)index / Mathf.Max(1, fogLayers.Length - 1);
 
-            Color layerColor = baseFogColor;
+            var layerColor = baseFogColor;
             layerColor.r += Mathf.Sin(normalizedIndex * Mathf.PI) * colorVariation;
             layerColor.g += Mathf.Cos(normalizedIndex * Mathf.PI * 0.5f) * colorVariation;
             layer.SetFogColor(layerColor);
 
-            float layerDensity = globalDensity * (1f + Mathf.Sin(normalizedIndex * Mathf.PI * 2) * densityVariation);
+            var layerDensity = globalDensity * (1f + (Mathf.Sin(normalizedIndex * Mathf.PI * 2) * densityVariation));
             layer.SetFogDensity(layerDensity);
 
-            Vector2 flowDir = new Vector2(
+            var flowDir = new Vector2(
                 Mathf.Cos(normalizedIndex * Mathf.PI * 0.7f),
                 Mathf.Sin(normalizedIndex * Mathf.PI * 0.9f)
             );
             layer.SetFlowDirection(flowDir);
 
-            float layerSpeed = globalSpeed * (1f + Mathf.Sin(normalizedIndex * Mathf.PI * 1.3f) * speedVariation);
+            var layerSpeed = globalSpeed * (1f + (Mathf.Sin(normalizedIndex * Mathf.PI * 1.3f) * speedVariation));
             layer.SetAnimationSpeed(layerSpeed);
 
-            float height = 2f + Mathf.Sin(normalizedIndex * Mathf.PI) * 1.5f;
-            float offset = -1f + normalizedIndex * 2f;
-            layer.SetDepthFog(height, offset, 0.4f + normalizedIndex * 0.3f);
+            var height = 2f + (Mathf.Sin(normalizedIndex * Mathf.PI) * 1.5f);
+            var offset = -1f + (normalizedIndex * 2f);
+            layer.SetDepthFog(height, offset, 0.4f + (normalizedIndex * 0.3f));
 
-            layer.SetNoiseScale(0.8f + normalizedIndex * 0.4f);
-            layer.SetTurbulence(0.2f + normalizedIndex * 0.2f);
+            layer.SetNoiseScale(0.8f + (normalizedIndex * 0.4f));
+            layer.SetTurbulence(0.2f + (normalizedIndex * 0.2f));
         }
 
         private void Update() {
-            if (!animate) return;
+            if (!animate) {
+                return;
+            }
 
-            float time = Time.time * globalSpeed;
+            var time = Time.time * globalSpeed;
 
-            for (int i = 0; i < fogLayers.Length; i++) {
-                if (fogLayers[i] == null) continue;
+            for (var i = 0; i < fogLayers.Length; i++) {
+                if (fogLayers[i] == null) {
+                    continue;
+                }
 
-                float normalizedIndex = (float)i / Mathf.Max(1, fogLayers.Length - 1);
-                float phase = normalizedIndex * Mathf.PI * 2;
-                float timeOffset = Mathf.Sin(phase + time * 0.5f) * 0.1f;
+                var normalizedIndex = (float)i / Mathf.Max(1, fogLayers.Length - 1);
+                var phase = normalizedIndex * Mathf.PI * 2;
+                var timeOffset = Mathf.Sin(phase + (time * 0.5f)) * 0.1f;
 
-                Vector2 dynamicFlow = new Vector2(
-                    Mathf.Cos(time * 0.3f + phase) * 0.1f,
-                    Mathf.Sin(time * 0.2f + phase * 0.7f) * 0.1f
+                var dynamicFlow = new Vector2(
+                    Mathf.Cos((time * 0.3f) + phase) * 0.1f,
+                    Mathf.Sin((time * 0.2f) + (phase * 0.7f)) * 0.1f
                 );
                 fogLayers[i].SetFlowDirection(dynamicFlow);
             }
@@ -111,12 +117,12 @@ namespace JoG.Effects {
         }
 
         private System.Collections.IEnumerator FadeDensityCoroutine(float targetDensity, float duration) {
-            float startDensity = globalDensity;
+            var startDensity = globalDensity;
             float elapsed = 0;
 
             while (elapsed < duration) {
                 elapsed += Time.deltaTime;
-                float t = elapsed / duration;
+                var t = elapsed / duration;
                 globalDensity = Mathf.Lerp(startDensity, targetDensity, t);
                 InitializeFogLayers();
                 yield return null;
@@ -127,10 +133,12 @@ namespace JoG.Effects {
         }
 
         private void OnDrawGizmosSelected() {
-            if (fogLayers == null) return;
+            if (fogLayers == null) {
+                return;
+            }
 
             Gizmos.color = Color.cyan;
-            for (int i = 0; i < fogLayers.Length; i++) {
+            for (var i = 0; i < fogLayers.Length; i++) {
                 if (fogLayers[i] != null) {
                     Gizmos.DrawWireSphere(fogLayers[i].transform.position, 0.5f);
                 }

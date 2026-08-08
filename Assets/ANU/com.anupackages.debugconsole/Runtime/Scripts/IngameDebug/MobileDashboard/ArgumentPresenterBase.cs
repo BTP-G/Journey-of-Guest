@@ -1,12 +1,10 @@
-﻿using ANU.IngameDebug.Console.Commands.Implementations;
+using ANU.IngameDebug.Console.Commands.Implementations;
 using TMPro;
 using UnityEngine;
 using static ANU.IngameDebug.Console.Commands.Implementations.MemberCommand;
 
-namespace ANU.IngameDebug.Console.Dashboard
-{
-    internal abstract class ArgumentPresenterBase : MonoBehaviour
-    {
+namespace ANU.IngameDebug.Console.Dashboard {
+    internal abstract class ArgumentPresenterBase : MonoBehaviour {
         [SerializeField] protected TextMeshProUGUI _label;
 
         public ParameterCache Parameter { get; private set; }
@@ -15,10 +13,8 @@ namespace ANU.IngameDebug.Console.Dashboard
 
         private bool _isInitialized;
 
-        public void Present(MemberCommand command, ParameterCache parameter)
-        {
-            if (!_isInitialized)
-            {
+        public void Present(MemberCommand command, ParameterCache parameter) {
+            if (!_isInitialized) {
                 _isInitialized = true;
                 Initialize();
             }

@@ -1,5 +1,4 @@
 using EditorAttributes;
-using Xoderony.Localization;
 using JoG.Gameplay;
 using JoG.Interaction;
 using JoG.Localization;
@@ -9,6 +8,7 @@ using System.Text;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Xoderony.Localization;
 
 namespace JoG.Assets.JoG.Props {
 
@@ -31,7 +31,10 @@ namespace JoG.Assets.JoG.Props {
         public bool Active {
             get {
                 foreach (var objective in requiredObjective) {
-                    if (objective.IsComplete) continue;
+                    if (objective.IsComplete) {
+                        continue;
+                    }
+
                     return false;
                 }
                 return true;
@@ -67,7 +70,10 @@ namespace JoG.Assets.JoG.Props {
 
         [Rpc(SendTo.Authority)]
         private void LoadNextSceneRpc() {
-            if (status == SceneEventProgressStatus.Started) return;
+            if (status == SceneEventProgressStatus.Started) {
+                return;
+            }
+
             status = NetworkManager.SceneManager.LoadScene(nextSceneName, LoadSceneMode.Single);
         }
     }

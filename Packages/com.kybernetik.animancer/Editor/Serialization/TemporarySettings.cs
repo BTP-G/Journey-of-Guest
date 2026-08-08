@@ -6,15 +6,13 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only]
     /// Stores data which needs to survive assembly reloading (such as from script compilation), but can be discarded
     /// when the Unity Editor is closed.
     /// </summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/TemporarySettings
-    internal class TemporarySettings : ScriptableObject
-    {
+    internal class TemporarySettings : ScriptableObject {
         /************************************************************************************************************************/
         #region Instance
         /************************************************************************************************************************/
@@ -29,13 +27,11 @@ namespace Animancer.Editor
 
         /************************************************************************************************************************/
 
-        protected virtual void OnEnable()
-        {
+        protected virtual void OnEnable() {
             OnEnableSelection();
         }
 
-        protected virtual void OnDisable()
-        {
+        protected virtual void OnDisable() {
             OnDisableSelection();
         }
 
@@ -50,35 +46,35 @@ namespace Animancer.Editor
 
         /************************************************************************************************************************/
 
-        public static int GetSelectedEvent(SerializedProperty property)
-        {
+        public static int GetSelectedEvent(SerializedProperty property) {
             var instance = Instance;
-            if (!instance.ObjectToPropertyPathToSelectedEvent.TryGetValue(property.serializedObject.targetObject, out var pathToSelection))
+            if (!instance.ObjectToPropertyPathToSelectedEvent.TryGetValue(property.serializedObject.targetObject, out var pathToSelection)) {
                 return -1;
-            else if (pathToSelection.TryGetValue(property.propertyPath, out var selection))
+            } else if (pathToSelection.TryGetValue(property.propertyPath, out var selection)) {
                 return selection;
-            else
+            } else {
                 return -1;
+            }
         }
 
         /************************************************************************************************************************/
 
-        public static void SetSelectedEvent(SerializedProperty property, int eventIndex)
-        {
+        public static void SetSelectedEvent(SerializedProperty property, int eventIndex) {
             var pathToSelection = GetOrCreatePathToSelection(property.serializedObject.targetObject);
-            if (eventIndex >= 0)
+            if (eventIndex >= 0) {
                 pathToSelection[property.propertyPath] = eventIndex;
-            else
+            } else {
                 pathToSelection.Remove(property.propertyPath);
+            }
         }
 
         /************************************************************************************************************************/
 
-        private static Dictionary<string, int> GetOrCreatePathToSelection(Object obj)
-        {
+        private static Dictionary<string, int> GetOrCreatePathToSelection(Object obj) {
             var instance = Instance;
-            if (!instance.ObjectToPropertyPathToSelectedEvent.TryGetValue(obj, out var pathToSelection))
+            if (!instance.ObjectToPropertyPathToSelectedEvent.TryGetValue(obj, out var pathToSelection)) {
                 instance.ObjectToPropertyPathToSelectedEvent.Add(obj, pathToSelection = new());
+            }
 
             return pathToSelection;
         }
@@ -91,16 +87,13 @@ namespace Animancer.Editor
 
         /************************************************************************************************************************/
 
-        private void OnDisableSelection()
-        {
+        private void OnDisableSelection() {
             var objects = new List<Serialization.ObjectReference>();
             var paths = new List<string>();
             var indices = new List<int>();
 
-            foreach (var objectToSelection in ObjectToPropertyPathToSelectedEvent)
-            {
-                foreach (var pathToSelection in objectToSelection.Value)
-                {
+            foreach (var objectToSelection in ObjectToPropertyPathToSelectedEvent) {
+                foreach (var pathToSelection in objectToSelection.Value) {
                     objects.Add(objectToSelection.Key);
                     paths.Add(pathToSelection.Key);
                     indices.Add(pathToSelection.Value);
@@ -114,24 +107,25 @@ namespace Animancer.Editor
 
         /************************************************************************************************************************/
 
-        private void OnEnableSelection()
-        {
+        private void OnEnableSelection() {
             if (_EventSelectionObjects == null ||
                 _EventSelectionPropertyPaths == null ||
-                _EventSelectionIndices == null)
+                _EventSelectionIndices == null) {
                 return;
+            }
 
             var count = _EventSelectionObjects.Length;
-            if (count > _EventSelectionPropertyPaths.Length)
+            if (count > _EventSelectionPropertyPaths.Length) {
                 count = _EventSelectionPropertyPaths.Length;
-            if (count > _EventSelectionIndices.Length)
-                count = _EventSelectionIndices.Length;
+            }
 
-            for (int i = 0; i < count; i++)
-            {
+            if (count > _EventSelectionIndices.Length) {
+                count = _EventSelectionIndices.Length;
+            }
+
+            for (var i = 0; i < count; i++) {
                 var obj = _EventSelectionObjects[i];
-                if (obj.IsValid())
-                {
+                if (obj.IsValid()) {
                     var pathToSelection = GetOrCreatePathToSelection(obj);
                     pathToSelection.Add(_EventSelectionPropertyPaths[i], _EventSelectionIndices[i]);
                 }
@@ -146,10 +140,8 @@ namespace Animancer.Editor
 
         [SerializeField]
         private List<GameObject> _PreviewModels;
-        public static List<GameObject> PreviewModels
-        {
-            get
-            {
+        public static List<GameObject> PreviewModels {
+            get {
                 var instance = Instance;
                 AnimancerEditorUtilities.RemoveMissingAndDuplicates(ref instance._PreviewModels);
                 return instance._PreviewModels;

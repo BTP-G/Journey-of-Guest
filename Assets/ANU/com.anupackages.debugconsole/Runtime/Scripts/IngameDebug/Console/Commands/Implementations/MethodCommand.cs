@@ -1,11 +1,10 @@
-﻿using System;
+using NDesk.Options;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using NDesk.Options;
 using Unity.Profiling;
 using UnityEngine;
 
@@ -26,8 +25,9 @@ namespace ANU.IngameDebug.Console.Commands.Implementations {
                 }
 
                 var allPrefixes = prefixAttribute?.MorePrefixes?.Prepend(prefixAttribute.Prefix) ?? Array.Empty<string>();
-                if (!string.IsNullOrEmpty(prefix))
+                if (!string.IsNullOrEmpty(prefix)) {
                     allPrefixes = allPrefixes.Prepend(prefix);
+                }
 
                 prefix = allPrefixes.Any()
                     ? string.Join(".", allPrefixes) + "."
@@ -55,8 +55,9 @@ namespace ANU.IngameDebug.Console.Commands.Implementations {
             using (_getDescription.Auto()) {
                 DebugCommandAttribute attribute;
 
-                using (_getAttribute.Auto())
+                using (_getAttribute.Auto()) {
                     attribute = member.GetCustomAttribute<DebugCommandAttribute>();
+                }
 
                 return attribute?.Description;
             }
@@ -81,8 +82,10 @@ namespace ANU.IngameDebug.Console.Commands.Implementations {
         }
 
         private void CacheParametersMetaDataIfNeeded() {
-            if (_parametersCached)
+            if (_parametersCached) {
                 return;
+            }
+
             _parametersCached = true;
             CacheParametersMetaData(_parametersCache);
         }
@@ -127,11 +130,13 @@ namespace ANU.IngameDebug.Console.Commands.Implementations {
         }
 
         protected abstract Type ReturnValueType { get; }
-        public override sealed DebugCommandAttribute DebugCommandAttribute => _attribute;
+        public sealed override DebugCommandAttribute DebugCommandAttribute => _attribute;
 
-        protected virtual void ResetParametersValues() => _dynamicInstances = Array.Empty<object>();
+        protected virtual void ResetParametersValues() {
+            _dynamicInstances = Array.Empty<object>();
+        }
 
-        protected override sealed ExecutionResult OnParsed() {
+        protected sealed override ExecutionResult OnParsed() {
             var returnValues = new List<SingleExecutionResult>();
 
             try {
@@ -139,8 +144,9 @@ namespace ANU.IngameDebug.Console.Commands.Implementations {
 
                 var instances = GetInstances();
 
-                if (!instances.Any())
+                if (!instances.Any()) {
                     throw new Exception("There are no provided targets tor NonStatic method. For more information see InstanceTargetType documentation");
+                }
 
                 foreach (var target in instances) {
                     try {
@@ -167,7 +173,7 @@ namespace ANU.IngameDebug.Console.Commands.Implementations {
 
         protected abstract void ValidateParameters();
 
-        protected override sealed OptionSet CreateOptions(Dictionary<Option, AvailableValuesHint> valueHints) {
+        protected sealed override OptionSet CreateOptions(Dictionary<Option, AvailableValuesHint> valueHints) {
             using (_createOptions.Auto()) {
                 var options = new OptionSet();
                 CreateOptions(valueHints, options);
@@ -193,20 +199,24 @@ namespace ANU.IngameDebug.Console.Commands.Implementations {
         protected abstract bool IsStatic(T member);
 
         private IEnumerable<object> GetInstances() {
-            if (_instance != null || IsStatic(_member))
+            if (_instance != null || IsStatic(_member)) {
                 return new object[] { _instance };
+            }
 
             var targets = Array.Empty<object>().AsEnumerable();
 
-            if (_attribute == null)
+            if (_attribute == null) {
                 return targets;
+            }
 
-            if (_dynamicInstances != null && _dynamicInstances.Any())
+            if (_dynamicInstances != null && _dynamicInstances.Any()) {
                 return _dynamicInstances;
+            }
 
             var instanceTarget = _attribute.Target;
-            if (!typeof(UnityEngine.Component).IsAssignableFrom(_member.DeclaringType))
+            if (!typeof(UnityEngine.Component).IsAssignableFrom(_member.DeclaringType)) {
                 instanceTarget = InstanceTargetType.Registry;
+            }
 
             var includeInactive = false
                 || instanceTarget == InstanceTargetType.AllIncludingInactive
@@ -287,10 +297,11 @@ namespace ANU.IngameDebug.Console.Commands.Implementations {
         protected override void ResetParametersValues() {
             base.ResetParametersValues();
 
-            if (_parameters == null)
+            if (_parameters == null) {
                 return;
+            }
 
-            for (int i = 0; i < _parameters.Length; i++) {
+            for (var i = 0; i < _parameters.Length; i++) {
                 var parameter = _parameters[i];
                 _isParameterValid[i] = parameter.HasDefaultValue || parameter.ParameterType == typeof(bool);
                 _parameterValues[i] = parameter.HasDefaultValue
@@ -309,10 +320,12 @@ namespace ANU.IngameDebug.Console.Commands.Implementations {
         protected override void ValidateParameters() {
             var allParametersValide = true;
             var builder = new StringBuilder();
-            for (int i = 0; i < _isParameterValid.Length; i++) {
+            for (var i = 0; i < _isParameterValid.Length; i++) {
                 var isValide = _isParameterValid[i];
-                if (isValide)
+                if (isValide) {
                     continue;
+                }
+
                 allParametersValide = false;
                 builder.AppendLine(_parameters[i].Name);
             }
@@ -324,7 +337,7 @@ namespace ANU.IngameDebug.Console.Commands.Implementations {
         }
 
         protected override void CreateOptions(Dictionary<Option, AvailableValuesHint> valueHints, OptionSet options) {
-            for (int i = 0; i < _parameters.Length; i++) {
+            for (var i = 0; i < _parameters.Length; i++) {
                 var parameterIndex = i;
                 var parameter = _parameters[parameterIndex];
 
@@ -335,11 +348,13 @@ namespace ANU.IngameDebug.Console.Commands.Implementations {
                 // var optionKey = optionName;
 
                 var altNames = parameter.GetCustomAttribute<OptAltNamesAttribute>();
-                if (altNames != null)
+                if (altNames != null) {
                     optionName = string.Join("|", altNames.AlternativeNames.Prepend(optionName));
+                }
 
-                if (!isFlag)
+                if (!isFlag) {
                     optionName += isOptional ? ":" : "=";
+                }
 
                 var optionDescription = parameter.GetCustomAttribute<OptDescAttribute>()?.Description;
 
@@ -359,7 +374,7 @@ namespace ANU.IngameDebug.Console.Commands.Implementations {
 
                 options.Add(
                     optionName,
-                    optionDescription, 
+                    optionDescription,
                     action
                 );
 
@@ -371,25 +386,28 @@ namespace ANU.IngameDebug.Console.Commands.Implementations {
                 var values = parameter.GetCustomAttribute<OptValAttribute>();
                 var valuesDynamic = parameter.GetCustomAttribute<OptValDynamicAttribute>();
 
-                if (values != null)
+                if (values != null) {
                     hints = values.AvailableValues.Select(v => v.ToString());
-                else if (parameter.ParameterType.IsEnum)
+                } else if (parameter.ParameterType.IsEnum) {
                     hints = Enum.GetNames(parameter.ParameterType);
-                else if (parameter.ParameterType == typeof(bool))
+                } else if (parameter.ParameterType == typeof(bool)) {
                     hints = new string[] { "true", "false" };
+                }
 
                 valueHints[opt] = new AvailableValuesHint(hints, valuesDynamic?.DynamicValuesProviderCommandNames);
                 _options[i] = opt;
             }
         }
 
-        protected override bool IsStatic(MethodInfo member) => member.IsStatic;
+        protected override bool IsStatic(MethodInfo member) {
+            return member.IsStatic;
+        }
 
         protected override void CacheParametersMetaData(Dictionary<int, ParameterCache> parameterCache) {
             //call this to cache options
-            var hints = this.Options;
+            var hints = Options;
 
-            for (int i = 0; i < _parameters.Length; i++) {
+            for (var i = 0; i < _parameters.Length; i++) {
                 var parameter = _parameters[i];
                 parameterCache[i] = new ParameterCache(
                     i,
@@ -433,8 +451,9 @@ namespace ANU.IngameDebug.Console.Commands.Implementations {
             var optionNames = new string[] { "value", "v" };
 
             var altNames = _member.GetCustomAttribute<OptAltNamesAttribute>()?.AlternativeNames;
-            if (altNames != null)
+            if (altNames != null) {
                 optionNames = altNames;
+            }
 
             var optionName = string.Join("|", optionNames);
             optionName += ":";
@@ -446,12 +465,13 @@ namespace ANU.IngameDebug.Console.Commands.Implementations {
             var values = _member.GetCustomAttribute<OptValAttribute>();
             var valuesDynamic = _member.GetCustomAttribute<OptValDynamicAttribute>();
 
-            if (values != null)
+            if (values != null) {
                 hints = values.AvailableValues.Select(v => v.ToString());
-            else if (_parameterType.IsEnum)
+            } else if (_parameterType.IsEnum) {
                 hints = Enum.GetNames(_parameterType);
-            else if (_parameterType == typeof(bool))
+            } else if (_parameterType == typeof(bool)) {
                 hints = new string[] { "true", "false" };
+            }
 
             options.Add(optionName, optionDescription, value => {
                 value = value.Trim('"').Trim('\'');
@@ -473,7 +493,7 @@ namespace ANU.IngameDebug.Console.Commands.Implementations {
         protected override void ValidateParameters() {
         }
 
-        protected override sealed object Invoke(T member, object instance) {
+        protected sealed override object Invoke(T member, object instance) {
             if (_invokeType == InvokeType.Get) {
                 return GetValue(member, instance);
             } else {
@@ -513,13 +533,21 @@ namespace ANU.IngameDebug.Console.Commands.Implementations {
 
         protected override Type ReturnValueType => _member.FieldType;
 
-        protected override Type GetMemberType() => _member.FieldType;
+        protected override Type GetMemberType() {
+            return _member.FieldType;
+        }
 
-        protected override bool IsStatic(FieldInfo member) => member.IsStatic;
+        protected override bool IsStatic(FieldInfo member) {
+            return member.IsStatic;
+        }
 
-        protected override object GetValue(FieldInfo member, object instance) => member.GetValue(instance);
+        protected override object GetValue(FieldInfo member, object instance) {
+            return member.GetValue(instance);
+        }
 
-        protected override void SetValue(FieldInfo member, object instance, object value) => member.SetValue(instance, value);
+        protected override void SetValue(FieldInfo member, object instance, object value) {
+            member.SetValue(instance, value);
+        }
     }
 
     public class PropertyCommand : GetSetCommand<PropertyInfo> {
@@ -535,12 +563,20 @@ namespace ANU.IngameDebug.Console.Commands.Implementations {
 
         protected override Type ReturnValueType => _member.PropertyType;
 
-        protected override Type GetMemberType() => _member.PropertyType;
+        protected override Type GetMemberType() {
+            return _member.PropertyType;
+        }
 
-        protected override bool IsStatic(PropertyInfo member) => member.GetAccessors(true)[0].IsStatic;
+        protected override bool IsStatic(PropertyInfo member) {
+            return member.GetAccessors(true)[0].IsStatic;
+        }
 
-        protected override object GetValue(PropertyInfo member, object instance) => member.GetValue(instance);
+        protected override object GetValue(PropertyInfo member, object instance) {
+            return member.GetValue(instance);
+        }
 
-        protected override void SetValue(PropertyInfo member, object instance, object value) => member.SetValue(instance, value);
+        protected override void SetValue(PropertyInfo member, object instance, object value) {
+            member.SetValue(instance, value);
+        }
     }
 }

@@ -1,16 +1,12 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-using System.Collections.Generic;
 using Antlr4.Runtime.Misc;
-using Antlr4.Runtime.Sharpen;
-using Antlr4.Runtime.Tree;
-using Antlr4.Runtime.Tree.Pattern;
 using Antlr4.Runtime.Tree.Xpath;
+using System.Collections.Generic;
 
-namespace Antlr4.Runtime.Tree.Pattern
-{
+namespace Antlr4.Runtime.Tree.Pattern {
     /// <summary>
     /// A pattern like
     /// <c>&lt;ID&gt; = &lt;expr&gt;;</c>
@@ -20,8 +16,7 @@ namespace Antlr4.Runtime.Tree.Pattern
     /// <see cref="ParseTreePatternMatcher.Compile(string, int)"/>
     /// .
     /// </summary>
-    public class ParseTreePattern
-    {
+    public class ParseTreePattern {
         /// <summary>
         /// This is the backing field for
         /// <see cref="PatternRuleIndex()"/>
@@ -74,8 +69,7 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// <see cref="Antlr4.Runtime.Tree.IParseTree"/>
         /// form.
         /// </param>
-        public ParseTreePattern(ParseTreePatternMatcher matcher, string pattern, int patternRuleIndex, IParseTree patternTree)
-        {
+        public ParseTreePattern(ParseTreePatternMatcher matcher, string pattern, int patternRuleIndex, IParseTree patternTree) {
             this.matcher = matcher;
             this.patternRuleIndex = patternRuleIndex;
             this.pattern = pattern;
@@ -95,8 +89,7 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// used to determine whether or not the match was successful.
         /// </returns>
         [return: NotNull]
-        public virtual ParseTreeMatch Match(IParseTree tree)
-        {
+        public virtual ParseTreeMatch Match(IParseTree tree) {
             return matcher.Match(tree, this);
         }
 
@@ -113,8 +106,7 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// <see langword="false"/>
         /// .
         /// </returns>
-        public virtual bool Matches(IParseTree tree)
-        {
+        public virtual bool Matches(IParseTree tree) {
             return matcher.Match(tree, this).Succeeded;
         }
 
@@ -140,15 +132,12 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// regardless of the reason for the failure.
         /// </returns>
         [return: NotNull]
-        public virtual IList<ParseTreeMatch> FindAll(IParseTree tree, string xpath)
-        {
-            ICollection<IParseTree> subtrees = XPath.FindAll(tree, xpath, matcher.Parser);
+        public virtual IList<ParseTreeMatch> FindAll(IParseTree tree, string xpath) {
+            var subtrees = XPath.FindAll(tree, xpath, matcher.Parser);
             IList<ParseTreeMatch> matches = new List<ParseTreeMatch>();
-            foreach (IParseTree t in subtrees)
-            {
-                ParseTreeMatch match = Match(t);
-                if (match.Succeeded)
-                {
+            foreach (var t in subtrees) {
+                var match = Match(t);
+                if (match.Succeeded) {
                     matches.Add(match);
                 }
             }
@@ -167,10 +156,8 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// pattern.
         /// </returns>
         [NotNull]
-        public virtual ParseTreePatternMatcher Matcher
-        {
-            get
-            {
+        public virtual ParseTreePatternMatcher Matcher {
+            get {
                 return matcher;
             }
         }
@@ -179,10 +166,8 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// <remarks>Get the tree pattern in concrete syntax form.</remarks>
         /// <returns>The tree pattern in concrete syntax form.</returns>
         [NotNull]
-        public virtual string Pattern
-        {
-            get
-            {
+        public virtual string Pattern {
+            get {
                 return pattern;
             }
         }
@@ -199,10 +184,8 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// The parser rule which serves as the outermost rule for the tree
         /// pattern.
         /// </returns>
-        public virtual int PatternRuleIndex
-        {
-            get
-            {
+        public virtual int PatternRuleIndex {
+            get {
                 return patternRuleIndex;
             }
         }
@@ -224,10 +207,8 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// .
         /// </returns>
         [NotNull]
-        public virtual IParseTree PatternTree
-        {
-            get
-            {
+        public virtual IParseTree PatternTree {
+            get {
                 return patternTree;
             }
         }

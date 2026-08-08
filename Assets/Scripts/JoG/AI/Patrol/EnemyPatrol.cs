@@ -1,12 +1,10 @@
-using UnityEngine;
-using UnityEngine.AI;
-using JoG.AI.Patrol;
-using Xoderony.Extensions;
-using VContainer;
 using JoG.AI;
+using JoG.AI.Patrol;
+using UnityEngine;
+using VContainer;
 
 public class EnemyPatrol : MonoBehaviour {
-    [Min(0)]public float stoppingDistance = 0.5f;
+    [Min(0)] public float stoppingDistance = 0.5f;
     public JumpInputer pathTarget;
     [Header("巡逻配置")]
     [Inject] internal PatrolService patrolService;
@@ -14,8 +12,6 @@ public class EnemyPatrol : MonoBehaviour {
     private PatrolRoute _currentRoute;
     private Transform _currentTarget;
     private int _currentPointIndex;
-
-
 
     private void Update() {
 
@@ -33,7 +29,7 @@ public class EnemyPatrol : MonoBehaviour {
     private void OnDrawGizmosSelected() {
         if (_currentRoute != null && _currentRoute.points != null) {
             Gizmos.color = Color.cyan;
-            for (int i = 0; i < _currentRoute.points.Length; i++) {
+            for (var i = 0; i < _currentRoute.points.Length; i++) {
                 var point = _currentRoute.points[i];
                 if (point != null) {
                     Gizmos.DrawWireSphere(point.position, 0.3f);

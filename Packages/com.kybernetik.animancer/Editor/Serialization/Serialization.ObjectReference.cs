@@ -12,16 +12,14 @@ namespace Animancer.Editor
 // namespace InspectorGadgets.Editor
 {
     /// <summary>[Editor-Only] Various serialization utilities.</summary>
-    public partial class Serialization
-    {
+    public partial class Serialization {
         /// <summary>[Editor-Only]
         /// Directly serializing an <see cref="UnityEngine.Object"/> reference doesn't always work (such as with scene
         /// objects when entering Play Mode), so this class also serializes their instance ID and uses that if the
         /// direct reference fails.
         /// </summary>
         [Serializable]
-        public class ObjectReference
-        {
+        public class ObjectReference {
             /************************************************************************************************************************/
 
             [SerializeField] private Object _Object;
@@ -34,10 +32,8 @@ namespace Animancer.Editor
             /************************************************************************************************************************/
 
             /// <summary>The referenced <see cref="SerializedObject"/>.</summary>
-            public Object Object
-            {
-                get
-                {
+            public Object Object {
+                get {
                     Initialize();
                     return _Object;
                 }
@@ -56,11 +52,9 @@ namespace Animancer.Editor
             /// Creates a new <see cref="ObjectReference"/> which wraps the specified
             /// <see cref="UnityEngine.Object"/>.
             /// </summary>
-            public ObjectReference(Object obj)
-            {
+            public ObjectReference(Object obj) {
                 _Object = obj;
-                if (obj != null)
-                {
+                if (obj != null) {
 #if UNITY_6000_3_OR_NEWER
                     _EntityID = obj.GetEntityId();
 #else
@@ -71,18 +65,18 @@ namespace Animancer.Editor
 
             /************************************************************************************************************************/
 
-            private void Initialize()
-            {
+            private void Initialize() {
 #if UNITY_6000_3_OR_NEWER
                 if (_Object == null)
                     _Object = EditorUtility.EntityIdToObject(_EntityID);
                 else
                     _EntityID = _Object.GetEntityId();
 #else
-                if (_Object == null)
+                if (_Object == null) {
                     _Object = EditorUtility.InstanceIDToObject(_InstanceID);
-                else
+                } else {
                     _InstanceID = _Object.GetInstanceID();
+                }
 #endif
             }
 
@@ -92,21 +86,24 @@ namespace Animancer.Editor
             /// Creates a new <see cref="ObjectReference"/> which wraps the specified
             /// <see cref="UnityEngine.Object"/>.
             /// </summary>
-            public static implicit operator ObjectReference(Object obj)
-                => new(obj);
+            public static implicit operator ObjectReference(Object obj) {
+                return new(obj);
+            }
 
             /// <summary>Returns the target <see cref="Object"/>.</summary>
-            public static implicit operator Object(ObjectReference reference)
-                => reference.Object;
+            public static implicit operator Object(ObjectReference reference) {
+                return reference.Object;
+            }
 
             /************************************************************************************************************************/
 
             /// <summary>Creates a new array of <see cref="ObjectReference"/>s representing the `objects`.</summary>
-            public static ObjectReference[] Convert(params Object[] objects)
-            {
+            public static ObjectReference[] Convert(params Object[] objects) {
                 var references = new ObjectReference[objects.Length];
-                for (int i = 0; i < objects.Length; i++)
+                for (var i = 0; i < objects.Length; i++) {
                     references[i] = objects[i];
+                }
+
                 return references;
             }
 
@@ -114,32 +111,35 @@ namespace Animancer.Editor
             /// Creates a new array of <see cref="UnityEngine.Object"/>s containing the target <see cref="Object"/> of each
             /// of the `references`.
             /// </summary>
-            public static Object[] Convert(params ObjectReference[] references)
-            {
+            public static Object[] Convert(params ObjectReference[] references) {
                 var objects = new Object[references.Length];
-                for (int i = 0; i < references.Length; i++)
+                for (var i = 0; i < references.Length; i++) {
                     objects[i] = references[i];
+                }
+
                 return objects;
             }
 
             /************************************************************************************************************************/
 
             /// <summary>Indicates whether both arrays refer to the same set of objects.</summary>
-            public static bool AreSameObjects(ObjectReference[] references, Object[] objects)
-            {
-                if (references == null)
+            public static bool AreSameObjects(ObjectReference[] references, Object[] objects) {
+                if (references == null) {
                     return objects == null;
+                }
 
-                if (objects == null)
+                if (objects == null) {
                     return false;
+                }
 
-                if (references.Length != objects.Length)
+                if (references.Length != objects.Length) {
                     return false;
+                }
 
-                for (int i = 0; i < references.Length; i++)
-                {
-                    if (references[i] != objects[i])
+                for (var i = 0; i < references.Length; i++) {
+                    if (references[i] != objects[i]) {
                         return false;
+                    }
                 }
 
                 return true;
@@ -148,11 +148,9 @@ namespace Animancer.Editor
             /************************************************************************************************************************/
 
             /// <summary>Returns a string describing this object.</summary>
-            public override string ToString()
-#if UNITY_6000_3_OR_NEWER
-                => $"Serialization.ObjectReference [{_EntityID}] {_Object}";
-#else
-                => $"Serialization.ObjectReference [{_InstanceID}] {_Object}";
+            public override string ToString() {
+                return $"Serialization.ObjectReference [{_InstanceID}] {_Object}";
+            }
 #endif
 
             /************************************************************************************************************************/
@@ -161,8 +159,9 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Returns true if the `reference` and <see cref="ObjectReference.Object"/> are not null.</summary>
-        public static bool IsValid(this ObjectReference reference)
-            => reference?.Object != null;
+        public static bool IsValid(this ObjectReference reference) {
+            return reference?.Object != null;
+        }
 
         /************************************************************************************************************************/
     }

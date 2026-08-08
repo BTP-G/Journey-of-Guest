@@ -1,12 +1,10 @@
-﻿using UnityEngine;
+using UnityEngine;
 
-namespace EditorAttributes
-{
+namespace EditorAttributes {
     /// <summary>
     /// Attribute to make a field readonly in the inspector
     /// </summary>
-    public class ReadOnlyAttribute : PropertyAttribute
-    {
+    public class ReadOnlyAttribute : PropertyAttribute {
         /// <summary>
         /// Attribute to make a field readonly in the inspector
         /// </summary>

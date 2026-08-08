@@ -1,11 +1,9 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 
-namespace ANU.IngameDebug.Console.Dashboard
-{
+namespace ANU.IngameDebug.Console.Dashboard {
     [RequireComponent(typeof(ToggleGroup))]
-    public class ConsoleTabs : MonoBehaviour
-    {
+    public class ConsoleTabs : MonoBehaviour {
         [SerializeField] private Toggle _console;
         [SerializeField] private Toggle _dashboard;
         [Space]
@@ -20,14 +18,12 @@ namespace ANU.IngameDebug.Console.Dashboard
 #endif
             ;
 
-        private int LastTabIndex
-        {
+        private int LastTabIndex {
             get => PlayerPrefs.GetInt("ConsoleLastTabIndex", DefaultTab);
             set => PlayerPrefs.SetInt("ConsoleLastTabIndex", value);
         }
 
-        private void Awake()
-        {
+        private void Awake() {
             var group = GetComponent<ToggleGroup>();
 
             group.allowSwitchOff = false;
@@ -48,8 +44,7 @@ namespace ANU.IngameDebug.Console.Dashboard
             UpdateTabs();
         }
 
-        private void UpdateTabs()
-        {
+        private void UpdateTabs() {
             _consoleObject.SetActive(_console.isOn);
             _dashboardObject.SetActive(_dashboard.isOn);
 

@@ -39,8 +39,6 @@ namespace JoG.Inventory {
         private void OnDisable() {
             tooltipView?.Hide(0);
         }
-
     }
-
 }
 

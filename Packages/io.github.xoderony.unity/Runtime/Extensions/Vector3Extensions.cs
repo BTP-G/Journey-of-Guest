@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
@@ -110,7 +110,7 @@ namespace Xoderony.Extensions {
         public static Vector3 Project(this in Vector3 v, in Vector3 onNormal) {
             var sqr = onNormal.sqrMagnitude;
             if (sqr > SqrEpsilon) {
-                return (v.Dot(onNormal) / sqr) * onNormal;
+                return v.Dot(onNormal) / sqr * onNormal;
             } else {
                 return Vector3.zero;
             }
@@ -120,7 +120,7 @@ namespace Xoderony.Extensions {
         public static Vector3 ProjectOnPlane(this in Vector3 v, in Vector3 planeNormal) {
             var sqr = planeNormal.sqrMagnitude;
             if (sqr > SqrEpsilon) {
-                return v - ((v.Dot(planeNormal) / sqr) * planeNormal);
+                return v - (v.Dot(planeNormal) / sqr * planeNormal);
             } else {
                 return v;
             }
@@ -138,7 +138,7 @@ namespace Xoderony.Extensions {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3 ProjectOnPlaneAlongDirection(this in Vector3 v, in Vector3 planeNormal, in Vector3 direction) {
-            return v - ((v.Dot(planeNormal) / planeNormal.Dot(direction)) * direction);
+            return v - (v.Dot(planeNormal) / planeNormal.Dot(direction) * direction);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -219,7 +219,5 @@ namespace Xoderony.Extensions {
         public static Vector3 AddZ(this in Vector3 v, float deltaZ) {
             return new(v.x, v.y, v.z + deltaZ);
         }
-
     }
-
 }

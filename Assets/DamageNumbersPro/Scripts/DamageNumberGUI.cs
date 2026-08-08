@@ -1,15 +1,10 @@
-﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Serialization;
-using DamageNumbersPro.Internal;
 using TMPro;
+using UnityEngine;
 
-namespace DamageNumbersPro
-{
+namespace DamageNumbersPro {
     [DisallowMultipleComponent]
-    public class DamageNumberGUI : DamageNumber
-    {
+    public class DamageNumberGUI : DamageNumber {
         /* 
          * Contact me if you need any support.
          * Email: ekincantascontact@gmail.com
@@ -27,19 +22,15 @@ namespace DamageNumbersPro
          */
 
         // Custom Events
-        protected override void InternalOnPreSpawn()
-        {
+        protected override void InternalOnPreSpawn() {
             // Fixes an issue where the previous mesh was visible for 1 frame
-            if (textMeshProA != null)
-            {
+            if (textMeshProA != null) {
                 textMeshProA.enabled = textMeshProB.enabled = false;
             }
         }
-        protected override void InternalOnSpawn()
-        {
+        protected override void InternalOnSpawn() {
             // Only damage numbers of the same parent can interact with each other
-            if(spamGroup != "" && transform.parent != null)
-            {
+            if (spamGroup != "" && transform.parent != null) {
                 spamGroup += transform.parent.GetInstanceID();
             }
 
@@ -48,16 +39,13 @@ namespace DamageNumbersPro
             skipFrames = true;
             realStartTime = Time.unscaledTime;
         }
-        protected override void OnLateUpdate()
-        {
+        protected override void OnLateUpdate() {
             // GUI Alpha Fix
-            if (skipFrames)
-            {
+            if (skipFrames) {
                 transform.localScale = Vector3.one * 0.0001f;
                 currentFade = 0;
 
-                if (skippedFrames > 2 && Time.unscaledTime > realStartTime + 0.03f)
-                {
+                if (skippedFrames > 2 && Time.unscaledTime > realStartTime + 0.03f) {
                     skipFrames = false;
                     transform.localScale = originalScale;
                     currentFade = 0;
@@ -65,8 +53,7 @@ namespace DamageNumbersPro
             }
         }
 
-        protected override void InternalUpdate(float deltaTime)
-        {
+        protected override void InternalUpdate(float deltaTime) {
             // GUI Alpha Fix
             skippedFrames++;
         }
@@ -78,28 +65,25 @@ namespace DamageNumbersPro
          */
 
         // References
-        RectTransform myRect;
-        TextMeshProUGUI textMeshProA;
-        TextMeshProUGUI textMeshProB;
-        RectTransform textRectA;
-        RectTransform textRectB;
-        List<TMP_SubMeshUI> subMeshs;
+        private RectTransform myRect;
+        private TextMeshProUGUI textMeshProA;
+        private TextMeshProUGUI textMeshProB;
+        private RectTransform textRectA;
+        private RectTransform textRectB;
+        private List<TMP_SubMeshUI> subMeshs;
 
         // Internal
-        float realStartTime;
-        bool skipFrames;
-        int skippedFrames;
+        private float realStartTime;
+        private bool skipFrames;
+        private int skippedFrames;
 
         // Components
-        public override void GetReferencesIfNecessary()
-        {
-            if(textMeshProA == null)
-            {
+        public override void GetReferencesIfNecessary() {
+            if (textMeshProA == null) {
                 GetReferences();
             }
         }
-        public override void GetReferences()
-        {
+        public override void GetReferences() {
             baseAlpha = 0.9f;
 
             myRect = GetComponent<RectTransform>();
@@ -110,40 +94,32 @@ namespace DamageNumbersPro
             textRectA = transformA.GetComponent<RectTransform>();
             textRectB = transformB.GetComponent<RectTransform>();
         }
-        public override TMP_Text[] GetTextMeshs()
-        {
+        public override TMP_Text[] GetTextMeshs() {
             return new TMP_Text[] { textMeshProA, textMeshProB };
         }
-        public override TMP_Text GetTextMesh()
-        {
+        public override TMP_Text GetTextMesh() {
             return textMeshProA;
         }
 
         // Materials
-        public override Material[] GetSharedMaterials()
-        {
+        public override Material[] GetSharedMaterials() {
             return textMeshProA.fontSharedMaterials;
         }
-        public override Material[] GetMaterials()
-        {
+        public override Material[] GetMaterials() {
             return textMeshProA.fontMaterials;
         }
-        public override Material GetSharedMaterial()
-        {
+        public override Material GetSharedMaterial() {
             return textMeshProA.fontSharedMaterial;
         }
-        public override Material GetMaterial()
-        {
+        public override Material GetMaterial() {
             return textMeshProA.fontMaterial;
         }
 
         // Text
-        protected override void SetTextString(string fullString)
-        {
+        protected override void SetTextString(string fullString) {
             textMeshProA.text = textMeshProB.text = fullString;
 
-            if(!textMeshProA.enabled)
-            {
+            if (!textMeshProA.enabled) {
                 textMeshProA.enabled = textMeshProB.enabled = true;
             }
 
@@ -152,43 +128,38 @@ namespace DamageNumbersPro
             textMeshProA.canvasRenderer.SetMesh(textMeshProA.mesh);
             textMeshProB.canvasRenderer.SetMesh(textMeshProB.mesh);
 
-            meshs = new List<Mesh>();
-            meshs.Add(textMeshProA.mesh);
-            meshs.Add(textMeshProB.mesh);
+            meshs = new List<Mesh> {
+                textMeshProA.mesh,
+                textMeshProB.mesh
+            };
 
             // Sub Meshs
             subMeshs = new List<TMP_SubMeshUI>();
-            foreach(TMP_SubMeshUI subMesh in textMeshProA.GetComponentsInChildren<TMP_SubMeshUI>())
-            {
+            foreach (var subMesh in textMeshProA.GetComponentsInChildren<TMP_SubMeshUI>()) {
                 subMeshs.Add(subMesh);
                 meshs.Add(subMesh.mesh);
             }
-            foreach (TMP_SubMeshUI subMesh in textMeshProB.GetComponentsInChildren<TMP_SubMeshUI>())
-            {
+            foreach (var subMesh in textMeshProB.GetComponentsInChildren<TMP_SubMeshUI>()) {
                 subMeshs.Add(subMesh);
                 meshs.Add(subMesh.mesh);
             }
         }
 
         // Position
-        public override Vector3 GetPosition()
-        {
+        public override Vector3 GetPosition() {
             return myRect.anchoredPosition3D;
         }
-        public override void SetPosition(Vector3 newPosition)
-        {
+        public override void SetPosition(Vector3 newPosition) {
             GetReferencesIfNecessary();
             position = myRect.anchoredPosition3D = newPosition;
         }
-        protected override void SetFinalPosition(Vector3 newPosition)
-        {
+        protected override void SetFinalPosition(Vector3 newPosition) {
             GetReferencesIfNecessary();
             myRect.anchoredPosition3D = newPosition;
         }
-        public override void SetAnchoredPosition(Transform rectParent, Vector2 anchoredPosition)
-        {
+        public override void SetAnchoredPosition(Transform rectParent, Vector2 anchoredPosition) {
             // Old Transform
-            Vector3 oldScale = transform.localScale;
+            var oldScale = transform.localScale;
 
             // Set Parent and Position
             GetReferencesIfNecessary();
@@ -199,10 +170,9 @@ namespace DamageNumbersPro
             transform.localScale = oldScale;
             transform.eulerAngles = textMeshProA.canvas.transform.eulerAngles;
         }
-        public override void SetAnchoredPosition(Transform rectParent, Transform rectPosition, Vector2 relativeAnchoredPosition)
-        {
+        public override void SetAnchoredPosition(Transform rectParent, Transform rectPosition, Vector2 relativeAnchoredPosition) {
             // Old Transform
-            Vector3 oldScale = transform.localScale;
+            var oldScale = transform.localScale;
 
             // Set Parent and Position
             GetReferencesIfNecessary();
@@ -214,63 +184,50 @@ namespace DamageNumbersPro
             transform.localScale = oldScale;
             transform.eulerAngles = textMeshProA.canvas.transform.eulerAngles;
         }
-        protected override Vector3 GetOtherPosition(Transform target)
-        {
-            RectTransform targetRectTransform = followedTarget.GetComponent<RectTransform>();
+        protected override Vector3 GetOtherPosition(Transform target) {
+            var targetRectTransform = followedTarget.GetComponent<RectTransform>();
             return targetRectTransform != null ? targetRectTransform.anchoredPosition3D : target.position;
         }
 
-        protected override void SetLocalPositionA(Vector3 localPosition)
-        {
+        protected override void SetLocalPositionA(Vector3 localPosition) {
             textRectA.anchoredPosition = localPosition * 50;
         }
-        protected override void SetLocalPositionB(Vector3 localPosition)
-        {
+        protected override void SetLocalPositionB(Vector3 localPosition) {
             textRectB.anchoredPosition = localPosition * 50;
         }
-        protected override float GetPositionFactor()
-        {
+        protected override float GetPositionFactor() {
             return 100f;
         }
 
         // Other
-        protected override void InternalUpdateFade(float currentFade)
-        {
+        protected override void InternalUpdateFade(float currentFade) {
             textMeshProA.canvasRenderer.SetMesh(textMeshProA.mesh);
             textMeshProB.canvasRenderer.SetMesh(textMeshProB.mesh);
 
-            foreach (TMP_SubMeshUI subMesh in subMeshs)
-            {
+            foreach (var subMesh in subMeshs) {
                 subMesh.canvasRenderer.SetMesh(subMesh.mesh);
             }
         }
-        protected override void UpdateRotationZ()
-        {
+        protected override void UpdateRotationZ() {
             SetRotationZ(textMeshProA.transform);
             SetRotationZ(textMeshProB.transform);
         }
-        public override void CheckAndEnable3D()
-        {
+        public override void CheckAndEnable3D() {
             enable3DGame = false;
         }
-        public override bool IsMesh()
-        {
+        public override bool IsMesh() {
             return false;
         }
-        public override Vector3 GetUpVector()
-        {
+        public override Vector3 GetUpVector() {
             return Vector3.up;
         }
-        public override Vector3 GetRightVector()
-        {
+        public override Vector3 GetRightVector() {
             return Vector3.right;
         }
-        public override Vector3 GetFreshUpVector()
-        {
+        public override Vector3 GetFreshUpVector() {
             return Vector3.up;
         }
-        public override Vector3 GetFreshRightVector()
-        {
+        public override Vector3 GetFreshRightVector() {
             return Vector3.right;
         }
     }

@@ -1,11 +1,11 @@
-using Xoderony.Extensions;
-using Xoderony.Logging;
 using JoG.Networking;
 using System;
 using Unity.Collections;
 using Unity.Netcode;
 using VContainer;
 using VContainer.Unity;
+using Xoderony.Extensions;
+using Xoderony.Logging;
 
 namespace JoG.Chat {
 
@@ -67,7 +67,7 @@ namespace JoG.Chat {
 
         private unsafe void HandleChatMessage(ulong clientId, FastBufferReader reader) {
             reader.TryBeginRead(5);
-            reader.ReadByte(out byte chatMessageType);
+            reader.ReadByte(out var chatMessageType);
             reader.ReadValue(out int bytes);
             var length = bytes / sizeof(char);
             var message = stackalloc char[length];

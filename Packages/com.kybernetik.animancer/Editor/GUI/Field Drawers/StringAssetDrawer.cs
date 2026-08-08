@@ -9,24 +9,22 @@ using UnityEngine;
 using static Animancer.Editor.AnimancerGUI;
 using Object = UnityEngine.Object;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only] A custom Inspector for <see cref="StringAsset"/> fields.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/StringAssetDrawer
     [CustomPropertyDrawer(typeof(StringAsset), true)]
-    public class StringAssetDrawer : PropertyDrawer
-    {
+    public class StringAssetDrawer : PropertyDrawer {
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-            => LineHeight;
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
+            return LineHeight;
+        }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void OnGUI(Rect area, SerializedProperty property, GUIContent label)
-        {
+        public override void OnGUI(Rect area, SerializedProperty property, GUIContent label) {
             label = EditorGUI.BeginProperty(area, label, property);
 
             property.objectReferenceValue = DrawGUI(
@@ -35,8 +33,7 @@ namespace Animancer.Editor
                 property,
                 out var exitGUI);
 
-            if (exitGUI)
-            {
+            if (exitGUI) {
                 property.serializedObject.ApplyModifiedProperties();
                 GUIUtility.ExitGUI();
             }
@@ -56,11 +53,11 @@ namespace Animancer.Editor
             Rect area,
             GUIContent label,
             SerializedProperty property,
-            out bool exitGUI)
-        {
+            out bool exitGUI) {
             var showMixedValue = EditorGUI.showMixedValue;
-            if (property != null && property.hasMultipleDifferentValues)
+            if (property != null && property.hasMultipleDifferentValues) {
                 EditorGUI.showMixedValue = true;
+            }
 
             _CurrentProperty = property;
             var value = DrawGUI(
@@ -89,13 +86,11 @@ namespace Animancer.Editor
             Object value,
             Object context,
             out bool exitGUI,
-            Func<Object[]> getAllValues = null)
-        {
+            Func<Object[]> getAllValues = null) {
             var currentEvent = Event.current;
             if (currentEvent.type == EventType.Repaint &&
                 !area.Contains(currentEvent.mousePosition) &&
-                !IsDraggingStringAsset())
-            {
+                !IsDraggingStringAsset()) {
                 GUIUtility.GetControlID(ButtonHash, FocusType.Passive);// Button.
                 GUIUtility.GetControlID(ButtonHash, FocusType.Passive);// Button.
                 GUIUtility.GetControlID(DragHint, FocusType.Passive, area);// DragAndDrop.
@@ -108,15 +103,11 @@ namespace Animancer.Editor
 
                 var valueArea = EditorGUI.PrefixLabel(area, controlID, label);
 
-                using (var content = PooledGUIContent.Acquire())
-                {
-                    if (value != null)
-                    {
+                using (var content = PooledGUIContent.Acquire()) {
+                    if (value != null) {
                         content.text = value.name;
                         content.image = AnimancerIcons.ScriptableObject;
-                    }
-                    else
-                    {
+                    } else {
                         content.text = "";
                         content.image = AssetPreview.GetMiniTypeThumbnail(typeof(StringAsset));
                     }
@@ -130,31 +121,29 @@ namespace Animancer.Editor
                 return value;
             }
 
-            if (value == null)
-            {
+            if (value == null) {
                 var buttonArea = StealFromRight(ref area, area.height, StandardSpacing);
 
                 var content = AnimancerIcons.AddIcon("Create and save a new String Asset");
-                if (GUI.Button(buttonArea, content, NoPaddingButtonStyle))
-                {
+                if (GUI.Button(buttonArea, content, NoPaddingButtonStyle)) {
                     exitGUI = true;
                     return CreateNewInstance(label.text, context);
                 }
 
                 GUIUtility.GetControlID(ButtonHash, FocusType.Passive);
-            }
-            else
-            {
+            } else {
                 var clearArea = StealFromRight(ref area, area.height, StandardSpacing);
                 var copyArea = StealFromRight(ref area, area.height, StandardSpacing);
 
                 var content = AnimancerIcons.CopyIcon("Copy string to clipboard");
-                if (GUI.Button(copyArea, content, NoPaddingButtonStyle))
+                if (GUI.Button(copyArea, content, NoPaddingButtonStyle)) {
                     GUIUtility.systemCopyBuffer = value.name;
+                }
 
                 content = AnimancerIcons.ClearIcon("Clear reference");
-                if (GUI.Button(clearArea, content, NoPaddingButtonStyle))
+                if (GUI.Button(clearArea, content, NoPaddingButtonStyle)) {
                     value = null;
+                }
             }
 
             HandleDragAndDrop(area, currentEvent, value, getAllValues);
@@ -171,19 +160,16 @@ namespace Animancer.Editor
             Rect area,
             Event currentEvent,
             Object value,
-            Func<Object[]> getAllValues)
-        {
+            Func<Object[]> getAllValues) {
             var id = GUIUtility.GetControlID(DragHint, FocusType.Passive, area);
 
-            switch (currentEvent.type)
-            {
+            switch (currentEvent.type) {
                 // Drag out of object field.
                 case EventType.MouseDrag:
                     if (GUIUtility.keyboardControl == id + 1 &&
                         currentEvent.button == 0 &&
                         area.Contains(currentEvent.mousePosition) &&
-                        value != null)
-                    {
+                        value != null) {
                         var values = getAllValues?.Invoke() ?? new Object[] { value };
                         DragAndDrop.PrepareStartDrag();
                         DragAndDrop.objectReferences = values;
@@ -195,15 +181,17 @@ namespace Animancer.Editor
         }
 
         /// <summary>Is a <see cref="StringAsset"/> currently being dragged?</summary>
-        private static bool IsDraggingStringAsset()
-        {
+        private static bool IsDraggingStringAsset() {
             var dragging = DragAndDrop.objectReferences;
-            if (dragging.IsNullOrEmpty())
+            if (dragging.IsNullOrEmpty()) {
                 return false;
+            }
 
-            for (int i = 0; i < dragging.Length; i++)
-                if (dragging[i] is not StringAsset)
+            for (var i = 0; i < dragging.Length; i++) {
+                if (dragging[i] is not StringAsset) {
                     return false;
+                }
+            }
 
             return true;
         }
@@ -213,8 +201,7 @@ namespace Animancer.Editor
         private const string FolderPathKey = nameof(StringAsset) + ".FolderPath";
 
         /// <summary>Asks where to save a new <see cref="StringAsset"/>.</summary>
-        private static Object CreateNewInstance(string name, Object targetObject)
-        {
+        private static Object CreateNewInstance(string name, Object targetObject) {
             var folderPath = GetSaveFolder(targetObject);
 
             var path = EditorUtility.SaveFilePanelInProject(
@@ -224,8 +211,9 @@ namespace Animancer.Editor
                 "Where yould you like to save the new String Asset?",
                 folderPath);
 
-            if (string.IsNullOrEmpty(path))
+            if (string.IsNullOrEmpty(path)) {
                 return null;
+            }
 
             EditorPrefs.SetString(FolderPathKey, Path.GetDirectoryName(path));
 
@@ -236,8 +224,7 @@ namespace Animancer.Editor
             return instance;
         }
 
-        private static string GetSaveFolder(Object targetObject)
-        {
+        private static string GetSaveFolder(Object targetObject) {
             var getActiveFolderPath = typeof(ProjectWindowUtil).GetMethod(
                 "GetActiveFolderPath",
                 AnimancerReflection.StaticBindings,
@@ -245,22 +232,23 @@ namespace Animancer.Editor
                 Type.EmptyTypes,
                 null);
             if (getActiveFolderPath != null &&
-                getActiveFolderPath.ReturnType == typeof(string))
-            {
+                getActiveFolderPath.ReturnType == typeof(string)) {
                 var activeFolderPath = getActiveFolderPath.Invoke(null, Array.Empty<object>())?.ToString();
-                if (!string.IsNullOrEmpty(activeFolderPath))
+                if (!string.IsNullOrEmpty(activeFolderPath)) {
                     return activeFolderPath;
+                }
             }
 
             var folderPath = AssetDatabase.GetAssetPath(targetObject);
-            if (!string.IsNullOrEmpty(folderPath))
+            if (!string.IsNullOrEmpty(folderPath)) {
                 folderPath = Path.GetDirectoryName(folderPath);
+            }
 
-            if (string.IsNullOrEmpty(folderPath))
-            {
+            if (string.IsNullOrEmpty(folderPath)) {
                 folderPath = EditorPrefs.GetString(FolderPathKey);
-                if (folderPath == null || !folderPath.StartsWith("Assets/"))
+                if (folderPath == null || !folderPath.StartsWith("Assets/")) {
                     folderPath = "Assets/";
+                }
             }
 
             return folderPath;

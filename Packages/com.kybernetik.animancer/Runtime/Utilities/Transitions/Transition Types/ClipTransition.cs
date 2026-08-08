@@ -6,16 +6,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <inheritdoc/>
     /// https://kybernetik.com.au/animancer/api/Animancer/ClipTransition
     [Serializable]
     public class ClipTransition : Transition<ClipState>,
         IMotion,
         IAnimationClipCollection,
-        ICopyable<ClipTransition>
-    {
+        ICopyable<ClipTransition> {
         /************************************************************************************************************************/
 
         /// <summary>The name of the serialized backing field of <see cref="Clip"/>.</summary>
@@ -30,16 +28,15 @@ namespace Animancer
         /// you will need to call <see cref="Transition{T}.ReconcileMainObject(AnimancerGraph)"/>
         /// for each of them to create new states for the newly assigned object.
         /// </remarks>
-        public AnimationClip Clip
-        {
+        public AnimationClip Clip {
             get => _Clip;
-            set
-            {
+            set {
                 Validate.AssertAnimationClip(value, false, $"set {nameof(ClipTransition)}.{nameof(Clip)}");
                 _Clip = value;
 
-                if (BaseState != null)
+                if (BaseState != null) {
                     ReconcileMainObject(BaseState);
+                }
             }
         }
 
@@ -57,8 +54,7 @@ namespace Animancer
         private float _NormalizedStartTime = float.NaN;
 
         /// <inheritdoc/>
-        public override float NormalizedStartTime
-        {
+        public override float NormalizedStartTime {
             get => _NormalizedStartTime;
             set => _NormalizedStartTime = value;
         }
@@ -80,12 +76,11 @@ namespace Animancer
         /// and <see cref="AnimancerEvent.Sequence.NormalizedEndTime"/>
         /// (but not <see cref="Speed"/>).
         /// </summary>
-        public virtual float Length
-        {
-            get
-            {
-                if (!IsValid)
+        public virtual float Length {
+            get {
+                if (!IsValid) {
                     return 0;
+                }
 
                 var normalizedStartTime = AnimancerEvent.Sequence.GetNormalizedStartTime(
                     _NormalizedStartTime,
@@ -117,13 +112,13 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override ClipState CreateState()
-        {
+        public override ClipState CreateState() {
 #if UNITY_ASSERTIONS
-            if (_Clip == null)
+            if (_Clip == null) {
                 throw new ArgumentException(
                     $"Unable to create {nameof(ClipState)} because the" +
                     $" {nameof(ClipTransition)}.{nameof(Clip)} is null.");
+            }
 #endif
 
             return State = new(_Clip);
@@ -132,8 +127,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void Apply(AnimancerState state)
-        {
+        public override void Apply(AnimancerState state) {
             base.Apply(state);
             ApplyNormalizedStartTime(state, _NormalizedStartTime);
         }
@@ -143,26 +137,26 @@ namespace Animancer
         /// <summary>[<see cref="IAnimationClipCollection"/>]
         /// Adds the <see cref="Clip"/> to the collection.
         /// </summary>
-        public virtual void GatherAnimationClips(ICollection<AnimationClip> clips)
-            => clips.Gather(_Clip);
+        public virtual void GatherAnimationClips(ICollection<AnimationClip> clips) {
+            clips.Gather(_Clip);
+        }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override Transition<ClipState> Clone(CloneContext context)
-        {
+        public override Transition<ClipState> Clone(CloneContext context) {
             var clone = new ClipTransition();
             clone.CopyFrom(this, context);
             return clone;
         }
 
         /// <inheritdoc/>
-        public sealed override void CopyFrom(Transition<ClipState> copyFrom, CloneContext context)
-            => this.CopyFromBase(copyFrom, context);
+        public sealed override void CopyFrom(Transition<ClipState> copyFrom, CloneContext context) {
+            this.CopyFromBase(copyFrom, context);
+        }
 
         /// <inheritdoc/>
-        public virtual void CopyFrom(ClipTransition copyFrom, CloneContext context)
-        {
+        public virtual void CopyFrom(ClipTransition copyFrom, CloneContext context) {
             base.CopyFrom(copyFrom, context);
 
             _Clip = context.GetCloneOrOriginal(copyFrom._Clip);
@@ -176,26 +170,28 @@ namespace Animancer
         /// if the `target` is an <see cref="AnimationClip"/>.
         /// </summary>
         [TryCreateTransition(typeof(AnimationClip))]
-        public static ITransition TryCreateTransition(Object target)
-            => target is not AnimationClip clip
-            ? null
-            : new ClipTransition()
-            {
-                Clip = clip,
-            };
+        public static ITransition TryCreateTransition(Object target) {
+            return target is not AnimationClip clip
+                                                                                 ? null
+                                                                                 : new ClipTransition() {
+                                                                                     Clip = clip,
+                                                                                 };
+        }
 
         /************************************************************************************************************************/
 
 #if UNITY_EDITOR
         /// <summary>[Editor-Only] Validates that the `command` is targeting an asset.</summary>
         [UnityEditor.MenuItem("CONTEXT/" + nameof(AnimationClip) + "/Create Transition Asset", validate = true)]
-        private static bool ValidateCreateTransitionAsset(UnityEditor.MenuCommand command)
-            => TryCreateTransitionAttribute.CanCreateAndSave(command.context);
+        private static bool ValidateCreateTransitionAsset(UnityEditor.MenuCommand command) {
+            return TryCreateTransitionAttribute.CanCreateAndSave(command.context);
+        }
 
         /// <summary>[Editor-Only] Tries to create an asset containing an appropriate transition for the `command`.</summary>
         [UnityEditor.MenuItem("CONTEXT/" + nameof(AnimationClip) + "/Create Transition Asset")]
-        private static void CreateTransitionAsset(UnityEditor.MenuCommand command)
-            => TryCreateTransitionAttribute.TryCreateTransitionAsset(command.context, true);
+        private static void CreateTransitionAsset(UnityEditor.MenuCommand command) {
+            TryCreateTransitionAttribute.TryCreateTransitionAsset(command.context, true);
+        }
 #endif
 
         /************************************************************************************************************************/

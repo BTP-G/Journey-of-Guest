@@ -1,14 +1,11 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-using System;
 using Antlr4.Runtime.Misc;
-using Antlr4.Runtime.Sharpen;
-using Antlr4.Runtime.Tree.Pattern;
+using System;
 
-namespace Antlr4.Runtime.Tree.Pattern
-{
+namespace Antlr4.Runtime.Tree.Pattern {
     /// <summary>Represents a placeholder tag in a tree pattern.</summary>
     /// <remarks>
     /// Represents a placeholder tag in a tree pattern. A tag can have any of the
@@ -38,8 +35,7 @@ namespace Antlr4.Runtime.Tree.Pattern
     /// This class does not perform any validation on the tag or label names aside
     /// from ensuring that the tag is a non-null, non-empty string.
     /// </remarks>
-    internal class TagChunk : Chunk
-    {
+    internal class TagChunk : Chunk {
         /// <summary>
         /// This is the backing field for
         /// <see cref="Tag()"/>
@@ -74,8 +70,7 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// empty.
         /// </exception>
         public TagChunk(string tag)
-            : this(null, tag)
-        {
+            : this(null, tag) {
         }
 
         /// <summary>
@@ -104,10 +99,8 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// or
         /// empty.
         /// </exception>
-        public TagChunk(string label, string tag)
-        {
-            if (string.IsNullOrEmpty(tag))
-            {
+        public TagChunk(string label, string tag) {
+            if (string.IsNullOrEmpty(tag)) {
                 throw new ArgumentException("tag cannot be null or empty");
             }
             this.label = label;
@@ -118,10 +111,8 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// <remarks>Get the tag for this chunk.</remarks>
         /// <returns>The tag for the chunk.</returns>
         [NotNull]
-        public string Tag
-        {
-            get
-            {
+        public string Tag {
+            get {
                 return tag;
             }
         }
@@ -135,10 +126,8 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// assigned to the chunk.
         /// </returns>
         [Nullable]
-        public string Label
-        {
-            get
-            {
+        public string Label {
+            get {
                 return label;
             }
         }
@@ -151,10 +140,8 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// , and unlabeled tags are
         /// returned as just the tag name.
         /// </remarks>
-        public override string ToString()
-        {
-            if (label != null)
-            {
+        public override string ToString() {
+            if (label != null) {
                 return label + ":" + tag;
             }
             return tag;

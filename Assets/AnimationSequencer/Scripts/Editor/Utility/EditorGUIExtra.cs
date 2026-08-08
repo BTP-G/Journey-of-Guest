@@ -1,12 +1,10 @@
-﻿#if DOTWEEN_ENABLED
+#if DOTWEEN_ENABLED
 using UnityEditor;
 using UnityEngine;
 
-namespace BrunoMikoski.AnimationSequencer
-{
+namespace BrunoMikoski.AnimationSequencer {
     // Created by Pablo Huaxteco
-    public static class EditorGUIExtra
-    {
+    public static class EditorGUIExtra {
         /// <summary>
         /// Makes a progress bar with a custom fill value.
         /// </summary>
@@ -14,8 +12,7 @@ namespace BrunoMikoski.AnimationSequencer
         /// <param name="progressStart"></param>
         /// <param name="progressEnd"></param>
         /// <param name="text"></param>
-        public static void ProgressBar(Rect position, float progressStart, float progressEnd, string text)
-        {
+        public static void ProgressBar(Rect position, float progressStart, float progressEnd, string text) {
             //Clamp values.
             progressStart = Mathf.Clamp01(progressStart);
             progressEnd = Mathf.Clamp01(progressEnd);
@@ -29,8 +26,8 @@ namespace BrunoMikoski.AnimationSequencer
             GUI.Box(position, GUIContent.none, backgroundStyle);
 
             //Draw the fill of the progress bar.
-            float fillWidth = position.width * (progressEnd - progressStart);
-            Rect fillRect = new Rect(position.x + position.width * progressStart, position.y, fillWidth, position.height);
+            var fillWidth = position.width * (progressEnd - progressStart);
+            var fillRect = new Rect(position.x + (position.width * progressStart), position.y, fillWidth, position.height);
             GUI.Box(fillRect, GUIContent.none, fillStyle);
 
             //Draw the text in the center.
@@ -48,53 +45,56 @@ namespace BrunoMikoski.AnimationSequencer
         /// <param name="labelEnd"></param>
         /// <param name="labelProgressStart"></param>
         /// <param name="labelProgressEnd"></param>
-        public static void ProgressBar(Rect position, float progressStart, float progressEnd, string text, 
-            string labelStart = null, string labelEnd = null, string labelProgressStart = null, string labelProgressEnd = null)
-        {
-            if (labelStart == null && labelEnd == null && labelProgressStart == null && labelProgressEnd == null)
-            {
+        public static void ProgressBar(Rect position, float progressStart, float progressEnd, string text,
+            string labelStart = null, string labelEnd = null, string labelProgressStart = null, string labelProgressEnd = null) {
+            if (labelStart == null && labelEnd == null && labelProgressStart == null && labelProgressEnd == null) {
                 ProgressBar(position, progressStart, progressEnd, text);
                 return;
             }
 
             //Define label磗 size.
-            Vector2 labelSize = new Vector2(100, EditorGUIUtility.singleLineHeight);
+            var labelSize = new Vector2(100, EditorGUIUtility.singleLineHeight);
 
             //Clamp values.
-            bool hasTopAndBottomLabels = (labelStart != null || labelEnd != null) && (labelProgressStart != null || labelProgressEnd != null);
-            Rect tempPos = position;
+            var hasTopAndBottomLabels = (labelStart != null || labelEnd != null) && (labelProgressStart != null || labelProgressEnd != null);
+            var tempPos = position;
             tempPos.height = Mathf.Clamp(tempPos.height, labelSize.y * (hasTopAndBottomLabels ? 2 : 1), Mathf.Infinity);
             position = tempPos;
-            float barHeight = tempPos.height - labelSize.y * (hasTopAndBottomLabels ? 2 : 1);
+            var barHeight = tempPos.height - (labelSize.y * (hasTopAndBottomLabels ? 2 : 1));
 
             //Define styles.
             GUIStyle textStyle = "ProgressBarText";
 
             ////Draw top labels.
-            float middleLabelSize = labelSize.x / 2;
-            float drawPosition_Y = position.y;
+            var middleLabelSize = labelSize.x / 2;
+            var drawPosition_Y = position.y;
 
             //Draw top labels.
-            if (labelProgressStart != null)
-                EditorGUI.LabelField(new Rect(new Vector2(position.x + position.width * progressStart - middleLabelSize, drawPosition_Y), labelSize), labelProgressStart, textStyle);
-            if (labelProgressEnd != null)
-            {
-                float fillWidth = position.width * (progressEnd - progressStart);
-                EditorGUI.LabelField(new Rect(new Vector2(position.x + position.width * progressStart + fillWidth - middleLabelSize, drawPosition_Y), labelSize),
+            if (labelProgressStart != null) {
+                EditorGUI.LabelField(new Rect(new Vector2(position.x + (position.width * progressStart) - middleLabelSize, drawPosition_Y), labelSize), labelProgressStart, textStyle);
+            }
+
+            if (labelProgressEnd != null) {
+                var fillWidth = position.width * (progressEnd - progressStart);
+                EditorGUI.LabelField(new Rect(new Vector2(position.x + (position.width * progressStart) + fillWidth - middleLabelSize, drawPosition_Y), labelSize),
                     labelProgressEnd, textStyle);
             }
-            if (labelStart != null || labelEnd != null)
+            if (labelStart != null || labelEnd != null) {
                 drawPosition_Y += labelSize.y;
+            }
 
             //Draw progress bar.
             ProgressBar(new Rect(position.x, drawPosition_Y, position.width, barHeight), progressStart, progressEnd, text);
             drawPosition_Y += barHeight;
 
             //Draw bottom labels.
-            if (labelStart != null)
+            if (labelStart != null) {
                 EditorGUI.LabelField(new Rect(new Vector2(position.x - middleLabelSize, drawPosition_Y), labelSize), labelStart, textStyle);
-            if (labelEnd != null)
+            }
+
+            if (labelEnd != null) {
                 EditorGUI.LabelField(new Rect(new Vector2(position.x + position.width - middleLabelSize, drawPosition_Y), labelSize), labelEnd, textStyle);
+            }
         }
     }
 }

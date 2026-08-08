@@ -8,8 +8,7 @@ using System.Runtime.CompilerServices;
 using UnityEditor;
 using UnityEngine;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only]
     /// A button that allows the user to select an object type for a [<see cref="SerializeReference"/>] field.
     /// </summary>
@@ -28,8 +27,7 @@ namespace Animancer.Editor
     /// 
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/TypeSelectionButton
     /// 
-    public readonly struct TypeSelectionButton : IDisposable
-    {
+    public readonly struct TypeSelectionButton : IDisposable {
         /************************************************************************************************************************/
 
         /// <summary>The pixel area occupied by the button.</summary>
@@ -47,12 +45,12 @@ namespace Animancer.Editor
         public TypeSelectionButton(
             Rect area,
             SerializedProperty property,
-            bool hasLabel)
-        {
+            bool hasLabel) {
             area.height = AnimancerGUI.LineHeight;
 
-            if (hasLabel)
+            if (hasLabel) {
                 area.xMin += EditorGUIUtility.labelWidth + AnimancerGUI.StandardSpacing;
+            }
 
             var currentEvent = Event.current;
 
@@ -60,30 +58,33 @@ namespace Animancer.Editor
             Property = property;
             EventType = currentEvent.type;
 
-            if (Property.propertyType != SerializedPropertyType.ManagedReference)
+            if (Property.propertyType != SerializedPropertyType.ManagedReference) {
                 return;
+            }
 
-            switch (currentEvent.type)
-            {
+            switch (currentEvent.type) {
                 case EventType.MouseDown:
                 case EventType.MouseUp:
-                    if (area.Contains(currentEvent.mousePosition))
+                    if (area.Contains(currentEvent.mousePosition)) {
                         currentEvent.type = EventType.Ignore;
+                    }
+
                     break;
             }
         }
 
         /************************************************************************************************************************/
 
-        void IDisposable.Dispose()
-            => DoGUI();
+        void IDisposable.Dispose() {
+            DoGUI();
+        }
 
         /// <summary>Draws this button's GUI.</summary>
         /// <remarks>Run this method after drawing the target property so the button draws on top of its label.</remarks>
-        public void DoGUI()
-        {
-            if (Property.propertyType != SerializedPropertyType.ManagedReference)
+        public void DoGUI() {
+            if (Property.propertyType != SerializedPropertyType.ManagedReference) {
                 return;
+            }
 
             var currentEvent = Event.current;
             var eventType = currentEvent.type;
@@ -91,10 +92,8 @@ namespace Animancer.Editor
 
             PrepareSharedReferenceArea(ref area, out var sharedButtonArea, out var value, out var references);
 
-            using (var label = PooledGUIContent.Acquire())
-            {
-                switch (EventType)
-                {
+            using (var label = PooledGUIContent.Acquire()) {
+                switch (EventType) {
                     case EventType.MouseDown:
                     case EventType.MouseUp:
                         currentEvent.type = EventType;
@@ -106,13 +105,10 @@ namespace Animancer.Editor
                     // Only Repaint events actually care what the label is.
                     case EventType.Repaint:
                         var valueType = Property.managedReferenceValue?.GetType();
-                        if (valueType == null)
-                        {
+                        if (valueType == null) {
                             label.text = "Null";
                             label.tooltip = "Nothing is assigned";
-                        }
-                        else
-                        {
+                        } else {
                             label.text = valueType.GetNameCS(false);
                             label.tooltip = valueType.GetNameCS(true);
                         }
@@ -122,14 +118,16 @@ namespace Animancer.Editor
                         return;
                 }
 
-                if (GUI.Button(area, label, EditorStyles.popup))
+                if (GUI.Button(area, label, EditorStyles.popup)) {
                     TypeSelectionMenu.Show(Property);
+                }
             }
 
             DoSharedReferenceGUI(sharedButtonArea, value, references, currentEvent.type);
 
-            if (currentEvent.type == EventType)
+            if (currentEvent.type == EventType) {
                 currentEvent.type = eventType;
+            }
         }
 
         /************************************************************************************************************************/
@@ -139,27 +137,29 @@ namespace Animancer.Editor
             ref Rect remainingArea,
             out Rect sharedButtonArea,
             out object value,
-            out List<SharedReferenceCache.Field> references)
-        {
+            out List<SharedReferenceCache.Field> references) {
             sharedButtonArea = default;
             value = default;
             references = default;
 
-            if (!TypeSelectionMenu.VisualiseSharedReferences)
+            if (!TypeSelectionMenu.VisualiseSharedReferences) {
                 return;
+            }
 
             value = Property.managedReferenceValue;
-            if (value == null)
+            if (value == null) {
                 return;
+            }
 
             var referenceCache = SharedReferenceCache.Get(Property.serializedObject);
             if (!referenceCache.TryGetInfo(value, out references) ||
-                references.Count <= 1)
+                references.Count <= 1) {
                 return;
+            }
 
             sharedButtonArea = AnimancerGUI.StealFromRight(
                 ref remainingArea,
-                remainingArea.height + AnimancerGUI.StandardSpacing * 2,
+                remainingArea.height + (AnimancerGUI.StandardSpacing * 2),
                 AnimancerGUI.StandardSpacing);
         }
 
@@ -177,25 +177,23 @@ namespace Animancer.Editor
             Rect area,
             object value,
             List<SharedReferenceCache.Field> references,
-            EventType eventType)
-        {
-            if (area.width == 0)
+            EventType eventType) {
+            if (area.width == 0) {
                 return;
+            }
 
             var wasVisualising = _VisualiseLinks != null && _VisualiseLinks.TryGetValue(value, out _);
             var color = eventType == EventType.Repaint
                 ? AnimancerGUI.GetHashColor(value.GetHashCode(), 0.5f, 1, 0.7f)
                 : Color.white;
 
-            if (wasVisualising)
+            if (wasVisualising) {
                 new LinkLine(area, Property.GetFriendlyPath(), references, color);
+            }
 
-            using (var label = PooledGUIContent.Acquire(null, GetTooltip(references, eventType)))
-            {
-                if (_SharedReferenceStyle == null)
-                {
-                    _SharedReferenceStyle ??= new(EditorStyles.miniButton)
-                    {
+            using (var label = PooledGUIContent.Acquire(null, GetTooltip(references, eventType))) {
+                if (_SharedReferenceStyle == null) {
+                    _SharedReferenceStyle ??= new(EditorStyles.miniButton) {
                         padding = new RectOffset(0, 0, -2, 0),
                         overflow = new RectOffset(),
                     };
@@ -214,15 +212,11 @@ namespace Animancer.Editor
 
                 GUI.color = oldColor;
 
-                if (isVisualising != wasVisualising)
-                {
-                    if (isVisualising)
-                    {
+                if (isVisualising != wasVisualising) {
+                    if (isVisualising) {
                         _VisualiseLinks ??= new();
                         _VisualiseLinks.Add(value, null);
-                    }
-                    else
-                    {
+                    } else {
                         _VisualiseLinks.Remove(value);
                     }
                 }
@@ -236,17 +230,18 @@ namespace Animancer.Editor
         /// <summary>Builds a tooltip describing the `references`.</summary>
         private static string GetTooltip(
             List<SharedReferenceCache.Field> references,
-            EventType eventType)
-        {
-            if (eventType != EventType.Repaint)
+            EventType eventType) {
+            if (eventType != EventType.Repaint) {
                 return null;
+            }
 
             var text = StringBuilderPool.Instance.Acquire();
 
             text.Append("This reference is shared by:");
 
-            for (int i = 0; i < references.Count; i++)
+            for (var i = 0; i < references.Count; i++) {
                 text.Append("\n• ").Append(ObjectNames.NicifyVariableName(references[i].path));
+            }
 
             text.Append("\nClick to visualise");
 
@@ -268,8 +263,7 @@ namespace Animancer.Editor
         /// Any shared reference link lines which would be drawn after this call are instead
         /// delayed until the corresponding <see cref="EndDelayingLinkLines"/> call.
         /// </summary>
-        public static void BeginDelayingLinkLines()
-        {
+        public static void BeginDelayingLinkLines() {
             _DelayLinkLines++;
         }
 
@@ -277,14 +271,13 @@ namespace Animancer.Editor
         /// Ends a block started by <see cref="BeginDelayingLinkLines"/>.
         /// When all such blocks are cancelled, this method draws all delayed links between shared reference fields.
         /// </summary>
-        public static void EndDelayingLinkLines()
-        {
+        public static void EndDelayingLinkLines() {
             _DelayLinkLines--;
 
-            if (_DelayLinkLines <= 0)
-            {
-                for (int i = LinkLines.Count - 1; i >= 0; i--)
+            if (_DelayLinkLines <= 0) {
+                for (var i = LinkLines.Count - 1; i >= 0; i--) {
                     LinkLines[i].Draw();
+                }
 
                 LinkLines.Clear();
             }
@@ -293,8 +286,7 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>The details needed to draw a line between fields which share the same reference.</summary>
-        private readonly struct LinkLine
-        {
+        private readonly struct LinkLine {
             /************************************************************************************************************************/
 
             /// <summary>The area of the button which toggles visibility of link lines.</summary>
@@ -316,8 +308,7 @@ namespace Animancer.Editor
                 Rect sharedButtonArea,
                 string path,
                 List<SharedReferenceCache.Field> references,
-                Color color)
-            {
+                Color color) {
                 sharedButtonArea.position += AnimancerGUI.GuiOffset;
 
                 SharedButtonArea = sharedButtonArea;
@@ -325,20 +316,21 @@ namespace Animancer.Editor
                 References = references;
                 Color = color;
 
-                if (_DelayLinkLines <= 0)
+                if (_DelayLinkLines <= 0) {
                     Draw();
-                else
+                } else {
                     LinkLines.Add(this);
+                }
             }
 
             /************************************************************************************************************************/
 
             /// <summary>Draws a line between the current field and the the previous field referencing the same value.</summary>
-            public void Draw()
-            {
+            public void Draw() {
                 var currentEvent = Event.current;
-                if (currentEvent.type != EventType.Repaint)
+                if (currentEvent.type != EventType.Repaint) {
                     return;
+                }
 
                 var index = SetArea(References, Path, SharedButtonArea);
 
@@ -348,11 +340,11 @@ namespace Animancer.Editor
 
                 var position = GetLeftCenter(SharedButtonArea);
 
-                for (int i = index - 1; i >= 0; i--)
-                {
+                for (var i = index - 1; i >= 0; i--) {
                     var otherArea = References[i].area;
-                    if (otherArea == default)
+                    if (otherArea == default) {
                         continue;
+                    }
 
                     var otherPosition = GetLeftCenter(otherArea);
                     DrawCurve(position, otherPosition);
@@ -368,13 +360,12 @@ namespace Animancer.Editor
             private static int SetArea(
                 List<SharedReferenceCache.Field> references,
                 string path,
-                Rect area)
-            {
-                for (int i = 0; i < references.Count; i++)
-                {
+                Rect area) {
+                for (var i = 0; i < references.Count; i++) {
                     var reference = references[i];
-                    if (reference.path != path)
+                    if (reference.path != path) {
                         continue;
+                    }
 
                     reference.area = area;
                     references[i] = reference;
@@ -387,16 +378,16 @@ namespace Animancer.Editor
             /************************************************************************************************************************/
 
             /// <summary>Returns the center point of the left edge of the `rect`.</summary>
-            private static Vector2 GetLeftCenter(Rect rect)
-                => new(rect.x, rect.y + rect.height * 0.5f);
+            private static Vector2 GetLeftCenter(Rect rect) {
+                return new(rect.x, rect.y + (rect.height * 0.5f));
+            }
 
             /************************************************************************************************************************/
 
             /// <summary>Draws a line between `a` and `b` curved towards x = 0.</summary>
             private static void DrawCurve(
                 Vector2 a,
-                Vector2 b)
-            {
+                Vector2 b) {
                 const int Segments = 16;
                 const float Increment = 1f / (Segments - 1);
 
@@ -404,8 +395,7 @@ namespace Animancer.Editor
 
                 var previous = a;
 
-                for (int i = 0; i < Segments; i++)
-                {
+                for (var i = 0; i < Segments; i++) {
                     var t = i * Increment;
                     var next = Vector2.LerpUnclamped(a, b, t);
 
@@ -413,7 +403,7 @@ namespace Animancer.Editor
                     curve *= 2;
                     curve *= curve;
                     curve = 1 - curve;
-                    next.x *= 1 - curve * width;
+                    next.x *= 1 - (curve * width);
 
                     AnimancerGUI.DrawLineBatched(previous, next, 2);
 
@@ -427,16 +417,16 @@ namespace Animancer.Editor
             /// Calculates the desired width for a curve with the given `height`
             /// as a portion of the total available width.
             /// </summary>
-            private static float CalculateCurveWidth(float height)
-            {
+            private static float CalculateCurveWidth(float height) {
                 const float
                     MinWidth = 0.05f,
                     MaxWidth = 0.8f;
 
                 var maxHeight = AnimancerGUI.LineHeight * 100;
 
-                if (height > maxHeight)
+                if (height > maxHeight) {
                     return MaxWidth;
+                }
 
                 var t = height / maxHeight;
                 t = 1 - t;

@@ -1,13 +1,8 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-using Antlr4.Runtime;
-using Antlr4.Runtime.Atn;
-using Antlr4.Runtime.Sharpen;
-
-namespace Antlr4.Runtime.Atn
-{
+namespace Antlr4.Runtime.Atn {
     /// <summary>
     /// This class represents profiling event information for a syntax error
     /// identified during prediction.
@@ -21,8 +16,7 @@ namespace Antlr4.Runtime.Atn
     /// <seealso cref="Parser.NotifyErrorListeners(IToken, string, RecognitionException)"/>
     /// <seealso cref="IAntlrErrorListener{TSymbol}.SyntaxError"/>
     /// <since>4.3</since>
-    public class ErrorInfo : DecisionEventInfo
-    {
+    public class ErrorInfo : DecisionEventInfo {
         /// <summary>
         /// Constructs a new instance of the
         /// <see cref="ErrorInfo"/>
@@ -41,8 +35,7 @@ namespace Antlr4.Runtime.Atn
         /// during SLL prediction
         /// </param>
         public ErrorInfo(int decision, ATNConfigSet configs, ITokenStream input, int startIndex, int stopIndex, bool fullCtx)
-            : base(decision, configs, input, startIndex, stopIndex, fullCtx)
-        {
+            : base(decision, configs, input, startIndex, stopIndex, fullCtx) {
         }
     }
 }

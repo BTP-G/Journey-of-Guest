@@ -1,20 +1,18 @@
-﻿using UnityEngine;
 using UnityEditor;
-using UnityEngine.UIElements;
 using UnityEditor.UIElements;
+using UnityEngine;
+using UnityEngine.UIElements;
 
-namespace EditorAttributes.Editor
-{
+namespace EditorAttributes.Editor {
     [CustomPropertyDrawer(typeof(PropertyDropdownAttribute))]
-    public class PropertyDropdownDrawer : PropertyDrawerBase
-    {
-        public override VisualElement CreatePropertyGUI(SerializedProperty property)
-        {
-            if (!IsSupportedPropertyType(property))
+    public class PropertyDropdownDrawer : PropertyDrawerBase {
+        public override VisualElement CreatePropertyGUI(SerializedProperty property) {
+            if (!IsSupportedPropertyType(property)) {
                 return new HelpBox("The PropertyDropdown Attribute can only be attached on to <b>UnityEngine.Object</b> types", HelpBoxMessageType.Error);
+            }
 
             VisualElement root = new();
-            PropertyField propertyField = CreatePropertyField(property);
+            var propertyField = CreatePropertyField(property);
 
             ApplyBoxStyle(root);
 
@@ -22,10 +20,10 @@ namespace EditorAttributes.Editor
 
             InitializeFoldoutDrawer(root, property);
 
-            propertyField.RegisterCallback<SerializedPropertyChangeEvent>((callback) =>
-            {
-                if (root.childCount > 1 && root.ElementAt(1) != null)
+            propertyField.RegisterCallback<SerializedPropertyChangeEvent>((callback) => {
+                if (root.childCount > 1 && root.ElementAt(1) != null) {
                     root.RemoveAt(1);
+                }
 
                 InitializeFoldoutDrawer(root, property);
             });
@@ -33,16 +31,17 @@ namespace EditorAttributes.Editor
             return root;
         }
 
-        protected override bool IsSupportedPropertyType(SerializedProperty property) => property.propertyType == SerializedPropertyType.ObjectReference;
+        protected override bool IsSupportedPropertyType(SerializedProperty property) {
+            return property.propertyType == SerializedPropertyType.ObjectReference;
+        }
 
-        private void InitializeFoldoutDrawer(VisualElement root, SerializedProperty property)
-        {
-            if (property.objectReferenceValue == null)
-            {
+        private void InitializeFoldoutDrawer(VisualElement root, SerializedProperty property) {
+            if (property.objectReferenceValue == null) {
                 var foldout = root.Q<Foldout>();
 
-                if (foldout != null)
+                if (foldout != null) {
                     root.Remove(foldout);
+                }
 
                 return;
             }
@@ -50,12 +49,10 @@ namespace EditorAttributes.Editor
             root.Add(CreatePropertyFoldout(new SerializedObject(property.objectReferenceValue), property));
         }
 
-        private Foldout CreatePropertyFoldout(SerializedObject serializedObject, SerializedProperty serializedProperty)
-        {
-            string foldoutSaveKey = CreatePropertySaveKey(serializedProperty, "IsPropertyDropdownFolded");
+        private Foldout CreatePropertyFoldout(SerializedObject serializedObject, SerializedProperty serializedProperty) {
+            var foldoutSaveKey = CreatePropertySaveKey(serializedProperty, "IsPropertyDropdownFolded");
 
-            Foldout foldout = new()
-            {
+            Foldout foldout = new() {
                 text = "Properties",
                 value = EditorPrefs.GetBool(foldoutSaveKey)
             };
@@ -68,8 +65,7 @@ namespace EditorAttributes.Editor
             serializedObject.ApplyModifiedProperties();
 
             foldout.RegisterValueChangedCallback((callback) => EditorPrefs.SetBool(foldoutSaveKey, callback.newValue));
-            foldout.RegisterCallbackOnce<GeometryChangedEvent>((callback) =>
-            {
+            foldout.RegisterCallbackOnce<GeometryChangedEvent>((callback) => {
                 foldout.Q<Label>(className: Foldout.textUssClassName).style.unityFontStyleAndWeight = FontStyle.Bold;
                 foldout.Q<ObjectField>("unity-input-m_Script")?.parent.RemoveFromHierarchy();
             });

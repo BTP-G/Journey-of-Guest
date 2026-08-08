@@ -43,15 +43,23 @@ namespace JoG.Gameplay {
             }
 
             foreach (var effect in blessEffects) {
-                if (effect.rarity == EffectRarity.Common) _blessCache[EffectRarity.Common].Add(effect);
-                else if (effect.rarity == EffectRarity.Rare) _blessCache[EffectRarity.Rare].Add(effect);
-                else if (effect.rarity == EffectRarity.Legend) _blessCache[EffectRarity.Legend].Add(effect);
+                if (effect.rarity == EffectRarity.Common) {
+                    _blessCache[EffectRarity.Common].Add(effect);
+                } else if (effect.rarity == EffectRarity.Rare) {
+                    _blessCache[EffectRarity.Rare].Add(effect);
+                } else if (effect.rarity == EffectRarity.Legend) {
+                    _blessCache[EffectRarity.Legend].Add(effect);
+                }
             }
 
             foreach (var effect in demonEffects) {
-                if (effect.rarity == EffectRarity.Common) _demonCache[EffectRarity.Common].Add(effect);
-                else if (effect.rarity == EffectRarity.Rare) _demonCache[EffectRarity.Rare].Add(effect);
-                else if (effect.rarity == EffectRarity.Legend) _demonCache[EffectRarity.Legend].Add(effect);
+                if (effect.rarity == EffectRarity.Common) {
+                    _demonCache[EffectRarity.Common].Add(effect);
+                } else if (effect.rarity == EffectRarity.Rare) {
+                    _demonCache[EffectRarity.Rare].Add(effect);
+                } else if (effect.rarity == EffectRarity.Legend) {
+                    _demonCache[EffectRarity.Legend].Add(effect);
+                }
             }
 
             _totalWeight = 0;
@@ -61,7 +69,9 @@ namespace JoG.Gameplay {
         }
 
         public AltarEffectData GetRandomEffect(AltarType altarType) {
-            if (_blessCache == null) Initialize();
+            if (_blessCache == null) {
+                Initialize();
+            }
 
             var cache = altarType == AltarType.Bless ? _blessCache : _demonCache;
 
@@ -73,9 +83,9 @@ namespace JoG.Gameplay {
         }
 
         private AltarEffectData GetWeightedRandomEffect(Dictionary<EffectRarity, List<AltarEffectData>> cache, AltarType altarType) {
-            int randomValue = UnityEngine.Random.Range(0, _totalWeight);
-            int currentWeight = 0;
-            EffectRarity selectedRarity = EffectRarity.Common;
+            var randomValue = UnityEngine.Random.Range(0, _totalWeight);
+            var currentWeight = 0;
+            var selectedRarity = EffectRarity.Common;
 
             foreach (var rw in rarityWeights) {
                 currentWeight += rw.weight;

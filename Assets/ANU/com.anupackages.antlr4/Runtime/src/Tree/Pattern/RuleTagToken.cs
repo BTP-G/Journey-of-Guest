@@ -1,14 +1,11 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-using System;
-using Antlr4.Runtime;
 using Antlr4.Runtime.Misc;
-using Antlr4.Runtime.Sharpen;
+using System;
 
-namespace Antlr4.Runtime.Tree.Pattern
-{
+namespace Antlr4.Runtime.Tree.Pattern {
     /// <summary>
     /// A
     /// <see cref="Antlr4.Runtime.IToken"/>
@@ -19,8 +16,7 @@ namespace Antlr4.Runtime.Tree.Pattern
     /// <see cref="TagChunk"/>
     /// chunks where the tag corresponds to a parser rule.
     /// </summary>
-    public class RuleTagToken : IToken
-    {
+    public class RuleTagToken : IToken {
         /// <summary>
         /// This is the backing field for
         /// <see cref="RuleName()"/>
@@ -59,8 +55,7 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// or empty.
         /// </exception>
         public RuleTagToken(string ruleName, int bypassTokenType)
-            : this(ruleName, bypassTokenType, null)
-        {
+            : this(ruleName, bypassTokenType, null) {
         }
 
         /// <summary>
@@ -85,10 +80,8 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// <see langword="null"/>
         /// or empty.
         /// </exception>
-        public RuleTagToken(string ruleName, int bypassTokenType, string label)
-        {
-            if (string.IsNullOrEmpty(ruleName))
-            {
+        public RuleTagToken(string ruleName, int bypassTokenType, string label) {
+            if (string.IsNullOrEmpty(ruleName)) {
                 throw new ArgumentException("ruleName cannot be null or empty.");
             }
             this.ruleName = ruleName;
@@ -100,10 +93,8 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// <remarks>Gets the name of the rule associated with this rule tag.</remarks>
         /// <returns>The name of the parser rule associated with this rule tag.</returns>
         [NotNull]
-        public string RuleName
-        {
-            get
-            {
+        public string RuleName {
+            get {
                 return ruleName;
             }
         }
@@ -116,10 +107,8 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// if this is an unlabeled rule tag.
         /// </returns>
         [Nullable]
-        public string Label
-        {
-            get
-            {
+        public string Label {
+            get {
                 return label;
             }
         }
@@ -130,10 +119,8 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// <see cref="TokenConstants.DefaultChannel"/>
         /// .</p>
         /// </summary>
-        public virtual int Channel
-        {
-            get
-            {
+        public virtual int Channel {
+            get {
                 return TokenConstants.DefaultChannel;
             }
         }
@@ -146,12 +133,9 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// <c>&gt;</c>
         /// delimiters.</p>
         /// </summary>
-        public virtual string Text
-        {
-            get
-            {
-                if (label != null)
-                {
+        public virtual string Text {
+            get {
+                if (label != null) {
                     return "<" + label + ":" + ruleName + ">";
                 }
                 return "<" + ruleName + ">";
@@ -163,10 +147,8 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// <p>Rule tag tokens have types assigned according to the rule bypass
         /// transitions created during ATN deserialization.</p>
         /// </summary>
-        public virtual int Type
-        {
-            get
-            {
+        public virtual int Type {
+            get {
                 return bypassTokenType;
             }
         }
@@ -177,10 +159,8 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// <see cref="RuleTagToken"/>
         /// always returns 0.</p>
         /// </summary>
-        public virtual int Line
-        {
-            get
-            {
+        public virtual int Line {
+            get {
                 return 0;
             }
         }
@@ -191,10 +171,8 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// <see cref="RuleTagToken"/>
         /// always returns -1.</p>
         /// </summary>
-        public virtual int Column
-        {
-            get
-            {
+        public virtual int Column {
+            get {
                 return -1;
             }
         }
@@ -205,10 +183,8 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// <see cref="RuleTagToken"/>
         /// always returns -1.</p>
         /// </summary>
-        public virtual int TokenIndex
-        {
-            get
-            {
+        public virtual int TokenIndex {
+            get {
                 return -1;
             }
         }
@@ -219,10 +195,8 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// <see cref="RuleTagToken"/>
         /// always returns -1.</p>
         /// </summary>
-        public virtual int StartIndex
-        {
-            get
-            {
+        public virtual int StartIndex {
+            get {
                 return -1;
             }
         }
@@ -233,10 +207,8 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// <see cref="RuleTagToken"/>
         /// always returns -1.</p>
         /// </summary>
-        public virtual int StopIndex
-        {
-            get
-            {
+        public virtual int StopIndex {
+            get {
                 return -1;
             }
         }
@@ -249,10 +221,8 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// <see langword="null"/>
         /// .</p>
         /// </summary>
-        public virtual ITokenSource TokenSource
-        {
-            get
-            {
+        public virtual ITokenSource TokenSource {
+            get {
                 return null;
             }
         }
@@ -265,10 +235,8 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// <see langword="null"/>
         /// .</p>
         /// </summary>
-        public virtual ICharStream InputStream
-        {
-            get
-            {
+        public virtual ICharStream InputStream {
+            get {
                 return null;
             }
         }
@@ -281,8 +249,7 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// <c>ruleName:bypassTokenType</c>
         /// .</p>
         /// </summary>
-        public override string ToString()
-        {
+        public override string ToString() {
             return ruleName + ":" + bypassTokenType;
         }
     }

@@ -1,4 +1,4 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
@@ -7,8 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Antlr4.Runtime.Misc
-{
+namespace Antlr4.Runtime.Misc {
     /// <summary>
     /// This class implements the
     /// <see cref="IIntSet"/>
@@ -25,14 +24,12 @@ namespace Antlr4.Runtime.Misc
     /// <see cref="int.MaxValue"/>
     /// (inclusive).</p>
     /// </summary>
-    public class IntervalSet : IIntSet
-    {
+    public class IntervalSet : IIntSet {
         public static readonly Antlr4.Runtime.Misc.IntervalSet CompleteCharSet = Antlr4.Runtime.Misc.IntervalSet.Of(Lexer.MinCharValue, Lexer.MaxCharValue);
 
         public static readonly Antlr4.Runtime.Misc.IntervalSet EmptySet = new Antlr4.Runtime.Misc.IntervalSet();
 
-        static IntervalSet()
-        {
+        static IntervalSet() {
             CompleteCharSet.SetReadonly(true);
             EmptySet.SetReadonly(true);
         }
@@ -43,29 +40,22 @@ namespace Antlr4.Runtime.Misc
 
         protected internal bool @readonly;
 
-        public IntervalSet(IList<Interval> intervals)
-        {
+        public IntervalSet(IList<Interval> intervals) {
             this.intervals = intervals;
         }
 
         public IntervalSet(Antlr4.Runtime.Misc.IntervalSet set)
-            : this()
-        {
+            : this() {
             AddAll(set);
         }
 
-        public IntervalSet(params int[] els)
-        {
-            if (els == null)
-            {
+        public IntervalSet(params int[] els) {
+            if (els == null) {
                 intervals = new ArrayList<Interval>(2);
-            }
-            else
-            {
+            } else {
                 // most sets are 1 or 2 elements
                 intervals = new ArrayList<Interval>(els.Length);
-                foreach (int e in els)
-                {
+                foreach (var e in els) {
                     Add(e);
                 }
             }
@@ -74,25 +64,21 @@ namespace Antlr4.Runtime.Misc
         /// <summary>Create a set with a single element, el.</summary>
         /// <remarks>Create a set with a single element, el.</remarks>
         [return: NotNull]
-        public static Antlr4.Runtime.Misc.IntervalSet Of(int a)
-        {
-            Antlr4.Runtime.Misc.IntervalSet s = new Antlr4.Runtime.Misc.IntervalSet();
+        public static Antlr4.Runtime.Misc.IntervalSet Of(int a) {
+            var s = new Antlr4.Runtime.Misc.IntervalSet();
             s.Add(a);
             return s;
         }
 
         /// <summary>Create a set with all ints within range [a..b] (inclusive)</summary>
-        public static Antlr4.Runtime.Misc.IntervalSet Of(int a, int b)
-        {
-            Antlr4.Runtime.Misc.IntervalSet s = new Antlr4.Runtime.Misc.IntervalSet();
+        public static Antlr4.Runtime.Misc.IntervalSet Of(int a, int b) {
+            var s = new Antlr4.Runtime.Misc.IntervalSet();
             s.Add(a, b);
             return s;
         }
 
-        public virtual void Clear()
-        {
-            if (@readonly)
-            {
+        public virtual void Clear() {
+            if (@readonly) {
                 throw new InvalidOperationException("can't alter readonly IntervalSet");
             }
             intervals.Clear();
@@ -103,10 +89,8 @@ namespace Antlr4.Runtime.Misc
         /// Add a single element to the set.  An isolated element is stored
         /// as a range el..el.
         /// </remarks>
-        public virtual void Add(int el)
-        {
-            if (@readonly)
-            {
+        public virtual void Add(int el) {
+            if (@readonly) {
                 throw new InvalidOperationException("can't alter readonly IntervalSet");
             }
             Add(el, el);
@@ -121,45 +105,36 @@ namespace Antlr4.Runtime.Misc
         /// If this is {1..5, 10..20}, adding 6..7 yields
         /// {1..5, 6..7, 10..20}.  Adding 4..8 yields {1..8, 10..20}.
         /// </remarks>
-        public virtual void Add(int a, int b)
-        {
+        public virtual void Add(int a, int b) {
             Add(Interval.Of(a, b));
         }
 
         // copy on write so we can cache a..a intervals and sets of that
-        protected internal virtual void Add(Interval addition)
-        {
-            if (@readonly)
-            {
+        protected internal virtual void Add(Interval addition) {
+            if (@readonly) {
                 throw new InvalidOperationException("can't alter readonly IntervalSet");
             }
             //System.out.println("add "+addition+" to "+intervals.toString());
-            if (addition.b < addition.a)
-            {
+            if (addition.b < addition.a) {
                 return;
             }
             // find position in list
             // Use iterators as we modify list in place
-            for (int i = 0; i < intervals.Count; i++)
-            {
-                Interval r = intervals[i];
-                if (addition.Equals(r))
-                {
+            for (var i = 0; i < intervals.Count; i++) {
+                var r = intervals[i];
+                if (addition.Equals(r)) {
                     return;
                 }
-                if (addition.Adjacent(r) || !addition.Disjoint(r))
-                {
+                if (addition.Adjacent(r) || !addition.Disjoint(r)) {
                     // next to each other, make a single larger interval
-                    Interval bigger = addition.Union(r);
+                    var bigger = addition.Union(r);
                     intervals[i] = bigger;
                     // make sure we didn't just create an interval that
                     // should be merged with next interval in list
-                    while (i < intervals.Count - 1)
-                    {
+                    while (i < intervals.Count - 1) {
                         i++;
-                        Interval next = intervals[i];
-                        if (!bigger.Adjacent(next) && bigger.Disjoint(next))
-                        {
+                        var next = intervals[i];
+                        if (!bigger.Adjacent(next) && bigger.Disjoint(next)) {
                             break;
                         }
                         // if we bump up against or overlap next, merge
@@ -173,8 +148,7 @@ namespace Antlr4.Runtime.Misc
                     // first call to next after previous duplicates the result
                     return;
                 }
-                if (addition.StartsBeforeDisjoint(r))
-                {
+                if (addition.StartsBeforeDisjoint(r)) {
                     // insert before r
                     intervals.Insert(i, addition);
                     return;
@@ -187,83 +161,64 @@ namespace Antlr4.Runtime.Misc
         }
 
         /// <summary>combine all sets in the array returned the or'd value</summary>
-        public static Antlr4.Runtime.Misc.IntervalSet Or(Antlr4.Runtime.Misc.IntervalSet[] sets)
-        {
-            Antlr4.Runtime.Misc.IntervalSet r = new Antlr4.Runtime.Misc.IntervalSet();
-            foreach (Antlr4.Runtime.Misc.IntervalSet s in sets)
-            {
+        public static Antlr4.Runtime.Misc.IntervalSet Or(Antlr4.Runtime.Misc.IntervalSet[] sets) {
+            var r = new Antlr4.Runtime.Misc.IntervalSet();
+            foreach (var s in sets) {
                 r.AddAll(s);
             }
             return r;
         }
 
-        public virtual Antlr4.Runtime.Misc.IntervalSet AddAll(IIntSet set)
-        {
-            if (set == null)
-            {
+        public virtual Antlr4.Runtime.Misc.IntervalSet AddAll(IIntSet set) {
+            if (set == null) {
                 return this;
             }
-            if (set is Antlr4.Runtime.Misc.IntervalSet)
-            {
-                Antlr4.Runtime.Misc.IntervalSet other = (Antlr4.Runtime.Misc.IntervalSet)set;
+            if (set is Antlr4.Runtime.Misc.IntervalSet other) {
                 // walk set and add each interval
-                int n = other.intervals.Count;
-                for (int i = 0; i < n; i++)
-                {
-                    Interval I = other.intervals[i];
-                    this.Add(I.a, I.b);
+                var n = other.intervals.Count;
+                for (var i = 0; i < n; i++) {
+                    var I = other.intervals[i];
+                    Add(I.a, I.b);
                 }
-            }
-            else
-            {
-                foreach (int value in set.ToList())
-                {
+            } else {
+                foreach (var value in set.ToList()) {
                     Add(value);
                 }
             }
             return this;
         }
 
-        public virtual Antlr4.Runtime.Misc.IntervalSet Complement(int minElement, int maxElement)
-        {
-            return this.Complement(Antlr4.Runtime.Misc.IntervalSet.Of(minElement, maxElement));
+        public virtual Antlr4.Runtime.Misc.IntervalSet Complement(int minElement, int maxElement) {
+            return Complement(Antlr4.Runtime.Misc.IntervalSet.Of(minElement, maxElement));
         }
 
         /// <summary>
         /// <inheritDoc/>
         ///
         /// </summary>
-        public virtual Antlr4.Runtime.Misc.IntervalSet Complement(IIntSet vocabulary)
-        {
-            if (vocabulary == null || vocabulary.IsNil)
-            {
+        public virtual Antlr4.Runtime.Misc.IntervalSet Complement(IIntSet vocabulary) {
+            if (vocabulary == null || vocabulary.IsNil) {
                 return null;
             }
             // nothing in common with null set
             Antlr4.Runtime.Misc.IntervalSet vocabularyIS;
-            if (vocabulary is Antlr4.Runtime.Misc.IntervalSet)
-            {
+            if (vocabulary is Antlr4.Runtime.Misc.IntervalSet) {
                 vocabularyIS = (Antlr4.Runtime.Misc.IntervalSet)vocabulary;
-            }
-            else
-            {
+            } else {
                 vocabularyIS = new Antlr4.Runtime.Misc.IntervalSet();
                 vocabularyIS.AddAll(vocabulary);
             }
             return vocabularyIS.Subtract(this);
         }
 
-        public virtual Antlr4.Runtime.Misc.IntervalSet Subtract(IIntSet a)
-        {
-            if (a == null || a.IsNil)
-            {
+        public virtual Antlr4.Runtime.Misc.IntervalSet Subtract(IIntSet a) {
+            if (a == null || a.IsNil) {
                 return new Antlr4.Runtime.Misc.IntervalSet(this);
             }
-            if (a is Antlr4.Runtime.Misc.IntervalSet)
-            {
+            if (a is Antlr4.Runtime.Misc.IntervalSet) {
                 return Subtract(this, (Antlr4.Runtime.Misc.IntervalSet)a);
             }
-            Antlr4.Runtime.Misc.IntervalSet other = new Antlr4.Runtime.Misc.IntervalSet();
+            var other = new Antlr4.Runtime.Misc.IntervalSet();
             other.AddAll(a);
             return Subtract(this, other);
         }
@@ -278,75 +233,58 @@ namespace Antlr4.Runtime.Misc
         /// , it is treated as though it was an empty set.
         /// </remarks>
         [return: NotNull]
-        public static Antlr4.Runtime.Misc.IntervalSet Subtract(Antlr4.Runtime.Misc.IntervalSet left, Antlr4.Runtime.Misc.IntervalSet right)
-        {
-            if (left == null || left.IsNil)
-            {
+        public static Antlr4.Runtime.Misc.IntervalSet Subtract(Antlr4.Runtime.Misc.IntervalSet left, Antlr4.Runtime.Misc.IntervalSet right) {
+            if (left == null || left.IsNil) {
                 return new Antlr4.Runtime.Misc.IntervalSet();
             }
-            Antlr4.Runtime.Misc.IntervalSet result = new Antlr4.Runtime.Misc.IntervalSet(left);
-            if (right == null || right.IsNil)
-            {
+            var result = new Antlr4.Runtime.Misc.IntervalSet(left);
+            if (right == null || right.IsNil) {
                 // right set has no elements; just return the copy of the current set
                 return result;
             }
-            int resultI = 0;
-            int rightI = 0;
-            while (resultI < result.intervals.Count && rightI < right.intervals.Count)
-            {
-                Interval resultInterval = result.intervals[resultI];
-                Interval rightInterval = right.intervals[rightI];
+            var resultI = 0;
+            var rightI = 0;
+            while (resultI < result.intervals.Count && rightI < right.intervals.Count) {
+                var resultInterval = result.intervals[resultI];
+                var rightInterval = right.intervals[rightI];
                 // operation: (resultInterval - rightInterval) and update indexes
-                if (rightInterval.b < resultInterval.a)
-                {
+                if (rightInterval.b < resultInterval.a) {
                     rightI++;
                     continue;
                 }
-                if (rightInterval.a > resultInterval.b)
-                {
+                if (rightInterval.a > resultInterval.b) {
                     resultI++;
                     continue;
                 }
                 Interval? beforeCurrent = null;
                 Interval? afterCurrent = null;
-                if (rightInterval.a > resultInterval.a)
-                {
+                if (rightInterval.a > resultInterval.a) {
                     beforeCurrent = new Interval(resultInterval.a, rightInterval.a - 1);
                 }
-                if (rightInterval.b < resultInterval.b)
-                {
+                if (rightInterval.b < resultInterval.b) {
                     afterCurrent = new Interval(rightInterval.b + 1, resultInterval.b);
                 }
-                if (beforeCurrent != null)
-                {
-                    if (afterCurrent != null)
-                    {
+                if (beforeCurrent != null) {
+                    if (afterCurrent != null) {
                         // split the current interval into two
                         result.intervals[resultI] = beforeCurrent.Value;
                         result.intervals.Insert(resultI + 1, afterCurrent.Value);
                         resultI++;
                         rightI++;
                         continue;
-                    }
-                    else
-                    {
+                    } else {
                         // replace the current interval
                         result.intervals[resultI] = beforeCurrent.Value;
                         resultI++;
                         continue;
                     }
-                }
-                else
-                {
-                    if (afterCurrent != null)
-                    {
+                } else {
+                    if (afterCurrent != null) {
                         // replace the current interval
                         result.intervals[resultI] = afterCurrent.Value;
                         rightI++;
                         continue;
-                    }
-                    else
-                    {
+                    } else {
                         // remove the current interval (thus no need to increment resultI)
                         result.intervals.RemoveAt(resultI);
                         continue;
@@ -359,9 +297,8 @@ namespace Antlr4.Runtime.Misc
             return result;
         }
 
-        public virtual Antlr4.Runtime.Misc.IntervalSet Or(IIntSet a)
-        {
-            Antlr4.Runtime.Misc.IntervalSet o = new Antlr4.Runtime.Misc.IntervalSet();
+        public virtual Antlr4.Runtime.Misc.IntervalSet Or(IIntSet a) {
+            var o = new Antlr4.Runtime.Misc.IntervalSet();
             o.AddAll(this);
             o.AddAll(a);
             return o;
@@ -371,72 +308,47 @@ namespace Antlr4.Runtime.Misc
         /// <inheritDoc/>
         ///
         /// </summary>
-        public virtual Antlr4.Runtime.Misc.IntervalSet And(IIntSet other)
-        {
-            if (other == null)
-            {
+        public virtual Antlr4.Runtime.Misc.IntervalSet And(IIntSet other) {
+            if (other == null) {
                 //|| !(other instanceof IntervalSet) ) {
                 return null;
             }
             // nothing in common with null set
-            IList<Interval> myIntervals = this.intervals;
-            IList<Interval> theirIntervals = ((Antlr4.Runtime.Misc.IntervalSet)other).intervals;
+            var myIntervals = intervals;
+            var theirIntervals = ((Antlr4.Runtime.Misc.IntervalSet)other).intervals;
             Antlr4.Runtime.Misc.IntervalSet intersection = null;
-            int mySize = myIntervals.Count;
-            int theirSize = theirIntervals.Count;
-            int i = 0;
-            int j = 0;
+            var mySize = myIntervals.Count;
+            var theirSize = theirIntervals.Count;
+            var i = 0;
+            var j = 0;
             // iterate down both interval lists looking for nondisjoint intervals
-            while (i < mySize && j < theirSize)
-            {
-                Interval mine = myIntervals[i];
-                Interval theirs = theirIntervals[j];
+            while (i < mySize && j < theirSize) {
+                var mine = myIntervals[i];
+                var theirs = theirIntervals[j];
                 //System.out.println("mine="+mine+" and theirs="+theirs);
-                if (mine.StartsBeforeDisjoint(theirs))
-                {
+                if (mine.StartsBeforeDisjoint(theirs)) {
                     // move this iterator looking for interval that might overlap
                     i++;
-                }
-                else
-                {
-                    if (theirs.StartsBeforeDisjoint(mine))
-                    {
+                } else {
+                    if (theirs.StartsBeforeDisjoint(mine)) {
                         // move other iterator looking for interval that might overlap
                         j++;
-                    }
-                    else
-                    {
-                        if (mine.ProperlyContains(theirs))
-                        {
+                    } else {
+                        if (mine.ProperlyContains(theirs)) {
                             // overlap, add intersection, get next theirs
-                            if (intersection == null)
-                            {
-                                intersection = new Antlr4.Runtime.Misc.IntervalSet();
-                            }
+                            intersection ??= new Antlr4.Runtime.Misc.IntervalSet();
                             intersection.Add(mine.Intersection(theirs));
                             j++;
-                        }
-                        else
-                        {
-                            if (theirs.ProperlyContains(mine))
-                            {
+                        } else {
+                            if (theirs.ProperlyContains(mine)) {
                                 // overlap, add intersection, get next mine
-                                if (intersection == null)
-                                {
-                                    intersection = new Antlr4.Runtime.Misc.IntervalSet();
-                                }
+                                intersection ??= new Antlr4.Runtime.Misc.IntervalSet();
                                 intersection.Add(mine.Intersection(theirs));
                                 i++;
-                            }
-                            else
-                            {
-                                if (!mine.Disjoint(theirs))
-                                {
+                            } else {
+                                if (!mine.Disjoint(theirs)) {
                                     // overlap, add intersection
-                                    if (intersection == null)
-                                    {
-                                        intersection = new Antlr4.Runtime.Misc.IntervalSet();
-                                    }
+                                    intersection ??= new Antlr4.Runtime.Misc.IntervalSet();
                                     intersection.Add(mine.Intersection(theirs));
                                     // Move the iterator of lower range [a..b], but not
                                     // the upper range as it may contain elements that will collide
@@ -445,14 +357,10 @@ namespace Antlr4.Runtime.Misc
                                     // but not theirs as theirs may collide with the next range
                                     // in thisIter.
                                     // move both iterators to next ranges
-                                    if (mine.StartsAfterNonDisjoint(theirs))
-                                    {
+                                    if (mine.StartsAfterNonDisjoint(theirs)) {
                                         j++;
-                                    }
-                                    else
-                                    {
-                                        if (theirs.StartsAfterNonDisjoint(mine))
-                                        {
+                                    } else {
+                                        if (theirs.StartsAfterNonDisjoint(mine)) {
                                             i++;
                                         }
                                     }
@@ -462,8 +370,7 @@ namespace Antlr4.Runtime.Misc
                     }
                 }
             }
-            if (intersection == null)
-            {
+            if (intersection == null) {
                 return new Antlr4.Runtime.Misc.IntervalSet();
             }
             return intersection;
@@ -473,21 +380,17 @@ namespace Antlr4.Runtime.Misc
         /// <inheritDoc/>
         ///
         /// </summary>
-        public virtual bool Contains(int el)
-        {
-            int n = intervals.Count;
-            for (int i = 0; i < n; i++)
-            {
-                Interval I = intervals[i];
-                int a = I.a;
-                int b = I.b;
-                if (el < a)
-                {
+        public virtual bool Contains(int el) {
+            var n = intervals.Count;
+            for (var i = 0; i < n; i++) {
+                var I = intervals[i];
+                var a = I.a;
+                var b = I.b;
+                if (el < a) {
                     break;
                 }
                 // list is sorted and el is before this interval; not here
-                if (el >= a && el <= b)
-                {
+                if (el >= a && el <= b) {
                     return true;
                 }
             }
@@ -499,10 +402,8 @@ namespace Antlr4.Runtime.Misc
         /// <inheritDoc/>
         ///
         /// </summary>
-        public virtual bool IsNil
-        {
-            get
-            {
+        public virtual bool IsNil {
+            get {
                 return intervals == null || intervals.Count == 0;
             }
         }
@@ -511,15 +412,11 @@ namespace Antlr4.Runtime.Misc
         /// <inheritDoc/>
         ///
         /// </summary>
-        public virtual int SingleElement
-        {
-            get
-            {
-                if (intervals != null && intervals.Count == 1)
-                {
-                    Interval I = intervals[0];
-                    if (I.a == I.b)
-                    {
+        public virtual int SingleElement {
+            get {
+                if (intervals != null && intervals.Count == 1) {
+                    var I = intervals[0];
+                    if (I.a == I.b) {
                         return I.a;
                     }
                 }
@@ -535,15 +432,12 @@ namespace Antlr4.Runtime.Misc
         /// <see cref="TokenConstants.InvalidType"/>
         /// .
         /// </returns>
-        public virtual int MaxElement
-        {
-            get
-            {
-                if (IsNil)
-                {
+        public virtual int MaxElement {
+            get {
+                if (IsNil) {
                     return TokenConstants.InvalidType;
                 }
-                Interval last = intervals[intervals.Count - 1];
+                var last = intervals[intervals.Count - 1];
                 return last.b;
             }
         }
@@ -556,12 +450,9 @@ namespace Antlr4.Runtime.Misc
         /// <see cref="TokenConstants.InvalidType"/>
         /// .
         /// </returns>
-        public virtual int MinElement
-        {
-            get
-            {
-                if (IsNil)
-                {
+        public virtual int MinElement {
+            get {
+                if (IsNil) {
                     return TokenConstants.InvalidType;
                 }
                 return intervals[0].a;
@@ -570,16 +461,13 @@ namespace Antlr4.Runtime.Misc
 
         /// <summary>Return a list of Interval objects.</summary>
         /// <remarks>Return a list of Interval objects.</remarks>
-        public virtual IList<Interval> GetIntervals()
-        {
+        public virtual IList<Interval> GetIntervals() {
             return intervals;
         }
 
-        public override int GetHashCode()
-        {
-            int hash = MurmurHash.Initialize();
-            foreach (Interval I in intervals)
-            {
+        public override int GetHashCode() {
+            var hash = MurmurHash.Initialize();
+            foreach (var I in intervals) {
                 hash = MurmurHash.Update(hash, I.a);
                 hash = MurmurHash.Update(hash, I.b);
             }
@@ -598,257 +486,200 @@ namespace Antlr4.Runtime.Misc
         /// to make sure they are the same.  Interval.equals() is used
         /// by the List.equals() method to check the ranges.
         /// </remarks>
-        public override bool Equals(object obj)
-        {
-            if (obj == null || !(obj is Antlr4.Runtime.Misc.IntervalSet))
-            {
+        public override bool Equals(object obj) {
+            if (obj is null or not IntervalSet) {
                 return false;
             }
-            Antlr4.Runtime.Misc.IntervalSet other = (Antlr4.Runtime.Misc.IntervalSet)obj;
-            return this.intervals.SequenceEqual(other.intervals);
+            var other = (Antlr4.Runtime.Misc.IntervalSet)obj;
+            return intervals.SequenceEqual(other.intervals);
         }
 
-        public override string ToString()
-        {
+        public override string ToString() {
             return ToString(false);
         }
 
-        public virtual string ToString(bool elemAreChar)
-        {
-            StringBuilder buf = new StringBuilder();
-            if (this.intervals == null || this.intervals.Count == 0)
-            {
+        public virtual string ToString(bool elemAreChar) {
+            var buf = new StringBuilder();
+            if (intervals == null || intervals.Count == 0) {
                 return "{}";
             }
-            if (this.Count > 1)
-            {
+            if (Count > 1) {
                 buf.Append("{");
             }
 
-            bool first = true;
-            foreach (Interval I in intervals)
-            {
-                if (!first)
+            var first = true;
+            foreach (var I in intervals) {
+                if (!first) {
                     buf.Append(", ");
+                }
 
                 first = false;
-                int a = I.a;
-                int b = I.b;
-                if (a == b)
-                {
-                    if (a == TokenConstants.EOF)
-                    {
+                var a = I.a;
+                var b = I.b;
+                if (a == b) {
+                    if (a == TokenConstants.EOF) {
                         buf.Append("<EOF>");
-                    }
-                    else
-                    {
-                        if (elemAreChar)
-                        {
+                    } else {
+                        if (elemAreChar) {
                             buf.Append("'").Append((char)a).Append("'");
-                        }
-                        else
-                        {
+                        } else {
                             buf.Append(a);
                         }
                     }
-                }
-                else
-                {
-                    if (elemAreChar)
-                    {
+                } else {
+                    if (elemAreChar) {
                         buf.Append("'").Append((char)a).Append("'..'").Append((char)b).Append("'");
-                    }
-                    else
-                    {
+                    } else {
                         buf.Append(a).Append("..").Append(b);
                     }
                 }
             }
-            if (this.Count > 1)
-            {
+            if (Count > 1) {
                 buf.Append("}");
             }
             return buf.ToString();
         }
 
-        public virtual string ToString(IVocabulary vocabulary)
-        {
-            StringBuilder buf = new StringBuilder();
-            if (this.intervals == null || this.intervals.Count == 0)
-            {
+        public virtual string ToString(IVocabulary vocabulary) {
+            var buf = new StringBuilder();
+            if (intervals == null || intervals.Count == 0) {
                 return "{}";
             }
-            if (this.Count > 1)
-            {
+            if (Count > 1) {
                 buf.Append("{");
             }
 
-            bool first = true;
-            foreach (Interval I in intervals)
-            {
-                if (!first)
+            var first = true;
+            foreach (var I in intervals) {
+                if (!first) {
                     buf.Append(", ");
+                }
 
                 first = false;
-                int a = I.a;
-                int b = I.b;
-                if (a == b)
-                {
+                var a = I.a;
+                var b = I.b;
+                if (a == b) {
                     buf.Append(ElementName(vocabulary, a));
-                }
-                else
-                {
-                    for (int i = a; i <= b; i++)
-                    {
-                        if (i > a)
-                        {
+                } else {
+                    for (var i = a; i <= b; i++) {
+                        if (i > a) {
                             buf.Append(", ");
                         }
                         buf.Append(ElementName(vocabulary, i));
                     }
                 }
             }
-            if (this.Count > 1)
-            {
+            if (Count > 1) {
                 buf.Append("}");
             }
             return buf.ToString();
         }
 
         [return: NotNull]
-        protected internal virtual string ElementName(IVocabulary vocabulary, int a)
-        {
-            if (a == TokenConstants.EOF)
-            {
+        protected internal virtual string ElementName(IVocabulary vocabulary, int a) {
+            if (a == TokenConstants.EOF) {
                 return "<EOF>";
-            }
-            else
-            {
-                if (a == TokenConstants.EPSILON)
-                {
+            } else {
+                if (a == TokenConstants.EPSILON) {
                     return "<EPSILON>";
-                }
-                else
-                {
+                } else {
                     return vocabulary.GetDisplayName(a);
                 }
             }
         }
 
-        public virtual int Count
-        {
-            get
-            {
-                int n = 0;
-                int numIntervals = intervals.Count;
-                if (numIntervals == 1)
-                {
-                    Interval firstInterval = this.intervals[0];
+        public virtual int Count {
+            get {
+                var n = 0;
+                var numIntervals = intervals.Count;
+                if (numIntervals == 1) {
+                    var firstInterval = intervals[0];
                     return firstInterval.b - firstInterval.a + 1;
                 }
-                for (int i = 0; i < numIntervals; i++)
-                {
-                    Interval I = intervals[i];
-                    n += (I.b - I.a + 1);
+                for (var i = 0; i < numIntervals; i++) {
+                    var I = intervals[i];
+                    n += I.b - I.a + 1;
                 }
                 return n;
             }
         }
 
-        public virtual ArrayList<int> ToIntegerList()
-        {
-            ArrayList<int> values = new ArrayList<int>(Count);
-            int n = intervals.Count;
-            for (int i = 0; i < n; i++)
-            {
-                Interval I = intervals[i];
-                int a = I.a;
-                int b = I.b;
-                for (int v = a; v <= b; v++)
-                {
+        public virtual ArrayList<int> ToIntegerList() {
+            var values = new ArrayList<int>(Count);
+            var n = intervals.Count;
+            for (var i = 0; i < n; i++) {
+                var I = intervals[i];
+                var a = I.a;
+                var b = I.b;
+                for (var v = a; v <= b; v++) {
                     values.Add(v);
                 }
             }
             return values;
         }
 
-        public virtual IList<int> ToList()
-        {
+        public virtual IList<int> ToList() {
             IList<int> values = new ArrayList<int>();
-            int n = intervals.Count;
-            for (int i = 0; i < n; i++)
-            {
-                Interval I = intervals[i];
-                int a = I.a;
-                int b = I.b;
-                for (int v = a; v <= b; v++)
-                {
+            var n = intervals.Count;
+            for (var i = 0; i < n; i++) {
+                var I = intervals[i];
+                var a = I.a;
+                var b = I.b;
+                for (var v = a; v <= b; v++) {
                     values.Add(v);
                 }
             }
             return values;
         }
 
-        public virtual HashSet<int> ToSet()
-        {
-            HashSet<int> s = new HashSet<int>();
-            foreach (Interval I in intervals)
-            {
-                int a = I.a;
-                int b = I.b;
-                for (int v = a; v <= b; v++)
-                {
+        public virtual HashSet<int> ToSet() {
+            var s = new HashSet<int>();
+            foreach (var I in intervals) {
+                var a = I.a;
+                var b = I.b;
+                for (var v = a; v <= b; v++) {
                     s.Add(v);
                 }
             }
             return s;
         }
 
-        public virtual int[] ToArray()
-        {
+        public virtual int[] ToArray() {
             return ToIntegerList().ToArray();
         }
 
-        public virtual void Remove(int el)
-        {
-            if (@readonly)
-            {
+        public virtual void Remove(int el) {
+            if (@readonly) {
                 throw new InvalidOperationException("can't alter readonly IntervalSet");
             }
-            int n = intervals.Count;
-            for (int i = 0; i < n; i++)
-            {
-                Interval I = intervals[i];
-                int a = I.a;
-                int b = I.b;
-                if (el < a)
-                {
+            var n = intervals.Count;
+            for (var i = 0; i < n; i++) {
+                var I = intervals[i];
+                var a = I.a;
+                var b = I.b;
+                if (el < a) {
                     break;
                 }
                 // list is sorted and el is before this interval; not here
                 // if whole interval x..x, rm
-                if (el == a && el == b)
-                {
+                if (el == a && el == b) {
                     intervals.RemoveAt(i);
                     break;
                 }
                 // if on left edge x..b, adjust left
-                if (el == a)
-                {
+                if (el == a) {
                     intervals[i] = Interval.Of(I.a + 1, I.b);
                     break;
                 }
                 // if on right edge a..x, adjust right
-                if (el == b)
-                {
+                if (el == b) {
                     intervals[i] = Interval.Of(I.a, I.b - 1);
                     break;
                 }
                 // if in middle a..x..b, split interval
-                if (el > a && el < b)
-                {
+                if (el > a && el < b) {
                     // found in this interval
-                    int oldb = I.b;
+                    var oldb = I.b;
                     intervals[i] = Interval.Of(I.a, el - 1);
                     // [a..x-1]
                     Add(el + 1, oldb);
@@ -856,46 +687,37 @@ namespace Antlr4.Runtime.Misc
             }
         }
 
-        public virtual bool IsReadOnly
-        {
-            get
-            {
+        public virtual bool IsReadOnly {
+            get {
                 // add [x+1..b]
                 return @readonly;
             }
         }
 
-        public virtual void SetReadonly(bool @readonly)
-        {
-            if (this.@readonly && !@readonly)
-            {
+        public virtual void SetReadonly(bool @readonly) {
+            if (this.@readonly && !@readonly) {
                 throw new InvalidOperationException("can't alter readonly IntervalSet");
             }
             this.@readonly = @readonly;
         }
 
-        IIntSet IIntSet.AddAll(IIntSet set)
-        {
+        IIntSet IIntSet.AddAll(IIntSet set) {
             return AddAll(set);
         }
 
-        IIntSet IIntSet.And(IIntSet a)
-        {
+        IIntSet IIntSet.And(IIntSet a) {
             return And(a);
         }
 
-        IIntSet IIntSet.Complement(IIntSet elements)
-        {
+        IIntSet IIntSet.Complement(IIntSet elements) {
             return Complement(elements);
         }
 
-        IIntSet IIntSet.Or(IIntSet a)
-        {
+        IIntSet IIntSet.Or(IIntSet a) {
             return Or(a);
         }
 
-        IIntSet IIntSet.Subtract(IIntSet a)
-        {
+        IIntSet IIntSet.Subtract(IIntSet a) {
             return Subtract(a);
         }
     }

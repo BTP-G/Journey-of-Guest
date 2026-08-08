@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -27,32 +27,33 @@ public class ActionPerformanceTest : MonoBehaviour {
 
         // 测试 event Action
         var sw = System.Diagnostics.Stopwatch.StartNew();
-        for (int i = 0; i < Iterations; i++) {
+        for (var i = 0; i < Iterations; i++) {
             OnEventAction?.Invoke(TestValue);
         }
         sw.Stop();
-        long eventTime = sw.ElapsedMilliseconds;
+        var eventTime = sw.ElapsedMilliseconds;
 
         // 测试 List<Action>
         sw.Restart();
-        for (int i = 0; i < Iterations; i++) {
+        for (var i = 0; i < Iterations; i++) {
             foreach (var action in _listActions) {
                 action(TestValue); // 直接调用，非 .Invoke()
             }
         }
         sw.Stop();
-        long listTime = sw.ElapsedMilliseconds;
+        var listTime = sw.ElapsedMilliseconds;
 
         // 输出结果
         Debug.Log($"✅ event Action<int> 耗时: {eventTime} ms");
         Debug.Log($"✅ List<Action<int>> 耗时: {listTime} ms");
 
-        if (eventTime < listTime)
+        if (eventTime < listTime) {
             Debug.Log("🏆 event Action 更快！");
-        else if (listTime < eventTime)
+        } else if (listTime < eventTime) {
             Debug.Log("🏆 List<Action> 更快！");
-        else
+        } else {
             Debug.Log("⏱ 两者性能相当。");
+        }
     }
 
     // 所有处理器都是无副作用的纯输出（避免影响性能）

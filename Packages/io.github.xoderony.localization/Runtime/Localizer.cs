@@ -14,7 +14,10 @@ namespace Xoderony.Localization {
         public static string LanguageCode {
             get => _languageCode;
             set {
-                if (_languageCode == value) return;
+                if (_languageCode == value) {
+                    return;
+                }
+
                 _languageCode = value;
                 Build();
                 OnLanguageChanged?.Invoke();
@@ -74,7 +77,10 @@ namespace Xoderony.Localization {
         }
 
         private static void Build() {
-            if (string.IsNullOrWhiteSpace(_languageCode)) return;
+            if (string.IsNullOrWhiteSpace(_languageCode)) {
+                return;
+            }
+
             var builder = new Dictionary<string, string>();
             _languageBuilders?.Invoke(_languageCode, builder);
             _keyToTranslation = builder;

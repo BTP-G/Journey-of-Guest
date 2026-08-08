@@ -10,34 +10,28 @@ using UnityEngine.Playables;
 using static Animancer.Editor.AnimancerGUI;
 using Object = UnityEngine.Object;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <inheritdoc/>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/PlayableAssetTransitionDrawer
     [CustomPropertyDrawer(typeof(PlayableAssetTransition), true)]
-    public class PlayableAssetTransitionDrawer : TransitionDrawer
-    {
+    public class PlayableAssetTransitionDrawer : TransitionDrawer {
         /************************************************************************************************************************/
 
         /// <summary>Creates a new <see cref="PlayableAssetTransitionDrawer"/>.</summary>
         public PlayableAssetTransitionDrawer()
-            : base(PlayableAssetTransition.AssetField)
-        { }
+            : base(PlayableAssetTransition.AssetField) { }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-        {
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
             _CurrentAsset = null;
 
             var height = base.GetPropertyHeight(property, label);
 
-            if (property.isExpanded)
-            {
+            if (property.isExpanded) {
                 var bindings = property.FindPropertyRelative(PlayableAssetTransition.BindingsField);
-                if (bindings != null)
-                {
+                if (bindings != null) {
                     bindings.isExpanded = true;
                     height -= StandardSpacing + LineHeight;
                 }
@@ -55,15 +49,13 @@ namespace Animancer.Editor
             Rect area,
             out Rect labelArea,
             SerializedProperty rootProperty,
-            SerializedProperty mainProperty)
-        {
+            SerializedProperty mainProperty) {
             _CurrentAsset = mainProperty.objectReferenceValue as PlayableAsset;
             base.DoMainPropertyGUI(area, out labelArea, rootProperty, mainProperty);
         }
 
         /// <inheritdoc/>
-        public override void OnGUI(Rect area, SerializedProperty property, GUIContent label)
-        {
+        public override void OnGUI(Rect area, SerializedProperty property, GUIContent label) {
             base.OnGUI(area, property, label);
             _CurrentAsset = null;
         }
@@ -73,11 +65,9 @@ namespace Animancer.Editor
             ref Rect area,
             SerializedProperty rootProperty,
             SerializedProperty property,
-            GUIContent label)
-        {
+            GUIContent label) {
             var path = property.propertyPath;
-            if (path.EndsWith($".{PlayableAssetTransition.BindingsField}"))
-            {
+            if (path.EndsWith($".{PlayableAssetTransition.BindingsField}")) {
                 DoBindingsGUI(ref area, property, label);
                 return;
             }
@@ -90,8 +80,7 @@ namespace Animancer.Editor
         private void DoBindingsGUI(
             ref Rect area,
             SerializedProperty property,
-            GUIContent label)
-        {
+            GUIContent label) {
             var outputCount = GetOutputCount(out var outputEnumerator, out var firstBindingIsAnimation);
 
             // Bindings.
@@ -103,23 +92,18 @@ namespace Animancer.Editor
 
             EditorGUI.indentLevel++;
 
-            for (int i = 0; i < bindingCount; i++)
-            {
+            for (var i = 0; i < bindingCount; i++) {
                 NextVerticalArea(ref area);
 
-                if (!property.Next(false))
-                {
+                if (!property.Next(false)) {
                     EditorGUI.LabelField(area, "Binding Count Mismatch");
                     break;
                 }
                 // First Array Item.
 
-                if (outputEnumerator != null && outputEnumerator.MoveNext())
-                {
+                if (outputEnumerator != null && outputEnumerator.MoveNext()) {
                     DoBindingGUI(area, property, label, outputEnumerator, i);
-                }
-                else
-                {
+                } else {
                     var color = GUI.color;
                     GUI.color = WarningFieldColor;
 
@@ -136,33 +120,33 @@ namespace Animancer.Editor
 
         private int GetOutputCount(
             out IEnumerator<PlayableBinding> outputEnumerator,
-            out bool firstBindingIsAnimation)
-        {
+            out bool firstBindingIsAnimation) {
             var outputCount = 0;
 
             firstBindingIsAnimation = false;
-            if (_CurrentAsset != null)
-            {
+            if (_CurrentAsset != null) {
                 var outputs = _CurrentAsset.outputs;
                 _CurrentAsset = null;
                 outputEnumerator = outputs.GetEnumerator();
 
-                while (outputEnumerator.MoveNext())
-                {
+                while (outputEnumerator.MoveNext()) {
                     PlayableAssetState.GetBindingDetails(
                         outputEnumerator.Current, out var _, out var _, out var isMarkers);
-                    if (isMarkers)
+                    if (isMarkers) {
                         continue;
+                    }
 
-                    if (outputCount == 0 && outputEnumerator.Current.outputTargetType == typeof(Animator))
+                    if (outputCount == 0 && outputEnumerator.Current.outputTargetType == typeof(Animator)) {
                         firstBindingIsAnimation = true;
+                    }
 
                     outputCount++;
                 }
 
                 outputEnumerator = outputs.GetEnumerator();
+            } else {
+                outputEnumerator = null;
             }
-            else outputEnumerator = null;
 
             return outputCount;
         }
@@ -175,16 +159,14 @@ namespace Animancer.Editor
             GUIContent label,
             int outputCount,
             bool firstBindingIsAnimation,
-            out int bindingCount)
-        {
+            out int bindingCount) {
             var color = GUI.color;
 
             var sizeArea = area;
             bindingCount = property.intValue;
 
             // Button to fix the number of bindings in the array.
-            if (bindingCount != outputCount && !(bindingCount == 0 && outputCount == 1 && firstBindingIsAnimation))
-            {
+            if (bindingCount != outputCount && !(bindingCount == 0 && outputCount == 1 && firstBindingIsAnimation)) {
                 GUI.color = WarningFieldColor;
 
                 var labelText = label.text;
@@ -194,8 +176,9 @@ namespace Animancer.Editor
                 var fixSizeWidth = style.CalculateWidth(countLabel);
                 var fixSizeArea = StealFromRight(
                     ref sizeArea, fixSizeWidth, StandardSpacing);
-                if (GUI.Button(fixSizeArea, countLabel, style))
+                if (GUI.Button(fixSizeArea, countLabel, style)) {
                     property.intValue = bindingCount = outputCount;
+                }
 
                 label.text = labelText;
             }
@@ -204,8 +187,9 @@ namespace Animancer.Editor
 
             EditorGUI.PropertyField(sizeArea, property, label, false);
 
-            if (EditorGUI.EndChangeCheck())
+            if (EditorGUI.EndChangeCheck()) {
                 bindingCount = property.intValue;
+            }
 
             GUI.color = color;
         }
@@ -217,17 +201,15 @@ namespace Animancer.Editor
             SerializedProperty property,
             GUIContent label,
             IEnumerator<PlayableBinding> outputEnumerator,
-            int trackIndex)
-        {
-            CheckIfSkip:
+            int trackIndex) {
+        CheckIfSkip:
             PlayableAssetState.GetBindingDetails(
                 outputEnumerator.Current,
                 out var name,
                 out var bindingType,
                 out var isMarkers);
 
-            if (isMarkers)
-            {
+            if (isMarkers) {
                 outputEnumerator.MoveNext();
                 goto CheckIfSkip;
             }
@@ -244,16 +226,14 @@ namespace Animancer.Editor
             var obj = property.objectReferenceValue;
             var objExists = obj != null;
 
-            if (objExists)
+            if (objExists) {
                 DoRemoveButtonIfNecessary(ref fieldArea, property, trackIndex, ref bindingType, ref obj);
+            }
 
-            if (bindingType != null || objExists)
-            {
+            if (bindingType != null || objExists) {
                 property.objectReferenceValue =
                     EditorGUI.ObjectField(fieldArea, label, obj, bindingType, allowSceneObjects);
-            }
-            else
-            {
+            } else {
                 EditorGUI.LabelField(fieldArea, label);
             }
 
@@ -267,23 +247,17 @@ namespace Animancer.Editor
             SerializedProperty property,
             int trackIndex,
             ref Type bindingType,
-            ref Object obj)
-        {
-            if (trackIndex == 0 && bindingType == typeof(Animator))
-            {
+            ref Object obj) {
+            if (trackIndex == 0 && bindingType == typeof(Animator)) {
                 DoRemoveButton(ref area, property, ref obj,
                     "This Animation Track is the first Track" +
                     " so it will automatically control the Animancer output" +
                     " and likely doesn't need a binding.");
-            }
-            else if (bindingType == null)
-            {
+            } else if (bindingType == null) {
                 DoRemoveButton(ref area, property, ref obj,
                     "This Track doesn't need a binding.");
                 bindingType = typeof(Object);
-            }
-            else if (!bindingType.IsAssignableFrom(obj.GetType()))
-            {
+            } else if (!bindingType.IsAssignableFrom(obj.GetType())) {
                 DoRemoveButton(ref area, property, ref obj,
                     "This binding has the wrong type for this Track.");
             }
@@ -295,8 +269,7 @@ namespace Animancer.Editor
             ref Rect area,
             SerializedProperty property,
             ref Object obj,
-            string tooltip)
-        {
+            string tooltip) {
             GUI.color = WarningFieldColor;
 
             var removeArea = StealFromRight(
@@ -307,8 +280,9 @@ namespace Animancer.Editor
             if (GUI.Button(
                 removeArea,
                 AnimancerIcons.ClearIcon(tooltip),
-                NoPaddingButtonStyle))
+                NoPaddingButtonStyle)) {
                 property.objectReferenceValue = obj = null;
+            }
         }
 
         /************************************************************************************************************************/

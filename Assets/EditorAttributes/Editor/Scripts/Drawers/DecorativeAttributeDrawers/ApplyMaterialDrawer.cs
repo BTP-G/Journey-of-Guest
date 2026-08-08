@@ -1,4 +1,4 @@
-﻿using UnityEditor;
+using UnityEditor;
 using UnityEngine.UIElements;
 
 #if UNITY_6000_3_OR_NEWER
@@ -9,13 +9,10 @@ using UnityEditor.UIElements;
 using EditorAttributes.Editor.Utility;
 #endif
 
-namespace EditorAttributes.Editor
-{
+namespace EditorAttributes.Editor {
     [CustomPropertyDrawer(typeof(ApplyMaterialAttribute))]
-    public class ApplyMaterialDrawer : PropertyDrawerBase
-    {
-        public override VisualElement CreatePropertyGUI(SerializedProperty property)
-        {
+    public class ApplyMaterialDrawer : PropertyDrawerBase {
+        public override VisualElement CreatePropertyGUI(SerializedProperty property) {
 #if UNITY_6000_3_OR_NEWER
             var applyMaterialAttribute = attribute as ApplyMaterialAttribute;
 

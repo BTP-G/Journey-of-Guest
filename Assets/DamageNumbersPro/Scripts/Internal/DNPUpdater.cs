@@ -1,15 +1,12 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using DamageNumbersPro;
 
-namespace DamageNumbersPro.Internal
-{
-    public class DNPUpdater : MonoBehaviour
-    {
+namespace DamageNumbersPro.Internal {
+    public class DNPUpdater : MonoBehaviour {
         // Dicitonary
-        static Dictionary<float, DNPUpdater> unscaledUpdaters;
-        static Dictionary<float, DNPUpdater> scaledUpdaters;
+        private static Dictionary<float, DNPUpdater> unscaledUpdaters;
+        private static Dictionary<float, DNPUpdater> scaledUpdaters;
 
         // Static
         public static Vector3 upVector;
@@ -24,58 +21,46 @@ namespace DamageNumbersPro.Internal
         public HashSet<DamageNumber> removedPopups;
 
         // Internal
-        float lastUpdateTime = 0;
-        float delta = 0;
-        float time = 0;
+        private float lastUpdateTime = 0;
+        private float delta = 0;
+        private float time = 0;
 
-        void Start()
-        {
+        private void Start() {
             StartCoroutine(UpdatePopups());
         }
 
-        IEnumerator UpdatePopups()
-        {
+        private IEnumerator UpdatePopups() {
             // Delay
-            WaitForSecondsRealtime delay = new WaitForSecondsRealtime(updateDelay);
+            var delay = new WaitForSecondsRealtime(updateDelay);
 
-            while(true)
-            {
+            while (true) {
                 // Vector Update
                 vectorsNeedUpdate = true;
 
                 // Update
-                foreach (DamageNumber popup in activePopups)
-                {
-                    if(popup != null)
-                    {
+                foreach (var popup in activePopups) {
+                    if (popup != null) {
                         popup.UpdateDamageNumber(delta, time);
-                    }
-                    else
-                    {
+                    } else {
                         removedPopups.Add(popup);
                     }
                 }
 
                 // Clean Up
-                if(removedPopups.Count > 0)
-                {
-                    foreach (DamageNumber removed in removedPopups)
-                    {
+                if (removedPopups.Count > 0) {
+                    foreach (var removed in removedPopups) {
                         activePopups.Remove(removed);
                     }
                     removedPopups = new HashSet<DamageNumber>();
                 }
 
                 // Wait
-                if (isUnscaled)
-                {
+                if (isUnscaled) {
                     lastUpdateTime = Time.unscaledTime;
                     yield return delay;
                     time = Time.unscaledTime;
                     delta = time - lastUpdateTime;
-                }
-                else
-                {
+                } else {
                     lastUpdateTime = Time.time;
                     yield return delay;
                     time = Time.time;
@@ -84,31 +69,24 @@ namespace DamageNumbersPro.Internal
             }
         }
 
-        public static void RegisterPopup(bool unscaledTime, float updateDelay, DamageNumber popup)
-        {
-            ref Dictionary<float, DNPUpdater> updaters = ref unscaledTime ? ref unscaledUpdaters : ref scaledUpdaters;
+        public static void RegisterPopup(bool unscaledTime, float updateDelay, DamageNumber popup) {
+            ref var updaters = ref unscaledTime ? ref unscaledUpdaters : ref scaledUpdaters;
 
-            if (updaters == null)
-            {
-                updaters = new Dictionary<float, DNPUpdater>();
-            }
+            updaters ??= new Dictionary<float, DNPUpdater>();
 
-            bool containsKey = updaters.ContainsKey(updateDelay);
-            if (containsKey && updaters[updateDelay] != null)
-            {
+            var containsKey = updaters.ContainsKey(updateDelay);
+            if (containsKey && updaters[updateDelay] != null) {
                 updaters[updateDelay].activePopups.Add(popup);
-            }
-            else
-            {
-                if(containsKey)
-                {
+            } else {
+                if (containsKey) {
                     updaters.Remove(updateDelay);
                 }
 
-                GameObject newUpdater = new GameObject("");
-                newUpdater.hideFlags = HideFlags.HideInHierarchy;
+                var newUpdater = new GameObject("") {
+                    hideFlags = HideFlags.HideInHierarchy
+                };
 
-                DNPUpdater dnpUpdater = newUpdater.AddComponent<DNPUpdater>();
+                var dnpUpdater = newUpdater.AddComponent<DNPUpdater>();
                 dnpUpdater.activePopups = new HashSet<DamageNumber>();
                 dnpUpdater.removedPopups = new HashSet<DamageNumber>();
                 dnpUpdater.isUnscaled = unscaledTime;
@@ -121,18 +99,15 @@ namespace DamageNumbersPro.Internal
             }
         }
 
-        public static void UnregisterPopup(bool unscaledTime, float updateDelay, DamageNumber popup)
-        {
-            Dictionary<float, DNPUpdater> updaters = unscaledTime ? unscaledUpdaters : scaledUpdaters;
+        public static void UnregisterPopup(bool unscaledTime, float updateDelay, DamageNumber popup) {
+            var updaters = unscaledTime ? unscaledUpdaters : scaledUpdaters;
 
-            if (updaters != null && updaters.ContainsKey(updateDelay) && updaters[updateDelay].activePopups.Contains(popup))
-            {
+            if (updaters != null && updaters.ContainsKey(updateDelay) && updaters[updateDelay].activePopups.Contains(popup)) {
                 updaters[updateDelay].removedPopups.Add(popup);
             }
         }
 
-        public static void UpdateVectors(Transform popup)
-        {
+        public static void UpdateVectors(Transform popup) {
             vectorsNeedUpdate = false;
             upVector = popup.up;
             rightVector = popup.right;

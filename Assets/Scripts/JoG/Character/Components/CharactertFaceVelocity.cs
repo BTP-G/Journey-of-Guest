@@ -1,6 +1,6 @@
-using Xoderony.Movement;
 using UnityEngine;
 using VContainer;
+using Xoderony.Movement;
 
 namespace JoG.Character.Components {
 

@@ -4,14 +4,12 @@
 
 using UnityEngine;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only]
     /// <see cref="ToggledSpeedSlider"/> for <see cref="AnimancerGraph"/>.
     /// </summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/AnimancerGraphSpeedSlider
-    public class AnimancerGraphSpeedSlider : ToggledSpeedSlider
-    {
+    public class AnimancerGraphSpeedSlider : ToggledSpeedSlider {
         /************************************************************************************************************************/
 
         /// <summary>Singleton.</summary>
@@ -25,26 +23,25 @@ namespace Animancer.Editor
 
         /// <summary>Creates a new <see cref="AnimancerGraphSpeedSlider"/>.</summary>
         public AnimancerGraphSpeedSlider()
-            : base(nameof(AnimancerGraphSpeedSlider) + ".Show")
-        {
+            : base(nameof(AnimancerGraphSpeedSlider) + ".Show") {
         }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override void OnSetSpeed(float speed)
-        {
-            if (Graph != null)
+        protected override void OnSetSpeed(float speed) {
+            if (Graph != null) {
                 Graph.Speed = speed;
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override bool DoToggleGUI(Rect area, GUIStyle style)
-        {
-            if (Graph != null)
+        public override bool DoToggleGUI(Rect area, GUIStyle style) {
+            if (Graph != null) {
                 Speed = Graph.Speed;
+            }
 
             return base.DoToggleGUI(area, style);
         }

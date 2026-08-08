@@ -1,12 +1,10 @@
-﻿using System;
+using System;
 
-namespace NCalc
-{
+namespace NCalc {
     // Summary:
     //     Provides enumerated values to use to set evaluation options.
     [Flags]
-    public enum EvaluateOptions
-    {
+    public enum EvaluateOptions {
         // Summary:
         //     Specifies that no options are set.
         None = 1,

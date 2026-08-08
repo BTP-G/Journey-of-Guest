@@ -1,15 +1,11 @@
-﻿using UnityEngine;
-using UnityEditor;
 using ANU.IngameDebug.Utils;
+using UnityEditor;
+using UnityEngine;
 
-
-namespace ANU.Editor.IngameDebug.Utils
-{
+namespace ANU.Editor.IngameDebug.Utils {
     [CustomPropertyDrawer(typeof(OptionalField<>), true)]
-    public class OptionalFieldPropertyDrawer : PropertyDrawer
-    {
-        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-        {
+    public class OptionalFieldPropertyDrawer : PropertyDrawer {
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {
             var isSingleLine = IsSingleRowProperty(property);
 
             GUI.Box(position, "");
@@ -25,8 +21,7 @@ namespace ANU.Editor.IngameDebug.Utils
             headerPosition.position = pos;
             var size = headerPosition.size;
 
-            if (isSingleLine)
-            {
+            if (isSingleLine) {
                 size.x = GUI.skin.label.CalcSize(label).x;
                 size.x += toggleSpace * 2;
             }
@@ -43,8 +38,7 @@ namespace ANU.Editor.IngameDebug.Utils
 
             EditorGUI.LabelField(headerPosition, label);
 
-            if (isEnabled.boolValue)
-            {
+            if (isEnabled.boolValue) {
                 var value = property.FindPropertyRelative("_value");
                 var valuePosition = headerPosition;
                 pos = valuePosition.position;
@@ -54,8 +48,7 @@ namespace ANU.Editor.IngameDebug.Utils
                 valuePosition.size = size;
                 valuePosition.position = pos;
 
-                if (isSingleLine)
-                {
+                if (isSingleLine) {
                     valuePosition = headerPosition;
                     var s = headerPosition.size;
                     s.x = Mathf.Clamp(position.size.x - headerPosition.size.x, 100, 200);
@@ -79,32 +72,31 @@ namespace ANU.Editor.IngameDebug.Utils
             property.isExpanded = isEnabled.boolValue;
         }
 
-        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-        {
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
             var isSingleLine = IsSingleRowProperty(property);
 
             var isEnabled = property.FindPropertyRelative("_isEnabled").boolValue;
             property.isExpanded = isEnabled;
 
-            if (isEnabled)
-            {
+            if (isEnabled) {
                 var value = property.FindPropertyRelative("_value");
-                if (value.isArray)
+                if (value.isArray) {
                     value.isExpanded = true;
+                }
             }
 
             var height = isSingleLine
                 ? EditorGUIUtility.singleLineHeight
                 : EditorGUI.GetPropertyHeight(property, label, isEnabled);
 
-            if (isEnabled && !isSingleLine)
+            if (isEnabled && !isSingleLine) {
                 height -= EditorGUIUtility.singleLineHeight;
+            }
 
             return height;
         }
 
-        private bool IsSingleRowProperty(SerializedProperty property)
-        {
+        private bool IsSingleRowProperty(SerializedProperty property) {
             property = property.Copy();
             property.isExpanded = true;
             var count = property.CountInProperty();

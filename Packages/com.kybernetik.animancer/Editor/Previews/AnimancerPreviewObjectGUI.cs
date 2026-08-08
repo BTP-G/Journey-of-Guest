@@ -7,23 +7,21 @@ using UnityEditor;
 using UnityEngine;
 using static Animancer.Editor.AnimancerGUI;
 
-namespace Animancer.Editor.Previews
-{
+namespace Animancer.Editor.Previews {
     /// <summary>[Editor-Only] GUI utilities for <see cref="AnimancerPreviewObject"/>.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor.Previews/AnimancerPreviewObjectGUI
-    public static class AnimancerPreviewObjectGUI
-    {
+    public static class AnimancerPreviewObjectGUI {
         /************************************************************************************************************************/
 
         /// <summary>Calculates the pixel height required to draw the `preview`.</summary>
-        public static float CalculateHeight(AnimancerPreviewObject preview)
-        {
+        public static float CalculateHeight(AnimancerPreviewObject preview) {
             var lines = 1;
 
             var instanceAnimators = preview.InstanceAnimators;
             if (instanceAnimators != null &&
-                instanceAnimators.Length > 1)
+                instanceAnimators.Length > 1) {
                 lines++;
+            }
 
             return AnimancerGUI.CalculateHeight(lines);
         }
@@ -31,8 +29,7 @@ namespace Animancer.Editor.Previews
         /************************************************************************************************************************/
 
         /// <summary>Draws the model selection GUI.</summary>
-        public static void DoModelGUI(AnimancerPreviewObject preview)
-        {
+        public static void DoModelGUI(AnimancerPreviewObject preview) {
             var area = LayoutRect(CalculateHeight(preview));
             DoModelGUI(area, preview);
         }
@@ -40,8 +37,7 @@ namespace Animancer.Editor.Previews
         /************************************************************************************************************************/
 
         /// <summary>Draws the model selection GUI.</summary>
-        public static void DoModelGUI(Rect area, AnimancerPreviewObject preview)
-        {
+        public static void DoModelGUI(Rect area, AnimancerPreviewObject preview) {
             var root = preview.OriginalObject;
             var model = root != null ? root.gameObject : null;
 
@@ -49,14 +45,13 @@ namespace Animancer.Editor.Previews
 
             var warning = GetModelWarning(model, preview);
             var color = GUI.color;
-            if (warning != null)
+            if (warning != null) {
                 GUI.color = WarningFieldColor;
+            }
 
-            using (var label = PooledGUIContent.Acquire("Model"))
-            {
+            using (var label = PooledGUIContent.Acquire("Model")) {
                 var objectFieldArea = StealLineFromTop(ref area);
-                if (DoDropdownObjectFieldGUI(objectFieldArea, label, true, ref model))
-                {
+                if (DoDropdownObjectFieldGUI(objectFieldArea, label, true, ref model)) {
                     var menu = new GenericMenu();
 
                     menu.AddItem(
@@ -72,12 +67,9 @@ namespace Animancer.Editor.Previews
 
                     var persistentModels = TransitionPreviewSettings.Models;
                     var temporaryModels = TemporarySettings.PreviewModels;
-                    if (persistentModels.Count == 0 && temporaryModels.Count == 0)
-                    {
+                    if (persistentModels.Count == 0 && temporaryModels.Count == 0) {
                         menu.AddDisabledItem(new("No model prefabs have been used yet"));
-                    }
-                    else
-                    {
+                    } else {
                         AddModelSelectionFunctions(menu, preview, persistentModels, model);
                         AddModelSelectionFunctions(menu, preview, temporaryModels, model);
                     }
@@ -88,11 +80,13 @@ namespace Animancer.Editor.Previews
 
             GUI.color = color;
 
-            if (EditorGUI.EndChangeCheck())
+            if (EditorGUI.EndChangeCheck()) {
                 preview.OriginalObject = model != null ? model.transform : null;
+            }
 
-            if (warning != null)
+            if (warning != null) {
                 EditorGUILayout.HelpBox(warning, MessageType.Warning, true);
+            }
 
             DoAnimatorSelectorGUI(preview);
         }
@@ -104,16 +98,15 @@ namespace Animancer.Editor.Previews
             GenericMenu menu,
             AnimancerPreviewObject preview,
             List<GameObject> models,
-            GameObject selected)
-        {
-            for (int i = models.Count - 1; i >= 0; i--)
-            {
+            GameObject selected) {
+            for (var i = models.Count - 1; i >= 0; i--) {
                 var model = models[i];
                 var path = AssetDatabase.GetAssetPath(model);
-                if (!string.IsNullOrEmpty(path))
+                if (!string.IsNullOrEmpty(path)) {
                     path = path.Replace('/', '\\');
-                else
+                } else {
                     path = model.name;
+                }
 
                 menu.AddItem(new(path), model == selected,
                     () => preview.OriginalObject = model.transform);
@@ -125,13 +118,14 @@ namespace Animancer.Editor.Previews
         /// <summary>Returns a warning about the selected model or <c>null</c>.</summary>
         private static string GetModelWarning(
             GameObject model,
-            AnimancerPreviewObject preview)
-        {
-            if (model == null)
+            AnimancerPreviewObject preview) {
+            if (model == null) {
                 return "No Model is selected so nothing can be previewed.";
+            }
 
-            if (preview.SelectedInstanceAnimator == null)
+            if (preview.SelectedInstanceAnimator == null) {
                 return "The selected Model has no Animator component.";
+            }
 
             return null;
         }
@@ -141,12 +135,12 @@ namespace Animancer.Editor.Previews
         /// <summary>
         /// Draws a button for selecting which <see cref="Animator"/> to control if there's more than one.
         /// </summary>
-        private static void DoAnimatorSelectorGUI(AnimancerPreviewObject preview)
-        {
+        private static void DoAnimatorSelectorGUI(AnimancerPreviewObject preview) {
             var instanceAnimators = preview.InstanceAnimators;
             if (instanceAnimators == null ||
-                instanceAnimators.Length <= 1)
+                instanceAnimators.Length <= 1) {
                 return;
+            }
 
             var area = LayoutSingleLineRect(SpacingMode.After);
             var labelArea = StealFromLeft(ref area, EditorGUIUtility.labelWidth, StandardSpacing);
@@ -154,21 +148,19 @@ namespace Animancer.Editor.Previews
 
             var selectedAnimator = preview.SelectedInstanceAnimator;
             using (var label = PooledGUIContent.Acquire(
-                selectedAnimator != null ? selectedAnimator.name : "None"))
-            {
+                selectedAnimator != null ? selectedAnimator.name : "None")) {
                 var clicked = EditorGUI.DropdownButton(area, label, FocusType.Passive);
 
-                if (!clicked)
+                if (!clicked) {
                     return;
+                }
 
                 var menu = new GenericMenu();
 
-                for (int i = 0; i < instanceAnimators.Length; i++)
-                {
+                for (var i = 0; i < instanceAnimators.Length; i++) {
                     var animator = instanceAnimators[i];
                     var index = i;
-                    menu.AddItem(new(animator.name), animator == selectedAnimator, () =>
-                    {
+                    menu.AddItem(new(animator.name), animator == selectedAnimator, () => {
                         preview.SetSelectedAnimator(index);
                     });
                 }
@@ -183,17 +175,17 @@ namespace Animancer.Editor.Previews
         private static AnimancerPreviewObject _ModelDropPreview;
 
         /// <summary>Handles drag and drop events for preview models.</summary>
-        public static void HandleDragAndDrop(Rect area, AnimancerPreviewObject preview)
-        {
+        public static void HandleDragAndDrop(Rect area, AnimancerPreviewObject preview) {
             _ModelDropPreview = preview;
 
-            _ModelDropHandler ??= (gameObject, isDrop) =>
-            {
-                if (!gameObject.TryGetComponent<Animator>(out _))
+            _ModelDropHandler ??= (gameObject, isDrop) => {
+                if (!gameObject.TryGetComponent<Animator>(out _)) {
                     return false;
+                }
 
-                if (isDrop)
+                if (isDrop) {
                     _ModelDropPreview.OriginalObject = gameObject.transform;
+                }
 
                 return true;
             };

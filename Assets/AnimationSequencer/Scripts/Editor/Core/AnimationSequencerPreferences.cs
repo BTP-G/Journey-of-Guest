@@ -1,11 +1,9 @@
-﻿using UnityEditor;
+using UnityEditor;
 using UnityEngine;
 
-namespace BrunoMikoski.AnimationSequencer
-{
+namespace BrunoMikoski.AnimationSequencer {
     // Modified by Pablo Huaxteco
-    public sealed class AnimationSequencerPreferences : ScriptableObjectForPreferences<AnimationSequencerPreferences>
-    {
+    public sealed class AnimationSequencerPreferences : ScriptableObjectForPreferences<AnimationSequencerPreferences> {
         // Public static variables
         public static readonly string Version = "2.0.0";
 
@@ -27,42 +25,39 @@ namespace BrunoMikoski.AnimationSequencer
         public bool OnlyOneStepExpandedWhileEditing => onlyOneStepExpanded;
         public bool OnlyOneActionExpandedWhileEditing => onlyOneActionExpanded;
         public bool HideStepsWhenPreviewing => hideSteps;
-        public bool CollapseStepsWhenPreviewing { get { return hideSteps ? false : collapseSteps; } }
-        public bool VisualizeStepsProgressWhenPreviewing { get { return hideSteps ? false : visualizeStepsProgress; } }
+        public bool CollapseStepsWhenPreviewing { get { return !hideSteps && collapseSteps; } }
+        public bool VisualizeStepsProgressWhenPreviewing { get { return !hideSteps && visualizeStepsProgress; } }
 
         [SettingsProvider]
-        private static SettingsProvider SettingsProvider()
-        {
+        private static SettingsProvider SettingsProvider() {
             return CreateSettingsProvider("Preferences/Animation Sequencer", OnGUI);
         }
 
-        private static void OnGUI(SerializedObject serializedObject)
-        {
+        private static void OnGUI(SerializedObject serializedObject) {
             // Initial margin.
             GUILayout.BeginHorizontal();
             GUILayout.Space(10);
             GUILayout.BeginVertical();
 
             // Modify label width.
-            float originalLabelWidth = EditorGUIUtility.labelWidth;
+            var originalLabelWidth = EditorGUIUtility.labelWidth;
             EditorGUIUtility.labelWidth = 190;
 
             // Version label.
             EditorGUILayout.LabelField($"Version {Version}", EditorStyles.boldLabel);
 
             // Draw properties.
-            SerializedProperty onlyOneStepExpandeProperty = serializedObject.FindProperty("onlyOneStepExpanded");
+            var onlyOneStepExpandeProperty = serializedObject.FindProperty("onlyOneStepExpanded");
             EditorGUILayout.PropertyField(onlyOneStepExpandeProperty);
-            SerializedProperty onlyOneActionExpandeProperty = serializedObject.FindProperty("onlyOneActionExpanded");
+            var onlyOneActionExpandeProperty = serializedObject.FindProperty("onlyOneActionExpanded");
             EditorGUILayout.PropertyField(onlyOneActionExpandeProperty);
-            SerializedProperty hideStepsProperty = serializedObject.FindProperty("hideSteps");
+            var hideStepsProperty = serializedObject.FindProperty("hideSteps");
             EditorGUILayout.PropertyField(hideStepsProperty);
-            if (!hideStepsProperty.boolValue)
-            {
-                int baseIndentLevel = EditorGUI.indentLevel;
+            if (!hideStepsProperty.boolValue) {
+                var baseIndentLevel = EditorGUI.indentLevel;
                 EditorGUI.indentLevel = baseIndentLevel + 1;
-                SerializedProperty collapseStepsProperty = serializedObject.FindProperty("collapseSteps");
-                SerializedProperty visualizeStepsProgressProperty = serializedObject.FindProperty("visualizeStepsProgress");
+                var collapseStepsProperty = serializedObject.FindProperty("collapseSteps");
+                var visualizeStepsProgressProperty = serializedObject.FindProperty("visualizeStepsProgress");
                 EditorGUILayout.PropertyField(collapseStepsProperty);
                 EditorGUILayout.PropertyField(visualizeStepsProgressProperty);
                 EditorGUI.indentLevel = baseIndentLevel;

@@ -1,8 +1,8 @@
-using Xoderony;
 using JoG.Health;
 using MessagePipe;
 using System;
 using VContainer;
+using Xoderony;
 
 namespace JoG.Character.Components {
 
@@ -60,7 +60,5 @@ namespace JoG.Character.Components {
                 NotifyDeath();
             }
         }
-
     }
-
 }

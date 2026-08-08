@@ -1,5 +1,5 @@
-using Xoderony.Extensions;
 using System;
+using Xoderony.Extensions;
 
 namespace JoG.Attributes {
 

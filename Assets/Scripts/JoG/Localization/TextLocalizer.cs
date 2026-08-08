@@ -1,8 +1,8 @@
 using EditorAttributes;
-using Xoderony.Localization;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
+using Xoderony.Localization;
 
 namespace JoG.Localization {
 
@@ -33,10 +33,15 @@ namespace JoG.Localization {
         }
 
         private void OnValidate() {
-            if (Application.isPlaying) return;
+            if (Application.isPlaying) {
+                return;
+            }
+
             if (text == null) {
                 text = GetComponentInChildren<TMP_Text>(true);
-                if (text == null) return;
+                if (text == null) {
+                    return;
+                }
             }
             text.text = textKey;
         }

@@ -1,8 +1,8 @@
-using Xoderony.Localization;
-using JoG.UI.Popup;
 using JoG.Localization;
+using JoG.UI.Popup;
 using UnityEngine;
 using VContainer;
+using Xoderony.Localization;
 
 namespace JoG.Components {
 

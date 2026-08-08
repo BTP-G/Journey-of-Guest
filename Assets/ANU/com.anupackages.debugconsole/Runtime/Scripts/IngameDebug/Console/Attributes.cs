@@ -1,9 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ANU.IngameDebug.Console
-{
+namespace ANU.IngameDebug.Console {
     /// <summary>
     /// Declare names of NON MonoBehaviour types you want declare debug commands inside.
     /// This will let DebugConsole know where to find DebugCommands except types derrived of MonoBehaviour, which 
@@ -11,10 +10,8 @@ namespace ANU.IngameDebug.Console
     /// example: [assembly: RegisterDebugCommandTypes(typeof(TestNonMonoBehaviourClass), typeof(OtherNonMonoBehaviourClass))]
     /// </summary>
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
-    public class RegisterDebugCommandTypesAttribute : Attribute
-    {
-        public RegisterDebugCommandTypesAttribute(Type prefix, params Type[] morePrefixes)
-        {
+    public class RegisterDebugCommandTypesAttribute : Attribute {
+        public RegisterDebugCommandTypesAttribute(Type prefix, params Type[] morePrefixes) {
             FirstType = prefix;
             OtherTypes = morePrefixes;
         }
@@ -34,10 +31,8 @@ namespace ANU.IngameDebug.Console
     // }
 
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false)]
-    public class DebugCommandPrefixAttribute : Attribute
-    {
-        public DebugCommandPrefixAttribute(string prefix, params string[] morePrefixes)
-        {
+    public class DebugCommandPrefixAttribute : Attribute {
+        public DebugCommandPrefixAttribute(string prefix, params string[] morePrefixes) {
             Prefix = prefix;
             MorePrefixes = morePrefixes;
         }
@@ -50,8 +45,7 @@ namespace ANU.IngameDebug.Console
     /// - For all instanced commands option names [--targets|t] are reserved. You can pass targets as optional parameter array. Argument targets has highest priority over any <see cref="InstanceTargetType"/>
     /// - When using <see cref="Registry"/> or passing target as an argument - you can register DebugCommand for target of any type derrived from MonoBehaviour and ScriptableObject, since you manually provide the targets.  Although technically we could register methods in ALY type but then the searching all these types takes too long time.
     /// </summary>
-    public enum InstanceTargetType
-    {
+    public enum InstanceTargetType {
         AllActive,
         AllIncludingInactive,
         FirstActive,
@@ -67,17 +61,22 @@ namespace ANU.IngameDebug.Console
     /// All methods, properties and fields declared directly inside any MonoBehaviour automatically registered.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
-    public class DebugCommandAttribute : Attribute
-    {
+    public class DebugCommandAttribute : Attribute {
         public DebugCommandAttribute() { }
-        
-        public DebugCommandAttribute(string name) => Name = name;
+
+        public DebugCommandAttribute(string name) {
+            Name = name;
+        }
 
         public DebugCommandAttribute(string name, string description)
-            : this(name) => Description = description;
+            : this(name) {
+            Description = description;
+        }
 
         public DebugCommandAttribute(string name, string description, InstanceTargetType target)
-            : this(name, description) => Target = target;
+            : this(name, description) {
+            Target = target;
+        }
 
         public string Name { get; set; }
         public string Description { get; set; }
@@ -94,37 +93,37 @@ namespace ANU.IngameDebug.Console
     }
 
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
-    public class OptDescAttribute : Attribute
-    {
+    public class OptDescAttribute : Attribute {
         public string Description { get; }
-        public OptDescAttribute(string description) => Description = description;
+        public OptDescAttribute(string description) {
+            Description = description;
+        }
     }
 
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
-    public class OptValAttribute : Attribute
-    {
+    public class OptValAttribute : Attribute {
         public object[] AvailableValues { get; } = Array.Empty<object>();
 
-        public OptValAttribute(object firstAvailableValue, params object[] allOtherAvailableValues)
-            => AvailableValues = allOtherAvailableValues.Prepend(firstAvailableValue).ToArray();
+        public OptValAttribute(object firstAvailableValue, params object[] allOtherAvailableValues) {
+            AvailableValues = allOtherAvailableValues.Prepend(firstAvailableValue).ToArray();
+        }
     }
 
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
-    public class OptValDynamicAttribute : Attribute
-    {
+    public class OptValDynamicAttribute : Attribute {
         public string[] DynamicValuesProviderCommandNames { get; }
 
-        public OptValDynamicAttribute(string dynamicValuesCommand, params string[] allOtherDynamicValuesCommand)
-            => DynamicValuesProviderCommandNames = allOtherDynamicValuesCommand.Prepend(dynamicValuesCommand).ToArray();
+        public OptValDynamicAttribute(string dynamicValuesCommand, params string[] allOtherDynamicValuesCommand) {
+            DynamicValuesProviderCommandNames = allOtherDynamicValuesCommand.Prepend(dynamicValuesCommand).ToArray();
+        }
     }
 
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
-    public class OptAltNamesAttribute : Attribute
-    {
+    public class OptAltNamesAttribute : Attribute {
         public string[] AlternativeNames { get; }
 
-        public OptAltNamesAttribute(string firstAlternativeName, params string[] otherAlternativeNames)
-            => AlternativeNames = otherAlternativeNames.Prepend(firstAlternativeName).ToArray();
+        public OptAltNamesAttribute(string firstAlternativeName, params string[] otherAlternativeNames) {
+            AlternativeNames = otherAlternativeNames.Prepend(firstAlternativeName).ToArray();
+        }
     }
-
 }

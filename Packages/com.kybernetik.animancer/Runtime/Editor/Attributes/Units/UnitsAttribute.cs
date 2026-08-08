@@ -2,8 +2,7 @@
 
 using UnityEngine;
 
-namespace Animancer.Units
-{
+namespace Animancer.Units {
     /// <summary>[Editor-Conditional]
     /// Causes a float field to display a suffix to indicate what kind of units the value represents as well as
     /// displaying it as several different fields which convert the value between different units.
@@ -16,8 +15,7 @@ namespace Animancer.Units
     /// https://kybernetik.com.au/animancer/api/Animancer.Units/UnitsAttribute
     /// 
     [System.Diagnostics.Conditional(Strings.UnityEditor)]
-    public class UnitsAttribute : PropertyAttribute
-    {
+    public class UnitsAttribute : PropertyAttribute {
         /************************************************************************************************************************/
 
         /// <summary>The multipliers to convert from the field's actual value to each unit type.</summary>
@@ -51,15 +49,13 @@ namespace Animancer.Units
         protected UnitsAttribute() { }
 
         /// <summary>Creates a new <see cref="UnitsAttribute"/>.</summary>
-        public UnitsAttribute(string suffix)
-        {
+        public UnitsAttribute(string suffix) {
             Multipliers = new float[] { 1 };
             Suffixes = new string[] { suffix };
         }
 
         /// <summary>Creates a new <see cref="UnitsAttribute"/>.</summary>
-        public UnitsAttribute(float[] multipliers, string[] suffixes, int unitIndex = 0)
-        {
+        public UnitsAttribute(float[] multipliers, string[] suffixes, int unitIndex = 0) {
             Multipliers = multipliers;
             Suffixes = suffixes;
             UnitIndex = unitIndex;

@@ -1,8 +1,8 @@
-using Xoderony.Extensions;
-using Xoderony.Movement;
 using JoG.Character.InputBanks;
 using UnityEngine;
 using VContainer;
+using Xoderony.Extensions;
+using Xoderony.Movement;
 
 namespace JoG.Character.Components {
 
@@ -60,7 +60,5 @@ namespace JoG.Character.Components {
             _animator.SetFloat(AnimatorHashs.forwardSpeed, normalizedLocalVelocity.z);
             _animator.SetFloat(AnimatorHashs.maxMoveSpeed, maxMoveSpeed);
         }
-
     }
-
 }

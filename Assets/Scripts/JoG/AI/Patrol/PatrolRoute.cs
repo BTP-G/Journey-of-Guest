@@ -1,6 +1,6 @@
-using Xoderony.Extensions;
 using System;
 using UnityEngine;
+using Xoderony.Extensions;
 
 namespace JoG.AI.Patrol {
 

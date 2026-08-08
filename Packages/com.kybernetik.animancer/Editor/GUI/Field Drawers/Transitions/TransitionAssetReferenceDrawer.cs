@@ -4,13 +4,11 @@
 
 using UnityEditor;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <inheritdoc/>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/TransitionAssetReferenceDrawer
     [CustomPropertyDrawer(typeof(TransitionAssetReference), true)]
-    public class TransitionAssetReferenceDrawer : TransitionDrawer
-    {
+    public class TransitionAssetReferenceDrawer : TransitionDrawer {
     }
 }
 

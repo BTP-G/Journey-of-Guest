@@ -1,6 +1,6 @@
-using Xoderony.PropertyAttributes;
 using UnityEditor;
 using UnityEngine.UIElements;
+using Xoderony.PropertyAttributes;
 
 [CustomPropertyDrawer(typeof(FlagsFieldAttribute))]
 internal class FlagsFieldDrawer : PropertyDrawer {

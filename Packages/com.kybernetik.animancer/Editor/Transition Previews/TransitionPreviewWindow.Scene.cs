@@ -12,11 +12,9 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
-namespace Animancer.Editor.Previews
-{
+namespace Animancer.Editor.Previews {
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor.Previews/TransitionPreviewWindow
-    partial class TransitionPreviewWindow
-    {
+    public partial class TransitionPreviewWindow {
         /************************************************************************************************************************/
 
         /// <summary>The <see cref="Scene"/> of the current <see cref="TransitionPreviewWindow"/> instance.</summary>
@@ -35,8 +33,7 @@ namespace Animancer.Editor.Previews
         /// </remarks>
         [Serializable]
         public class Scene :
-            AnimancerPreviewObject.IEventHandler
-        {
+            AnimancerPreviewObject.IEventHandler {
             /************************************************************************************************************************/
             #region Fields and Properties
             /************************************************************************************************************************/
@@ -67,10 +64,8 @@ namespace Animancer.Editor.Previews
 
             private Vector3 _PreviousPreviewObjectPosition;
 
-            private Vector3 CurrentPreviewObjectPosition
-            {
-                get
-                {
+            private Vector3 CurrentPreviewObjectPosition {
+                get {
                     var animator = PreviewObject.SelectedInstanceAnimator;
                     return animator != null
                         ? animator.transform.position
@@ -85,8 +80,7 @@ namespace Animancer.Editor.Previews
             /************************************************************************************************************************/
 
             /// <summary>Initializes this <see cref="Scene"/>.</summary>
-            public void OnEnable()
-            {
+            public void OnEnable() {
                 duringSceneGui += DoCustomGUI;
 
                 CreateScene();
@@ -96,8 +90,7 @@ namespace Animancer.Editor.Previews
 
             /************************************************************************************************************************/
 
-            private void CreateScene()
-            {
+            private void CreateScene() {
                 _Scene = EditorSceneManager.NewPreviewScene();
                 _Scene.name = "Transition Preview";
                 _Instance.customScene = _Scene;
@@ -112,20 +105,19 @@ namespace Animancer.Editor.Previews
 
             /************************************************************************************************************************/
 
-            internal void OnEnvironmentPrefabChanged()
-            {
+            internal void OnEnvironmentPrefabChanged() {
                 DestroyImmediate(EnvironmentInstance);
 
                 var prefab = TransitionPreviewSettings.SceneEnvironment;
-                if (prefab != null)
+                if (prefab != null) {
                     EnvironmentInstance = Instantiate(prefab, PreviewSceneRoot);
+                }
             }
 
             /************************************************************************************************************************/
 
             /// <inheritdoc/>
-            void AnimancerPreviewObject.IEventHandler.OnInstantiateObject()
-            {
+            void AnimancerPreviewObject.IEventHandler.OnInstantiateObject() {
                 FocusCamera();
                 _Instance._Animations.GatherAnimations();
             }
@@ -133,14 +125,12 @@ namespace Animancer.Editor.Previews
             /************************************************************************************************************************/
 
             /// <inheritdoc/>
-            void AnimancerPreviewObject.IEventHandler.OnSetSelectedAnimator()
-            {
+            void AnimancerPreviewObject.IEventHandler.OnSetSelectedAnimator() {
                 _Instance.in2DMode = PreviewObject.SelectedInstanceType == AnimationType.Sprite;
             }
 
             /// <inheritdoc/>
-            void AnimancerPreviewObject.IEventHandler.OnCreateGraph()
-            {
+            void AnimancerPreviewObject.IEventHandler.OnCreateGraph() {
                 PreviewObject.Graph.RequirePostUpdate(new Animations.WindowMatchStateTime());
                 _Instance._Animations.NormalizedTime = _Instance._Animations.NormalizedTime;
             }
@@ -148,8 +138,7 @@ namespace Animancer.Editor.Previews
             /************************************************************************************************************************/
 
             /// <summary>Called when the target transition property is changed.</summary>
-            public void OnTargetPropertyChanged()
-            {
+            public void OnTargetPropertyChanged() {
                 _ExpandedHierarchy?.Clear();
 
                 var previewObject = PreviewObject;
@@ -164,41 +153,42 @@ namespace Animancer.Editor.Previews
 
             /************************************************************************************************************************/
 
-            private void FocusCamera()
-            {
+            private void FocusCamera() {
                 var instance = _PreviewObject.InstanceObject;
-                if (instance == null)
+                if (instance == null) {
                     return;
+                }
 
                 var bounds = CalculateBounds(instance);
 
-                var rotation = _Instance.in2DMode ?
-                    Quaternion.identity :
-                    Quaternion.Euler(15, 225, 0);
+                var rotation = _Instance.in2DMode
+                    ? Quaternion.identity
+                    : Quaternion.Euler(15, 225, 0);
 
                 var size = bounds.extents.magnitude * 1.2f;
-                if (size == float.PositiveInfinity)
+                if (size == float.PositiveInfinity) {
                     return;
-                else if (size == 0)
+                } else if (size == 0) {
                     size = 10;
+                }
 
                 _Instance.LookAt(bounds.center, rotation, size, _Instance.in2DMode, true);
             }
 
             /************************************************************************************************************************/
 
-            private static Bounds CalculateBounds(Transform transform)
-            {
-                if (transform == null)
+            private static Bounds CalculateBounds(Transform transform) {
+                if (transform == null) {
                     return default;
+                }
 
                 var renderers = transform.GetComponentsInChildren<Renderer>();
-                if (renderers.Length == 0)
+                if (renderers.Length == 0) {
                     return default;
+                }
 
                 var bounds = renderers[0].bounds;
-                for (int i = 1; i < renderers.Length; i++)
-                {
+                for (var i = 1; i < renderers.Length; i++) {
                     bounds.Encapsulate(renderers[i].bounds);
                 }
                 return bounds;
@@ -211,57 +201,55 @@ namespace Animancer.Editor.Previews
             /************************************************************************************************************************/
 
             /// <summary>Called when the window GUI is drawn.</summary>
-            public void OnGUI()
-            {
+            public void OnGUI() {
                 if (_PreviewObject != null &&
                     _PreviewObject.Graph != null &&
-                    _PreviewObject.Graph.IsGraphPlaying)
+                    _PreviewObject.Graph.IsGraphPlaying) {
                     AnimancerGUI.RepaintEverything();
+                }
 
                 if (Selection.activeObject == _Instance &&
                     Event.current.type == EventType.KeyUp &&
-                    Event.current.keyCode == KeyCode.F)
+                    Event.current.keyCode == KeyCode.F) {
                     FocusCamera();
+                }
             }
 
             /************************************************************************************************************************/
 
-            private void DoCustomGUI(SceneView sceneView)
-            {
+            private void DoCustomGUI(SceneView sceneView) {
                 FollowPreviewObject(sceneView);
 
                 var animancer = PreviewObject.Graph;
                 if (animancer == null ||
                     sceneView is not TransitionPreviewWindow instance ||
                     !AnimancerUtilities.TryGetWrappedObject(Transition, out ITransitionGUI gui) ||
-                    instance._TransitionProperty == null)
+                    instance._TransitionProperty == null) {
                     return;
+                }
 
                 EditorGUI.BeginChangeCheck();
 
-                using (new TransitionDrawer.DrawerContext(instance._TransitionProperty))
-                {
-                    try
-                    {
+                using (new TransitionDrawer.DrawerContext(instance._TransitionProperty)) {
+                    try {
                         gui.OnPreviewSceneGUI(new(animancer));
-                    }
-                    catch (Exception exception)
-                    {
+                    } catch (Exception exception) {
                         Debug.LogException(exception);
                     }
                 }
 
-                if (EditorGUI.EndChangeCheck())
+                if (EditorGUI.EndChangeCheck()) {
                     AnimancerGUI.RepaintEverything();
+                }
             }
 
             /************************************************************************************************************************/
 
-            private void FollowPreviewObject(SceneView sceneView)
-            {
+            private void FollowPreviewObject(SceneView sceneView) {
                 var currentPreviewObjectPosition = CurrentPreviewObjectPosition;
-                if (_PreviousPreviewObjectPosition == currentPreviewObjectPosition)
+                if (_PreviousPreviewObjectPosition == currentPreviewObjectPosition) {
                     return;
+                }
 
                 sceneView.pivot += currentPreviewObjectPosition - _PreviousPreviewObjectPosition;
 
@@ -271,9 +259,10 @@ namespace Animancer.Editor.Previews
             /************************************************************************************************************************/
 
             /// <summary>Is the `obj` a <see cref="GameObject"/> in the preview scene?</summary>
-            public bool IsSceneObject(Object obj)
-                => obj is GameObject gameObject
-                && gameObject.transform.IsChildOf(PreviewSceneRoot);
+            public bool IsSceneObject(Object obj) {
+                return obj is GameObject gameObject
+                                                                  && gameObject.transform.IsChildOf(PreviewSceneRoot);
+            }
 
             /************************************************************************************************************************/
 
@@ -291,8 +280,7 @@ namespace Animancer.Editor.Previews
             /************************************************************************************************************************/
 
             /// <summary>Called by <see cref="TransitionPreviewWindow.OnDisable"/>.</summary>
-            public void OnDisable()
-            {
+            public void OnDisable() {
                 duringSceneGui -= DoCustomGUI;
 
                 _PreviewObject?.Dispose();
@@ -303,10 +291,8 @@ namespace Animancer.Editor.Previews
             /************************************************************************************************************************/
 
             /// <summary>Called by <see cref="TransitionPreviewWindow.OnDestroy"/>.</summary>
-            public void OnDestroy()
-            {
-                if (PreviewSceneRoot != null)
-                {
+            public void OnDestroy() {
+                if (PreviewSceneRoot != null) {
                     DestroyImmediate(PreviewSceneRoot.gameObject);
                     PreviewSceneRoot = null;
                 }

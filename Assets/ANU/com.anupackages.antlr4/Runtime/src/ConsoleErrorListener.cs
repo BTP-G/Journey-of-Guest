@@ -1,15 +1,13 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
 using System.IO;
 
-namespace Antlr4.Runtime
-{
+namespace Antlr4.Runtime {
     /// <author>Sam Harwell</author>
-    public class ConsoleErrorListener<Symbol> : IAntlrErrorListener<Symbol>
-    {
+    public class ConsoleErrorListener<Symbol> : IAntlrErrorListener<Symbol> {
         /// <summary>
         /// Provides a default instance of
         /// <see cref="ConsoleErrorListener{Symbol}"/>
@@ -35,8 +33,7 @@ namespace Antlr4.Runtime
         /// line <em>line</em>:<em>charPositionInLine</em> <em>msg</em>
         /// </pre>
         /// </summary>
-        public virtual void SyntaxError(TextWriter output, IRecognizer recognizer, Symbol offendingSymbol, int line, int charPositionInLine, string msg, RecognitionException e)
-        {
+        public virtual void SyntaxError(TextWriter output, IRecognizer recognizer, Symbol offendingSymbol, int line, int charPositionInLine, string msg, RecognitionException e) {
             output.WriteLine("line " + line + ":" + charPositionInLine + " " + msg);
         }
     }

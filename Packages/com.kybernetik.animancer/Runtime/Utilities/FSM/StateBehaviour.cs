@@ -2,8 +2,7 @@
 
 using UnityEngine;
 
-namespace Animancer.FSM
-{
+namespace Animancer.FSM {
     /// <summary>Base class for <see cref="MonoBehaviour"/> states to be used in a <see cref="StateMachine{TState}"/>.</summary>
     /// <remarks>
     /// <strong>Documentation:</strong>
@@ -13,8 +12,7 @@ namespace Animancer.FSM
     /// https://kybernetik.com.au/animancer/api/Animancer.FSM/StateBehaviour
     /// 
     // [HelpURL(StateExtensions.APIDocumentationURL + nameof(StateBehaviour))]
-    public abstract class StateBehaviour : MonoBehaviour, IState
-    {
+    public abstract class StateBehaviour : MonoBehaviour, IState {
         /************************************************************************************************************************/
 
         /// <summary>[<see cref="IState.CanEnterState"/>]
@@ -34,8 +32,7 @@ namespace Animancer.FSM
         /// <summary>[<see cref="IState.OnEnterState"/>]
         /// Asserts that this component isn't already enabled, then enables it.
         /// </summary>
-        public virtual void OnEnterState()
-        {
+        public virtual void OnEnterState() {
             AssertEnabledAndRepaintIfSelected(false, nameof(OnEnterState));
 
             enabled = true;
@@ -46,10 +43,10 @@ namespace Animancer.FSM
         /// <summary>[<see cref="IState.OnExitState"/>]
         /// Asserts that this component isn't already disabled, then disables it.
         /// </summary>
-        public virtual void OnExitState()
-        {
-            if (this == null)
+        public virtual void OnExitState() {
+            if (this == null) {
                 return;
+            }
 
             AssertEnabledAndRepaintIfSelected(true, nameof(OnExitState));
 
@@ -74,20 +71,21 @@ namespace Animancer.FSM
         /// and instructs the Unity Editor to repaint if this object is selected so the Inspector updates properly.
         /// </summary>
         [System.Diagnostics.Conditional("UNITY_ASSERTIONS")]
-        private void AssertEnabledAndRepaintIfSelected(bool expectEnabled, string callerName)
-        {
+        private void AssertEnabledAndRepaintIfSelected(bool expectEnabled, string callerName) {
 #if UNITY_ASSERTIONS
-            if (enabled != expectEnabled)
+            if (enabled != expectEnabled) {
                 Debug.LogError(
                     $"{nameof(StateBehaviour)} was already {(expectEnabled ? "disabled" : "enabled")}" +
                     $" before {callerName}: {this}",
                     this);
+            }
 #endif
 #if UNITY_EDITOR
             // Unity doesn't constantly repaint the Inspector if all the components are collapsed.
             // So we can simply force it here to ensure that it shows the correct state being enabled.
-            if (ForceRepaintOnEnableDisable && UnityEditor.Selection.Contains(gameObject))
+            if (ForceRepaintOnEnableDisable && UnityEditor.Selection.Contains(gameObject)) {
                 UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
+            }
 #endif
         }
 
@@ -96,10 +94,10 @@ namespace Animancer.FSM
 #if UNITY_EDITOR
         /// <summary>[Editor-Only] States start disabled and only the current state gets enabled at runtime.</summary>
         /// <remarks>Called in Edit Mode whenever this script is loaded or a value is changed in the Inspector.</remarks>
-        protected virtual void OnValidate()
-        {
-            if (UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode)
+        protected virtual void OnValidate() {
+            if (UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode) {
                 return;
+            }
 
             enabled = false;
         }

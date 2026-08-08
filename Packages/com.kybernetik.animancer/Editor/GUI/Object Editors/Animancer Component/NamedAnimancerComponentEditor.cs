@@ -8,24 +8,22 @@ using UnityEditorInternal;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only] A custom Inspector for <see cref="NamedAnimancerComponent"/>s.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/NamedAnimancerComponentEditor
     /// 
     [CustomEditor(typeof(NamedAnimancerComponent), true), CanEditMultipleObjects]
-    public class NamedAnimancerComponentEditor : AnimancerComponentEditor
-    {
+    public class NamedAnimancerComponentEditor : AnimancerComponentEditor {
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override bool DoOverridePropertyGUI(string path, SerializedProperty property, GUIContent label)
-        {
-            switch (path)
-            {
+        protected override bool DoOverridePropertyGUI(string path, SerializedProperty property, GUIContent label) {
+            switch (path) {
                 case NamedAnimancerComponent.PlayAutomaticallyField:
-                    if (ShouldShowAnimationFields())
+                    if (ShouldShowAnimationFields()) {
                         DoDefaultAnimationField(property);
+                    }
+
                     return true;
 
                 case NamedAnimancerComponent.NamesField:
@@ -33,8 +31,10 @@ namespace Animancer.Editor
                     return true;
 
                 case NamedAnimancerComponent.AnimationsField:
-                    if (ShouldShowAnimationFields())
+                    if (ShouldShowAnimationFields()) {
                         DoAnimationsField(property);
+                    }
+
                     return true;
 
                 default:
@@ -49,42 +49,41 @@ namespace Animancer.Editor
         /// <see cref="NamedAnimancerComponent.Animations"/> fields are only used on startup, so we don't need to show
         /// them in Play Mode after the object is already enabled.
         /// </summary>
-        private bool ShouldShowAnimationFields()
-        {
-            if (!EditorApplication.isPlayingOrWillChangePlaymode)
+        private bool ShouldShowAnimationFields() {
+            if (!EditorApplication.isPlayingOrWillChangePlaymode) {
                 return true;
+            }
 
-            for (int i = 0; i < Targets.Length; i++)
-                if (!Targets[i].IsGraphInitialized)
+            for (var i = 0; i < Targets.Length; i++) {
+                if (!Targets[i].IsGraphInitialized) {
                     return true;
+                }
+            }
 
             return false;
         }
 
         /************************************************************************************************************************/
 
-        private void DoDefaultAnimationField(SerializedProperty playAutomatically)
-        {
+        private void DoDefaultAnimationField(SerializedProperty playAutomatically) {
             var area = AnimancerGUI.LayoutSingleLineRect();
 
             var playAutomaticallyWidth = EditorGUIUtility.labelWidth + AnimancerGUI.ToggleWidth;
             var playAutomaticallyArea = AnimancerGUI.StealFromLeft(ref area, playAutomaticallyWidth);
 
-            using (var label = PooledGUIContent.Acquire(playAutomatically))
+            using (var label = PooledGUIContent.Acquire(playAutomatically)) {
                 EditorGUI.PropertyField(playAutomaticallyArea, playAutomatically, label);
+            }
 
             SerializedProperty firstAnimation;
             AnimationClip clip;
 
             var animations = serializedObject.FindProperty(NamedAnimancerComponent.AnimationsField);
-            if (animations.arraySize > 0)
-            {
+            if (animations.arraySize > 0) {
                 firstAnimation = animations.GetArrayElementAtIndex(0);
                 clip = (AnimationClip)firstAnimation.objectReferenceValue;
                 EditorGUI.BeginProperty(area, null, firstAnimation);
-            }
-            else
-            {
+            } else {
                 firstAnimation = null;
                 clip = null;
                 EditorGUI.BeginProperty(area, null, animations);
@@ -99,24 +98,20 @@ namespace Animancer.Editor
 
             EditorGUI.indentLevel = indentLevel;
 
-            if (EditorGUI.EndChangeCheck())
-            {
-                if (clip != null)
-                {
-                    if (firstAnimation == null)
-                    {
+            if (EditorGUI.EndChangeCheck()) {
+                if (clip != null) {
+                    if (firstAnimation == null) {
                         animations.arraySize = 1;
                         firstAnimation = animations.GetArrayElementAtIndex(0);
                     }
 
                     firstAnimation.objectReferenceValue = clip;
-                }
-                else
-                {
-                    if (firstAnimation == null || animations.arraySize == 1)
+                } else {
+                    if (firstAnimation == null || animations.arraySize == 1) {
                         animations.arraySize = 0;
-                    else
+                    } else {
                         firstAnimation.objectReferenceValue = clip;
+                    }
                 }
             }
 
@@ -130,16 +125,14 @@ namespace Animancer.Editor
 
         private static int _RemoveAnimationIndex;
 
-        private void DoAnimationsField(SerializedProperty property)
-        {
+        private void DoAnimationsField(SerializedProperty property) {
             GUILayout.Space(AnimancerGUI.StandardSpacing - 1);
 
             var serializedObject = property.serializedObject;
 
             _Names = serializedObject.FindProperty(NamedAnimancerComponent.NamesField);
 
-            _Animations ??= new(serializedObject, property.Copy())
-            {
+            _Animations ??= new(serializedObject, property.Copy()) {
                 drawHeaderCallback = DrawAnimationsHeader,
                 drawElementCallback = DrawAnimationElement,
                 elementHeight = AnimancerGUI.LineHeight,
@@ -153,8 +146,9 @@ namespace Animancer.Editor
             _Animations.DoLayoutList();
             GUILayout.EndVertical();
 
-            if (_RemoveAnimationIndex >= 0)
+            if (_RemoveAnimationIndex >= 0) {
                 property.DeleteArrayElementAtIndex(_RemoveAnimationIndex);
+            }
 
             HandleDragAndDropToAddAnimations(GUILayoutUtility.GetLastRect(), property);
         }
@@ -163,20 +157,17 @@ namespace Animancer.Editor
 
         private SerializedProperty _AnimationsArraySize;
 
-        private void DrawAnimationsHeader(Rect area)
-        {
+        private void DrawAnimationsHeader(Rect area) {
             var labelWidth = EditorGUIUtility.labelWidth;
             EditorGUIUtility.labelWidth -= 6;
 
             area.width += 5;
 
             var property = _Animations.serializedProperty;
-            using (var label = PooledGUIContent.Acquire(property))
-            {
+            using (var label = PooledGUIContent.Acquire(property)) {
                 var propertyLabel = EditorGUI.BeginProperty(area, label, property);
 
-                if (_AnimationsArraySize == null)
-                {
+                if (_AnimationsArraySize == null) {
                     _AnimationsArraySize = property.Copy();
                     _AnimationsArraySize.Next(true);
                     _AnimationsArraySize.Next(true);
@@ -186,9 +177,11 @@ namespace Animancer.Editor
                 EditorGUI.PropertyField(area, _AnimationsArraySize, propertyLabel);
                 var newSize = _AnimationsArraySize.intValue;
 
-                if (oldSize < newSize)
-                    for (int i = oldSize; i < newSize; i++)
+                if (oldSize < newSize) {
+                    for (var i = oldSize; i < newSize; i++) {
                         property.GetArrayElementAtIndex(i).objectReferenceValue = null;
+                    }
+                }
 
                 EditorGUI.EndProperty();
             }
@@ -201,10 +194,10 @@ namespace Animancer.Editor
         private static readonly HashSet<Object>
             PreviousAnimations = new();
 
-        private void DrawAnimationElement(Rect area, int index, bool isActive, bool isFocused)
-        {
-            if (index == 0)
+        private void DrawAnimationElement(Rect area, int index, bool isActive, bool isFocused) {
+            if (index == 0) {
                 PreviousAnimations.Clear();
+            }
 
             var labelWidth = EditorGUIUtility.labelWidth;
             EditorGUIUtility.labelWidth -= 20;
@@ -215,17 +208,19 @@ namespace Animancer.Editor
 
             var color = GUI.color;
             var clip = animation.objectReferenceValue;
-            if (clip == null || PreviousAnimations.Contains(clip))
+            if (clip == null || PreviousAnimations.Contains(clip)) {
                 GUI.color = AnimancerGUI.WarningFieldColor;
-            else
+            } else {
                 PreviousAnimations.Add(clip);
+            }
 
             EditorGUI.BeginChangeCheck();
 
             EditorGUI.ObjectField(area, animation, GUIContent.none);
 
-            if (EditorGUI.EndChangeCheck() && animation.objectReferenceValue == null)
+            if (EditorGUI.EndChangeCheck() && animation.objectReferenceValue == null) {
                 _RemoveAnimationIndex = index;
+            }
 
             GUI.color = color;
             EditorGUIUtility.labelWidth = labelWidth;
@@ -233,8 +228,7 @@ namespace Animancer.Editor
 
         /************************************************************************************************************************/
 
-        private void DrawNameField(ref Rect area, int index)
-        {
+        private void DrawNameField(ref Rect area, int index) {
             EditorGUI.BeginChangeCheck();
 
             var nameCount = _Names.arraySize;
@@ -247,8 +241,9 @@ namespace Animancer.Editor
                 EditorGUIUtility.labelWidth,
                 AnimancerGUI.StandardSpacing);
 
-            if (name != null)
+            if (name != null) {
                 EditorGUI.BeginProperty(nameArea, null, name);
+            }
 
             var nameAsset = name?.objectReferenceValue;
             var allowSceneObjects = !EditorUtility.IsPersistent(target);
@@ -259,11 +254,11 @@ namespace Animancer.Editor
                 typeof(StringAsset),
                 allowSceneObjects);
 
-            if (name != null)
+            if (name != null) {
                 EditorGUI.EndProperty();
+            }
 
-            if (EditorGUI.EndChangeCheck())
-            {
+            if (EditorGUI.EndChangeCheck()) {
                 if (nameAsset != null)// Set.
                 {
                     ExpandWithNullsForNewItems(_Names, index + 1);
@@ -271,9 +266,8 @@ namespace Animancer.Editor
                     name ??= _Names.GetArrayElementAtIndex(index);
 
                     name.objectReferenceValue = nameAsset;
-                }
-                else// Remove.
-                {
+                } else// Remove.
+                  {
                     name.objectReferenceValue = null;
                     TrimTrailingNulls(_Names);
                 }
@@ -282,18 +276,17 @@ namespace Animancer.Editor
 
         /************************************************************************************************************************/
 
-        private static void ExpandWithNullsForNewItems(SerializedProperty array, int newCount)
-        {
+        private static void ExpandWithNullsForNewItems(SerializedProperty array, int newCount) {
             var oldCount = array.arraySize;
-            if (newCount <= oldCount)
+            if (newCount <= oldCount) {
                 return;
+            }
 
             // If we expand more than 1 at a time, clear the first new item before doing the full expansion
             // so that all the new items are cleared.
 
             array.arraySize = oldCount + 1;
-            if (newCount > oldCount + 1)
-            {
+            if (newCount > oldCount + 1) {
                 array.GetArrayElementAtIndex(oldCount).objectReferenceValue = null;
                 array.arraySize = newCount;
             }
@@ -301,26 +294,25 @@ namespace Animancer.Editor
 
         /************************************************************************************************************************/
 
-        private static void TrimTrailingNulls(SerializedProperty array)
-        {
+        private static void TrimTrailingNulls(SerializedProperty array) {
             var oldCount = array.arraySize;
             var newCount = oldCount;
-            while (newCount > 0)
-            {
-                if (array.GetArrayElementAtIndex(newCount - 1).objectReferenceValue != null)
+            while (newCount > 0) {
+                if (array.GetArrayElementAtIndex(newCount - 1).objectReferenceValue != null) {
                     break;
+                }
 
                 newCount--;
             }
 
-            if (newCount < oldCount)
+            if (newCount < oldCount) {
                 array.arraySize = newCount;
+            }
         }
 
         /************************************************************************************************************************/
 
-        private static void AddNullElement(ReorderableList list)
-        {
+        private static void AddNullElement(ReorderableList list) {
             var property = list.serializedProperty;
             var count = list.count;
 
@@ -332,27 +324,28 @@ namespace Animancer.Editor
 
         /************************************************************************************************************************/
 
-        private void RemoveSelectedAnimation(ReorderableList list)
-        {
+        private void RemoveSelectedAnimation(ReorderableList list) {
             var property = list.serializedProperty;
             var index = list.index;
 
-            if (index < _Names.arraySize)
+            if (index < _Names.arraySize) {
                 RemoveElement(_Names, index);
+            }
 
             RemoveElement(property, index);
 
-            if (index >= property.arraySize - 1)
+            if (index >= property.arraySize - 1) {
                 list.index = property.arraySize - 1;
+            }
         }
 
-        private static void RemoveElement(SerializedProperty array, int index)
-        {
+        private static void RemoveElement(SerializedProperty array, int index) {
             var element = array.GetArrayElementAtIndex(index);
 
             // Deleting a non-null element sets it to null, so we make sure it's null to actually remove it.
-            if (element.objectReferenceValue != null)
+            if (element.objectReferenceValue != null) {
                 element.objectReferenceValue = null;
+            }
 
             array.DeleteArrayElementAtIndex(index);
         }
@@ -361,26 +354,24 @@ namespace Animancer.Editor
 
         private static DragAndDropHandler<object> _DropToAddAnimations;
         private static SerializedProperty _DropToAddAnimationsProperty;
-        private static void HandleDragAndDropToAddAnimations(Rect area, SerializedProperty property)
-        {
+        private static void HandleDragAndDropToAddAnimations(Rect area, SerializedProperty property) {
             _DropToAddAnimationsProperty = property;
 
-            _DropToAddAnimations ??= (obj, isDrop) =>
-            {
-                using (ListPool<AnimationClip>.Instance.Acquire(out var clips))
-                {
+            _DropToAddAnimations ??= (obj, isDrop) => {
+                using (ListPool<AnimationClip>.Instance.Acquire(out var clips)) {
                     clips.GatherFromSource(obj);
 
                     var anyValid = false;
 
-                    for (int i = 0; i < clips.Count; i++)
-                    {
+                    for (var i = 0; i < clips.Count; i++) {
                         var clip = clips[i];
-                        if (clip.legacy)
+                        if (clip.legacy) {
                             continue;
+                        }
 
-                        if (!isDrop)
+                        if (!isDrop) {
                             return true;
+                        }
 
                         anyValid = true;
 

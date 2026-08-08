@@ -1,14 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using TMPro;
-using DamageNumbersPro;
+using UnityEngine;
 
-namespace DamageNumbersPro.Internal
-{
+namespace DamageNumbersPro.Internal {
     [CreateAssetMenu(fileName = "Preset", menuName = "TextMeshPro/Preset for DNP", order = -1)]
-    public class DNPPreset : ScriptableObject
-    {
+    public class DNPPreset : ScriptableObject {
         // Font
         public bool changeFontAsset;
         public TMP_FontAsset fontAsset;
@@ -123,142 +118,114 @@ namespace DamageNumbersPro.Internal
         public bool enablePush = false;
         public PushSettings pushSettings = new PushSettings(0);
 
-        public bool IsApplied(DamageNumber dn)
-        {
-            TMP_Text[] textMeshs = dn.GetTextMeshs();
+        public bool IsApplied(DamageNumber dn) {
+            var textMeshs = dn.GetTextMeshs();
 
-            if (textMeshs[0] == null)
-            {
+            if (textMeshs[0] == null) {
                 dn.GetReferencesIfNecessary();
                 textMeshs = dn.GetTextMeshs();
             }
 
-            bool isApplied = true;
+            var isApplied = true;
 
             // Font
-            if (changeFontAsset)
-            {
-                foreach(TMP_Text tmp in textMeshs)
-                {
-                    if (fontAsset != tmp.font)
-                    {
+            if (changeFontAsset) {
+                foreach (var tmp in textMeshs) {
+                    if (fontAsset != tmp.font) {
                         isApplied = false;
                     }
                 }
             }
 
             // Color
-            if (changeColor)
-            {
-                foreach (TMP_Text tmp in textMeshs)
-                {
-                    if (color != tmp.color || enableGradient != tmp.enableVertexGradient || !gradient.Equals(tmp.colorGradient))
-                    {
+            if (changeColor) {
+                foreach (var tmp in textMeshs) {
+                    if (color != tmp.color || enableGradient != tmp.enableVertexGradient || !gradient.Equals(tmp.colorGradient)) {
                         isApplied = false;
                     }
                 }
             }
 
             // Number
-            if(changeNumber)
-            {
-                if(enableNumber != dn.enableNumber || !numberSettings.Equals(dn.numberSettings) || !digitSettings.Equals(dn.digitSettings))
-                {
+            if (changeNumber) {
+                if (enableNumber != dn.enableNumber || !numberSettings.Equals(dn.numberSettings) || !digitSettings.Equals(dn.digitSettings)) {
                     isApplied = false;
                 }
             }
 
             // Left Text
-            if(changeLeftText)
-            {
-                if(enableLeftText != dn.enableLeftText || !leftTextSettings.Equals(dn.leftTextSettings) || leftText != dn.leftText)
-                {
+            if (changeLeftText) {
+                if (enableLeftText != dn.enableLeftText || !leftTextSettings.Equals(dn.leftTextSettings) || leftText != dn.leftText) {
                     isApplied = false;
                 }
             }
 
             // Right Text
-            if (changeRightText)
-            {
-                if (enableRightText != dn.enableRightText || !rightTextSettings.Equals(dn.rightTextSettings) || rightText != dn.rightText)
-                {
+            if (changeRightText) {
+                if (enableRightText != dn.enableRightText || !rightTextSettings.Equals(dn.rightTextSettings) || rightText != dn.rightText) {
                     isApplied = false;
                 }
             }
 
             // Vertical Texts
-            if (hideVerticalTexts)
-            {
-                if(dn.enableTopText || dn.enableBottomText)
-                {
+            if (hideVerticalTexts) {
+                if (dn.enableTopText || dn.enableBottomText) {
                     isApplied = false;
                 }
             }
 
             // Fade In
-            if(changeFadeIn)
-            {
-                if(durationFadeIn != dn.durationFadeIn || enableOffsetFadeIn != dn.enableOffsetFadeIn || offsetFadeIn != dn.offsetFadeIn ||
+            if (changeFadeIn) {
+                if (durationFadeIn != dn.durationFadeIn || enableOffsetFadeIn != dn.enableOffsetFadeIn || offsetFadeIn != dn.offsetFadeIn ||
                     enableScaleFadeIn != dn.enableScaleFadeIn || scaleFadeIn != dn.scaleFadeIn || enableCrossScaleFadeIn != dn.enableCrossScaleFadeIn ||
                     crossScaleFadeIn != dn.crossScaleFadeIn || enableShakeFadeIn != dn.enableShakeFadeIn || shakeOffsetFadeIn != dn.shakeOffsetFadeIn ||
-                    shakeFrequencyFadeIn != dn.shakeFrequencyFadeIn)
-                {
+                    shakeFrequencyFadeIn != dn.shakeFrequencyFadeIn) {
                     isApplied = false;
                 }
             }
 
             // Fade Out
-            if (changeFadeOut)
-            {
+            if (changeFadeOut) {
                 if (durationFadeOut != dn.durationFadeOut || enableOffsetFadeOut != dn.enableOffsetFadeOut || offsetFadeOut != dn.offsetFadeOut ||
                     enableScaleFadeOut != dn.enableScaleFadeOut || scaleFadeOut != dn.scaleFadeOut || enableCrossScaleFadeOut != dn.enableCrossScaleFadeOut ||
                     crossScaleFadeOut != dn.crossScaleFadeOut || enableShakeFadeOut != dn.enableShakeFadeOut || shakeOffsetFadeOut != dn.shakeOffsetFadeOut ||
-                    shakeFrequencyFadeOut != dn.shakeFrequencyFadeOut)
-                {
+                    shakeFrequencyFadeOut != dn.shakeFrequencyFadeOut) {
                     isApplied = false;
                 }
             }
 
             // Movement
-            if(changeMovement)
-            {
-                if(enableLerp != dn.enableLerp || !lerpSettings.Equals(dn.lerpSettings) ||
+            if (changeMovement) {
+                if (enableLerp != dn.enableLerp || !lerpSettings.Equals(dn.lerpSettings) ||
                     enableVelocity != dn.enableVelocity || !velocitySettings.Equals(dn.velocitySettings) ||
                     enableShaking != dn.enableShaking || !shakeSettings.Equals(dn.shakeSettings) ||
-                    enableFollowing != dn.enableFollowing || !followSettings.Equals(dn.followSettings))
-                {
+                    enableFollowing != dn.enableFollowing || !followSettings.Equals(dn.followSettings)) {
                     isApplied = false;
                 }
             }
 
             // Rotation
-            if(changeRotation)
-            {
-                if(enableStartRotation != dn.enableStartRotation || minRotation != dn.minRotation || maxRotation != dn.maxRotation ||
-                    enableRotateOverTime != dn.enableRotateOverTime || minRotationSpeed != dn.minRotationSpeed || maxRotationSpeed != dn.maxRotationSpeed || !rotateOverTime.Equals(dn.rotateOverTime))
-                {
+            if (changeRotation) {
+                if (enableStartRotation != dn.enableStartRotation || minRotation != dn.minRotation || maxRotation != dn.maxRotation ||
+                    enableRotateOverTime != dn.enableRotateOverTime || minRotationSpeed != dn.minRotationSpeed || maxRotationSpeed != dn.maxRotationSpeed || !rotateOverTime.Equals(dn.rotateOverTime)) {
                     isApplied = false;
                 }
             }
 
             // Scale
-            if(changeScaling)
-            {
-                if(enableScaleByNumber != dn.enableScaleByNumber || !scaleByNumberSettings.Equals(dn.scaleByNumberSettings) ||
-                    enableScaleOverTime != dn.enableScaleOverTime || !scaleOverTime.Equals(dn.scaleOverTime))
-                {
+            if (changeScaling) {
+                if (enableScaleByNumber != dn.enableScaleByNumber || !scaleByNumberSettings.Equals(dn.scaleByNumberSettings) ||
+                    enableScaleOverTime != dn.enableScaleOverTime || !scaleOverTime.Equals(dn.scaleOverTime)) {
                     isApplied = false;
                 }
             }
 
             // Spam Group
-            if(changeSpamControl)
-            {
-                if(enableCombination != dn.enableCombination || !combinationSettings.Equals(dn.combinationSettings) ||
+            if (changeSpamControl) {
+                if (enableCombination != dn.enableCombination || !combinationSettings.Equals(dn.combinationSettings) ||
                     enableDestruction != dn.enableDestruction || !destructionSettings.Equals(dn.destructionSettings) ||
                     enableCollision != dn.enableCollision || !collisionSettings.Equals(dn.collisionSettings) ||
-                    enablePush != dn.enablePush || !pushSettings.Equals(dn.pushSettings))
-                {
+                    enablePush != dn.enablePush || !pushSettings.Equals(dn.pushSettings)) {
                     isApplied = false;
                 }
             }
@@ -266,24 +233,19 @@ namespace DamageNumbersPro.Internal
             return isApplied;
         }
 
-        public void Apply(DamageNumber dn)
-        {
-            TMP_Text[] textMeshs = dn.GetTextMeshs();
+        public void Apply(DamageNumber dn) {
+            var textMeshs = dn.GetTextMeshs();
 
             // Font
-            if (changeFontAsset)
-            {
-                foreach(TMP_Text tmp in textMeshs)
-                {
+            if (changeFontAsset) {
+                foreach (var tmp in textMeshs) {
                     tmp.font = fontAsset;
                 }
             }
 
             // Color
-            if (changeColor)
-            {
-                foreach (TMP_Text tmp in textMeshs)
-                {
+            if (changeColor) {
+                foreach (var tmp in textMeshs) {
                     tmp.color = color;
                     tmp.enableVertexGradient = enableGradient;
                     tmp.colorGradient = gradient;
@@ -291,38 +253,33 @@ namespace DamageNumbersPro.Internal
             }
 
             // Number
-            if (changeNumber)
-            {
+            if (changeNumber) {
                 dn.enableNumber = enableNumber;
                 dn.numberSettings = numberSettings;
                 dn.digitSettings = digitSettings;
             }
 
             // Left Text
-            if (changeLeftText)
-            {
+            if (changeLeftText) {
                 dn.enableLeftText = enableLeftText;
                 dn.leftText = leftText;
                 dn.leftTextSettings = leftTextSettings;
             }
 
             // Right Text
-            if (changeRightText)
-            {
+            if (changeRightText) {
                 dn.enableRightText = enableRightText;
                 dn.rightText = rightText;
                 dn.rightTextSettings = rightTextSettings;
             }
 
             // Hide Vertical Texts
-            if(hideVerticalTexts)
-            {
+            if (hideVerticalTexts) {
                 dn.enableTopText = dn.enableBottomText = false;
             }
 
             // Fade In
-            if(changeFadeIn)
-            {
+            if (changeFadeIn) {
                 dn.durationFadeIn = durationFadeIn;
                 dn.enableOffsetFadeIn = enableOffsetFadeIn;
                 dn.offsetFadeIn = offsetFadeIn;
@@ -336,8 +293,7 @@ namespace DamageNumbersPro.Internal
             }
 
             // Fade Out
-            if (changeFadeOut)
-            {
+            if (changeFadeOut) {
                 dn.durationFadeOut = durationFadeOut;
                 dn.enableOffsetFadeOut = enableOffsetFadeOut;
                 dn.offsetFadeOut = offsetFadeOut;
@@ -351,8 +307,7 @@ namespace DamageNumbersPro.Internal
             }
 
             // Movement
-            if(changeMovement)
-            {
+            if (changeMovement) {
                 dn.enableLerp = enableLerp;
                 dn.lerpSettings = lerpSettings;
                 dn.enableVelocity = enableVelocity;
@@ -364,8 +319,7 @@ namespace DamageNumbersPro.Internal
             }
 
             // Rotation
-            if(changeRotation)
-            {
+            if (changeRotation) {
                 dn.enableStartRotation = enableStartRotation;
                 dn.minRotation = minRotation;
                 dn.maxRotation = maxRotation;
@@ -376,8 +330,7 @@ namespace DamageNumbersPro.Internal
             }
 
             // Scale
-            if(changeScaling)
-            {
+            if (changeScaling) {
                 dn.enableScaleByNumber = enableScaleByNumber;
                 dn.scaleByNumberSettings = scaleByNumberSettings;
                 dn.enableScaleOverTime = enableScaleOverTime;
@@ -385,10 +338,8 @@ namespace DamageNumbersPro.Internal
             }
 
             // Spam Control
-            if(changeSpamControl)
-            {
-                if(dn.spamGroup == null || dn.spamGroup == "")
-                {
+            if (changeSpamControl) {
+                if (dn.spamGroup is null or "") {
                     dn.spamGroup = spamGroup;
                 }
 
@@ -403,26 +354,21 @@ namespace DamageNumbersPro.Internal
             }
         }
 
-        public void Get(DamageNumber dn)
-        {
-            TMP_Text[] textMeshs = dn.GetTextMeshs();
+        public void Get(DamageNumber dn) {
+            var textMeshs = dn.GetTextMeshs();
 
             // Font
             changeFontAsset = true;
-            foreach (TMP_Text tmp in textMeshs)
-            {
-                if(tmp != null)
-                {
+            foreach (var tmp in textMeshs) {
+                if (tmp != null) {
                     fontAsset = tmp.font;
                 }
             }
 
             // Color
             changeColor = true;
-            foreach (TMP_Text tmp in textMeshs)
-            {
-                if(tmp != null)
-                {
+            foreach (var tmp in textMeshs) {
+                if (tmp != null) {
                     color = tmp.color;
                     enableGradient = tmp.enableVertexGradient;
                     gradient = tmp.colorGradient;

@@ -8,16 +8,14 @@ using UnityEngine;
 using static Animancer.Editor.AnimancerGUI;
 using Object = UnityEngine.Object;
 
-namespace Animancer.Editor.Previews
-{
+namespace Animancer.Editor.Previews {
     /// <summary>[Editor-Only] Utility for rendering previews of animated objects.</summary>
     /// <remarks>Parts of this class are based on Unity's <see cref="MeshPreview"/>.</remarks>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor.Previews/AnimancerPreviewRenderer
     [Serializable]
     public class AnimancerPreviewRenderer :
         AnimancerPreviewObject.IEventHandler,
-        IDisposable
-    {
+        IDisposable {
         /************************************************************************************************************************/
         #region Fields and Properties
         /************************************************************************************************************************/
@@ -44,10 +42,8 @@ namespace Animancer.Editor.Previews
         /************************************************************************************************************************/
 
         /// <summary>[<see cref="SerializeField"/>] The object being previewed.</summary>
-        public AnimancerPreviewObject PreviewObject
-        {
-            get
-            {
+        public AnimancerPreviewObject PreviewObject {
+            get {
                 InitializePreviewRenderUtility();
                 return AnimancerPreviewObject.Initialize(ref _PreviewObject, this, PreviewSceneRoot);
             }
@@ -58,8 +54,7 @@ namespace Animancer.Editor.Previews
         /************************************************************************************************************************/
 
         /// <summary>Cleans up this renderer.</summary>
-        public void Dispose()
-        {
+        public void Dispose() {
             _PreviewObject?.Dispose();
             CleanupPreviewRenderUtility();
         }
@@ -67,20 +62,19 @@ namespace Animancer.Editor.Previews
         /************************************************************************************************************************/
 
         /// <summary>Calles when the <see cref="TransitionPreviewSettings.SceneEnvironment"/> is changed.</summary>
-        private void OnEnvironmentPrefabChanged()
-        {
+        private void OnEnvironmentPrefabChanged() {
             Object.DestroyImmediate(EnvironmentInstance);
 
             var prefab = TransitionPreviewSettings.SceneEnvironment;
-            if (prefab != null)
+            if (prefab != null) {
                 EnvironmentInstance = Object.Instantiate(prefab, PreviewSceneRoot);
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        void AnimancerPreviewObject.IEventHandler.OnInstantiateObject()
-        {
+        void AnimancerPreviewObject.IEventHandler.OnInstantiateObject() {
             _PivotPositionOffset = _PreviewObject.InstanceBounds.center;
         }
 
@@ -95,26 +89,27 @@ namespace Animancer.Editor.Previews
         /************************************************************************************************************************/
 
         /// <summary>Draws the preview.</summary>
-        public void DoGUI(Rect area, GUIStyle background)
-        {
-            if (!DrawIsRenderTextureSupported(area))
+        public void DoGUI(Rect area, GUIStyle background) {
+            if (!DrawIsRenderTextureSupported(area)) {
                 return;
+            }
 
             var currentEvent = Event.current;
 
             HandleCameraControlEvent(area, currentEvent);
 
-            if (currentEvent.type == EventType.Repaint)
+            if (currentEvent.type == EventType.Repaint) {
                 DrawPreview(area, background);
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <summary>Shows a warning if the current device doesn't support render textures.</summary>
-        private bool DrawIsRenderTextureSupported(Rect area)
-        {
-            if (ShaderUtil.hardwareSupportsRectRenderTexture)
+        private bool DrawIsRenderTextureSupported(Rect area) {
+            if (ShaderUtil.hardwareSupportsRectRenderTexture) {
                 return true;
+            }
 
             EditorGUI.DropShadowLabel(
                 area,
@@ -126,10 +121,10 @@ namespace Animancer.Editor.Previews
         /************************************************************************************************************************/
 
         /// <summary>Initializes the <see cref="_PreviewRenderUtility"/>.</summary>
-        private void InitializePreviewRenderUtility()
-        {
-            if (_PreviewRenderUtility != null)
+        private void InitializePreviewRenderUtility() {
+            if (_PreviewRenderUtility != null) {
                 return;
+            }
 
             _PreviewRenderUtility = new();
             _PreviewRenderUtility.camera.fieldOfView = 30;
@@ -152,8 +147,7 @@ namespace Animancer.Editor.Previews
         /************************************************************************************************************************/
 
         /// <summary>Cleans up the <see cref="_PreviewRenderUtility"/>.</summary>
-        private void CleanupPreviewRenderUtility()
-        {
+        private void CleanupPreviewRenderUtility() {
             _PreviewRenderUtility?.Cleanup();
             _PreviewRenderUtility = null;
             _PreviewLights = null;
@@ -162,8 +156,7 @@ namespace Animancer.Editor.Previews
         /************************************************************************************************************************/
 
         /// <summary>Updates and renders the preview.</summary>
-        private void DrawPreview(Rect area, GUIStyle background)
-        {
+        private void DrawPreview(Rect area, GUIStyle background) {
             InitializePreviewRenderUtility();
             _PreviewRenderUtility.BeginPreview(area, background);
             UpdatePreviewRenderUtility();
@@ -174,17 +167,17 @@ namespace Animancer.Editor.Previews
         /************************************************************************************************************************/
 
         /// <summary>Updates the preview rendering details.</summary>
-        private void UpdatePreviewRenderUtility()
-        {
+        private void UpdatePreviewRenderUtility() {
             var previewObject = PreviewObject;
-            if (previewObject.InstanceObject == null)
+            if (previewObject.InstanceObject == null) {
                 return;
+            }
 
             var rotation = Quaternion.Euler(_PreviewDirection.y, 0, 0) * Quaternion.Euler(0, _PreviewDirection.x, 0);
             previewObject.InstanceObject.rotation = rotation;
 
             var size = previewObject.InstanceBounds.extents.magnitude;
-            var position = _ZoomFactor * -4f * size * Vector3.forward + _PivotPositionOffset;
+            var position = (_ZoomFactor * -4f * size * Vector3.forward) + _PivotPositionOffset;
 
             var camera = _PreviewRenderUtility.camera;
             camera.transform.SetPositionAndRotation(position, Quaternion.identity);
@@ -210,27 +203,27 @@ namespace Animancer.Editor.Previews
         private static readonly int CameraControlsHint = "CameraControls".GetHashCode();
 
         /// <summary>Handles GUI events for controlling the preview camera.</summary>
-        private void HandleCameraControlEvent(Rect area, Event currentEvent)
-        {
-            if (currentEvent.button == 1)
-            {
-                if (currentEvent.alt)
+        private void HandleCameraControlEvent(Rect area, Event currentEvent) {
+            if (currentEvent.button == 1) {
+                if (currentEvent.alt) {
                     _LightDirection = Drag2D(_LightDirection, area);// Could draw some lines to show the light directions.
-                else
+                } else {
                     _PreviewDirection = Drag2D(_PreviewDirection, area);
+                }
             }
 
             var control = new GUIControl(area, currentEvent, CameraControlsHint);
 
-            switch (control.EventType)
-            {
+            switch (control.EventType) {
                 case EventType.ScrollWheel:
                     HandleScrollZoomEvent(area, currentEvent);
                     break;
 
                 case EventType.MouseDown:
-                    if (currentEvent.button <= 0 || currentEvent.button == 2)
+                    if (currentEvent.button is <= 0 or 2) {
                         control.TryUseMouseDown();
+                    }
+
                     break;
 
                 case EventType.MouseUp:
@@ -238,14 +231,15 @@ namespace Animancer.Editor.Previews
                     break;
 
                 case EventType.MouseDrag:
-                    if (control.TryUseHotControl())
+                    if (control.TryUseHotControl()) {
                         HandleDragPanEvent(area, currentEvent);
+                    }
+
                     break;
 
                 case EventType.ValidateCommand:
                 case EventType.ExecuteCommand:
-                    switch (currentEvent.commandName)
-                    {
+                    switch (currentEvent.commandName) {
                         case Commands.FrameSelected:
                         case Commands.FrameSelectedWithLock:
                             FrameTarget();
@@ -254,7 +248,6 @@ namespace Animancer.Editor.Previews
                     }
                     break;
             }
-
         }
 
         /************************************************************************************************************************/
@@ -263,26 +256,26 @@ namespace Animancer.Editor.Previews
 
         /// <summary>Handles drag input within a given `area`.</summary>
         /// <remarks>Copied from Unity's <see cref="PreviewGUI.Drag2D"/>.</remarks>
-        public static Vector2 Drag2D(Vector2 scrollPosition, Rect area)
-        {
+        public static Vector2 Drag2D(Vector2 scrollPosition, Rect area) {
             var control = new GUIControl(area, SliderHash);
 
-            switch (control.EventType)
-            {
+            switch (control.EventType) {
                 case EventType.MouseDown:
-                    if (control.TryUseMouseDown() && area.width > 50)
+                    if (control.TryUseMouseDown() && area.width > 50) {
                         EditorGUIUtility.SetWantsMouseJumping(1);
+                    }
 
                     break;
 
                 case EventType.MouseUp:
-                    if (control.TryUseMouseUp())
+                    if (control.TryUseMouseUp()) {
                         EditorGUIUtility.SetWantsMouseJumping(0);
+                    }
+
                     break;
 
                 case EventType.MouseDrag:
-                    if (control.TryUseHotControl())
-                    {
+                    if (control.TryUseHotControl()) {
                         var multiplier = control.Event.shift ? 3 : 1;
                         var size = Mathf.Min(area.width, area.height);
                         scrollPosition -= control.Event.delta * multiplier / size * 140;
@@ -297,17 +290,16 @@ namespace Animancer.Editor.Previews
         /************************************************************************************************************************/
 
         /// <summary>Handles a mouse scroll event to zoom the preview camera.</summary>
-        private void HandleScrollZoomEvent(Rect area, Event currentEvent)
-        {
+        private void HandleScrollZoomEvent(Rect area, Event currentEvent) {
             var delta = HandleUtility.niceMouseDeltaZoom * -0.025f;
             var zoom = _ZoomFactor * (1 + delta);
             zoom = Mathf.Clamp(zoom, 0.1f, 10);
             var vector = new Vector2(
                 currentEvent.mousePosition.x / area.width,
-                1 - currentEvent.mousePosition.y / area.height);
+                1 - (currentEvent.mousePosition.y / area.height));
             var origin = _PreviewRenderUtility.camera.ViewportToWorldPoint(vector);
             var direction = _OrthographicPosition - origin;
-            var position = origin + direction * (zoom / _ZoomFactor);
+            var position = origin + (direction * (zoom / _ZoomFactor));
             _PreviewRenderUtility.camera.transform.position = position;
 
             _ZoomFactor = zoom;
@@ -317,8 +309,7 @@ namespace Animancer.Editor.Previews
         /************************************************************************************************************************/
 
         /// <summary>Handles a mouse drag event to pan the preview camera.</summary>
-        private void HandleDragPanEvent(Rect area, Event currentEvent)
-        {
+        private void HandleDragPanEvent(Rect area, Event currentEvent) {
             var camera = _PreviewRenderUtility.camera;
             var direction = new Vector3(
                 -currentEvent.delta.x * camera.pixelWidth / area.width,
@@ -335,8 +326,7 @@ namespace Animancer.Editor.Previews
         /************************************************************************************************************************/
 
         /// <summary>Frames the preview object in the middle of the camera.</summary>
-        private void FrameTarget()
-        {
+        private void FrameTarget() {
             _ZoomFactor = 1f;
             _OrthographicPosition = new(0.5f, 0.5f, -1f);
             _PivotPositionOffset = default;

@@ -28,8 +28,8 @@ namespace JoG.Character {
 
         public bool HasBodyReference => !_bodyReference.Value.Equals(NullBodyReference);
 
-        public bool CanControlBody =>
-            HasAuthority &&
+        public bool CanControlBody
+            => HasAuthority &&
             Body != null;
 
         public bool TrySpawnBody(

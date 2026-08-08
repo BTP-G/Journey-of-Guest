@@ -6,8 +6,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only]
     /// A <see cref="SerializedDataEditorWindow{TObject, TData}"/> for <see cref="Component"/>s.
     /// </summary>
@@ -15,8 +14,7 @@ namespace Animancer.Editor
     public abstract class SerializedComponentDataEditorWindow<TObject, TData> :
         SerializedDataEditorWindow<TObject, TData>
         where TObject : Component
-        where TData : class, ICopyable<TData>, IEquatable<TData>, new()
-    {
+        where TData : class, ICopyable<TData>, IEquatable<TData>, new() {
         /************************************************************************************************************************/
 
         [SerializeField] private GameObject _SourceGameObject;
@@ -25,10 +23,8 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override TObject SourceObject
-        {
-            get
-            {
+        public override TObject SourceObject {
+            get {
                 // For whatever reason, component references in an EditorWindow can't survive entering Play Mode but
                 // a GameObject or Transform reference can so we use that to recover the component.
 
@@ -40,8 +36,7 @@ namespace Animancer.Editor
 
                 var source = base.SourceObject;
 
-                if (source == null && _SourceGameObject != null)
-                {
+                if (source == null && _SourceGameObject != null) {
 #if UNITY_6000_3_OR_NEWER
                     var component = EditorUtility.EntityIdToObject(_SourceComponentInstanceID);
 #else
@@ -63,12 +58,10 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override void CaptureData()
-        {
+        protected override void CaptureData() {
             base.CaptureData();
 
-            if (SourceObject != null)
-            {
+            if (SourceObject != null) {
                 _SourceGameObject = SourceObject.gameObject;
                 _SourceComponentInstanceID = SourceObject.GetInstanceID();
             }

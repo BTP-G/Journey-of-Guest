@@ -1,10 +1,10 @@
 using Cysharp.Threading.Tasks;
-using Xoderony.Localization;
-using JoG.UI.Popup;
 using JoG.Localization;
+using JoG.UI.Popup;
 using MessagePipe;
 using UnityEngine;
 using VContainer;
+using Xoderony.Localization;
 
 namespace JoG.Networking.Components {
 

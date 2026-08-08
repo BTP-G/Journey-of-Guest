@@ -1,10 +1,10 @@
 using EditorAttributes;
-using Xoderony.Extensions;
-using Xoderony.Extensions.Unity;
 using System;
 using System.Runtime.CompilerServices;
 using Unity.Netcode;
 using UnityEngine;
+using Xoderony.Extensions;
+using Xoderony.Extensions.Unity;
 using Random = UnityEngine.Random;
 
 namespace JoG.Item {
@@ -61,7 +61,5 @@ namespace JoG.Item {
             public NetworkObject[] items;
 
         }
-
     }
-
 }

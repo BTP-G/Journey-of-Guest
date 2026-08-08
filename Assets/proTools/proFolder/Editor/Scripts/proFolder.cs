@@ -1,15 +1,9 @@
-﻿using UnityEditor;
+using UnityEditor;
 using UnityEngine;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using UnityEngine.Profiling;
 
-namespace proTools.proFolder
-{
+namespace proTools.proFolder {
     [InitializeOnLoad]
-    public static class proFolder
-    {
+    public static class proFolder {
         #region Constants
         private const string MARKER_LIBRARY_PATH = "Assets/proTools/proFolder/SO/MarkerLibrary.asset";
         private const string WHITE_FOLDER_ICON_PATH = "Assets/proTools/proFolder/UI/Marks/Base/d_Folder.png";
@@ -29,13 +23,11 @@ namespace proTools.proFolder
         #endregion
 
         #region Static Constructor
-        static proFolder()
-        {
+        static proFolder() {
             Initialize();
         }
 
-        private static void Initialize()
-        {
+        private static void Initialize() {
             FolderDataManager.Load();
             LoadAssets();
             EditorApplication.projectWindowItemOnGUI += OnProjectWindowGUI;
@@ -43,31 +35,24 @@ namespace proTools.proFolder
         #endregion
 
         #region Asset Loading
-        private static void LoadAssets()
-        {
+        private static void LoadAssets() {
             LoadMarkerLibrary();
             LoadWhiteFolderIcon();
         }
 
-        private static void LoadMarkerLibrary()
-        {
-            if (_markerLibrary == null)
-            {
+        private static void LoadMarkerLibrary() {
+            if (_markerLibrary == null) {
                 _markerLibrary = AssetDatabase.LoadAssetAtPath<MarkerLibrary>(MARKER_LIBRARY_PATH);
-                if (_markerLibrary == null)
-                {
+                if (_markerLibrary == null) {
                     Debug.LogWarning($"proFolder: MarkerLibrary not found at {MARKER_LIBRARY_PATH}");
                 }
             }
         }
 
-        private static void LoadWhiteFolderIcon()
-        {
-            if (_whiteFolderIcon == null)
-            {
+        private static void LoadWhiteFolderIcon() {
+            if (_whiteFolderIcon == null) {
                 _whiteFolderIcon = AssetDatabase.LoadAssetAtPath<Texture2D>(WHITE_FOLDER_ICON_PATH);
-                if (_whiteFolderIcon == null)
-                {
+                if (_whiteFolderIcon == null) {
                     Debug.LogWarning($"proFolder: White folder icon not found at {WHITE_FOLDER_ICON_PATH}");
                 }
             }
@@ -75,29 +60,26 @@ namespace proTools.proFolder
         #endregion
 
         #region Gradient Texture Management
-        private static void EnsureGradientTexture(Color baseColor)
-        {
-            if (_gradientTexture != null && baseColor.Equals(_lastGradientColor))
+        private static void EnsureGradientTexture(Color baseColor) {
+            if (_gradientTexture != null && baseColor.Equals(_lastGradientColor)) {
                 return;
+            }
 
             DisposeGradientTexture();
             CreateGradientTexture(baseColor);
             _lastGradientColor = baseColor;
         }
 
-        private static void CreateGradientTexture(Color baseColor)
-        {
-            _gradientTexture = new Texture2D(GRADIENT_WIDTH, GRADIENT_HEIGHT, TextureFormat.ARGB32, false)
-            {
+        private static void CreateGradientTexture(Color baseColor) {
+            _gradientTexture = new Texture2D(GRADIENT_WIDTH, GRADIENT_HEIGHT, TextureFormat.ARGB32, false) {
                 wrapMode = TextureWrapMode.Clamp
             };
 
-            Color[] pixels = new Color[GRADIENT_WIDTH * GRADIENT_HEIGHT];
+            var pixels = new Color[GRADIENT_WIDTH * GRADIENT_HEIGHT];
 
-            for (int x = 0; x < GRADIENT_WIDTH; x++)
-            {
-                float t = x / (float)(GRADIENT_WIDTH - 1);
-                float alpha = Mathf.Lerp(GRADIENT_START_ALPHA, GRADIENT_END_ALPHA, t);
+            for (var x = 0; x < GRADIENT_WIDTH; x++) {
+                var t = x / (float)(GRADIENT_WIDTH - 1);
+                var alpha = Mathf.Lerp(GRADIENT_START_ALPHA, GRADIENT_END_ALPHA, t);
                 pixels[x] = new Color(baseColor.r, baseColor.g, baseColor.b, alpha);
             }
 
@@ -105,10 +87,8 @@ namespace proTools.proFolder
             _gradientTexture.Apply();
         }
 
-        private static void DisposeGradientTexture()
-        {
-            if (_gradientTexture != null)
-            {
+        private static void DisposeGradientTexture() {
+            if (_gradientTexture != null) {
                 Object.DestroyImmediate(_gradientTexture);
                 _gradientTexture = null;
             }
@@ -116,150 +96,142 @@ namespace proTools.proFolder
         #endregion
 
         #region GUI Rendering
-        private static void OnProjectWindowGUI(string guid, Rect rect)
-        {
-            if (!proFolderSettings.EnableOption) return;
+        private static void OnProjectWindowGUI(string guid, Rect rect) {
+            if (!proFolderSettings.EnableOption) {
+                return;
+            }
 
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            if (!AssetDatabase.IsValidFolder(path)) return;
+            var path = AssetDatabase.GUIDToAssetPath(guid);
+            if (!AssetDatabase.IsValidFolder(path)) {
+                return;
+            }
 
-            bool isColumnView = rect.width > rect.height;
+            var isColumnView = rect.width > rect.height;
 
             RenderFolderColor(path, rect, isColumnView);
             RenderFolderMarker(path, rect, isColumnView);
             HandleMouseInput(path, rect);
         }
 
-        private static void RenderFolderColor(string path, Rect rect, bool isColumnView)
-        {
-            if (!FolderDataManager.folderColors.TryGetValue(path, out var color))
+        private static void RenderFolderColor(string path, Rect rect, bool isColumnView) {
+            if (!FolderDataManager.folderColors.TryGetValue(path, out var color)) {
                 return;
-
-            if (isColumnView)
-            {
-                RenderColumnViewColor(color, rect);
             }
-            else
-            {
+
+            if (isColumnView) {
+                RenderColumnViewColor(color, rect);
+            } else {
                 RenderIconViewColor(color, rect);
             }
         }
 
-        private static void RenderColumnViewColor(Color color, Rect rect)
-        {
+        private static void RenderColumnViewColor(Color color, Rect rect) {
             EnsureGradientTexture(color);
-            if (_gradientTexture == null) return;
+            if (_gradientTexture == null) {
+                return;
+            }
 
-            Rect fullRect = new Rect(rect.x - 160, rect.y, rect.width + 160, rect.height);
+            var fullRect = new Rect(rect.x - 160, rect.y, rect.width + 160, rect.height);
             GUI.DrawTexture(fullRect, _gradientTexture, ScaleMode.StretchToFill, true);
         }
 
-        private static void RenderIconViewColor(Color color, Rect rect)
-        {
-            if (_whiteFolderIcon == null) return;
+        private static void RenderIconViewColor(Color color, Rect rect) {
+            if (_whiteFolderIcon == null) {
+                return;
+            }
 
-            Rect iconRect = new Rect(rect.x, rect.y, rect.width, rect.width);
+            var iconRect = new Rect(rect.x, rect.y, rect.width, rect.width);
 
-            Color oldColor = GUI.color;
+            var oldColor = GUI.color;
             GUI.color = color;
             GUI.DrawTexture(iconRect, _whiteFolderIcon, ScaleMode.ScaleToFit);
             GUI.color = oldColor;
         }
 
-        private static void RenderFolderMarker(string path, Rect rect, bool isColumnView)
-        {
+        private static void RenderFolderMarker(string path, Rect rect, bool isColumnView) {
             if (!FolderDataManager.folderMarkers.TryGetValue(path, out var index) ||
                 _markerLibrary == null ||
                 index <= 0 ||
-                index >= _markerLibrary.entries.Count)
+                index >= _markerLibrary.entries.Count) {
                 return;
+            }
 
             var icon = _markerLibrary.entries[index].icon;
-            if (icon == null) return;
+            if (icon == null) {
+                return;
+            }
 
-            Rect iconRect = CalculateMarkerIconRect(rect, isColumnView);
+            var iconRect = CalculateMarkerIconRect(rect, isColumnView);
             GUI.DrawTexture(iconRect, icon, ScaleMode.ScaleToFit);
         }
 
-        private static Rect CalculateMarkerIconRect(Rect rect, bool isColumnView)
-        {
-            float size = isColumnView ? rect.height * 0.5f : rect.height * 0.35f;
-            float offsetX = isColumnView ?
-                rect.x + rect.height - size + rect.height * 0.1f :
-                rect.xMax - size;
-            float offsetY = isColumnView ?
-                rect.y + rect.height - size :
-                rect.y + rect.height * 0.65f - size * 0.5f;
+        private static Rect CalculateMarkerIconRect(Rect rect, bool isColumnView) {
+            var size = isColumnView ? rect.height * 0.5f : rect.height * 0.35f;
+            var offsetX = isColumnView
+                ? rect.x + rect.height - size + (rect.height * 0.1f)
+                : rect.xMax - size;
+            var offsetY = isColumnView
+                ? rect.y + rect.height - size
+                : rect.y + (rect.height * 0.65f) - (size * 0.5f);
 
             return new Rect(offsetX, offsetY, size, size);
         }
         #endregion
 
         #region Input Handling
-        private static void HandleMouseInput(string path, Rect rect)
-        {
+        private static void HandleMouseInput(string path, Rect rect) {
             if (Event.current.type != EventType.MouseDown ||
                 !rect.Contains(Event.current.mousePosition) ||
-                Event.current.button != 0)
+                Event.current.button != 0) {
                 return;
+            }
 
-            if (!IsHotkeyPressed()) return;
+            if (!IsHotkeyPressed()) {
+                return;
+            }
 
-            Vector2 mouseScreenPos = GUIUtility.GUIToScreenPoint(Event.current.mousePosition);
+            var mouseScreenPos = GUIUtility.GUIToScreenPoint(Event.current.mousePosition);
             OpenFolderEditor(path, mouseScreenPos);
             Event.current.Use();
         }
 
-        private static bool IsHotkeyPressed()
-        {
+        private static bool IsHotkeyPressed() {
             return proFolderSettings.HotkeyOption ? Event.current.shift : Event.current.alt;
         }
 
-        private static void OpenFolderEditor(string path, Vector2 mouseScreenPos)
-        {
-            proFolderEditor.OnColorSelected = selectedColor =>
-            {
+        private static void OpenFolderEditor(string path, Vector2 mouseScreenPos) {
+            proFolderEditor.OnColorSelected = selectedColor => {
                 HandleColorSelection(path, selectedColor);
             };
 
-            proFolderEditor.OnMarkSelected = selectedMarker =>
-            {
+            proFolderEditor.OnMarkSelected = selectedMarker => {
                 HandleMarkerSelection(path, selectedMarker);
             };
 
             proFolderEditor.Open(mouseScreenPos);
         }
 
-        private static void HandleColorSelection(string path, Color selectedColor)
-        {
-            if (selectedColor.a == 0f || selectedColor == Color.clear)
-            {
+        private static void HandleColorSelection(string path, Color selectedColor) {
+            if (selectedColor.a == 0f || selectedColor == Color.clear) {
                 FolderDataManager.folderColors.Remove(path);
-            }
-            else
-            {
+            } else {
                 FolderDataManager.folderColors[path] = selectedColor;
             }
 
             SaveAndRepaint();
         }
 
-        private static void HandleMarkerSelection(string path, int selectedMarker)
-        {
-            if (selectedMarker == 0)
-            {
+        private static void HandleMarkerSelection(string path, int selectedMarker) {
+            if (selectedMarker == 0) {
                 FolderDataManager.folderMarkers.Remove(path);
-            }
-            else
-            {
+            } else {
                 FolderDataManager.folderMarkers[path] = selectedMarker;
             }
 
             SaveAndRepaint();
         }
 
-        private static void SaveAndRepaint()
-        {
+        private static void SaveAndRepaint() {
             FolderDataManager.Save();
             EditorApplication.RepaintProjectWindow();
         }
@@ -267,15 +239,11 @@ namespace proTools.proFolder
     }
 
     [InitializeOnLoad]
-    public static class proFolderImportPrompt
-    {
-        static proFolderImportPrompt()
-        {
-            if (!SessionState.GetBool(proFolder.SESSION_STATE_KEY, false))
-            {
+    public static class proFolderImportPrompt {
+        static proFolderImportPrompt() {
+            if (!SessionState.GetBool(proFolder.SESSION_STATE_KEY, false)) {
                 SessionState.SetBool(proFolder.SESSION_STATE_KEY, true);
-                EditorApplication.delayCall += () =>
-                {
+                EditorApplication.delayCall += () => {
                     EditorUtility.RequestScriptReload();
                 };
             }

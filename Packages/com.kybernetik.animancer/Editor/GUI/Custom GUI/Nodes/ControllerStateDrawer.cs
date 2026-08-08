@@ -2,13 +2,11 @@
 
 #if UNITY_EDITOR && UNITY_IMGUI
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <inheritdoc/>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/ControllerStateDrawer
     [CustomGUI(typeof(ControllerState))]
-    public class ControllerStateDrawer : ParametizedAnimancerStateDrawer<ControllerState>
-    {
+    public class ControllerStateDrawer : ParametizedAnimancerStateDrawer<ControllerState> {
         /************************************************************************************************************************/
 
         /// <inheritdoc/>

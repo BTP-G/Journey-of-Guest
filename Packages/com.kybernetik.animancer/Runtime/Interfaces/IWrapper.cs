@@ -3,12 +3,10 @@
 using System;
 using UnityEngine;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>An object which wraps a <see cref="WrappedObject"/> object.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer/IWrapper
-    public interface IWrapper
-    {
+    public interface IWrapper {
         /************************************************************************************************************************/
 
         /// <summary>The wrapped object.</summary>
@@ -22,8 +20,7 @@ namespace Animancer
     }
 
     /// https://kybernetik.com.au/animancer/api/Animancer/AnimancerUtilities
-    public partial class AnimancerUtilities
-    {
+    public partial class AnimancerUtilities {
         /************************************************************************************************************************/
 
         /// <summary>
@@ -34,31 +31,25 @@ namespace Animancer
             object wrapper,
             out T wrapped,
             bool logException = false)
-            where T : class
-        {
+            where T : class {
             wrapped = default;
 
-            while (true)
-            {
-                if (wrapper is T t)
+            while (true) {
+                if (wrapper is T t) {
                     wrapped = t;
+                }
 
-                if (wrapper is IWrapper targetWrapper)
-                {
-                    try
-                    {
+                if (wrapper is IWrapper targetWrapper) {
+                    try {
                         wrapper = targetWrapper.WrappedObject;
-                    }
-                    catch (Exception exception)
-                    {
-                        if (logException)
+                    } catch (Exception exception) {
+                        if (logException) {
                             Debug.LogException(exception);
+                        }
 
                         break;
                     }
-                }
-                else
-                {
+                } else {
                     break;
                 }
             }

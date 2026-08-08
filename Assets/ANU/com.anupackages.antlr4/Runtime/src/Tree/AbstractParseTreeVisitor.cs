@@ -1,14 +1,9 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-using Antlr4.Runtime.Sharpen;
-using Antlr4.Runtime.Tree;
-
-namespace Antlr4.Runtime.Tree
-{
-    public abstract class AbstractParseTreeVisitor<Result> : IParseTreeVisitor<Result>
-    {
+namespace Antlr4.Runtime.Tree {
+    public abstract class AbstractParseTreeVisitor<Result> : IParseTreeVisitor<Result> {
         /// <summary>
         /// <inheritDoc/>
         /// <p>The default implementation calls
@@ -16,8 +11,7 @@ namespace Antlr4.Runtime.Tree
         /// on the
         /// specified tree.</p>
         /// </summary>
-        public virtual Result Visit(IParseTree tree)
-        {
+        public virtual Result Visit(IParseTree tree) {
             return tree.Accept(this);
         }
 
@@ -41,18 +35,15 @@ namespace Antlr4.Runtime.Tree
         /// the tree structure. Visitors that modify the tree should override this
         /// method to behave properly in respect to the specific algorithm in use.</p>
         /// </summary>
-        public virtual Result VisitChildren(IRuleNode node)
-        {
-            Result result = DefaultResult;
-            int n = node.ChildCount;
-            for (int i = 0; i < n; i++)
-            {
-                if (!ShouldVisitNextChild(node, result))
-                {
+        public virtual Result VisitChildren(IRuleNode node) {
+            var result = DefaultResult;
+            var n = node.ChildCount;
+            for (var i = 0; i < n; i++) {
+                if (!ShouldVisitNextChild(node, result)) {
                     break;
                 }
-                IParseTree c = node.GetChild(i);
-                Result childResult = c.Accept(this);
+                var c = node.GetChild(i);
+                var childResult = c.Accept(this);
                 result = AggregateResult(result, childResult);
             }
             return result;
@@ -64,8 +55,7 @@ namespace Antlr4.Runtime.Tree
         /// <see cref="AbstractParseTreeVisitor{Result}.DefaultResult()">defaultResult</see>
         /// .</p>
         /// </summary>
-        public virtual Result VisitTerminal(ITerminalNode node)
-        {
+        public virtual Result VisitTerminal(ITerminalNode node) {
             return DefaultResult;
         }
 
@@ -75,8 +65,7 @@ namespace Antlr4.Runtime.Tree
         /// <see cref="AbstractParseTreeVisitor{Result}.DefaultResult()">defaultResult</see>
         /// .</p>
         /// </summary>
-        public virtual Result VisitErrorNode(IErrorNode node)
-        {
+        public virtual Result VisitErrorNode(IErrorNode node) {
             return DefaultResult;
         }
 
@@ -96,10 +85,8 @@ namespace Antlr4.Runtime.Tree
         /// .</p>
         /// </remarks>
         /// <returns>The default value returned by visitor methods.</returns>
-        protected internal virtual Result DefaultResult
-        {
-            get
-            {
+        protected internal virtual Result DefaultResult {
+            get {
                 return default(Result);
             }
         }
@@ -135,8 +122,7 @@ namespace Antlr4.Runtime.Tree
         /// a child node.
         /// </param>
         /// <returns>The updated aggregate result.</returns>
-        protected internal virtual Result AggregateResult(Result aggregate, Result nextResult)
-        {
+        protected internal virtual Result AggregateResult(Result aggregate, Result nextResult) {
             return nextResult;
         }
 
@@ -182,8 +168,7 @@ namespace Antlr4.Runtime.Tree
         /// <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
         /// .
         /// </returns>
-        protected internal virtual bool ShouldVisitNextChild(IRuleNode node, Result currentResult)
-        {
+        protected internal virtual bool ShouldVisitNextChild(IRuleNode node, Result currentResult) {
             return true;
         }
     }

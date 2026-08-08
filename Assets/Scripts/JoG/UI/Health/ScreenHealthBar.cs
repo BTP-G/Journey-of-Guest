@@ -1,10 +1,10 @@
 using Cysharp.Text;
 using EditorAttributes;
-using Xoderony.Extensions;
 using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Xoderony.Extensions;
 
 namespace JoG.UI.Health {
 
@@ -32,7 +32,10 @@ namespace JoG.UI.Health {
 
         private void UpdateView(float healthRatio) {
             var current = barImage.fillAmount;
-            if (current == healthRatio) return;
+            if (current == healthRatio) {
+                return;
+            }
+
             barImage.fillAmount = current.MoveTowards(healthRatio, speed * Time.deltaTime);
         }
     }

@@ -1,13 +1,10 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-using Antlr4.Runtime;
 using Antlr4.Runtime.Misc;
-using Antlr4.Runtime.Sharpen;
 
-namespace Antlr4.Runtime.Tree.Pattern
-{
+namespace Antlr4.Runtime.Tree.Pattern {
     /// <summary>
     /// A
     /// <see cref="Antlr4.Runtime.IToken"/>
@@ -19,8 +16,7 @@ namespace Antlr4.Runtime.Tree.Pattern
     /// tag corresponds to a lexer rule or token type.
     /// </summary>
     [System.Serializable]
-    public class TokenTagToken : CommonToken
-    {
+    public class TokenTagToken : CommonToken {
         /// <summary>
         /// This is the backing field for
         /// <see cref="TokenName()"/>
@@ -46,8 +42,7 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// <param name="tokenName">The token name.</param>
         /// <param name="type">The token type.</param>
         public TokenTagToken(string tokenName, int type)
-            : this(tokenName, type, null)
-        {
+            : this(tokenName, type, null) {
         }
 
         /// <summary>
@@ -65,8 +60,7 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// the token tag is unlabeled.
         /// </param>
         public TokenTagToken(string tokenName, int type, string label)
-            : base(type)
-        {
+            : base(type) {
             this.tokenName = tokenName;
             this.label = label;
         }
@@ -75,10 +69,8 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// <remarks>Gets the token name.</remarks>
         /// <returns>The token name.</returns>
         [NotNull]
-        public string TokenName
-        {
-            get
-            {
+        public string TokenName {
+            get {
                 return tokenName;
             }
         }
@@ -91,10 +83,8 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// if this is an unlabeled rule tag.
         /// </returns>
         [Nullable]
-        public string Label
-        {
-            get
-            {
+        public string Label {
+            get {
                 return label;
             }
         }
@@ -110,12 +100,9 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// <c>&gt;</c>
         /// delimiters.</p>
         /// </summary>
-        public override string Text
-        {
-            get
-            {
-                if (label != null)
-                {
+        public override string Text {
+            get {
+                if (label != null) {
                     return "<" + label + ":" + tokenName + ">";
                 }
                 return "<" + tokenName + ">";
@@ -130,8 +117,7 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// <c>tokenName:type</c>
         /// .</p>
         /// </summary>
-        public override string ToString()
-        {
+        public override string ToString() {
             return tokenName + ":" + Type;
         }
     }

@@ -1,14 +1,12 @@
-﻿#if UNITY_EDITOR
+#if UNITY_EDITOR
 
 using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace RRS.Converter
-{
+namespace RRS.Converter {
     [CustomEditor(typeof(ObjectToIconConverter))]
-    public class ObjectToIconConverterEditor : Editor
-    {
+    public class ObjectToIconConverterEditor : Editor {
         #region Serialized Properties Initialization
         // General Settings
         private SerializedProperty textureNameProp;
@@ -64,33 +62,27 @@ namespace RRS.Converter
         private Texture2D _checkerboardTexture = null;
         private Vector2 _lastPreviewSize = Vector2.zero;
 
-        private GUIStyle IndentedBackgroundStyle
-        {
-            get 
-            {
-                return (_indentedBackgroundStyle == null) ? _indentedBackgroundStyle = CreateIndentedBackgroundStyle() : _indentedBackgroundStyle;
+        private GUIStyle IndentedBackgroundStyle {
+            get {
+                return _indentedBackgroundStyle ??= CreateIndentedBackgroundStyle();
             }
-            set
-            {
+            set {
                 _indentedBackgroundStyle = value;
             }
         }
 
-        private void OnEnable()
-        {
+        private void OnEnable() {
             Undo.undoRedoPerformed += UndoRedoCallback;
             Initialize();
         }
 
-        private void OnDisable()
-        {
+        private void OnDisable() {
             Undo.undoRedoPerformed -= UndoRedoCallback;
 
             _converter.ClearPreviewTexture();
         }
 
-        public void Initialize()
-        {
+        public void Initialize() {
             _converter = (ObjectToIconConverter)target;
             _converter.CreatePreviewTexture();
             _checkerboardTexture = null;
@@ -100,15 +92,12 @@ namespace RRS.Converter
             CreateIndentedBackgroundStyle();
         }
 
-        private void UndoRedoCallback()
-        {
+        private void UndoRedoCallback() {
             _converter.CreatePreviewTexture();
         }
 
-        public override void OnInspectorGUI()
-        {
-            if (_converter.CaptureTarget == null)
-            {
+        public override void OnInspectorGUI() {
+            if (_converter.CaptureTarget == null) {
                 EditorGUILayout.LabelField("MISSING CAPTURE TARGET!", EditorStyles.boldLabel);
                 EditorGUILayout.LabelField("CREATE AN EMPTY OBJECT WITH CaptureTarget.cs ATTACHED!", EditorStyles.boldLabel);
                 return;
@@ -134,8 +123,7 @@ namespace RRS.Converter
 
             DrawLivePreview();
 
-            if (EditorGUI.EndChangeCheck())
-            {
+            if (EditorGUI.EndChangeCheck()) {
                 serializedObject.ApplyModifiedProperties();
 
                 _converter.CreatePreviewTexture();
@@ -144,14 +132,12 @@ namespace RRS.Converter
             }
         }
 
-        private void OnSceneGUI()
-        {
+        private void OnSceneGUI() {
             //DrawLiveScenePreview();
-            this.Repaint();
+            Repaint();
         }
 
-        private void InitializeSerializedProperties()
-        {
+        private void InitializeSerializedProperties() {
             // General Settings Properties
             textureNameProp = serializedObject.FindProperty("TextureName");
             fileTypeProp = serializedObject.FindProperty("FileType");
@@ -194,9 +180,8 @@ namespace RRS.Converter
             autoSelectAssetOnSaveProp = serializedObject.FindProperty("AutoSelectAssetOnSave");
         }
 
-        private GUIStyle CreateIndentedBackgroundStyle()
-        {
-            Texture2D backgroundTexture = new Texture2D(1, 1);
+        private GUIStyle CreateIndentedBackgroundStyle() {
+            var backgroundTexture = new Texture2D(1, 1);
             backgroundTexture.SetPixel(0, 0, new Color(0.35f, 0.35f, 0.35f, 0.35f));
             backgroundTexture.Apply();
 
@@ -207,11 +192,9 @@ namespace RRS.Converter
             return guiStyle;
         }
 
-        private void DrawGeneralSettings()
-        {
+        private void DrawGeneralSettings() {
             _showGeneralSettings = EditorGUILayout.Foldout(_showGeneralSettings, "General Settings", true);
-            if (_showGeneralSettings)
-            {
+            if (_showGeneralSettings) {
                 EditorGUILayout.BeginVertical(IndentedBackgroundStyle);
                 EditorGUILayout.PropertyField(textureNameProp, new GUIContent("Texture Name"));
                 EditorGUILayout.PropertyField(fileTypeProp, new GUIContent("File Type"));
@@ -224,11 +207,9 @@ namespace RRS.Converter
             }
         }
 
-        private void DrawAdvancedSettings()
-        {
+        private void DrawAdvancedSettings() {
             _showAdvancedSettings = EditorGUILayout.Foldout(_showAdvancedSettings, "Advanced Settings", true);
-            if (_showAdvancedSettings)
-            {
+            if (_showAdvancedSettings) {
                 EditorGUILayout.BeginVertical(IndentedBackgroundStyle);
                 EditorGUILayout.PropertyField(textureDepthBufferProp, new GUIContent("Texture Depth"));
                 EditorGUILayout.PropertyField(textureCompressionProp, new GUIContent("Texture Compression"));
@@ -240,32 +221,27 @@ namespace RRS.Converter
             }
         }
 
-        private void DrawAlignmentandViewConfiguration()
-        {
+        private void DrawAlignmentandViewConfiguration() {
             _showAlignmentAndViewConfiguration = EditorGUILayout.Foldout(_showAlignmentAndViewConfiguration, "Alignment and View Configuration", true);
-            if (_showAlignmentAndViewConfiguration)
-            {
+            if (_showAlignmentAndViewConfiguration) {
                 EditorGUILayout.BeginVertical(IndentedBackgroundStyle);
                 EditorGUILayout.PropertyField(centeringDepthBufferMultiplierProp, new GUIContent("Centering Depth Buffer Multiplier"));
                 EditorGUILayout.PropertyField(centeringTypeProp, new GUIContent("Centering Type"));
-                if (centeringTypeProp.enumValueIndex == (int)ObjectToIconConverter.AutoCenteringTypes.FOV_Manipulation)
-                {
+                if (centeringTypeProp.enumValueIndex == (int)ObjectToIconConverter.AutoCenteringTypes.FOV_Manipulation) {
                     EditorGUI.indentLevel++;
                     EditorGUILayout.PropertyField(fovManipulationValueProp, new GUIContent("FOV Manipulation Value"));
                     EditorGUI.indentLevel--;
                 }
 
                 EditorGUILayout.PropertyField(autoCenterInBoundsProp, new GUIContent("Auto Center In Bounds"));
-                if (autoCenterInBoundsProp.boolValue == true)
-                {
+                if (autoCenterInBoundsProp.boolValue == true) {
                     EditorGUI.indentLevel++;
                     EditorGUILayout.PropertyField(centerIncludesChildrenBoundsProp, new GUIContent("Include Children Bounds"));
                     EditorGUI.indentLevel--;
                 }
 
                 EditorGUILayout.PropertyField(autoOrientateProp, new GUIContent("Auto Orientate"));
-                if (autoOrientateProp.boolValue == true)
-                {
+                if (autoOrientateProp.boolValue == true) {
                     EditorGUI.indentLevel++;
                     EditorGUILayout.PropertyField(autoOrientationSettingProp, new GUIContent("Auto Orientation Settings"));
                     EditorGUI.indentLevel--;
@@ -275,11 +251,9 @@ namespace RRS.Converter
             }
         }
 
-        private void DrawPreviewSettings()
-        {
+        private void DrawPreviewSettings() {
             _showPreviewSettings = EditorGUILayout.Foldout(_showPreviewSettings, "Preview Settings", true);
-            if (_showPreviewSettings)
-            {
+            if (_showPreviewSettings) {
                 EditorGUILayout.BeginVertical(IndentedBackgroundStyle);
                 EditorGUILayout.PropertyField(minPreviewSizeProp, new GUIContent("Min Preview Size"));
                 EditorGUILayout.PropertyField(maxPreviewSizeProp, new GUIContent("Max Preview Size"));
@@ -289,11 +263,9 @@ namespace RRS.Converter
             }
         }
 
-        private void DrawGizmoSettings()
-        {
+        private void DrawGizmoSettings() {
             _showGizmoSettings = EditorGUILayout.Foldout(_showGizmoSettings, "Gizmo Visualization Settings", true);
-            if (_showGizmoSettings)
-            {
+            if (_showGizmoSettings) {
                 EditorGUILayout.BeginVertical(IndentedBackgroundStyle);
                 EditorGUILayout.PropertyField(gizmosProp, new GUIContent("Gizmos"));
                 if (gizmosProp.intValue != 0) // Check if any Flags are set
@@ -305,11 +277,9 @@ namespace RRS.Converter
             }
         }
 
-        private void DrawAdditionalSettings()
-        {
+        private void DrawAdditionalSettings() {
             _showAdditionalSettings = EditorGUILayout.Foldout(_showAdditionalSettings, "Additional Settings", true);
-            if (_showAdditionalSettings)
-            {
+            if (_showAdditionalSettings) {
                 EditorGUILayout.BeginVertical(IndentedBackgroundStyle);
                 EditorGUILayout.PropertyField(pingAssetOnSaveProp, new GUIContent("Ping Asset On Save"));
                 EditorGUILayout.PropertyField(autoSelectAssetOnSaveProp, new GUIContent("Auto Select Asset On Save"));
@@ -317,8 +287,7 @@ namespace RRS.Converter
             }
         }
 
-        private void DrawHelperButtons()
-        {
+        private void DrawHelperButtons() {
             GUILayout.BeginHorizontal();
 
             DrawCenterBoundsAroundObject();
@@ -326,73 +295,60 @@ namespace RRS.Converter
             GUILayout.EndHorizontal();
         }
 
-        private void DrawCenterBoundsAroundObject()
-        {
+        private void DrawCenterBoundsAroundObject() {
             EditorGUI.BeginDisabledGroup(_converter.CaptureTarget == null || _converter.CaptureTarget.transform.childCount == 0 || _converter.AutoCenterInBounds);
 
-            if (GUILayout.Button("Center Target in Capture Bounds"))
-            {
+            if (GUILayout.Button("Center Target in Capture Bounds")) {
                 _converter.CenterObjectInCaptureBounds();
             }
 
             EditorGUI.EndDisabledGroup();
         }
 
-        private void DrawPathSelectionButton()
-        {
-            var buttonTitle = (_converter.PathIsSelected) ? "Change Folder" : "Select Folder";
+        private void DrawPathSelectionButton() {
+            var buttonTitle = _converter.PathIsSelected ? "Change Folder" : "Select Folder";
 
-            if (_converter.PathIsSelected)
-            {
+            if (_converter.PathIsSelected) {
                 EditorGUILayout.LabelField("Selected Path", _converter.SelectedSavePath);
             }
 
-            if (GUILayout.Button(buttonTitle))
-            {
-                string path = EditorUtility.OpenFolderPanel("Select Folder", Application.dataPath, "");
-                if (!string.IsNullOrEmpty(path))
-                {
+            if (GUILayout.Button(buttonTitle)) {
+                var path = EditorUtility.OpenFolderPanel("Select Folder", Application.dataPath, "");
+                if (!string.IsNullOrEmpty(path)) {
                     _converter.SetSelectedPath(path);
                     EditorUtility.SetDirty(target);
                 }
             }
         }
 
-        private void DrawRefreshTextureButton()
-        {
-            if (GUILayout.Button("Refresh Live Texture"))
-            {
+        private void DrawRefreshTextureButton() {
+            if (GUILayout.Button("Refresh Live Texture")) {
                 _converter.CreatePreviewTexture();
             }
         }
 
-        private void DrawSaveTextureButton()
-        {
+        private void DrawSaveTextureButton() {
             EditorGUI.BeginDisabledGroup(!_converter.IsSaveValid);
 
-            if (GUILayout.Button("Save Texture"))
-            {
+            if (GUILayout.Button("Save Texture")) {
                 _converter.SaveTexture();
             }
 
             EditorGUI.EndDisabledGroup();
         }
 
-        private void DrawLiveScenePreview()
-        {
+        private void DrawLiveScenePreview() {
             EditorGUILayout.LabelField("Live Preview:", EditorStyles.boldLabel);
 
             var minPreview = new Vector2(MathF.Max((int)_converter.BakingSize, (int)_converter.MinPreviewSize), MathF.Max((int)_converter.BakingSize, (int)_converter.MinPreviewSize));
             var previewSize = new Vector2(MathF.Min((int)minPreview.x, (int)_converter.MaxPreviewSize), MathF.Min((int)minPreview.x, (int)_converter.MaxPreviewSize));
 
-            Rect previewRect = new Rect(new Vector2(SceneView.lastActiveSceneView.position.width - previewSize.x,
+            var previewRect = new Rect(new Vector2(SceneView.lastActiveSceneView.position.width - previewSize.x,
                                     SceneView.lastActiveSceneView.position.height - previewSize.y - 25f),
                                     previewSize); // GUILayoutUtility.GetRect(previewSize.x, previewSize.y, GUI.skin.box);
 
-            if (_converter.DisplayAlphaInTexturePreview)
-            {
-                if (_checkerboardTexture == null || _lastPreviewSize.x != previewSize.x || _lastPreviewSize.y != previewSize.y)
-                {
+            if (_converter.DisplayAlphaInTexturePreview) {
+                if (_checkerboardTexture == null || _lastPreviewSize.x != previewSize.x || _lastPreviewSize.y != previewSize.y) {
                     DestroyImmediate(_checkerboardTexture);
                     _checkerboardTexture = GenerateCheckerboardTexture(128, 128, 16);
 
@@ -402,10 +358,8 @@ namespace RRS.Converter
                 FillRectWithTexture(previewRect, _checkerboardTexture, previewSize.x, previewSize.y);
             }
 
-            if (_converter.PreviewRenderTexture)
-            {
-                if (Event.current.type == EventType.Repaint)
-                {
+            if (_converter.PreviewRenderTexture) {
+                if (Event.current.type == EventType.Repaint) {
                     GUI.DrawTexture(previewRect, _converter.PreviewRenderTexture);
                 }
             }
@@ -413,8 +367,7 @@ namespace RRS.Converter
             UnityEditor.SceneView.RepaintAll();
         }
 
-        private void DrawLivePreview()
-        {
+        private void DrawLivePreview() {
             EditorGUILayout.LabelField("Live Preview:", EditorStyles.boldLabel);
 
             var minPreview = new Vector2(MathF.Max((int)_converter.BakingSize, (int)_converter.MinPreviewSize), MathF.Max((int)_converter.BakingSize, (int)_converter.MinPreviewSize));
@@ -422,10 +375,8 @@ namespace RRS.Converter
 
             var previewRect = GUILayoutUtility.GetRect(previewSize.x, previewSize.y, GUI.skin.box);
 
-            if (_converter.DisplayAlphaInTexturePreview)
-            {
-                if (_checkerboardTexture == null || _lastPreviewSize.x != previewSize.x || _lastPreviewSize.y != previewSize.y)
-                {
+            if (_converter.DisplayAlphaInTexturePreview) {
+                if (_checkerboardTexture == null || _lastPreviewSize.x != previewSize.x || _lastPreviewSize.y != previewSize.y) {
                     DestroyImmediate(_checkerboardTexture);
                     _checkerboardTexture = GenerateCheckerboardTexture(128, 128, 16);
 
@@ -435,24 +386,19 @@ namespace RRS.Converter
                 FillRectWithTexture(previewRect, _checkerboardTexture, previewSize.x, previewSize.y);
             }
 
-            if (_converter.PreviewRenderTexture)
-            {
-                if (Event.current.type == EventType.Repaint)
-                {
+            if (_converter.PreviewRenderTexture) {
+                if (Event.current.type == EventType.Repaint) {
                     GUI.DrawTexture(previewRect, _converter.PreviewRenderTexture);
                 }
             }
         }
 
-        private Texture2D GenerateCheckerboardTexture(int width, int height, int cellSize)
-        {
-            Texture2D texture = new Texture2D(width, height);
+        private Texture2D GenerateCheckerboardTexture(int width, int height, int cellSize) {
+            var texture = new Texture2D(width, height);
 
-            for (int y = 0; y < height; y++)
-            {
-                for (int x = 0; x < width; x++)
-                {
-                    bool isCellWhite = (x / cellSize + y / cellSize) % 2 == 0;
+            for (var y = 0; y < height; y++) {
+                for (var x = 0; x < width; x++) {
+                    var isCellWhite = ((x / cellSize) + (y / cellSize)) % 2 == 0;
                     texture.SetPixel(x, y, isCellWhite ? Color.white : Color.gray);
                 }
             }
@@ -462,19 +408,16 @@ namespace RRS.Converter
             return texture;
         }
 
-        private void FillRectWithTexture(Rect rect, Texture2D texture, float previewWidth, float previewHeight)
-        {
-            float offsetX = (rect.width - previewWidth) * 0.5f;
-            float offsetY = (rect.height - previewHeight) * 0.5f;
+        private void FillRectWithTexture(Rect rect, Texture2D texture, float previewWidth, float previewHeight) {
+            var offsetX = (rect.width - previewWidth) * 0.5f;
+            var offsetY = (rect.height - previewHeight) * 0.5f;
 
             GUI.BeginGroup(new Rect(rect.x + offsetX, rect.y + offsetY, previewWidth, previewHeight));
-            float xTiles = previewWidth / texture.width;
-            float yTiles = previewHeight / texture.height;
+            var xTiles = previewWidth / texture.width;
+            var yTiles = previewHeight / texture.height;
 
-            for (float y = 0; y < yTiles; y++)
-            {
-                for (float x = 0; x < xTiles; x++)
-                {
+            for (float y = 0; y < yTiles; y++) {
+                for (float x = 0; x < xTiles; x++) {
                     GUI.DrawTexture(new Rect(x * texture.width, y * texture.height, texture.width, texture.height), texture);
                 }
             }

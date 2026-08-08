@@ -1,17 +1,15 @@
-﻿using UnityEditor;
-using UnityEngine;
-using UnityEditor.Build;
-using UnityEngine.UIElements;
-using UnityEditor.UIElements;
 using System.Collections.Generic;
-using FilePath = UnityEditor.FilePathAttribute;
 using System.Linq;
+using UnityEditor;
+using UnityEditor.Build;
+using UnityEditor.UIElements;
+using UnityEngine;
+using UnityEngine.UIElements;
+using FilePath = UnityEditor.FilePathAttribute;
 
-namespace EditorAttributes.Editor
-{
+namespace EditorAttributes.Editor {
     [@FilePath("ProjectSettings/EditorAttributes/EditorAttributesSettings.asset", FilePath.Location.ProjectFolder)]
-    internal class EditorAttributesSettings : ScriptableSingleton<EditorAttributesSettings>
-    {
+    internal class EditorAttributesSettings : ScriptableSingleton<EditorAttributesSettings> {
         [Tooltip("Disables the drawing of the editor by the editor extension script, usefull if you want to override the base UnityEngine.Object yourself.\nNote that some attributes like Button, PropertyOrder and ShowInInspector will stop working.")]
         [SerializeField] internal bool disableEditorExtension;
 
@@ -29,28 +27,27 @@ namespace EditorAttributes.Editor
 
         private string messageBoxText;
 
-        void OnValidate() => UnitConverter.UNIT_CONVERSION_MAP = UnitConverter.GenerateConversionMap();
+        private void OnValidate() {
+            UnitConverter.UNIT_CONVERSION_MAP = UnitConverter.GenerateConversionMap();
+        }
 
-        internal void AddCustomDefinitions()
-        {
-            HashSet<UnitDefinition> unitDefinitions = UnitConverter.UNIT_DEFINITIONS;
+        internal void AddCustomDefinitions() {
+            var unitDefinitions = UnitConverter.UNIT_DEFINITIONS;
 
             unitDefinitions.RemoveWhere((unitDefinition) => unitDefinition.unit == Unit.Custom);
 
-            if (customUnitDefinitions == null)
+            if (customUnitDefinitions == null) {
                 return;
+            }
 
-            foreach (var customUnitDefinition in customUnitDefinitions)
-            {
-                if (string.IsNullOrWhiteSpace(customUnitDefinition.unitName) || string.IsNullOrWhiteSpace(customUnitDefinition.unitLabel))
+            foreach (var customUnitDefinition in customUnitDefinitions) {
+                if (string.IsNullOrWhiteSpace(customUnitDefinition.unitName) || string.IsNullOrWhiteSpace(customUnitDefinition.unitLabel)) {
                     continue;
-
-                if (customUnitDefinition.category != UnitCategory.Custom)
-                {
-                    customUnitDefinition.categoryName = customUnitDefinition.category.ToString();
                 }
-                else if (string.IsNullOrWhiteSpace(customUnitDefinition.unitName))
-                {
+
+                if (customUnitDefinition.category != UnitCategory.Custom) {
+                    customUnitDefinition.categoryName = customUnitDefinition.category.ToString();
+                } else if (string.IsNullOrWhiteSpace(customUnitDefinition.unitName)) {
                     continue;
                 }
             }
@@ -58,29 +55,27 @@ namespace EditorAttributes.Editor
             unitDefinitions.UnionWith(customUnitDefinitions);
         }
 
-        internal void SaveSettings() => Save(true);
+        internal void SaveSettings() {
+            Save(true);
+        }
 
-        private bool CheckValidUnitDefinitions()
-        {
-            if (customUnitDefinitions == null)
+        private bool CheckValidUnitDefinitions() {
+            if (customUnitDefinitions == null) {
                 return false;
+            }
 
-            foreach (var customUnitDefinition in customUnitDefinitions)
-            {
-                if (string.IsNullOrWhiteSpace(customUnitDefinition.unitName))
-                {
+            foreach (var customUnitDefinition in customUnitDefinitions) {
+                if (string.IsNullOrWhiteSpace(customUnitDefinition.unitName)) {
                     messageBoxText = "Custom unit name cannot be empty";
                     return true;
                 }
 
-                if (customUnitDefinition.category == UnitCategory.Custom && string.IsNullOrWhiteSpace(customUnitDefinition.categoryName))
-                {
+                if (customUnitDefinition.category == UnitCategory.Custom && string.IsNullOrWhiteSpace(customUnitDefinition.categoryName)) {
                     messageBoxText = "Custom unit category name cannot be empty";
                     return true;
                 }
 
-                if (string.IsNullOrWhiteSpace(customUnitDefinition.unitLabel))
-                {
+                if (string.IsNullOrWhiteSpace(customUnitDefinition.unitLabel)) {
                     messageBoxText = "Custom unit label cannot be empty";
                     return true;
                 }
@@ -91,17 +86,14 @@ namespace EditorAttributes.Editor
         }
     }
 
-    internal class EditorAttributesSettingsProvider : SettingsProvider
-    {
+    internal class EditorAttributesSettingsProvider : SettingsProvider {
         internal EditorAttributesSettingsProvider(string path, SettingsScope scope) : base(path, scope) { }
 
-        public override void OnActivate(string searchContext, VisualElement rootElement)
-        {
+        public override void OnActivate(string searchContext, VisualElement rootElement) {
             SerializedObject serializedObject = new(EditorAttributesSettings.instance);
             VisualElement settingsContainer = new();
 
-            Label header = new("Editor Attributes")
-            {
+            Label header = new("Editor Attributes") {
                 style =
                 {
                     fontSize = 19f,
@@ -114,8 +106,7 @@ namespace EditorAttributes.Editor
                 }
             };
 
-            Button helpButton = new(() => Application.OpenURL("https://editorattributesdocs.readthedocs.io/en/latest/GettingStarted/editorattributessettings.html"))
-            {
+            Button helpButton = new(() => Application.OpenURL("https://editorattributesdocs.readthedocs.io/en/latest/GettingStarted/editorattributessettings.html")) {
                 tooltip = "Open reference for EditorAttributes Settings.",
                 style =
                 {
@@ -137,17 +128,15 @@ namespace EditorAttributes.Editor
 
             inspectorElement.Q<ObjectField>("unity-input-m_Script").parent.RemoveFromHierarchy(); // Remove the auto-generated script field
 
-            inspectorElement.Q<Toggle>("unity-input-disableEditorExtension").RegisterValueChangedCallback((changeEvent) =>
-            {
+            inspectorElement.Q<Toggle>("unity-input-disableEditorExtension").RegisterValueChangedCallback((changeEvent) => {
                 const string disableEditorExtensionDefine = "DISABLE_EDITOR_EXTENTION";
 
                 if (changeEvent.newValue) // Enabled
                 {
                     PlayerSettings.SetScriptingDefineSymbols(NamedBuildTarget.Standalone, disableEditorExtensionDefine);
-                }
-                else // Disabled
-                {
-                    PlayerSettings.GetScriptingDefineSymbols(NamedBuildTarget.Standalone, out string[] defines);
+                } else // Disabled
+                  {
+                    PlayerSettings.GetScriptingDefineSymbols(NamedBuildTarget.Standalone, out var defines);
 
                     defines = defines.Where((define) => define != disableEditorExtensionDefine).ToArray();
 
@@ -155,8 +144,7 @@ namespace EditorAttributes.Editor
                 }
             });
 
-            Button clearParamsButton = new(() => ButtonDrawer.ClearAllParamsData())
-            {
+            Button clearParamsButton = new(() => ButtonDrawer.ClearAllParamsData()) {
                 text = "Delete Buttons Parameter Data",
                 tooltip = "Deletes all buttons parameter data stored in ProjectSettings/EditorAttributes",
                 style = { marginTop = 10f }
@@ -171,12 +159,15 @@ namespace EditorAttributes.Editor
             rootElement.Add(settingsContainer);
         }
 
-        public override void OnDeactivate() => EditorAttributesSettings.instance.SaveSettings();
+        public override void OnDeactivate() {
+            EditorAttributesSettings.instance.SaveSettings();
+        }
 
         [SettingsProvider]
-        internal static SettingsProvider CreateSettingsProvider() => new EditorAttributesSettingsProvider("Project/EditorAttributes", SettingsScope.Project)
-        {
-            keywords = new HashSet<string>(new[] { "EditorAttributes", "Editor", "Attributes" })
-        };
+        internal static SettingsProvider CreateSettingsProvider() {
+            return new EditorAttributesSettingsProvider("Project/EditorAttributes", SettingsScope.Project) {
+                keywords = new HashSet<string>(new[] { "EditorAttributes", "Editor", "Attributes" })
+            };
+        }
     }
 }

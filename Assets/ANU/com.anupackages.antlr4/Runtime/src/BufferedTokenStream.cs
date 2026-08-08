@@ -1,16 +1,14 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
+using Antlr4.Runtime.Misc;
+using Antlr4.Runtime.Sharpen;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Antlr4.Runtime;
-using Antlr4.Runtime.Misc;
-using Antlr4.Runtime.Sharpen;
 
-namespace Antlr4.Runtime
-{
+namespace Antlr4.Runtime {
     /// <summary>
     /// This implementation of
     /// <see cref="ITokenStream"/>
@@ -31,8 +29,7 @@ namespace Antlr4.Runtime
     /// <see cref="CommonTokenStream"/>
     /// .</p>
     /// </summary>
-    public class BufferedTokenStream : ITokenStream
-    {
+    public class BufferedTokenStream : ITokenStream {
         /// <summary>
         /// The
         /// <see cref="ITokenSource"/>
@@ -108,88 +105,67 @@ namespace Antlr4.Runtime
         /// </summary>
         protected internal bool fetchedEOF;
 
-        public BufferedTokenStream(ITokenSource tokenSource)
-        {
-            if (tokenSource == null)
-            {
+        public BufferedTokenStream(ITokenSource tokenSource) {
+            if (tokenSource == null) {
                 throw new ArgumentNullException("tokenSource cannot be null");
             }
-            this._tokenSource = tokenSource;
+            _tokenSource = tokenSource;
         }
 
-        public virtual ITokenSource TokenSource
-        {
-            get
-            {
+        public virtual ITokenSource TokenSource {
+            get {
                 return _tokenSource;
             }
         }
 
-        public virtual int Index
-        {
-            get
-            {
+        public virtual int Index {
+            get {
                 return p;
             }
         }
 
-        public virtual int Mark()
-        {
+        public virtual int Mark() {
             return 0;
         }
 
-        public virtual void Release(int marker)
-        {
+        public virtual void Release(int marker) {
         }
 
         // no resources to release
-        public virtual void Reset()
-        {
+        public virtual void Reset() {
             Seek(0);
         }
 
-        public virtual void Seek(int index)
-        {
+        public virtual void Seek(int index) {
             LazyInit();
             p = AdjustSeekIndex(index);
         }
 
-        public virtual int Size
-        {
-            get
-            {
+        public virtual int Size {
+            get {
                 return tokens.Count;
             }
         }
 
-        public virtual void Consume()
-        {
+        public virtual void Consume() {
             bool skipEofCheck;
-            if (p >= 0)
-            {
-                if (fetchedEOF)
-                {
+            if (p >= 0) {
+                if (fetchedEOF) {
                     // the last token in tokens is EOF. skip check if p indexes any
                     // fetched token except the last.
                     skipEofCheck = p < tokens.Count - 1;
-                }
-                else
-                {
+                } else {
                     // no EOF token in tokens. skip check if p indexes a fetched token.
                     skipEofCheck = p < tokens.Count;
                 }
-            }
-            else
-            {
+            } else {
                 // not yet initialized
                 skipEofCheck = false;
             }
-            if (!skipEofCheck && LA(1) == IntStreamConstants.EOF)
-            {
+            if (!skipEofCheck && LA(1) == IntStreamConstants.EOF) {
                 throw new InvalidOperationException("cannot consume EOF");
             }
-            if (Sync(p + 1))
-            {
+            if (Sync(p + 1)) {
                 p = AdjustSeekIndex(p + 1);
             }
         }
@@ -209,15 +185,13 @@ namespace Antlr4.Runtime
         /// .
         /// </returns>
         /// <seealso cref="Get(int)"/>
-        protected internal virtual bool Sync(int i)
-        {
+        protected internal virtual bool Sync(int i) {
             System.Diagnostics.Debug.Assert(i >= 0);
-            int n = i - tokens.Count + 1;
+            var n = i - tokens.Count + 1;
             // how many more elements we need?
             //System.out.println("sync("+i+") needs "+n);
-            if (n > 0)
-            {
-                int fetched = Fetch(n);
+            if (n > 0) {
+                var fetched = Fetch(n);
                 return fetched >= n;
             }
             return true;
@@ -229,22 +203,17 @@ namespace Antlr4.Runtime
         /// elements to buffer.
         /// </summary>
         /// <returns>The actual number of elements added to the buffer.</returns>
-        protected internal virtual int Fetch(int n)
-        {
-            if (fetchedEOF)
-            {
+        protected internal virtual int Fetch(int n) {
+            if (fetchedEOF) {
                 return 0;
             }
-            for (int i = 0; i < n; i++)
-            {
-                IToken t = _tokenSource.NextToken();
-                if (t is IWritableToken)
-                {
+            for (var i = 0; i < n; i++) {
+                var t = _tokenSource.NextToken();
+                if (t is IWritableToken) {
                     ((IWritableToken)t).TokenIndex = tokens.Count;
                 }
                 tokens.Add(t);
-                if (t.Type == TokenConstants.EOF)
-                {
+                if (t.Type == TokenConstants.EOF) {
                     fetchedEOF = true;
                     return i + 1;
                 }
@@ -252,10 +221,8 @@ namespace Antlr4.Runtime
             return n;
         }
 
-        public virtual IToken Get(int i)
-        {
-            if (i < 0 || i >= tokens.Count)
-            {
+        public virtual IToken Get(int i) {
+            if (i < 0 || i >= tokens.Count) {
                 throw new ArgumentOutOfRangeException("token index " + i + " out of range 0.." + (tokens.Count - 1));
             }
             return tokens[i];
@@ -263,23 +230,18 @@ namespace Antlr4.Runtime
 
         /// <summary>Get all tokens from start..stop inclusively.</summary>
         /// <remarks>Get all tokens from start..stop inclusively.</remarks>
-        public virtual IList<IToken> Get(int start, int stop)
-        {
-            if (start < 0 || stop < 0)
-            {
+        public virtual IList<IToken> Get(int start, int stop) {
+            if (start < 0 || stop < 0) {
                 return null;
             }
             LazyInit();
             IList<IToken> subset = new List<IToken>();
-            if (stop >= tokens.Count)
-            {
+            if (stop >= tokens.Count) {
                 stop = tokens.Count - 1;
             }
-            for (int i = start; i <= stop; i++)
-            {
-                IToken t = tokens[i];
-                if (t.Type == TokenConstants.EOF)
-                {
+            for (var i = start; i <= stop; i++) {
+                var t = tokens[i];
+                if (t.Type == TokenConstants.EOF) {
                     break;
                 }
                 subset.Add(t);
@@ -287,36 +249,29 @@ namespace Antlr4.Runtime
             return subset;
         }
 
-        public virtual int LA(int i)
-        {
+        public virtual int LA(int i) {
             return LT(i).Type;
         }
 
-        protected internal virtual IToken Lb(int k)
-        {
-            if ((p - k) < 0)
-            {
+        protected internal virtual IToken Lb(int k) {
+            if ((p - k) < 0) {
                 return null;
             }
             return tokens[p - k];
         }
 
         [return: NotNull]
-        public virtual IToken LT(int k)
-        {
+        public virtual IToken LT(int k) {
             LazyInit();
-            if (k == 0)
-            {
+            if (k == 0) {
                 return null;
             }
-            if (k < 0)
-            {
+            if (k < 0) {
                 return Lb(-k);
             }
-            int i = p + k - 1;
+            var i = p + k - 1;
             Sync(i);
-            if (i >= tokens.Count)
-            {
+            if (i >= tokens.Count) {
                 // return EOF token
                 // EOF must be last token
                 return tokens[tokens.Count - 1];
@@ -345,42 +300,35 @@ namespace Antlr4.Runtime
         /// </remarks>
         /// <param name="i">The target token index.</param>
         /// <returns>The adjusted target token index.</returns>
-        protected internal virtual int AdjustSeekIndex(int i)
-        {
+        protected internal virtual int AdjustSeekIndex(int i) {
             return i;
         }
 
-        protected internal void LazyInit()
-        {
-            if (p == -1)
-            {
+        protected internal void LazyInit() {
+            if (p == -1) {
                 Setup();
             }
         }
 
-        protected internal virtual void Setup()
-        {
+        protected internal virtual void Setup() {
             Sync(0);
             p = AdjustSeekIndex(0);
         }
 
         /// <summary>Reset this token stream by setting its token source.</summary>
         /// <remarks>Reset this token stream by setting its token source.</remarks>
-        public virtual void SetTokenSource(ITokenSource tokenSource)
-        {
-            this._tokenSource = tokenSource;
+        public virtual void SetTokenSource(ITokenSource tokenSource) {
+            _tokenSource = tokenSource;
             tokens.Clear();
             p = -1;
-			this.fetchedEOF = false;
+            fetchedEOF = false;
         }
 
-        public virtual IList<IToken> GetTokens()
-        {
+        public virtual IList<IToken> GetTokens() {
             return tokens;
         }
 
-        public virtual IList<IToken> GetTokens(int start, int stop)
-        {
+        public virtual IList<IToken> GetTokens(int start, int stop) {
             return GetTokens(start, stop, null);
         }
 
@@ -395,37 +343,30 @@ namespace Antlr4.Runtime
         /// if no tokens were found.  This
         /// method looks at both on and off channel tokens.
         /// </summary>
-        public virtual IList<IToken> GetTokens(int start, int stop, BitSet types)
-        {
+        public virtual IList<IToken> GetTokens(int start, int stop, BitSet types) {
             LazyInit();
-            if (start < 0 || stop >= tokens.Count || stop < 0 || start >= tokens.Count)
-            {
+            if (start < 0 || stop >= tokens.Count || stop < 0 || start >= tokens.Count) {
                 throw new ArgumentOutOfRangeException("start " + start + " or stop " + stop + " not in 0.." + (tokens.Count - 1));
             }
-            if (start > stop)
-            {
+            if (start > stop) {
                 return null;
             }
             // list = tokens[start:stop]:{T t, t.getType() in types}
             IList<IToken> filteredTokens = new List<IToken>();
-            for (int i = start; i <= stop; i++)
-            {
-                IToken t = tokens[i];
-                if (types == null || types.Get(t.Type))
-                {
+            for (var i = start; i <= stop; i++) {
+                var t = tokens[i];
+                if (types == null || types.Get(t.Type)) {
                     filteredTokens.Add(t);
                 }
             }
-            if (filteredTokens.Count == 0)
-            {
+            if (filteredTokens.Count == 0) {
                 filteredTokens = null;
             }
             return filteredTokens;
         }
 
-        public virtual IList<IToken> GetTokens(int start, int stop, int ttype)
-        {
-            BitSet s = new BitSet(ttype);
+        public virtual IList<IToken> GetTokens(int start, int stop, int ttype) {
+            var s = new BitSet(ttype);
             s.Set(ttype);
             return GetTokens(start, stop, s);
         }
@@ -443,18 +384,14 @@ namespace Antlr4.Runtime
         /// and
         /// EOF.
         /// </remarks>
-        protected internal virtual int NextTokenOnChannel(int i, int channel)
-        {
+        protected internal virtual int NextTokenOnChannel(int i, int channel) {
             Sync(i);
-            if (i >= Size)
-            {
+            if (i >= Size) {
                 return Size - 1;
             }
-            IToken token = tokens[i];
-            while (token.Channel != channel)
-            {
-                if (token.Type == TokenConstants.EOF)
-                {
+            var token = tokens[i];
+            while (token.Channel != channel) {
+                if (token.Type == TokenConstants.EOF) {
                     return i;
                 }
                 i++;
@@ -485,19 +422,15 @@ namespace Antlr4.Runtime
         /// index is returned. This is due to the fact that the EOF token is treated
         /// as though it were on every channel.</p>
         /// </remarks>
-        protected internal virtual int PreviousTokenOnChannel(int i, int channel)
-        {
+        protected internal virtual int PreviousTokenOnChannel(int i, int channel) {
             Sync(i);
-            if (i >= Size)
-            {
+            if (i >= Size) {
                 // the EOF token is on every channel
                 return Size - 1;
             }
-            while (i >= 0)
-            {
-                IToken token = tokens[i];
-                if (token.Type == TokenConstants.EOF || token.Channel == channel)
-                {
+            while (i >= 0) {
+                var token = tokens[i];
+                if (token.Type == TokenConstants.EOF || token.Channel == channel) {
                     return i;
                 }
                 i--;
@@ -516,23 +449,18 @@ namespace Antlr4.Runtime
         /// <c>-1</c>
         /// , find any non default channel token.
         /// </summary>
-        public virtual IList<IToken> GetHiddenTokensToRight(int tokenIndex, int channel)
-        {
+        public virtual IList<IToken> GetHiddenTokensToRight(int tokenIndex, int channel) {
             LazyInit();
-            if (tokenIndex < 0 || tokenIndex >= tokens.Count)
-            {
+            if (tokenIndex < 0 || tokenIndex >= tokens.Count) {
                 throw new ArgumentOutOfRangeException(tokenIndex + " not in 0.." + (tokens.Count - 1));
             }
-            int nextOnChannel = NextTokenOnChannel(tokenIndex + 1, Lexer.DefaultTokenChannel);
+            var nextOnChannel = NextTokenOnChannel(tokenIndex + 1, Lexer.DefaultTokenChannel);
             int to;
-            int from = tokenIndex + 1;
+            var from = tokenIndex + 1;
             // if none onchannel to right, nextOnChannel=-1 so set to = last token
-            if (nextOnChannel == -1)
-            {
+            if (nextOnChannel == -1) {
                 to = Size - 1;
-            }
-            else
-            {
+            } else {
                 to = nextOnChannel;
             }
             return FilterForChannel(from, to, channel);
@@ -544,8 +472,7 @@ namespace Antlr4.Runtime
         /// <see cref="Lexer.DefaultTokenChannel"/>
         /// or EOF.
         /// </summary>
-        public virtual IList<IToken> GetHiddenTokensToRight(int tokenIndex)
-        {
+        public virtual IList<IToken> GetHiddenTokensToRight(int tokenIndex) {
             return GetHiddenTokensToRight(tokenIndex, -1);
         }
 
@@ -560,26 +487,22 @@ namespace Antlr4.Runtime
         /// <c>-1</c>
         /// , find any non default channel token.
         /// </summary>
-        public virtual IList<IToken> GetHiddenTokensToLeft(int tokenIndex, int channel)
-        {
+        public virtual IList<IToken> GetHiddenTokensToLeft(int tokenIndex, int channel) {
             LazyInit();
-            if (tokenIndex < 0 || tokenIndex >= tokens.Count)
-            {
+            if (tokenIndex < 0 || tokenIndex >= tokens.Count) {
                 throw new ArgumentOutOfRangeException(tokenIndex + " not in 0.." + (tokens.Count - 1));
             }
-            if (tokenIndex == 0)
-            {
+            if (tokenIndex == 0) {
                 // obviously no tokens can appear before the first token
                 return null;
             }
-            int prevOnChannel = PreviousTokenOnChannel(tokenIndex - 1, Lexer.DefaultTokenChannel);
-            if (prevOnChannel == tokenIndex - 1)
-            {
+            var prevOnChannel = PreviousTokenOnChannel(tokenIndex - 1, Lexer.DefaultTokenChannel);
+            if (prevOnChannel == tokenIndex - 1) {
                 return null;
             }
             // if none onchannel to left, prevOnChannel=-1 then from=0
-            int from = prevOnChannel + 1;
-            int to = tokenIndex - 1;
+            var from = prevOnChannel + 1;
+            var to = tokenIndex - 1;
             return FilterForChannel(from, to, channel);
         }
 
@@ -589,43 +512,32 @@ namespace Antlr4.Runtime
         /// <see cref="Lexer.DefaultTokenChannel"/>
         /// .
         /// </summary>
-        public virtual IList<IToken> GetHiddenTokensToLeft(int tokenIndex)
-        {
+        public virtual IList<IToken> GetHiddenTokensToLeft(int tokenIndex) {
             return GetHiddenTokensToLeft(tokenIndex, -1);
         }
 
-        protected internal virtual IList<IToken> FilterForChannel(int from, int to, int channel)
-        {
+        protected internal virtual IList<IToken> FilterForChannel(int from, int to, int channel) {
             IList<IToken> hidden = new List<IToken>();
-            for (int i = from; i <= to; i++)
-            {
-                IToken t = tokens[i];
-                if (channel == -1)
-                {
-                    if (t.Channel != Lexer.DefaultTokenChannel)
-                    {
+            for (var i = from; i <= to; i++) {
+                var t = tokens[i];
+                if (channel == -1) {
+                    if (t.Channel != Lexer.DefaultTokenChannel) {
                         hidden.Add(t);
                     }
-                }
-                else
-                {
-                    if (t.Channel == channel)
-                    {
+                } else {
+                    if (t.Channel == channel) {
                         hidden.Add(t);
                     }
                 }
             }
-            if (hidden.Count == 0)
-            {
+            if (hidden.Count == 0) {
                 return null;
             }
             return hidden;
         }
 
-        public virtual string SourceName
-        {
-            get
-            {
+        public virtual string SourceName {
+            get {
                 return _tokenSource.SourceName;
             }
         }
@@ -633,32 +545,26 @@ namespace Antlr4.Runtime
         /// <summary>Get the text of all tokens in this buffer.</summary>
         /// <remarks>Get the text of all tokens in this buffer.</remarks>
         [return: NotNull]
-        public virtual string GetText()
-        {
+        public virtual string GetText() {
             Fill();
             return GetText(Interval.Of(0, Size - 1));
         }
 
         [return: NotNull]
-        public virtual string GetText(Interval interval)
-        {
-            int start = interval.a;
-            int stop = interval.b;
-            if (start < 0 || stop < 0)
-            {
+        public virtual string GetText(Interval interval) {
+            var start = interval.a;
+            var stop = interval.b;
+            if (start < 0 || stop < 0) {
                 return string.Empty;
             }
             LazyInit();
-            if (stop >= tokens.Count)
-            {
+            if (stop >= tokens.Count) {
                 stop = tokens.Count - 1;
             }
-            StringBuilder buf = new StringBuilder();
-            for (int i = start; i <= stop; i++)
-            {
-                IToken t = tokens[i];
-                if (t.Type == TokenConstants.EOF)
-                {
+            var buf = new StringBuilder();
+            for (var i = start; i <= stop; i++) {
+                var t = tokens[i];
+                if (t.Type == TokenConstants.EOF) {
                     break;
                 }
                 buf.Append(t.Text);
@@ -667,16 +573,13 @@ namespace Antlr4.Runtime
         }
 
         [return: NotNull]
-        public virtual string GetText(RuleContext ctx)
-        {
+        public virtual string GetText(RuleContext ctx) {
             return GetText(ctx.SourceInterval);
         }
 
         [return: NotNull]
-        public virtual string GetText(IToken start, IToken stop)
-        {
-            if (start != null && stop != null)
-            {
+        public virtual string GetText(IToken start, IToken stop) {
+            if (start != null && stop != null) {
                 return GetText(Interval.Of(start.TokenIndex, stop.TokenIndex));
             }
             return string.Empty;
@@ -684,15 +587,12 @@ namespace Antlr4.Runtime
 
         /// <summary>Get all tokens from lexer until EOF.</summary>
         /// <remarks>Get all tokens from lexer until EOF.</remarks>
-        public virtual void Fill()
-        {
+        public virtual void Fill() {
             LazyInit();
-            int blockSize = 1000;
-            while (true)
-            {
-                int fetched = Fetch(blockSize);
-                if (fetched < blockSize)
-                {
+            var blockSize = 1000;
+            while (true) {
+                var fetched = Fetch(blockSize);
+                if (fetched < blockSize) {
                     return;
                 }
             }

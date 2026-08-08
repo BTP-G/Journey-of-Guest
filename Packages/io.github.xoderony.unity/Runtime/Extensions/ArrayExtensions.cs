@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace Xoderony.Extensions.Unity {
 
@@ -8,7 +8,5 @@ namespace Xoderony.Extensions.Unity {
             var randomIndex = Random.Range(0, array.Length);
             return array[randomIndex];
         }
-
     }
-
 }

@@ -12,21 +12,17 @@ namespace Animancer.Editor
 // namespace InspectorGadgets.Editor
 {
     /// <summary>[Editor-Only] Various serialization utilities.</summary>
-    public partial class Serialization
-    {
+    public partial class Serialization {
         /// <summary>[Editor-Only] A serializable reference to a <see cref="SerializedProperty"/>.</summary>
         [Serializable]
-        public class PropertyReference
-        {
+        public class PropertyReference {
             /************************************************************************************************************************/
 
             [SerializeField] private ObjectReference[] _TargetObjects;
 
             /// <summary>[<see cref="SerializeField"/>] The <see cref="SerializedObject.targetObject"/>.</summary>
-            public ObjectReference TargetObject
-            {
-                get
-                {
+            public ObjectReference TargetObject {
+                get {
                     return _TargetObjects != null && _TargetObjects.Length > 0 ?
                         _TargetObjects[0] : null;
                 }
@@ -61,10 +57,8 @@ namespace Animancer.Editor
             [NonSerialized] private SerializedProperty _Property;
 
             /// <summary>[<see cref="SerializeField"/>] The referenced <see cref="SerializedProperty"/>.</summary>
-            public SerializedProperty Property
-            {
-                get
-                {
+            public SerializedProperty Property {
+                get {
                     Initialize();
                     return _Property;
                 }
@@ -75,8 +69,7 @@ namespace Animancer.Editor
             /// <summary>
             /// Creates a new <see cref="PropertyReference"/> which wraps the specified `property`.
             /// </summary>
-            public PropertyReference(SerializedProperty property)
-            {
+            public PropertyReference(SerializedProperty property) {
                 _TargetObjects = ObjectReference.Convert(property.serializedObject.targetObjects);
 
                 _Context = property.serializedObject.context;
@@ -90,31 +83,34 @@ namespace Animancer.Editor
             /// <summary>
             /// Creates a new <see cref="PropertyReference"/> which wraps the specified `property`.
             /// </summary>
-            public static implicit operator PropertyReference(SerializedProperty property)
-                => new(property);
+            public static implicit operator PropertyReference(SerializedProperty property) {
+                return new(property);
+            }
 
             /// <summary>
             /// Returns the target <see cref="Property"/>.
             /// </summary>
-            public static implicit operator SerializedProperty(PropertyReference reference)
-                => reference.Property;
+            public static implicit operator SerializedProperty(PropertyReference reference) {
+                return reference.Property;
+            }
 
             /************************************************************************************************************************/
 
-            private void Initialize()
-            {
-                if (_IsInitialized)
-                {
-                    if (!TargetsExist)
+            private void Initialize() {
+                if (_IsInitialized) {
+                    if (!TargetsExist) {
                         Dispose();
+                    }
+
                     return;
                 }
 
                 _IsInitialized = true;
 
                 if (string.IsNullOrEmpty(_PropertyPath) ||
-                    !TargetsExist)
+                    !TargetsExist) {
                     return;
+                }
 
                 var targetObjects = ObjectReference.Convert(_TargetObjects);
                 var serializedObject = new SerializedObject(targetObjects, _Context);
@@ -124,18 +120,18 @@ namespace Animancer.Editor
             /************************************************************************************************************************/
 
             /// <summary>Do the specified `property` and `targetObjects` match the targets of this reference?</summary>
-            public bool IsTarget(SerializedProperty property, Object[] targetObjects)
-            {
+            public bool IsTarget(SerializedProperty property, Object[] targetObjects) {
                 if (_Property == null ||
                     _Property.propertyPath != property.propertyPath ||
                     _TargetObjects == null ||
-                    _TargetObjects.Length != targetObjects.Length)
+                    _TargetObjects.Length != targetObjects.Length) {
                     return false;
+                }
 
-                for (int i = 0; i < _TargetObjects.Length; i++)
-                {
-                    if (_TargetObjects[i] != targetObjects[i])
+                for (var i = 0; i < _TargetObjects.Length; i++) {
+                    if (_TargetObjects[i] != targetObjects[i]) {
                         return false;
+                    }
                 }
 
                 return true;
@@ -144,18 +140,17 @@ namespace Animancer.Editor
             /************************************************************************************************************************/
 
             /// <summary>Is there is at least one target and none of them are <c>null</c>?</summary>
-            private bool TargetsExist
-            {
-                get
-                {
+            private bool TargetsExist {
+                get {
                     if (_TargetObjects == null ||
-                        _TargetObjects.Length == 0)
+                        _TargetObjects.Length == 0) {
                         return false;
+                    }
 
-                    for (int i = 0; i < _TargetObjects.Length; i++)
-                    {
-                        if (_TargetObjects[i].Object == null)
+                    for (var i = 0; i < _TargetObjects.Length; i++) {
+                        if (_TargetObjects[i].Object == null) {
                             return false;
+                        }
                     }
 
                     return true;
@@ -167,13 +162,12 @@ namespace Animancer.Editor
             /// <summary>
             /// Calls <see cref="SerializedObject.Update"/> if the <see cref="Property"/> has been initialized.
             /// </summary>
-            public void Update()
-            {
-                if (_Property == null)
+            public void Update() {
+                if (_Property == null) {
                     return;
+                }
 
-                if (!TargetsExist)
-                {
+                if (!TargetsExist) {
                     Dispose();
                     return;
                 }
@@ -184,13 +178,12 @@ namespace Animancer.Editor
             /// <summary>
             /// Calls <see cref="SerializedObject.ApplyModifiedProperties"/> if the <see cref="Property"/> has been initialized.
             /// </summary>
-            public void ApplyModifiedProperties()
-            {
-                if (_Property == null)
+            public void ApplyModifiedProperties() {
+                if (_Property == null) {
                     return;
+                }
 
-                if (!TargetsExist)
-                {
+                if (!TargetsExist) {
                     Dispose();
                     return;
                 }
@@ -201,22 +194,18 @@ namespace Animancer.Editor
             /// <summary>
             /// Calls <see cref="SerializedObject.Dispose"/> if the <see cref="Property"/> has been initialized.
             /// </summary>
-            public void Dispose()
-            {
-                if (_Property != null)
-                {
-                    _Property.serializedObject.Dispose();
-                    _Property = null;
-                }
+            public void Dispose() {
+                _Property?.serializedObject.Dispose();
+                _Property = null;
             }
 
             /************************************************************************************************************************/
 
             /// <summary>Gets the height needed to draw the target property.</summary>
-            public float GetPropertyHeight()
-            {
-                if (_Property == null)
+            public float GetPropertyHeight() {
+                if (_Property == null) {
                     return 0;
+                }
 
                 return EditorGUI.GetPropertyHeight(_Property, _Property.isExpanded);
             }
@@ -224,22 +213,19 @@ namespace Animancer.Editor
             /************************************************************************************************************************/
 
             /// <summary>Draws the target object within the specified `area`.</summary>
-            public void DoTargetGUI(Rect area)
-            {
+            public void DoTargetGUI(Rect area) {
                 area.height = EditorGUIUtility.singleLineHeight;
 
                 Initialize();
 
-                if (_Property == null)
-                {
+                if (_Property == null) {
                     GUI.Label(area, "Missing " + this);
                     return;
                 }
 
                 var targets = _Property.serializedObject.targetObjects;
 
-                using (new EditorGUI.DisabledScope(true))
-                {
+                using (new EditorGUI.DisabledScope(true)) {
                     var showMixedValue = EditorGUI.showMixedValue;
                     EditorGUI.showMixedValue = targets.Length > 1;
 
@@ -253,12 +239,12 @@ namespace Animancer.Editor
             /************************************************************************************************************************/
 
             /// <summary>Draws the target property within the specified `area`.</summary>
-            public void DoPropertyGUI(Rect area)
-            {
+            public void DoPropertyGUI(Rect area) {
                 Initialize();
 
-                if (_Property == null)
+                if (_Property == null) {
                     return;
+                }
 
                 _Property.serializedObject.Update();
 
@@ -278,7 +264,9 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Returns true if the `reference` and <see cref="PropertyReference.Property"/> are not null.</summary>
-        public static bool IsValid(this PropertyReference reference) => reference?.Property != null;
+        public static bool IsValid(this PropertyReference reference) {
+            return reference?.Property != null;
+        }
 
         /************************************************************************************************************************/
     }

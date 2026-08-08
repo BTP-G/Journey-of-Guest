@@ -13,6 +13,8 @@
 - 这是 Unity 6 多人合作项目。具体 Unity 和包版本以 `ProjectSettings/ProjectVersion.txt`、`Packages/manifest.json`、`Packages/packages-lock.json` 为准。
 - 项目业务代码使用 `JoG.*` 并保留在 `Assets/Scripts/JoG`，统一编入 `Assembly-CSharp`；供 Mod 独立引用的稳定 JoG 契约放入 `Packages/io.github.xoderony.jog` 的 `JoG` 程序集，且不得反向依赖 `Assembly-CSharp`。跨项目复用的基础设施优先进入 `io.github.xoderony.*` UPM 包并使用 `Xoderony.*`。`Xoderony` 是作者的 GitHub 用户名。
 - 优先使用职责单一的组件扩展能力，保持调用链短、所有权明确；不要持续膨胀基础类或建立庞大统一上下文。
+- 约定大于配置：能用清晰约定覆盖的边界不引入配置参数；可读性和性能优先，安全性其次。程序员可手动避免的异常不写防御性检查（如 null 参数守卫），以调用约定表达。
+- 不为不存在或未证实的需求设计通用抽象：完全相同的代码可以抽基类复用，不通用的情况单独实现；允许少量直接重复，不为强行统一引入额外基类、回调参数或配置项。
 - 角色由轻量状态机统一协调 Animancer、CharacterMotor、输入、玩法组件和网络同步，不另设并行的统一物理或动画控制器。
 - 多个简单状态机可以并行或借助 GameObject 组合成层级。状态只处理自身行为并报告完成等事实；具体状态机决定状态转移。
 - 网络同步位于状态机边界。状态可序列化自身额外数据，但不感知 RPC 或其他网络实现；本地所有者和远端实例尽量复用玩法逻辑。
@@ -47,10 +49,12 @@
 - 缩短变量生命周期，一个变量只承担一种用途。方法按获取、创建、配置、初始化、注册、组合、返回等清晰阶段排列。
 - 需要把另一方法的返回值作为参数时，先使用含义明确的局部变量。
 - 只有确实降低复杂度、减少有效重复或符合既有模式时才添加抽象；注释说明意图和约束，不复述代码。
-- 方法或构造函数的参数语义、单位、表示方式或重载选择可能产生歧义时，使用 XML 文档注释明确说明；语义直观的 API 不添加复述代码的注释。
+- 方法签名清晰度优先于注释：参数语义、单位、表示方式或重载选择可能产生歧义时，先用清晰签名表达，仍不足再写 XML 注释。公共 API 的 XML 注释不是必须的，签名足够清晰时不加；确需注释时按对应标签书写（`<summary>`、`<typeparam>`、`<param>`、`<returns>`、`<remarks>`），不只写 summary。
 - PropertyDrawer 优先使用 UI Toolkit `CreatePropertyGUI`，可行时保留行为一致的 `OnGUI`。
 - 编辑器 UI 使用 `SerializedObject` / `SerializedProperty`，正确支持 Undo、多对象编辑、Prefab Override 和 `showMixedValue`。
 - 程序化同步 UI 可能产生反馈循环或底层无法精确表示输入时，使用 `SetValueWithoutNotify`。
+- 小而高频、非虚/接口重写且无隐式分配（装箱、闭包等）的简单方法，显式标记 `[MethodImpl(MethodImplOptions.AggressiveInlining)]`；新增代码时先检查是否符合条件，避免遗漏。
+- 多次使用同一索引访问集合元素（如多次 `_states[i]`）时，先引入含义明确的局部变量；需要写回元素时使用 `ref` 局部。
 
 ## 修改与验证边界
 

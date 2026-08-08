@@ -6,23 +6,21 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only] Draws the Inspector GUI for an <see cref="AnimancerState"/>.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/ParametizedAnimancerStateDrawer_1
     [CustomGUI(typeof(ManualMixerState))]
     public class ParametizedAnimancerStateDrawer<T> : AnimancerStateDrawer<T>
-        where T : AnimancerState, IParametizedState
-    {
+        where T : AnimancerState, IParametizedState {
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override void DoDetailsGUI()
-        {
+        protected override void DoDetailsGUI() {
             base.DoDetailsGUI();
 
-            if (!IsExpanded)
+            if (!IsExpanded) {
                 return;
+            }
 
             EditorGUI.indentLevel++;
 
@@ -37,30 +35,31 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Draws fields for all `parameters`.</summary>
-        private void DoParametersGUI(List<StateParameterDetails> parameters)
-        {
-            if (parameters.Count == 0)
+        private void DoParametersGUI(List<StateParameterDetails> parameters) {
+            if (parameters.Count == 0) {
                 return;
+            }
 
             var labelWidth = EditorGUIUtility.labelWidth;
             EditorGUIUtility.labelWidth -= AnimancerGUI.IndentSize;
 
             EditorGUI.BeginChangeCheck();
 
-            for (int i = 0; i < parameters.Count; i++)
+            for (var i = 0; i < parameters.Count; i++) {
                 parameters[i] = DoParameterGUI(i, parameters[i]);
+            }
 
             EditorGUIUtility.labelWidth = labelWidth;
 
-            if (EditorGUI.EndChangeCheck())
+            if (EditorGUI.EndChangeCheck()) {
                 Value.SetParameters(parameters);
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <summary>Draws fields for the `parameter`.</summary>
-        private StateParameterDetails DoParameterGUI(int index, StateParameterDetails parameter)
-        {
+        private StateParameterDetails DoParameterGUI(int index, StateParameterDetails parameter) {
             var area = AnimancerGUI.LayoutSingleLineRect(AnimancerGUI.SpacingMode.Before);
 
             var indentLevel = EditorGUI.indentLevel;
@@ -68,20 +67,16 @@ namespace Animancer.Editor
 
             var label = parameter.label;
 
-            if (parameter.SupportsBinding && Value.Graph.HasParameters)
-            {
+            if (parameter.SupportsBinding && Value.Graph.HasParameters) {
                 area = EditorGUI.IndentedRect(area);
                 EditorGUI.indentLevel = 0;
 
                 parameter = DoBindingGUI(ref area, index, parameter, ref label);
-            }
-            else
-            {
+            } else {
                 EditorGUIUtility.labelWidth += AnimancerGUI.IndentSize;
             }
 
-            switch (parameter.type)
-            {
+            switch (parameter.type) {
                 case AnimatorControllerParameterType.Float:
                     parameter.value = EditorGUI.FloatField(area, label, (float)parameter.value);
                     break;
@@ -116,21 +111,18 @@ namespace Animancer.Editor
             ref Rect area,
             int index,
             StateParameterDetails parameter,
-            ref string fieldLabel)
-        {
-            if (!parameter.SupportsBinding)
+            ref string fieldLabel) {
+            if (!parameter.SupportsBinding) {
                 return parameter;
+            }
 
             var spacing = AnimancerGUI.StandardSpacing;
 
             float width;
-            if (string.IsNullOrEmpty(parameter.name))
-            {
+            if (string.IsNullOrEmpty(parameter.name)) {
                 width = area.height + spacing;
                 EditorGUIUtility.labelWidth -= width + AnimancerGUI.IndentSize + spacing;
-            }
-            else
-            {
+            } else {
                 width = EditorGUIUtility.labelWidth - AnimancerGUI.IndentSize;
                 fieldLabel = "";
             }
@@ -140,10 +132,10 @@ namespace Animancer.Editor
                 width,
                 spacing);
 
-            using (var label = PooledGUIContent.Acquire(parameter.name))
-            {
-                if (EditorGUI.DropdownButton(labelArea, label, FocusType.Passive))
+            using (var label = PooledGUIContent.Acquire(parameter.name)) {
+                if (EditorGUI.DropdownButton(labelArea, label, FocusType.Passive)) {
                     ShowBindingSelectionMenu(labelArea, index, parameter.name);
+                }
             }
 
             return parameter;
@@ -152,8 +144,7 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Shows a context menu for selecting the parameter binding.</summary>
-        private void ShowBindingSelectionMenu(Rect area, int index, string currentName)
-        {
+        private void ShowBindingSelectionMenu(Rect area, int index, string currentName) {
             var menu = new GenericMenu();
 
             menu.AddItem(
@@ -163,10 +154,10 @@ namespace Animancer.Editor
 
             menu.AddSeparator("");
 
-            foreach (var parameter in Value.Graph.Parameters)
-            {
-                if (parameter.ValueType != typeof(float))
+            foreach (var parameter in Value.Graph.Parameters) {
+                if (parameter.ValueType != typeof(float)) {
                     continue;
+                }
 
                 var name = parameter.Key;
 
@@ -182,8 +173,7 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Sets the name binding of the specified parameter.</summary>
-        private void SetParameterName(int index, string name)
-        {
+        private void SetParameterName(int index, string name) {
             var parameters = ListPool.Acquire<StateParameterDetails>();
             Value.GetParameters(parameters);
 

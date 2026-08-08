@@ -1,14 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace DamageNumbersPro
-{
+namespace DamageNumbersPro {
     [System.Serializable]
-    public struct CombinationSettings
-    {
-        public CombinationSettings(float customDefault)
-        {
+    public struct CombinationSettings {
+        public CombinationSettings(float customDefault) {
             method = CombinationMethod.ABSORB_NEW;
             maxDistance = 10f;
 
@@ -59,8 +54,7 @@ namespace DamageNumbersPro
     }
 
     [System.Serializable]
-    public enum CombinationMethod
-    {
+    public enum CombinationMethod {
         ABSORB_NEW
         ,
         REPLACE_OLD

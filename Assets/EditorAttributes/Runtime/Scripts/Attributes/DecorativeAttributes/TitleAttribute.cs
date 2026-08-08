@@ -1,12 +1,10 @@
-﻿using UnityEngine;
+using UnityEngine;
 
-namespace EditorAttributes
-{
+namespace EditorAttributes {
     /// <summary>
     /// Attribute to draw a fully customizable header
     /// </summary>
-    public class TitleAttribute : PropertyAttribute, IDynamicStringAttribute
-    {
+    public class TitleAttribute : PropertyAttribute, IDynamicStringAttribute {
         public string Title { get; private set; }
         public int TitleSize { get; private set; }
         public float TitleSpace { get; private set; }
@@ -26,8 +24,7 @@ namespace EditorAttributes
         /// <param name="lineThickness">The thickness of the line in pixels</param>
         /// <param name="alignment">The alignment of the title</param>
         /// <param name="stringInputMode">Set if the string input is set trough a constant or dynamically trough another member</param>
-        public TitleAttribute(string title, int titleSize = 20, float titleSpace = 10f, bool drawLine = true, float lineThickness = 2f, TextAnchor alignment = TextAnchor.MiddleLeft, StringInputMode stringInputMode = StringInputMode.Constant) : base(true)
-        {
+        public TitleAttribute(string title, int titleSize = 20, float titleSpace = 10f, bool drawLine = true, float lineThickness = 2f, TextAnchor alignment = TextAnchor.MiddleLeft, StringInputMode stringInputMode = StringInputMode.Constant) : base(true) {
             Title = title;
             TitleSize = titleSize;
             TitleSpace = titleSpace;

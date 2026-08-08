@@ -4,8 +4,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>A [<see cref="SerializableAttribute"/>] wrapper around an <see cref="TransitionAssetBase"/>.</summary>
     /// <remarks>
     /// This allows Transition Assets to be referenced inside [<see cref="SerializeReference"/>]
@@ -23,8 +22,7 @@ namespace Animancer
         ICopyable<TransitionAssetReference>,
         IPolymorphic,
         ITransition,
-        IWrapper
-    {
+        IWrapper {
         /************************************************************************************************************************/
 
         [SerializeField]
@@ -40,8 +38,7 @@ namespace Animancer
         public TransitionAssetReference() { }
 
         /// <summary>Creates a new <see cref="TransitionAssetReference"/>.</summary>
-        public TransitionAssetReference(TransitionAssetBase asset)
-        {
+        public TransitionAssetReference(TransitionAssetBase asset) {
             _Asset = asset;
         }
 
@@ -81,8 +78,7 @@ namespace Animancer
             && _Asset.IsLooping;
 
         /// <inheritdoc/>
-        public float NormalizedStartTime
-        {
+        public float NormalizedStartTime {
             get => _Asset != null
                 ? _Asset.NormalizedStartTime
                 : float.NaN;
@@ -96,8 +92,7 @@ namespace Animancer
             : 0;
 
         /// <inheritdoc/>
-        public float Speed
-        {
+        public float Speed {
             get => _Asset != null
                 ? _Asset.Speed
                 : 1;
@@ -115,8 +110,7 @@ namespace Animancer
 
         /// <inheritdoc/>
         [Obsolete(TransitionAssetBase.ObsoleteEventsMessage)]
-        public AnimancerEvent.Sequence.Serializable SerializedEvents
-        {
+        public AnimancerEvent.Sequence.Serializable SerializedEvents {
             get => _Asset.SerializedEvents;
             set => _Asset.SerializedEvents = value;
         }
@@ -124,42 +118,44 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public virtual AnimancerState CreateState()
-            => _Asset.CreateState();
+        public virtual AnimancerState CreateState() {
+            return _Asset.CreateState();
+        }
 
         /// <inheritdoc/>
-        public virtual void Apply(AnimancerState state)
-            => _Asset.Apply(state);
+        public virtual void Apply(AnimancerState state) {
+            _Asset.Apply(state);
+        }
 
         /************************************************************************************************************************/
 
         /// <summary>[<see cref="IAnimationClipSource"/>]
         /// Calls <see cref="AnimancerUtilities.GatherFromSource(ICollection{AnimationClip}, object)"/>.
         /// </summary>
-        public virtual void GetAnimationClips(List<AnimationClip> clips)
-            => clips.GatherFromSource(_Asset);
+        public virtual void GetAnimationClips(List<AnimationClip> clips) {
+            clips.GatherFromSource(_Asset);
+        }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public virtual TransitionAssetReference Clone(CloneContext context)
-        {
+        public virtual TransitionAssetReference Clone(CloneContext context) {
             var clone = new TransitionAssetReference();
             clone.CopyFrom(this, context);
             return clone;
         }
 
         /// <inheritdoc/>
-        public void CopyFrom(TransitionAssetReference copyFrom, CloneContext context)
-        {
+        public void CopyFrom(TransitionAssetReference copyFrom, CloneContext context) {
             _Asset = context.GetCloneOrOriginal(copyFrom._Asset);
         }
 
         /************************************************************************************************************************/
 
         /// <summary>Describes the <see cref="Asset"/>.</summary>
-        public override string ToString()
-            => $"{nameof(TransitionAssetReference)}({_Asset})";
+        public override string ToString() {
+            return $"{nameof(TransitionAssetReference)}({_Asset})";
+        }
 
         /************************************************************************************************************************/
     }

@@ -1,19 +1,15 @@
-﻿using UnityEditor;
+using UnityEditor;
+using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 using UnityEngine.UIElements;
-using UnityEditor.IMGUI.Controls;
 
-namespace EditorAttributes.Editor
-{
+namespace EditorAttributes.Editor {
     [CustomPropertyDrawer(typeof(DrawHandleAttribute))]
-    public class DrawHandleDrawer : PropertyDrawerBase
-    {
-        public override VisualElement CreatePropertyGUI(SerializedProperty property)
-        {
+    public class DrawHandleDrawer : PropertyDrawerBase {
+        public override VisualElement CreatePropertyGUI(SerializedProperty property) {
             var drawHandleAttribute = attribute as DrawHandleAttribute;
 
-            switch (property.propertyType)
-            {
+            switch (property.propertyType) {
                 case SerializedPropertyType.Float:
                 case SerializedPropertyType.Integer:
                 case SerializedPropertyType.Vector2:
@@ -23,21 +19,24 @@ namespace EditorAttributes.Editor
                 case SerializedPropertyType.Bounds:
                 case SerializedPropertyType.Generic:
 
-                    if (property.serializedObject.targetObject is not Component)
+                    if (property.serializedObject.targetObject is not Component) {
                         return new HelpBox("The DrawHandle Attribute can only be used with GameObjects", HelpBoxMessageType.Error);
+                    }
 
-                    if (drawHandleAttribute.HandleSpace == Space.Self && property.propertyType is SerializedPropertyType.Vector2Int or SerializedPropertyType.Vector3Int)
+                    if (drawHandleAttribute.HandleSpace == Space.Self && property.propertyType is SerializedPropertyType.Vector2Int or SerializedPropertyType.Vector3Int) {
                         return new HelpBox("<b>Vector2Int</b> and <b>Vector3Int</b> handles don't support local space", HelpBoxMessageType.Warning);
+                    }
 
-                    if (property.propertyType == SerializedPropertyType.Generic && property.type != "SimpleTransform")
+                    if (property.propertyType == SerializedPropertyType.Generic && property.type != "SimpleTransform") {
                         goto default;
+                    }
 
-                    if (!EditorHandles.handleProperties.ContainsKey(property.propertyPath))
-                    {
+                    if (!EditorHandles.handleProperties.ContainsKey(property.propertyPath)) {
                         EditorHandles.handleProperties.Add(property.propertyPath, (property, drawHandleAttribute));
 
-                        if (property.propertyType == SerializedPropertyType.Bounds)
+                        if (property.propertyType == SerializedPropertyType.Bounds) {
                             EditorHandles.boundsHandleList.Add(property.propertyPath, new BoxBoundsHandle());
+                        }
                     }
 
                     break;

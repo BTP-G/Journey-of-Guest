@@ -1,5 +1,5 @@
-using JoG.Health;
 using EditorAttributes;
+using JoG.Health;
 using MessagePipe;
 using System;
 using System.Collections.Generic;

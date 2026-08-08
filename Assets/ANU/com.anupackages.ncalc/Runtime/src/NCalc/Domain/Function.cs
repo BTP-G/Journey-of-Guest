@@ -1,9 +1,6 @@
-﻿namespace NCalc.Domain
-{
-    public class Function : LogicalExpression
-    {
-        public Function(Identifier identifier, LogicalExpression[] expressions)
-        {
+namespace NCalc.Domain {
+    public class Function : LogicalExpression {
+        public Function(Identifier identifier, LogicalExpression[] expressions) {
             Identifier = identifier;
             Expressions = expressions;
         }
@@ -12,8 +9,7 @@
 
         public LogicalExpression[] Expressions { get; set; }
 
-        public override void Accept(LogicalExpressionVisitor visitor)
-        {
+        public override void Accept(LogicalExpressionVisitor visitor) {
             visitor.Visit(this);
         }
     }

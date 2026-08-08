@@ -3,11 +3,9 @@
 using System;
 using UnityEngine;
 
-namespace Animancer.FSM
-{
+namespace Animancer.FSM {
     /// https://kybernetik.com.au/animancer/api/Animancer.FSM/StateMachine_1
-    partial class StateMachine<TState>
-    {
+    public partial class StateMachine<TState> {
         /// <summary>A <see cref="StateMachine{TState}"/> with a <see cref="DefaultState"/>.</summary>
         /// <remarks>
         /// See <see cref="InitializeAfterDeserialize"/> if using this class in a serialized field.
@@ -19,8 +17,7 @@ namespace Animancer.FSM
         /// https://kybernetik.com.au/animancer/api/Animancer.FSM/WithDefault
         /// 
         [Serializable]
-        public class WithDefault : StateMachine<TState>
-        {
+        public class WithDefault : StateMachine<TState> {
             /************************************************************************************************************************/
 
             [SerializeField]
@@ -33,14 +30,13 @@ namespace Animancer.FSM
             /// <para></para>
             /// For a character, this would typically be their <em>Idle</em> state.
             /// </remarks>
-            public TState DefaultState
-            {
+            public TState DefaultState {
                 get => _DefaultState;
-                set
-                {
+                set {
                     _DefaultState = value;
-                    if (_CurrentState == null && value != null)
+                    if (_CurrentState == null && value != null) {
                         ForceSetState(value);
+                    }
                 }
             }
 
@@ -53,8 +49,7 @@ namespace Animancer.FSM
             /************************************************************************************************************************/
 
             /// <summary>Creates a new <see cref="WithDefault"/>.</summary>
-            public WithDefault()
-            {
+            public WithDefault() {
                 // Silly C# doesn't allow instance delegates to be assigned using field initializers.
                 ForceSetDefaultState = () => ForceSetState(_DefaultState);
             }
@@ -63,8 +58,7 @@ namespace Animancer.FSM
 
             /// <summary>Creates a new <see cref="WithDefault"/> and sets the <see cref="DefaultState"/>.</summary>
             public WithDefault(TState defaultState)
-                : this()
-            {
+                : this() {
                 _DefaultState = defaultState;
                 ForceSetState(defaultState);
             }
@@ -72,17 +66,13 @@ namespace Animancer.FSM
             /************************************************************************************************************************/
 
             /// <inheritdoc/>
-            public override void InitializeAfterDeserialize()
-            {
-                if (_CurrentState != null)
-                {
-                    using (new StateChange<TState>(this, null, _CurrentState))
+            public override void InitializeAfterDeserialize() {
+                if (_CurrentState != null) {
+                    using (new StateChange<TState>(this, null, _CurrentState)) {
                         _CurrentState.OnEnterState();
-                }
-                else if (_DefaultState != null)
-                {
-                    using (new StateChange<TState>(this, null, CurrentState))
-                    {
+                    }
+                } else if (_DefaultState != null) {
+                    using (new StateChange<TState>(this, null, CurrentState)) {
                         _CurrentState = _DefaultState;
                         _CurrentState.OnEnterState();
                     }
@@ -99,7 +89,9 @@ namespace Animancer.FSM
             /// <see cref="CurrentState"/>. To allow directly re-entering the same state, use
             /// <see cref="TryResetDefaultState"/> instead.
             /// </remarks>
-            public bool TrySetDefaultState() => TrySetState(DefaultState);
+            public bool TrySetDefaultState() {
+                return TrySetState(DefaultState);
+            }
 
             /************************************************************************************************************************/
 
@@ -108,7 +100,9 @@ namespace Animancer.FSM
             /// This method does not check if the <see cref="DefaultState"/> is already the <see cref="CurrentState"/>.
             /// To do so, use <see cref="TrySetDefaultState"/> instead.
             /// </remarks>
-            public bool TryResetDefaultState() => TryResetState(DefaultState);
+            public bool TryResetDefaultState() {
+                return TryResetState(DefaultState);
+            }
 
             /************************************************************************************************************************/
 #if UNITY_EDITOR && UNITY_IMGUI
@@ -120,16 +114,16 @@ namespace Animancer.FSM
             /************************************************************************************************************************/
 
             /// <inheritdoc/>
-            public override void DoGUI(ref Rect area)
-            {
+            public override void DoGUI(ref Rect area) {
                 area.height = UnityEditor.EditorGUIUtility.singleLineHeight;
 
                 UnityEditor.EditorGUI.BeginChangeCheck();
 
                 var state = StateMachineUtilities.DoGenericField(area, "Default State", DefaultState);
 
-                if (UnityEditor.EditorGUI.EndChangeCheck())
+                if (UnityEditor.EditorGUI.EndChangeCheck()) {
                     DefaultState = state;
+                }
 
                 StateMachineUtilities.NextVerticalArea(ref area);
 

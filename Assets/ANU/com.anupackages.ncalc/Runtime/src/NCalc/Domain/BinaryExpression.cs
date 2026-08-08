@@ -1,9 +1,6 @@
-﻿namespace NCalc.Domain
-{
-    public class BinaryExpression : LogicalExpression
-    {
-        public BinaryExpression(BinaryExpressionType type, LogicalExpression leftExpression, LogicalExpression rightExpression)
-        {
+namespace NCalc.Domain {
+    public class BinaryExpression : LogicalExpression {
+        public BinaryExpression(BinaryExpressionType type, LogicalExpression leftExpression, LogicalExpression rightExpression) {
             Type = type;
             LeftExpression = leftExpression;
             RightExpression = rightExpression;
@@ -15,14 +12,12 @@
 
         public BinaryExpressionType Type { get; set; }
 
-        public override void Accept(LogicalExpressionVisitor visitor)
-        {
+        public override void Accept(LogicalExpressionVisitor visitor) {
             visitor.Visit(this);
         }
     }
 
-    public enum BinaryExpressionType
-    {
+    public enum BinaryExpressionType {
         And,
         Or,
         NotEqual,

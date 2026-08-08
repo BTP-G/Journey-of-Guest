@@ -1,30 +1,24 @@
-﻿using UnityEditor;
 using System.Text;
+using UnityEditor;
 using UnityEngine.UIElements;
-using UnityEditor.UIElements;
 
-namespace EditorAttributes.Editor
-{
+namespace EditorAttributes.Editor {
     [CustomPropertyDrawer(typeof(RenameAttribute))]
-    public class RenameDrawer : PropertyDrawerBase
-    {
-        public override VisualElement CreatePropertyGUI(SerializedProperty property)
-        {
+    public class RenameDrawer : PropertyDrawerBase {
+        public override VisualElement CreatePropertyGUI(SerializedProperty property) {
             var renameAttribute = attribute as RenameAttribute;
 
             HelpBox errorBox = new();
-            PropertyField propertyField = CreatePropertyField(property, GetNewName(renameAttribute, property, errorBox));
+            var propertyField = CreatePropertyField(property, GetNewName(renameAttribute, property, errorBox));
 
-            if (renameAttribute.StringInputMode == StringInputMode.Dynamic)
-            {
-                propertyField.RegisterCallbackOnce<GeometryChangedEvent>((callback) =>
-                {
+            if (renameAttribute.StringInputMode == StringInputMode.Dynamic) {
+                propertyField.RegisterCallbackOnce<GeometryChangedEvent>((callback) => {
                     var propertyLabel = propertyField.Q<Label>();
 
-                    UpdateVisualElement(propertyField, () =>
-                    {
-                        if (propertyLabel != null)
+                    UpdateVisualElement(propertyField, () => {
+                        if (propertyLabel != null) {
                             propertyLabel.text = GetNewName(renameAttribute, property, errorBox);
+                        }
                     });
                 });
 
@@ -34,12 +28,10 @@ namespace EditorAttributes.Editor
             return propertyField;
         }
 
-        internal static string GetNewName(RenameAttribute renameAttribute, SerializedProperty property, HelpBox errorBox)
-        {
-            string newName = GetDynamicString(renameAttribute.Name, property, renameAttribute, errorBox);
+        internal static string GetNewName(RenameAttribute renameAttribute, SerializedProperty property, HelpBox errorBox) {
+            var newName = GetDynamicString(renameAttribute.Name, property, renameAttribute, errorBox);
 
-            switch (renameAttribute.CaseType)
-            {
+            switch (renameAttribute.CaseType) {
                 case CaseType.None:
                     return newName;
 
@@ -48,7 +40,7 @@ namespace EditorAttributes.Editor
                     break;
 
                 case CaseType.Pascal:
-                    string pascalName = char.ToUpper(newName[0]) + newName[1..];
+                    var pascalName = char.ToUpper(newName[0]) + newName[1..];
 
                     FormatString(ref pascalName);
 
@@ -56,7 +48,7 @@ namespace EditorAttributes.Editor
                     break;
 
                 case CaseType.Camel:
-                    string camelName = char.ToLower(newName[0]) + newName[1..];
+                    var camelName = char.ToLower(newName[0]) + newName[1..];
 
                     FormatString(ref camelName);
 
@@ -83,12 +75,10 @@ namespace EditorAttributes.Editor
             return newName;
         }
 
-        private static void FormatString(ref string stringToFormat)
-        {
-            while (stringToFormat.Contains(" "))
-            {
-                int spaceIndex = stringToFormat.IndexOf(" ");
-                char charAfterSpace = stringToFormat[spaceIndex + 1];
+        private static void FormatString(ref string stringToFormat) {
+            while (stringToFormat.Contains(" ")) {
+                var spaceIndex = stringToFormat.IndexOf(" ");
+                var charAfterSpace = stringToFormat[spaceIndex + 1];
                 StringBuilder stringBuilder = new(stringToFormat);
 
                 stringBuilder.Replace(charAfterSpace, char.ToUpper(charAfterSpace), spaceIndex + 1, 1);

@@ -1,8 +1,8 @@
-using Xoderony.YooAsset;
+using JoG.Networking;
 using Unity.Netcode;
 using UnityEngine;
-using JoG.Networking;
 using VContainer;
+using Xoderony.YooAsset;
 
 namespace JoG.Item {
 
@@ -18,7 +18,10 @@ namespace JoG.Item {
 
         protected override void OnInSceneObjectsSpawned() {
             base.OnInSceneObjectsSpawned();
-            if (!HasAuthority) return;
+            if (!HasAuthority) {
+                return;
+            }
+
             transform.GetPositionAndRotation(out var position, out var rotation);
             var item = networkObjectFactory.Instantiate(networkPrefab, position: position, rotation: rotation);
             item.GetComponent<ItemPickupBehaviour>().Amount = 1;

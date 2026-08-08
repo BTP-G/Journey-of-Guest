@@ -1632,6 +1632,7 @@ MonoBehaviour:
   Ownership: 8
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
+  m_InScenePlaced: 0
   ActiveSceneSynchronization: 0
   SceneMigrationSynchronization: 0
   SpawnWithObservers: 1
@@ -1717,8 +1718,8 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   itemDataReference:
     _assetCache: {fileID: 11400000, guid: 8c068974fab2ee444869bc0d40608273, type: 2}
-    location: CrimsonPendantItemData
-    packageName: DefaultPackage
+    _location: CrimsonPendantItemData
+    _packageName: DefaultPackage
   tooltipPoint: {fileID: 1451286811669018076}
 --- !u!114 &5244367802702032821
 MonoBehaviour:

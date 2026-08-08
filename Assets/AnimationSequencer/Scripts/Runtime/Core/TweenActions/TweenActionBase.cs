@@ -1,27 +1,23 @@
-﻿#if DOTWEEN_ENABLED
-using System;
+#if DOTWEEN_ENABLED
 using DG.Tweening;
+using System;
 using UnityEngine;
 
-namespace BrunoMikoski.AnimationSequencer
-{
+namespace BrunoMikoski.AnimationSequencer {
     // Modified by Pablo Huaxteco
     [Serializable]
-    public abstract class TweenActionBase
-    {
+    public abstract class TweenActionBase {
         [Tooltip("Specifies the direction of the animation: 'To' animates towards the end value, 'From' animates from the end value back to the start value.")]
         [SerializeField]
         protected AnimationDirection direction;
-        public AnimationDirection Direction
-        {
+        public AnimationDirection Direction {
             get => direction;
             set => direction = value;
         }
 
         [SerializeField]
         protected CustomEase ease = CustomEase.InOutCirc;
-        public CustomEase Ease
-        {
+        public CustomEase Ease {
             get => ease;
             set => ease = value;
         }
@@ -39,16 +35,17 @@ namespace BrunoMikoski.AnimationSequencer
 
         protected abstract Tweener GenerateTween_Internal(GameObject target, float duration);
 
-        public Tween GenerateTween(GameObject target, float duration, TweenStep tweenAnimationStep = null)
-        {
+        public Tween GenerateTween(GameObject target, float duration, TweenStep tweenAnimationStep = null) {
             SetTweenAnimationStep(tweenAnimationStep);
-            Tweener tween = GenerateTween_Internal(target, duration);
+            var tween = GenerateTween_Internal(target, duration);
             isTweenGenerated = tween != null;
-            if (!isTweenGenerated)
+            if (!isTweenGenerated) {
                 return null;
+            }
 
-            if (direction == AnimationDirection.From)
+            if (direction == AnimationDirection.From) {
                 tween.From();
+            }
 
             tween.SetEase(ease);
             return tween;
@@ -56,10 +53,10 @@ namespace BrunoMikoski.AnimationSequencer
 
         protected abstract void ResetToInitialState_Internal();
 
-        public void ResetToInitialState()
-        {
-            if (!isTweenGenerated)
+        public void ResetToInitialState() {
+            if (!isTweenGenerated) {
                 return;
+            }
 
             ResetToInitialState_Internal();
         }

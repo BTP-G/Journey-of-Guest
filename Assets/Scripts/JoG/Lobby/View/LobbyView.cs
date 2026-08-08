@@ -11,7 +11,7 @@ namespace JoG.Lobby.View {
 
     public class LobbyView : MonoBehaviour {
         private SteamLobbyController controller;
-        [Inject,Key(Constants.InputAction.Lobby)] internal InputAction  _toggleInput;
+        [Inject, Key(Constants.InputAction.Lobby)] internal InputAction _toggleInput;
         [SerializeField, Required] private GameObject _view;
         [SerializeField, Required] private LobbyMemberCard _cardPrefab;
         [SerializeField, Required] private Transform _inviteFriendCardTransform;

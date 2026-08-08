@@ -1,14 +1,11 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-using System;
-using Antlr4.Runtime;
 using Antlr4.Runtime.Misc;
-using Antlr4.Runtime.Sharpen;
+using System;
 
-namespace Antlr4.Runtime
-{
+namespace Antlr4.Runtime {
     /// <summary>
     /// This default implementation of
     /// <see cref="ITokenFactory"/>
@@ -16,8 +13,7 @@ namespace Antlr4.Runtime
     /// <see cref="CommonToken"/>
     /// objects.
     /// </summary>
-    public class CommonTokenFactory : ITokenFactory
-    {
+    public class CommonTokenFactory : ITokenFactory {
         /// <summary>
         /// The default
         /// <see cref="CommonTokenFactory"/>
@@ -75,8 +71,7 @@ namespace Antlr4.Runtime
         /// <see cref="copyText"/>
         /// .
         /// </param>
-        public CommonTokenFactory(bool copyText)
-        {
+        public CommonTokenFactory(bool copyText) {
             this.copyText = copyText;
         }
 
@@ -95,41 +90,33 @@ namespace Antlr4.Runtime
         /// directly.</p>
         /// </summary>
         public CommonTokenFactory()
-            : this(false)
-        {
+            : this(false) {
         }
 
-        public virtual CommonToken Create(Tuple<ITokenSource, ICharStream> source, int type, string text, int channel, int start, int stop, int line, int charPositionInLine)
-        {
-            CommonToken t = new CommonToken(source, type, channel, start, stop);
-            t.Line = line;
-            t.Column = charPositionInLine;
-            if (text != null)
-            {
+        public virtual CommonToken Create(Tuple<ITokenSource, ICharStream> source, int type, string text, int channel, int start, int stop, int line, int charPositionInLine) {
+            var t = new CommonToken(source, type, channel, start, stop) {
+                Line = line,
+                Column = charPositionInLine
+            };
+            if (text != null) {
                 t.Text = text;
-            }
-            else
-            {
-                if (copyText && source.Item2 != null)
-                {
+            } else {
+                if (copyText && source.Item2 != null) {
                     t.Text = source.Item2.GetText(Interval.Of(start, stop));
                 }
             }
             return t;
         }
 
-        IToken ITokenFactory.Create(Tuple<ITokenSource, ICharStream> source, int type, string text, int channel, int start, int stop, int line, int charPositionInLine)
-        {
+        IToken ITokenFactory.Create(Tuple<ITokenSource, ICharStream> source, int type, string text, int channel, int start, int stop, int line, int charPositionInLine) {
             return Create(source, type, text, channel, start, stop, line, charPositionInLine);
         }
 
-        public virtual CommonToken Create(int type, string text)
-        {
+        public virtual CommonToken Create(int type, string text) {
             return new CommonToken(type, text);
         }
 
-        IToken ITokenFactory.Create(int type, string text)
-        {
+        IToken ITokenFactory.Create(int type, string text) {
             return Create(type, text);
         }
     }

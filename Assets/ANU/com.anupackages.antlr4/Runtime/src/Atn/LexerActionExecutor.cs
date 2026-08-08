@@ -1,14 +1,11 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-using Antlr4.Runtime;
-using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
-namespace Antlr4.Runtime.Atn
-{
+namespace Antlr4.Runtime.Atn {
     /// <summary>
     /// Represents an executor for a sequence of lexer actions which traversed during
     /// the matching operation of a lexer rule (token).
@@ -24,8 +21,7 @@ namespace Antlr4.Runtime.Atn
     /// </remarks>
     /// <author>Sam Harwell</author>
     /// <since>4.2</since>
-    public class LexerActionExecutor
-    {
+    public class LexerActionExecutor {
         [NotNull]
         private readonly ILexerAction[] lexerActions;
 
@@ -45,15 +41,13 @@ namespace Antlr4.Runtime.Atn
         /// actions.
         /// </summary>
         /// <param name="lexerActions">The lexer actions to execute.</param>
-        public LexerActionExecutor(ILexerAction[] lexerActions)
-        {
+        public LexerActionExecutor(ILexerAction[] lexerActions) {
             this.lexerActions = lexerActions;
-            int hash = MurmurHash.Initialize();
-            foreach (ILexerAction lexerAction in lexerActions)
-            {
+            var hash = MurmurHash.Initialize();
+            foreach (var lexerAction in lexerActions) {
                 hash = MurmurHash.Update(hash, lexerAction);
             }
-            this.hashCode = MurmurHash.Finish(hash, lexerActions.Length);
+            hashCode = MurmurHash.Finish(hash, lexerActions.Length);
         }
 
         /// <summary>
@@ -92,14 +86,12 @@ namespace Antlr4.Runtime.Atn
         /// .
         /// </returns>
         [return: NotNull]
-        public static Antlr4.Runtime.Atn.LexerActionExecutor Append(Antlr4.Runtime.Atn.LexerActionExecutor lexerActionExecutor, ILexerAction lexerAction)
-        {
-            if (lexerActionExecutor == null)
-            {
+        public static Antlr4.Runtime.Atn.LexerActionExecutor Append(Antlr4.Runtime.Atn.LexerActionExecutor lexerActionExecutor, ILexerAction lexerAction) {
+            if (lexerActionExecutor == null) {
                 return new Antlr4.Runtime.Atn.LexerActionExecutor(new ILexerAction[] { lexerAction });
             }
-            ILexerAction[] lexerActions = Arrays.CopyOf(lexerActionExecutor.lexerActions, lexerActionExecutor.lexerActions.Length + 1);
-            lexerActions[lexerActions.Length - 1] = lexerAction;
+            var lexerActions = Arrays.CopyOf(lexerActionExecutor.lexerActions, lexerActionExecutor.lexerActions.Length + 1);
+            lexerActions[^1] = lexerAction;
             return new Antlr4.Runtime.Atn.LexerActionExecutor(lexerActions);
         }
 
@@ -143,22 +135,15 @@ namespace Antlr4.Runtime.Atn
         /// which stores input stream offsets
         /// for all position-dependent lexer actions.
         /// </returns>
-        public virtual Antlr4.Runtime.Atn.LexerActionExecutor FixOffsetBeforeMatch(int offset)
-        {
+        public virtual Antlr4.Runtime.Atn.LexerActionExecutor FixOffsetBeforeMatch(int offset) {
             ILexerAction[] updatedLexerActions = null;
-            for (int i = 0; i < lexerActions.Length; i++)
-            {
-                if (lexerActions[i].IsPositionDependent && !(lexerActions[i] is LexerIndexedCustomAction))
-                {
-                    if (updatedLexerActions == null)
-                    {
-                        updatedLexerActions = (ILexerAction[])lexerActions.Clone();
-                    }
+            for (var i = 0; i < lexerActions.Length; i++) {
+                if (lexerActions[i].IsPositionDependent && lexerActions[i] is not LexerIndexedCustomAction) {
+                    updatedLexerActions ??= (ILexerAction[])lexerActions.Clone();
                     updatedLexerActions[i] = new LexerIndexedCustomAction(offset, lexerActions[i]);
                 }
             }
-            if (updatedLexerActions == null)
-            {
+            if (updatedLexerActions == null) {
                 return this;
             }
             return new Antlr4.Runtime.Atn.LexerActionExecutor(updatedLexerActions);
@@ -168,10 +153,8 @@ namespace Antlr4.Runtime.Atn
         /// <remarks>Gets the lexer actions to be executed by this executor.</remarks>
         /// <returns>The lexer actions to be executed by this executor.</returns>
         [NotNull]
-        public virtual ILexerAction[] LexerActions
-        {
-            get
-            {
+        public virtual ILexerAction[] LexerActions {
+            get {
                 return lexerActions;
             }
         }
@@ -211,61 +194,45 @@ namespace Antlr4.Runtime.Atn
         /// position to the beginning
         /// of the token.
         /// </param>
-        public virtual void Execute(Lexer lexer, ICharStream input, int startIndex)
-        {
-            bool requiresSeek = false;
-            int stopIndex = input.Index;
-            try
-            {
-                foreach (ILexerAction lexerAction in lexerActions)
-                {
-                    ILexerAction action = lexerAction;
-                    if (action is LexerIndexedCustomAction)
-                    {
-                        int offset = ((LexerIndexedCustomAction)action).Offset;
+        public virtual void Execute(Lexer lexer, ICharStream input, int startIndex) {
+            var requiresSeek = false;
+            var stopIndex = input.Index;
+            try {
+                foreach (var lexerAction in lexerActions) {
+                    var action = lexerAction;
+                    if (action is LexerIndexedCustomAction) {
+                        var offset = ((LexerIndexedCustomAction)action).Offset;
                         input.Seek(startIndex + offset);
                         action = ((LexerIndexedCustomAction)action).Action;
                         requiresSeek = (startIndex + offset) != stopIndex;
-                    }
-                    else
-                    {
-                        if (action.IsPositionDependent)
-                        {
+                    } else {
+                        if (action.IsPositionDependent) {
                             input.Seek(stopIndex);
                             requiresSeek = false;
                         }
                     }
                     action.Execute(lexer);
                 }
-            }
-            finally
-            {
-                if (requiresSeek)
-                {
+            } finally {
+                if (requiresSeek) {
                     input.Seek(stopIndex);
                 }
             }
         }
 
-        public override int GetHashCode()
-        {
-            return this.hashCode;
+        public override int GetHashCode() {
+            return hashCode;
         }
 
-        public override bool Equals(object obj)
-        {
-            if (obj == this)
-            {
+        public override bool Equals(object obj) {
+            if (obj == this) {
                 return true;
-            }
-            else
-            {
-                if (!(obj is Antlr4.Runtime.Atn.LexerActionExecutor))
-                {
+            } else {
+                if (obj is not LexerActionExecutor) {
                     return false;
                 }
             }
-            Antlr4.Runtime.Atn.LexerActionExecutor other = (Antlr4.Runtime.Atn.LexerActionExecutor)obj;
+            var other = (Antlr4.Runtime.Atn.LexerActionExecutor)obj;
             return hashCode == other.hashCode && Arrays.Equals(lexerActions, other.lexerActions);
         }
     }

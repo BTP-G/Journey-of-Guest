@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEditor;
@@ -113,7 +113,10 @@ namespace Xoderony.EditorBenchmarks {
         // 委托调用（示例为静态委托以避免闭包分配）
         private static int RunDelegate(int[] a, int[] b) {
             var cnt = 0;
-            Func<int, int, bool> cmp = (x, y) => x == y;
+            static bool cmp(int x, int y) {
+                return x == y;
+            }
+
             for (var i = 0; i < a.Length; i++) {
                 if (cmp(a[i], b[i])) {
                     cnt++;

@@ -31,7 +31,7 @@ namespace JoG.UI {
 
         private void UpdateTimeText(int totalSeconds) {
             var hours = totalSeconds / 3600;
-            var minutes = (totalSeconds % 3600) / 60;
+            var minutes = totalSeconds % 3600 / 60;
             var seconds = totalSeconds % 60;
             _sb.Clear()
                 .Append(hours)

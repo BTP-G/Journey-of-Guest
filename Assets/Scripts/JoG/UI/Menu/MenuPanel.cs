@@ -7,9 +7,13 @@ namespace JoG.UI.Menu {
         public virtual void Initialize(MenuManager manager) {
         }
 
-        internal void InvokeOnOpen() => OnOpen();
+        internal void InvokeOnOpen() {
+            OnOpen();
+        }
 
-        internal void InvokeOnClose() => OnClose();
+        internal void InvokeOnClose() {
+            OnClose();
+        }
 
         protected virtual void OnOpen() {
         }

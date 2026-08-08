@@ -5,12 +5,10 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only] Icon textures used throughout Animancer.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/AnimancerIcons
-    public static class AnimancerIcons
-    {
+    public static class AnimancerIcons {
         /************************************************************************************************************************/
 
         /// <summary>A standard icon for information.</summary>
@@ -27,17 +25,15 @@ namespace Animancer.Editor
         private static Texture _ScriptableObject;
 
         /// <summary>The icon for <see cref="UnityEngine.ScriptableObject"/>.</summary>
-        public static Texture ScriptableObject
-        {
-            get
-            {
+        public static Texture ScriptableObject {
+            get {
 
-                if (_ScriptableObject == null)
-                {
+                if (_ScriptableObject == null) {
                     _ScriptableObject = Load("d_ScriptableObject Icon");
 
-                    if (_ScriptableObject == null)
+                    if (_ScriptableObject == null) {
                         _ScriptableObject = AssetPreview.GetMiniTypeThumbnail(typeof(StringAsset));
+                    }
                 }
 
                 return _ScriptableObject;
@@ -47,19 +43,21 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Loads an icon texture.</summary>
-        public static Texture Load(string name, FilterMode filterMode = FilterMode.Bilinear)
-        {
+        public static Texture Load(string name, FilterMode filterMode = FilterMode.Bilinear) {
             var icon = EditorGUIUtility.Load(name) as Texture;
-            if (icon != null)
+            if (icon != null) {
                 icon.filterMode = filterMode;
+            }
+
             return icon;
         }
 
         /// <summary>Loads an icon `texture` if it was <c>null</c>.</summary>
-        public static Texture Load(ref Texture texture, string name, FilterMode filterMode = FilterMode.Bilinear)
-            => texture != null
-            ? texture
-            : texture = Load(name, filterMode);
+        public static Texture Load(ref Texture texture, string name, FilterMode filterMode = FilterMode.Bilinear) {
+            return texture != null
+                                                                                                                              ? texture
+                                                                                                                              : texture = Load(name, filterMode);
+        }
 
         /************************************************************************************************************************/
 
@@ -89,22 +87,24 @@ namespace Animancer.Editor
             => IconContent(ref _StepForwardIcon, "Animation.NextKey");
 
         /// <summary><see cref="IconContent(ref GUIContent, string, string)"/> for an add button.</summary>
-        public static GUIContent AddIcon(string tooltip = "Add")
-            => IconContent(ref _AddIcon, "Toolbar Plus", tooltip);
+        public static GUIContent AddIcon(string tooltip = "Add") {
+            return IconContent(ref _AddIcon, "Toolbar Plus", tooltip);
+        }
 
         /// <summary><see cref="IconContent(ref GUIContent, string, string)"/> for a clear button.</summary>
-        public static GUIContent ClearIcon(string tooltip = "Clear")
-            => IconContent(ref _ClearIcon, "Grid.EraserTool", tooltip);
+        public static GUIContent ClearIcon(string tooltip = "Clear") {
+            return IconContent(ref _ClearIcon, "Grid.EraserTool", tooltip);
+        }
 
         /// <summary><see cref="IconContent(ref GUIContent, string, string)"/> for a copy button.</summary>
-        public static GUIContent CopyIcon(string tooltip = "Copy to clipboard")
-            => IconContent(ref _CopyIcon, "UnityEditor.ConsoleWindow", tooltip);
+        public static GUIContent CopyIcon(string tooltip = "Copy to clipboard") {
+            return IconContent(ref _CopyIcon, "UnityEditor.ConsoleWindow", tooltip);
+        }
 
         /************************************************************************************************************************/
 
         /// <summary>Calls <see cref="EditorGUIUtility.IconContent(string)"/> if the `content` was null.</summary>
-        public static GUIContent IconContent(ref GUIContent content, string name, string tooltip = "")
-        {
+        public static GUIContent IconContent(ref GUIContent content, string name, string tooltip = "") {
             content ??= EditorGUIUtility.IconContent(name);
             content.tooltip = tooltip;
             return content;

@@ -1,9 +1,7 @@
-﻿using UnityEngine;
+using UnityEngine;
 
-namespace EditorAttributes
-{
-    public enum MessageMode
-    {
+namespace EditorAttributes {
+    public enum MessageMode {
         None,
         Log,
         Warning,
@@ -13,8 +11,7 @@ namespace EditorAttributes
     /// <summary>
     /// Attribute to display a message box depending on a condition
     /// </summary>
-    public class MessageBoxAttribute : PropertyAttribute, IConditionalAttribute, IDynamicStringAttribute
-    {
+    public class MessageBoxAttribute : PropertyAttribute, IConditionalAttribute, IDynamicStringAttribute {
         public int EnumValue { get; private set; }
         public bool DrawAbove { get; private set; }
         public string Message { get; private set; }
@@ -31,8 +28,7 @@ namespace EditorAttributes
         /// <param name="messageType">The type of the message</param>
         /// <param name="stringInputMode">Set if the string input is set trough a constant or dynamically trough another member</param>
         /// <param name="drawAbove">Draws the HelpBox above the attached field</param>
-        public MessageBoxAttribute(string message, string conditionName, MessageMode messageType = MessageMode.Log, StringInputMode stringInputMode = StringInputMode.Constant, bool drawAbove = false) : base(true)
-        {
+        public MessageBoxAttribute(string message, string conditionName, MessageMode messageType = MessageMode.Log, StringInputMode stringInputMode = StringInputMode.Constant, bool drawAbove = false) : base(true) {
             Message = message;
             ConditionName = conditionName;
             MessageType = messageType;
@@ -50,6 +46,8 @@ namespace EditorAttributes
         /// <param name="stringInputMode">Set if the string input is set trough a constant or dynamically trough another member</param>
         /// <param name="drawAbove">Draws the HelpBox above the attached field</param>
         public MessageBoxAttribute(string message, string conditionName, object enumValue, MessageMode messageType = MessageMode.Log, StringInputMode stringInputMode = StringInputMode.Constant, bool drawAbove = false)
-            : this(message, conditionName, messageType, stringInputMode, drawAbove) => EnumValue = (int)enumValue;
+            : this(message, conditionName, messageType, stringInputMode, drawAbove) {
+            EnumValue = (int)enumValue;
+        }
     }
 }

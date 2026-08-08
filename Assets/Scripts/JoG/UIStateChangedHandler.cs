@@ -1,4 +1,3 @@
-using Xoderony.Logging;
 using MessagePipe;
 using System;
 using System.Collections.Generic;
@@ -6,6 +5,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using VContainer;
 using VContainer.Unity;
+using Xoderony.Logging;
 
 namespace JoG {
 

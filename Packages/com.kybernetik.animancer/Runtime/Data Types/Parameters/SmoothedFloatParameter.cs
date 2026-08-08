@@ -7,8 +7,7 @@
 using System;
 using UnityEngine;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>
     /// A wrapper around a <see cref="Parameter{T}"/> containing a <see cref="float"/>
     /// which uses <see cref="Mathf.SmoothDamp(float, float, ref float, float, float, float)"/>
@@ -49,8 +48,7 @@ namespace Animancer
     /// </remarks>
     /// 
     /// https://kybernetik.com.au/animancer/api/Animancer/SmoothedFloatParameter
-    public class SmoothedFloatParameter : Updatable, IDisposable
-    {
+    public class SmoothedFloatParameter : Updatable, IDisposable {
         /************************************************************************************************************************/
 
         private bool _IsChangingValue;
@@ -75,11 +73,9 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>The value that the parameter is moving towards.</summary>
-        public float CurrentValue
-        {
+        public float CurrentValue {
             get => _CurrentValue;
-            set
-            {
+            set {
                 _CurrentValue = _TargetValue = value;
                 _Velocity = 0;
                 Graph.CancelPreUpdate(this);
@@ -91,28 +87,26 @@ namespace Animancer
         }
 
         /// <summary>The value that the parameter is moving towards.</summary>
-        public float TargetValue
-        {
+        public float TargetValue {
             get => _TargetValue;
-            set
-            {
+            set {
                 _TargetValue = value;
 
-                if (value != _CurrentValue)
+                if (value != _CurrentValue) {
                     Graph.RequirePreUpdate(this);
+                }
             }
         }
 
         /// <summary>The speed at which the value is currently moving.</summary>
-        public float Velocity
-        {
+        public float Velocity {
             get => _Velocity;
-            set
-            {
+            set {
                 _Velocity = value;
 
-                if (value != 0)
+                if (value != 0) {
                     Graph.RequirePreUpdate(this);
+                }
             }
         }
 
@@ -123,8 +117,7 @@ namespace Animancer
             AnimancerGraph graph,
             Parameter<float> parameter,
             float smoothTime,
-            float maxSpeed = float.PositiveInfinity)
-        {
+            float maxSpeed = float.PositiveInfinity) {
 #if UNITY_ASSERTIONS
             AnimancerUtilities.Assert(graph != null, $"{nameof(graph)} is null.");
             AnimancerUtilities.Assert(parameter != null, $"{nameof(parameter)} is null.");
@@ -146,15 +139,13 @@ namespace Animancer
             StringReference key,
             float smoothTime,
             float maxSpeed = float.PositiveInfinity)
-            : this(graph, graph.Parameters.GetOrCreate<float>(key), smoothTime, maxSpeed)
-        {
+            : this(graph, graph.Parameters.GetOrCreate<float>(key), smoothTime, maxSpeed) {
         }
 
         /************************************************************************************************************************/
 
         /// <summary>Unbinds this smoother from the <see cref="Parameter"/>.</summary>
-        public void Dispose()
-        {
+        public void Dispose() {
             Parameter.OnValueChanged -= OnValueChanged;
             Graph.CancelPreUpdate(this);
         }
@@ -165,10 +156,10 @@ namespace Animancer
         /// Ignores changes made by this system,
         /// but uses any others to set the <see cref="TargetValue"/>.
         /// </summary>
-        private void OnValueChanged(float value)
-        {
-            if (_IsChangingValue)
+        private void OnValueChanged(float value) {
+            if (_IsChangingValue) {
                 return;
+            }
 
             TargetValue = value;
 
@@ -180,8 +171,7 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void Update()
-        {
+        public override void Update() {
             var deltaTime = AnimancerGraph.DeltaTime;
 
             _CurrentValue = Mathf.SmoothDamp(
@@ -197,8 +187,7 @@ namespace Animancer
             const float StopThreshold = 0.01f;
 
             if (Math.Abs(_CurrentValue - TargetValue) < StopThreshold &&
-                Math.Abs(_Velocity) < StopThreshold)
-            {
+                Math.Abs(_Velocity) < StopThreshold) {
                 Graph.CancelPreUpdate(this);
                 _CurrentValue = TargetValue;
             }

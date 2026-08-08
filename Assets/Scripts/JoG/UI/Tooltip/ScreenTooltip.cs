@@ -19,10 +19,22 @@ namespace JoG.UI {
             var rightTopY = rect.yMax + anchoredPosition.y;
             var width = parentRect.width;
             var height = parentRect.height;
-            if (leftBottomX < 0) anchoredPosition.x -= leftBottomX;
-            if (leftBottomY < 0) anchoredPosition.y -= leftBottomY;
-            if (rightTopX > width) anchoredPosition.x += width - rightTopX;
-            if (rightTopY > height) anchoredPosition.y += height - rightTopY;
+            if (leftBottomX < 0) {
+                anchoredPosition.x -= leftBottomX;
+            }
+
+            if (leftBottomY < 0) {
+                anchoredPosition.y -= leftBottomY;
+            }
+
+            if (rightTopX > width) {
+                anchoredPosition.x += width - rightTopX;
+            }
+
+            if (rightTopY > height) {
+                anchoredPosition.y += height - rightTopY;
+            }
+
             rectTransform.anchoredPosition = anchoredPosition;
         }
 

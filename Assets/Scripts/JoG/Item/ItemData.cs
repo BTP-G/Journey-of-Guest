@@ -1,11 +1,11 @@
 using EditorAttributes;
-using Xoderony.GameplayEffects;
-using Xoderony.Localization;
-using Xoderony.Logging;
 using JoG.UI;
 using System.Text;
 using Unity.Netcode;
 using UnityEngine;
+using Xoderony.GameplayEffects;
+using Xoderony.Localization;
+using Xoderony.Logging;
 
 namespace JoG.Item {
 
@@ -42,8 +42,6 @@ namespace JoG.Item {
                 pickupPrefab = null;
             }
         }
-
     }
-
 }
 

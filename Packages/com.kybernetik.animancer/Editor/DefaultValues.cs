@@ -5,12 +5,10 @@
 using System.Reflection;
 using UnityEditor;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only] Utilities for using <see cref="DefaultValueAttribute"/>s.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/DefaultValues
-    public static class DefaultValues
-    {
+    public static class DefaultValues {
         /************************************************************************************************************************/
 
         /// <summary>[Editor-Only]
@@ -19,14 +17,14 @@ namespace Animancer.Editor
         /// If it was already at the value, it sets it to the <see cref="DefaultValueAttribute.Secondary"/>
         /// value instead. And if the field has no attribute, it uses the default for the type.
         /// </summary>
-        public static void SetToDefault<T>(ref T value, SerializedProperty property)
-        {
+        public static void SetToDefault<T>(ref T value, SerializedProperty property) {
             var accessor = property.GetAccessor();
             var field = accessor.GetField(property);
-            if (field == null)
+            if (field == null) {
                 accessor.SetValue(property, null);
-            else
+            } else {
                 SetToDefault(ref value, field);
+            }
         }
 
         /************************************************************************************************************************/
@@ -37,13 +35,13 @@ namespace Animancer.Editor
         /// If it was already at the value, it sets it to the <see cref="DefaultValueAttribute.Secondary"/>
         /// value instead. And if the field has no attribute, it uses the default for the type.
         /// </summary>
-        public static void SetToDefault<T>(ref T value, FieldInfo field)
-        {
+        public static void SetToDefault<T>(ref T value, FieldInfo field) {
             var defaults = field.GetAttribute<DefaultValueAttribute>();
-            if (defaults != null)
+            if (defaults != null) {
                 defaults.SetToDefault(ref value);
-            else
+            } else {
                 value = default;
+            }
         }
 
         /************************************************************************************************************************/
@@ -53,18 +51,15 @@ namespace Animancer.Editor
         /// If it was already at the value, it sets it equal to the <see cref="DefaultValueAttribute.Secondary"/>
         /// value instead.
         /// </summary>
-        public static void SetToDefault<T>(this DefaultValueAttribute attribute, ref T value)
-        {
+        public static void SetToDefault<T>(this DefaultValueAttribute attribute, ref T value) {
             var primary = attribute.Primary;
-            if (!Equals(value, primary))
-            {
+            if (!Equals(value, primary)) {
                 value = (T)primary;
                 return;
             }
 
             var secondary = attribute.Secondary;
-            if (secondary != null || !typeof(T).IsValueType)
-            {
+            if (secondary != null || !typeof(T).IsValueType) {
                 value = (T)secondary;
                 return;
             }
@@ -76,12 +71,12 @@ namespace Animancer.Editor
         /// Sets the `value` equal to the `primary` value.
         /// If it was already at the value, it sets it equal to the `secondary` value instead.
         /// </summary>
-        public static void SetToDefault<T>(ref T value, T primary, T secondary)
-        {
-            if (!Equals(value, primary))
+        public static void SetToDefault<T>(ref T value, T primary, T secondary) {
+            if (!Equals(value, primary)) {
                 value = primary;
-            else
+            } else {
                 value = secondary;
+            }
         }
 
         /************************************************************************************************************************/

@@ -1,6 +1,4 @@
 using Cysharp.Threading.Tasks;
-using Xoderony.Extensions;
-using Xoderony.Logging;
 using System;
 using System.Linq;
 using Unity.Services.Authentication;
@@ -9,6 +7,8 @@ using Unity.Services.Qos;
 using Unity.Services.Relay;
 using VContainer;
 using VContainer.Unity;
+using Xoderony.Extensions;
+using Xoderony.Logging;
 
 namespace JoG.Networking {
 
@@ -68,7 +68,10 @@ namespace JoG.Networking {
 
         public async UniTask LeaveSessionAsync() {
             try {
-                if (_session is null) return;
+                if (_session is null) {
+                    return;
+                }
+
                 if (_session.State == SessionState.Connected) {
                     this.Log($"Leaving session [id: {_session.Id}, name: {_session.Name}] ...");
                     await _session.LeaveAsync();

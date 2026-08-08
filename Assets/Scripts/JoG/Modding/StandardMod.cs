@@ -1,11 +1,11 @@
 using Cysharp.Threading.Tasks;
-using Xoderony.Localization;
-using Xoderony.Logging;
-using Xoderony.YooAsset;
 using JoG.Utilities;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Xoderony.Localization;
+using Xoderony.Logging;
+using Xoderony.YooAsset;
 using YooAsset;
 
 namespace JoG.Modding {
@@ -51,7 +51,10 @@ namespace JoG.Modding {
         }
 
         private async UniTask UnloadResourcePackage() {
-            if (ResourcePackage == null) return;
+            if (ResourcePackage == null) {
+                return;
+            }
+
             try {
                 await YooAssetUtility.DestroyPackageAsync(ResourcePackage);
             } catch (Exception ex) {
@@ -63,13 +66,19 @@ namespace JoG.Modding {
 
         private void LoadAssets() {
             var package = ResourcePackage;
-            if (package == null) return;
+            if (package == null) {
+                return;
+            }
+
             AssetsUtility.LoadDataFromPackage(package);
         }
 
         private void UnloadAssets() {
             var package = ResourcePackage;
-            if (package == null) return;
+            if (package == null) {
+                return;
+            }
+
             AssetsUtility.UnloadDataFromPackage(package);
         }
     }

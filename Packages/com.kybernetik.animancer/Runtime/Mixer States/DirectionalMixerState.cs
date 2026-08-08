@@ -3,8 +3,7 @@
 using System;
 using UnityEngine;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>[Pro-Only]
     /// An <see cref="AnimancerState"/> which blends an array of other states together based on a two dimensional
     /// parameter and thresholds using Polar Gradient Band Interpolation.
@@ -19,8 +18,7 @@ namespace Animancer
     /// https://kybernetik.com.au/animancer/api/Animancer/DirectionalMixerState
     /// 
     public class DirectionalMixerState : Vector2MixerState,
-        ICopyable<DirectionalMixerState>
-    {
+        ICopyable<DirectionalMixerState> {
         /************************************************************************************************************************/
 
         /// <summary>Precalculated magnitudes of all thresholds to speed up the recalculation of weights.</summary>
@@ -41,8 +39,7 @@ namespace Animancer
         /// Called whenever the thresholds are changed. Indicates that the internal blend factors need to be
         /// recalculated and triggers weight recalculation.
         /// </summary>
-        public override void OnThresholdsChanged()
-        {
+        public override void OnThresholdsChanged() {
             _BlendFactorsAreDirty = true;
             base.OnThresholdsChanged();
         }
@@ -50,15 +47,11 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override void ForceRecalculateWeights()
-        {
+        protected override void ForceRecalculateWeights() {
             var childCount = ChildCount;
-            if (childCount == 0)
-            {
+            if (childCount == 0) {
                 return;
-            }
-            else if (childCount == 1)
-            {
+            } else if (childCount == 1) {
                 var state = ChildStates[0];
                 Playable.SetChildWeight(state, 1);
                 return;
@@ -71,8 +64,7 @@ namespace Animancer
 
             var weights = GetTemporaryFloatArray(childCount);
 
-            for (int i = 0; i < childCount; i++)
-            {
+            for (var i = 0; i < childCount; i++) {
                 var state = ChildStates[i];
                 var blendFactors = _BlendFactors[i];
 
@@ -86,10 +78,10 @@ namespace Animancer
 
                 float weight = 1;
 
-                for (int j = 0; j < childCount; j++)
-                {
-                    if (j == i)
+                for (var j = 0; j < childCount; j++) {
+                    if (j == i) {
                         continue;
+                    }
 
                     var magnitudeJ = _ThresholdMagnitudes[j];
                     var averageMagnitude = (magnitudeJ + magnitudeI) * 0.5f;
@@ -100,12 +92,14 @@ namespace Animancer
 
                     var newWeight = 1 - Vector2.Dot(polarIToParameter, blendFactors[j]);
 
-                    if (weight > newWeight)
+                    if (weight > newWeight) {
                         weight = newWeight;
+                    }
                 }
 
-                if (weight < 0.01f)
+                if (weight < 0.01f) {
                     weight = 0;
+                }
 
                 weights[i] = weight;
                 totalWeight += weight;
@@ -116,49 +110,46 @@ namespace Animancer
 
         /************************************************************************************************************************/
 
-        private void CalculateBlendFactors(int childCount)
-        {
-            if (!_BlendFactorsAreDirty)
+        private void CalculateBlendFactors(int childCount) {
+            if (!_BlendFactorsAreDirty) {
                 return;
+            }
 
             _BlendFactorsAreDirty = false;
 
             // Resize the precalculated values.
-            if (_BlendFactors == null || _BlendFactors.Length != childCount)
-            {
+            if (_BlendFactors == null || _BlendFactors.Length != childCount) {
                 _ThresholdMagnitudes = new float[childCount];
 
                 _BlendFactors = new Vector2[childCount][];
-                for (int i = 0; i < childCount; i++)
+                for (var i = 0; i < childCount; i++) {
                     _BlendFactors[i] = new Vector2[childCount];
+                }
             }
 
             // Calculate the magnitude of each threshold.
-            for (int i = 0; i < childCount; i++)
-            {
+            for (var i = 0; i < childCount; i++) {
                 _ThresholdMagnitudes[i] = GetThreshold(i).magnitude;
             }
 
             // Calculate the blend factors between each combination of thresholds.
-            for (int i = 0; i < childCount; i++)
-            {
+            for (var i = 0; i < childCount; i++) {
                 var blendFactors = _BlendFactors[i];
 
                 var thresholdI = GetThreshold(i);
                 var magnitudeI = _ThresholdMagnitudes[i];
 
                 var j = 0;// i + 1;
-                for (; j < childCount; j++)
-                {
-                    if (i == j)
+                for (; j < childCount; j++) {
+                    if (i == j) {
                         continue;
+                    }
 
                     var thresholdJ = GetThreshold(j);
                     var magnitudeJ = _ThresholdMagnitudes[j];
 
 #if UNITY_ASSERTIONS
-                    if (thresholdI == thresholdJ)
-                    {
+                    if (thresholdI == thresholdJ) {
                         MarkAsUsed(this);
                         throw new ArgumentException(
                             $"Mixer has multiple identical thresholds.\n{this.GetDescription()}");
@@ -188,26 +179,23 @@ namespace Animancer
 
         /************************************************************************************************************************/
 
-        private static float SignedAngle(Vector2 a, Vector2 b)
-        {
+        private static float SignedAngle(Vector2 a, Vector2 b) {
             // If either vector is exactly at the origin, the angle is 0.
-            if ((a.x == 0 && a.y == 0) || (b.x == 0 && b.y == 0))
-            {
+            if ((a.x == 0 && a.y == 0) || (b.x == 0 && b.y == 0)) {
                 // Due to floating point error the formula below usually gives 0 but sometimes Pi,
                 // which screws up our other calculations so we need it to always be 0 properly.
                 return 0;
             }
 
             return Mathf.Atan2(
-                a.x * b.y - a.y * b.x,
-                a.x * b.x + a.y * b.y);
+                (a.x * b.y) - (a.y * b.x),
+                (a.x * b.x) + (a.y * b.y));
         }
 
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override AnimancerState Clone(CloneContext context)
-        {
+        public override AnimancerState Clone(CloneContext context) {
             var clone = new DirectionalMixerState();
             clone.CopyFrom(this, context);
             return clone;
@@ -216,16 +204,17 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public sealed override void CopyFrom(Vector2MixerState copyFrom, CloneContext context)
-            => this.CopyFromBase(copyFrom, context);
+        public sealed override void CopyFrom(Vector2MixerState copyFrom, CloneContext context) {
+            this.CopyFromBase(copyFrom, context);
+        }
 
         /// <inheritdoc/>
-        public virtual void CopyFrom(DirectionalMixerState copyFrom, CloneContext context)
-        {
+        public virtual void CopyFrom(DirectionalMixerState copyFrom, CloneContext context) {
             _ThresholdMagnitudes = copyFrom._ThresholdMagnitudes;
             _BlendFactorsAreDirty = copyFrom._BlendFactorsAreDirty;
-            if (!_BlendFactorsAreDirty)
+            if (!_BlendFactorsAreDirty) {
                 _BlendFactors = copyFrom._BlendFactors;
+            }
 
             base.CopyFrom(copyFrom, context);
         }

@@ -1,12 +1,10 @@
-﻿using System;
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace ANU.IngameDebug.Console
-{
-    public class SuggestionPresenter : MonoBehaviour
-    {
+namespace ANU.IngameDebug.Console {
+    public class SuggestionPresenter : MonoBehaviour {
         [SerializeField] private TextMeshProUGUI _label;
         [SerializeField] private Button _button;
         [SerializeField] private Selectable _selectable;
@@ -16,14 +14,12 @@ namespace ANU.IngameDebug.Console
 
         public Suggestion Suggestion => _suggestion;
 
-        public void Select()
-        {
+        public void Select() {
             _selectable.Select();
             _selected?.Invoke();
         }
 
-        public void Present(Suggestion suggestion, Action choosen, Action selected)
-        {
+        public void Present(Suggestion suggestion, Action choosen, Action selected) {
             _suggestion = suggestion;
             _selected = selected;
 
@@ -32,6 +28,8 @@ namespace ANU.IngameDebug.Console
             _button.onClick.AddListener(() => choosen?.Invoke());
         }
 
-        public void Choose() => _button.onClick.Invoke();
+        public void Choose() {
+            _button.onClick.Invoke();
+        }
     }
 }

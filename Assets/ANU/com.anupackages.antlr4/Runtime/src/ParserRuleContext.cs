@@ -1,16 +1,13 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-using System;
-using System.Collections.Generic;
-using Antlr4.Runtime;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 using Antlr4.Runtime.Tree;
+using System.Collections.Generic;
 
-namespace Antlr4.Runtime
-{
+namespace Antlr4.Runtime {
     /// <summary>A rule invocation record for parsing.</summary>
     /// <remarks>
     /// A rule invocation record for parsing.
@@ -32,8 +29,7 @@ namespace Antlr4.Runtime
     /// group values such as this aggregate.  The getters/setters are there to
     /// satisfy the superclass interface.
     /// </remarks>
-    public class ParserRuleContext : RuleContext
-    {
+    public class ParserRuleContext : RuleContext {
         public static readonly Antlr4.Runtime.ParserRuleContext EMPTY = new Antlr4.Runtime.ParserRuleContext();
 
         /// <summary>
@@ -103,14 +99,11 @@ namespace Antlr4.Runtime
         /// </remarks>
         public RecognitionException exception;
 
-        public ParserRuleContext()
-        {
+        public ParserRuleContext() {
         }
 
-        public static Antlr4.Runtime.ParserRuleContext EmptyContext
-        {
-            get
-            {
+        public static Antlr4.Runtime.ParserRuleContext EmptyContext {
+            get {
                 //	public List<Integer> states;
                 return EMPTY;
             }
@@ -128,24 +121,19 @@ namespace Antlr4.Runtime
         /// to the generic XContext so this function must copy those nodes to
         /// the YContext as well else they are lost!
         /// </summary>
-        public virtual void CopyFrom(Antlr4.Runtime.ParserRuleContext ctx)
-        {
+        public virtual void CopyFrom(Antlr4.Runtime.ParserRuleContext ctx) {
             // from RuleContext
-            this.Parent = ctx.Parent;
-            this.invokingState = ctx.invokingState;
-            this._start = ctx._start;
-            this._stop = ctx._stop;
+            Parent = ctx.Parent;
+            invokingState = ctx.invokingState;
+            _start = ctx._start;
+            _stop = ctx._stop;
 
             // copy any error nodes to alt label node
-            if (ctx.children != null)
-            {
+            if (ctx.children != null) {
                 children = new List<IParseTree>();
                 // reset parent pointer for any error nodes
-                foreach (var child in ctx.children)
-                {
-                    var errorChildNode = child as ErrorNodeImpl;
-                    if (errorChildNode != null)
-                    {
+                foreach (var child in ctx.children) {
+                    if (child is ErrorNodeImpl errorChildNode) {
                         children.Add(errorChildNode);
                         errorChildNode.Parent = this;
                     }
@@ -154,36 +142,25 @@ namespace Antlr4.Runtime
         }
 
         public ParserRuleContext(Antlr4.Runtime.ParserRuleContext parent, int invokingStateNumber)
-            : base(parent, invokingStateNumber)
-        {
+            : base(parent, invokingStateNumber) {
         }
 
         // Double dispatch methods for listeners
-        public virtual void EnterRule(IParseTreeListener listener)
-        {
+        public virtual void EnterRule(IParseTreeListener listener) {
         }
 
-        public virtual void ExitRule(IParseTreeListener listener)
-        {
+        public virtual void ExitRule(IParseTreeListener listener) {
         }
 
         /// <summary>Does not set parent link; other add methods do that</summary>
-        public virtual void AddChild(ITerminalNode t)
-        {
-            if (children == null)
-            {
-                children = new List<IParseTree>();
-            }
+        public virtual void AddChild(ITerminalNode t) {
+            children ??= new List<IParseTree>();
 
             children.Add(t);
         }
 
-        public virtual void AddChild(RuleContext ruleInvocation)
-        {
-            if (children == null)
-            {
-                children = new List<IParseTree>();
-            }
+        public virtual void AddChild(RuleContext ruleInvocation) {
+            children ??= new List<IParseTree>();
 
             children.Add(ruleInvocation);
         }
@@ -197,58 +174,45 @@ namespace Antlr4.Runtime
         /// we entered a rule. If we have # label, we will need to remove
         /// generic ruleContext object.
         /// </remarks>
-        public virtual void RemoveLastChild()
-        {
-            if (children != null)
-            {
-                children.RemoveAt(children.Count - 1);
-            }
+        public virtual void RemoveLastChild() {
+            children?.RemoveAt(children.Count - 1);
         }
 
         //	public void trace(int s) {
         //		if ( states==null ) states = new ArrayList<Integer>();
         //		states.add(s);
         //	}
-        public virtual ITerminalNode AddChild(IToken matchedToken)
-        {
-            TerminalNodeImpl t = new TerminalNodeImpl(matchedToken);
+        public virtual ITerminalNode AddChild(IToken matchedToken) {
+            var t = new TerminalNodeImpl(matchedToken);
             AddChild(t);
             t.Parent = this;
             return t;
         }
 
-        public virtual IErrorNode AddErrorNode(IToken badToken)
-        {
-            ErrorNodeImpl t = new ErrorNodeImpl(badToken);
+        public virtual IErrorNode AddErrorNode(IToken badToken) {
+            var t = new ErrorNodeImpl(badToken);
             AddChild(t);
             t.Parent = this;
             return t;
         }
 
-
-        public override IParseTree GetChild(int i)
-        {
+        public override IParseTree GetChild(int i) {
             return children != null && i >= 0 && i < children.Count ? children[i] : null;
         }
 
         public virtual T GetChild<T>(int i)
-            where T : IParseTree
-        {
-            if (children == null || i < 0 || i >= children.Count)
-            {
+            where T : IParseTree {
+            if (children == null || i < 0 || i >= children.Count) {
                 return default(T);
             }
 
-            int j = -1;
+            var j = -1;
             // what element have we found with ctxType?
-            foreach (IParseTree o in children)
-            {
-                if (o is T)
-                {
+            foreach (var o in children) {
+                if (o is T) {
                     j++;
-                    if (j == i)
-                    {
-                        return (T) o;
+                    if (j == i) {
+                        return (T)o;
                     }
                 }
             }
@@ -256,26 +220,19 @@ namespace Antlr4.Runtime
             return default(T);
         }
 
-        public virtual ITerminalNode GetToken(int ttype, int i)
-        {
-            if (children == null || i < 0 || i >= children.Count)
-            {
+        public virtual ITerminalNode GetToken(int ttype, int i) {
+            if (children == null || i < 0 || i >= children.Count) {
                 return null;
             }
 
-            int j = -1;
+            var j = -1;
             // what token with ttype have we found?
-            foreach (IParseTree o in children)
-            {
-                if (o is ITerminalNode)
-                {
-                    ITerminalNode tnode = (ITerminalNode) o;
-                    IToken symbol = tnode.Symbol;
-                    if (symbol.Type == ttype)
-                    {
+            foreach (var o in children) {
+                if (o is ITerminalNode tnode) {
+                    var symbol = tnode.Symbol;
+                    if (symbol.Type == ttype) {
                         j++;
-                        if (j == i)
-                        {
+                        if (j == i) {
                             return tnode;
                         }
                     }
@@ -285,34 +242,24 @@ namespace Antlr4.Runtime
             return null;
         }
 
-        public virtual ITerminalNode[] GetTokens(int ttype)
-        {
-            if (children == null)
-            {
+        public virtual ITerminalNode[] GetTokens(int ttype) {
+            if (children == null) {
                 return Collections.EmptyList<ITerminalNode>();
             }
 
             List<ITerminalNode> tokens = null;
-            foreach (IParseTree o in children)
-            {
-                if (o is ITerminalNode)
-                {
-                    ITerminalNode tnode = (ITerminalNode) o;
-                    IToken symbol = tnode.Symbol;
-                    if (symbol.Type == ttype)
-                    {
-                        if (tokens == null)
-                        {
-                            tokens = new List<ITerminalNode>();
-                        }
+            foreach (var o in children) {
+                if (o is ITerminalNode tnode) {
+                    var symbol = tnode.Symbol;
+                    if (symbol.Type == ttype) {
+                        tokens ??= new List<ITerminalNode>();
 
                         tokens.Add(tnode);
                     }
                 }
             }
 
-            if (tokens == null)
-            {
+            if (tokens == null) {
                 return Collections.EmptyList<ITerminalNode>();
             }
 
@@ -320,52 +267,39 @@ namespace Antlr4.Runtime
         }
 
         public virtual T GetRuleContext<T>(int i)
-            where T : Antlr4.Runtime.ParserRuleContext
-        {
+            where T : Antlr4.Runtime.ParserRuleContext {
             return GetChild<T>(i);
         }
 
         public virtual T[] GetRuleContexts<T>()
-            where T : Antlr4.Runtime.ParserRuleContext
-        {
-            if (children == null)
-            {
+            where T : Antlr4.Runtime.ParserRuleContext {
+            if (children == null) {
                 return Collections.EmptyList<T>();
             }
 
             List<T> contexts = null;
-            foreach (IParseTree o in children)
-            {
-                if (o is T)
-                {
-                    if (contexts == null)
-                    {
-                        contexts = new List<T>();
-                    }
+            foreach (var o in children) {
+                if (o is T) {
+                    contexts ??= new List<T>();
 
-                    contexts.Add((T) o);
+                    contexts.Add((T)o);
                 }
             }
 
-            if (contexts == null)
-            {
+            if (contexts == null) {
                 return Collections.EmptyList<T>();
             }
 
             return contexts.ToArray();
         }
 
-        public override int ChildCount
-        {
+        public override int ChildCount {
             get { return children != null ? children.Count : 0; }
         }
 
-        public override Interval SourceInterval
-        {
-            get
-            {
-                if (_start == null || _stop == null)
-                {
+        public override Interval SourceInterval {
+            get {
+                if (_start == null || _stop == null) {
                     return Interval.Invalid;
                 }
 
@@ -373,22 +307,19 @@ namespace Antlr4.Runtime
             }
         }
 
-        public virtual IToken Start
-        {
+        public virtual IToken Start {
             get { return _start; }
             set { _start = value; }
         }
 
-        public virtual IToken Stop
-        {
+        public virtual IToken Stop {
             get { return _stop; }
             set { _stop = value; }
         }
 
         /// <summary>Used for rule context info debugging during parse-time, not so much for ATN debugging</summary>
-        public virtual string ToInfoString(Parser recognizer)
-        {
-            List<string> rules = new List<string>(recognizer.GetRuleInvocationStack(this));
+        public virtual string ToInfoString(Parser recognizer) {
+            var rules = new List<string>(recognizer.GetRuleInvocationStack(this));
             rules.Reverse();
             return "ParserRuleContext" + rules + "{" + "start=" + _start + ", stop=" + _stop + '}';
         }

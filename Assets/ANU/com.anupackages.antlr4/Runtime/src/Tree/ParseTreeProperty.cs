@@ -1,11 +1,10 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 using System.Collections.Concurrent;
 
-namespace Antlr4.Runtime.Tree
-{
+namespace Antlr4.Runtime.Tree {
     /// <summary>Associate a property with a parse tree node.</summary>
     /// <remarks>
     /// Associate a property with a parse tree node. Useful with parse tree listeners
@@ -21,29 +20,25 @@ namespace Antlr4.Runtime.Tree
     /// You would make one decl (values here) in the listener and use lots of times
     /// in your event methods.
     /// </remarks>
-    public class ParseTreeProperty<V>
-    {
+    public class ParseTreeProperty<V> {
         protected internal ConcurrentDictionary<IParseTree, V> annotations = new ConcurrentDictionary<IParseTree, V>();
 
-        public virtual V Get(IParseTree node)
-        {
-            V value;
-            if (!annotations.TryGetValue(node, out value))
+        public virtual V Get(IParseTree node) {
+            if (!annotations.TryGetValue(node, out var value)) {
                 return default(V);
+            }
 
             return value;
         }
 
-        public virtual void Put(IParseTree node, V value)
-        {
+        public virtual void Put(IParseTree node, V value) {
             annotations[node] = value;
         }
 
-        public virtual V RemoveFrom(IParseTree node)
-        {
-            V value;
-            if (!annotations.TryRemove(node, out value))
+        public virtual V RemoveFrom(IParseTree node) {
+            if (!annotations.TryRemove(node, out var value)) {
                 return default(V);
+            }
 
             return value;
         }

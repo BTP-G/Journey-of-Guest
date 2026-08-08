@@ -4,8 +4,7 @@
 
 using UnityEditor;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only]
     /// A simple wrapper around <see cref="EditorPrefs"/> to get and set a bool.
     /// <para></para>
@@ -14,8 +13,7 @@ namespace Animancer.Editor
     /// </summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/BoolPref
     /// 
-    public class BoolPref
-    {
+    public class BoolPref {
         /************************************************************************************************************************/
 
         /// <summary>The prefix which is automatically added before the <see cref="Key"/>.</summary>
@@ -36,23 +34,20 @@ namespace Animancer.Editor
         private bool _Value;
 
         /// <summary>The current value of this pref.</summary>
-        public bool Value
-        {
-            get
-            {
-                if (!_HasValue)
-                {
+        public bool Value {
+            get {
+                if (!_HasValue) {
                     _HasValue = true;
                     _Value = EditorPrefs.GetBool(Key, DefaultValue);
                 }
 
                 return _Value;
             }
-            set
-            {
+            set {
                 if (_Value == value &&
-                    _HasValue)
+                    _HasValue) {
                     return;
+                }
 
                 _Value = value;
                 _HasValue = true;
@@ -61,8 +56,9 @@ namespace Animancer.Editor
         }
 
         /// <summary>Returns the current value of the `pref`.</summary>
-        public static implicit operator bool(BoolPref pref)
-            => pref.Value;
+        public static implicit operator bool(BoolPref pref) {
+            return pref.Value;
+        }
 
         /************************************************************************************************************************/
 
@@ -71,8 +67,7 @@ namespace Animancer.Editor
             : this(null, menuItem, defaultValue) { }
 
         /// <summary>Creates a new <see cref="BoolPref"/>.</summary>
-        public BoolPref(string keyPrefix, string menuItem, bool defaultValue = default)
-        {
+        public BoolPref(string keyPrefix, string menuItem, bool defaultValue = default) {
             MenuItem = menuItem + " ?";
             Key = KeyPrefix + keyPrefix + menuItem;
             DefaultValue = defaultValue;
@@ -81,10 +76,8 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Adds a menu function to toggle the <see cref="Value"/> of this pref.</summary>
-        public void AddToggleFunction(GenericMenu menu)
-        {
-            menu.AddItem(new(MenuItem), Value, () =>
-            {
+        public void AddToggleFunction(GenericMenu menu) {
+            menu.AddItem(new(MenuItem), Value, () => {
                 Value = !Value;
             });
         }
@@ -92,10 +85,11 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Returns a string containing the <see cref="Key"/> and <see cref="Value"/>.</summary>
-        public override string ToString()
-            => $"{nameof(BoolPref)} (" +
-            $"{nameof(Key)} = '{Key}'" +
-            $", {nameof(Value)} = {Value})";
+        public override string ToString() {
+            return $"{nameof(BoolPref)} (" +
+                                                      $"{nameof(Key)} = '{Key}'" +
+                                                      $", {nameof(Value)} = {Value})";
+        }
 
         /************************************************************************************************************************/
     }

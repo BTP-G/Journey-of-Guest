@@ -1,34 +1,28 @@
-﻿using System.Linq;
 using NUnit.Framework;
+using System.Linq;
 
-namespace ANU.IngameDebug.Console.Editor.Tests
-{
+namespace ANU.IngameDebug.Console.Editor.Tests {
     [TestFixture]
-    public class ExpressionEvaluation : TestBase
-    {
-        public override void SetUpOnce()
-        {
+    public class ExpressionEvaluation : TestBase {
+        public override void SetUpOnce() {
             base.SetUpOnce();
             Context.Preprocessors.Add(new ExpressionEvaluatorPreprocessor());
         }
 
         [Test]
-        public void Echo_Expression_Simple()
-        {
+        public void Echo_Expression_Simple() {
             var result = Context.ExecuteCommand("echo 1+2*3");
             Assert.AreEqual("7", result.ReturnValues.FirstOrDefault().ReturnValue);
         }
 
         [Test]
-        public void Evaluate_Expression()
-        {
+        public void Evaluate_Expression() {
             var result = Context.ExecuteCommand("$evaluate 1+2*3");
             Assert.AreEqual(7, result.ReturnValues.FirstOrDefault().ReturnValue);
         }
 
         [Test]
-        public void Evaluate_NestedDefines()
-        {
+        public void Evaluate_NestedDefines() {
             Context.ExecuteCommand("#define a 1+2");
             Context.ExecuteCommand("#define b #a*#a");
             var result = Context.ExecuteCommand("echo 1+#b");
@@ -36,16 +30,14 @@ namespace ANU.IngameDebug.Console.Editor.Tests
         }
 
         [Test]
-        public void Defines_Echo()
-        {
+        public void Defines_Echo() {
             Context.ExecuteCommand("#define a 1+2");
             var result = Context.ExecuteCommand("#echo #a");
             Assert.AreEqual("1+2", result.ReturnValues.FirstOrDefault().ReturnValue);
         }
 
         [Test]
-        public void Defines_Evaluate()
-        {
+        public void Defines_Evaluate() {
             Context.ExecuteCommand("#define a 1+2");
             var result = Context.ExecuteCommand("echo #a");
             Assert.AreEqual("3", result.ReturnValues.FirstOrDefault().ReturnValue);

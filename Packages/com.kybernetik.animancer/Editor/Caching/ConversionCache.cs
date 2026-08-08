@@ -21,12 +21,10 @@ namespace Animancer.Editor
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/ConversionCache_2
     /// https://kybernetik.com.au/inspector-gadgets/api/InspectorGadgets.Editor/ConversionCache_2
     /// 
-    public class ConversionCache<TKey, TValue>
-    {
+    public class ConversionCache<TKey, TValue> {
         /************************************************************************************************************************/
 
-        private class CachedValue
-        {
+        private class CachedValue {
             public int lastFrameAccessed;
             public TValue value;
         }
@@ -47,8 +45,9 @@ namespace Animancer.Editor
         /// <summary>
         /// Creates a new <see cref="ConversionCache{TKey, TValue}"/> which uses the specified delegate to convert values.
         /// </summary>
-        public ConversionCache(Func<TKey, TValue> converter)
-            => Converter = converter;
+        public ConversionCache(Func<TKey, TValue> converter) {
+            Converter = converter;
+        }
 
         /************************************************************************************************************************/
 
@@ -59,24 +58,21 @@ namespace Animancer.Editor
         /// If the `key` is <c>null</c>, this method returns the default <typeparamref name="TValue"/>.
         /// </summary>
         /// <remarks>This method also periodically removes values that have not been used recently.</remarks>
-        public TValue Convert(TKey key)
-        {
-            if (key == null)
+        public TValue Convert(TKey key) {
+            if (key == null) {
                 return default;
+            }
 
             CachedValue cached;
 
             // The next time a value is retrieved after at least 100 frames, clear out any old ones.
             var frame = Time.frameCount;
-            if (_LastCleanupFrame + 100 < frame)
-            {
+            if (_LastCleanupFrame + 100 < frame) {
 
-                for (int i = Keys.Count - 1; i >= 0; i--)
-                {
+                for (var i = Keys.Count - 1; i >= 0; i--) {
                     var checkKey = Keys[i];
                     if (!Cache.TryGetValue(checkKey, out cached) ||
-                        cached.lastFrameAccessed <= _LastCleanupFrame)
-                    {
+                        cached.lastFrameAccessed <= _LastCleanupFrame) {
                         Cache.Remove(checkKey);
                         Keys.RemoveAt(i);
                     }
@@ -86,8 +82,7 @@ namespace Animancer.Editor
 
             }
 
-            if (!Cache.TryGetValue(key, out cached))
-            {
+            if (!Cache.TryGetValue(key, out cached)) {
                 Cache.Add(key, cached = new() { value = Converter(key) });
                 Keys.Add(key);
 
@@ -106,16 +101,16 @@ namespace Animancer.Editor
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/ConversionCache
     /// https://kybernetik.com.au/inspector-gadgets/api/InspectorGadgets.Editor/ConversionCache
     /// 
-    public static class ConversionCache
-    {
+    public static class ConversionCache {
         /************************************************************************************************************************/
 
         /// <summary>
         /// Creates a <see cref="ConversionCache{TKey, TValue}"/> for calculating the GUI width occupied by text using
         /// the specified `style`.
         /// </summary>
-        public static ConversionCache<string, float> CreateWidthCache(GUIStyle style)
-            => new(style.CalculateWidth);
+        public static ConversionCache<string, float> CreateWidthCache(GUIStyle style) {
+            return new(style.CalculateWidth);
+        }
 
         /************************************************************************************************************************/
 
@@ -126,8 +121,9 @@ namespace Animancer.Editor
         /// <summary>[Animancer Extension]
         /// Calls <see cref="float.ToString(string)"/> using <c>"g"</c> as the format and caches the result.
         /// </summary>
-        public static string ToStringCached(this float value)
-            => FloatToString.Convert(value);
+        public static string ToStringCached(this float value) {
+            return FloatToString.Convert(value);
+        }
 
         /************************************************************************************************************************/
     }

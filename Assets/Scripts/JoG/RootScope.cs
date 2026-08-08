@@ -1,22 +1,22 @@
-using JoG.UI.Popup;
 using JoG.Character;
-using JoG.Gameplay.Effects;
-using Xoderony.GameplayEffects;
+using JoG.GameplayEffects;
 using JoG.Item;
 using JoG.Localization;
 using JoG.Modding;
 using JoG.Networking;
 using JoG.Player;
+using JoG.UI.Popup;
 using System.Collections.Generic;
 using Unity.Netcode;
 using Unity.Services.Core;
 using UnityEngine.InputSystem;
 using VContainer;
 using VContainer.Unity;
+using Xoderony.GameplayEffects;
 
 namespace JoG {
 
-    public class RootScope : LifetimeScope {
+    internal class RootScope : LifetimeScope {
 
         protected override void Configure(IContainerBuilder builder) {
             var unityServices = UnityServices.Instance;
@@ -47,14 +47,14 @@ namespace JoG {
             builder.Register<UnityProfileService>(Lifetime.Singleton).AsImplementedInterfaces();
             builder.Register<AuthenticationController>(Lifetime.Singleton).AsImplementedInterfaces();
             builder.Register<PlayerRegistry>(Lifetime.Singleton).AsSelf().AsImplementedInterfaces();
-            builder.UseEntryPoints(configuration => {
+            builder.UseEntryPoints(static configuration => {
                 configuration.Add<ModManager>();
                 configuration.Add<DefaultPackageManager>();
                 configuration.Add<DefaultLanguageBuilder>();
                 configuration.Add<SessionService>();
                 configuration.Add<JoGApplication>();
             });
-            builder.RegisterBuildCallback(container => {
+            builder.RegisterBuildCallback(static container => {
                 var manager = container.Resolve<NetworkManager>();
                 var factory = container.Resolve<NetworkObjectFactory>();
                 var playerPrefab = manager.NetworkConfig.PlayerPrefab.GetComponent<NetworkObject>();

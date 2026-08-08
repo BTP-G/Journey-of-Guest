@@ -1,11 +1,9 @@
-﻿using UnityEngine;
 using EditorAttributes;
+using UnityEngine;
 
-namespace EditorAttributesSamples
-{
+namespace EditorAttributesSamples {
     [HelpURL("https://editorattributesdocs.readthedocs.io/en/latest/Attributes/DropdownAttributes/animatorparamdropdown.html")]
-    public class AnimatorParamDropdownSample : MonoBehaviour
-    {
+    public class AnimatorParamDropdownSample : MonoBehaviour {
         [Header("AnimatorParamDropdown Attribute:")]
         [SerializeField] private Animator animator;
         [SerializeField, AnimatorParamDropdown(nameof(animator))] private int parameterHash;

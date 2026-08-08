@@ -1,23 +1,20 @@
-﻿#if DOTWEEN_ENABLED
-using System;
+#if DOTWEEN_ENABLED
 using DG.Tweening;
 using DG.Tweening.Core;
 using DG.Tweening.Plugins.Options;
+using System;
 using UnityEngine;
 
-namespace BrunoMikoski.AnimationSequencer
-{
+namespace BrunoMikoski.AnimationSequencer {
     // Created by Pablo Huaxteco
     [Serializable]
-    public sealed class PositionTweenAction : TweenActionBase
-    {
+    public sealed class PositionTweenAction : TweenActionBase {
         public override Type TargetComponentType => typeof(Transform);
         public override string DisplayName => "Position";
 
         [SerializeField]
         private DataInputType toInputType;
-        public DataInputType ToInputType
-        {
+        public DataInputType ToInputType {
             get => toInputType;
             set => toInputType = value;
         }
@@ -25,8 +22,7 @@ namespace BrunoMikoski.AnimationSequencer
         [ShowIf("toInputType", DataInputType.Vector)]
         [SerializeField]
         private Vector3 toPosition;
-        public Vector3 ToPosition
-        {
+        public Vector3 ToPosition {
             get => toPosition;
             set => toPosition = value;
         }
@@ -35,8 +31,7 @@ namespace BrunoMikoski.AnimationSequencer
         [ShowIf("toInputType", DataInputType.Vector)]
         [SerializeField]
         private bool toRelative;
-        public bool ToRelative
-        {
+        public bool ToRelative {
             get => toRelative;
             set => toRelative = value;
         }
@@ -46,8 +41,7 @@ namespace BrunoMikoski.AnimationSequencer
         [ShowIf("toInputType", DataInputType.Vector)]
         [SerializeField]
         private bool toLocalSpace = true;
-        public bool ToLocalSpace
-        {
+        public bool ToLocalSpace {
             get => toLocalSpace;
             set => toLocalSpace = value;
         }
@@ -55,8 +49,7 @@ namespace BrunoMikoski.AnimationSequencer
         [ShowIf("toInputType", DataInputType.Object)]
         [SerializeField]
         private Transform toTarget;
-        public Transform ToTarget
-        {
+        public Transform ToTarget {
             get => toTarget;
             set => toTarget = value;
         }
@@ -64,8 +57,7 @@ namespace BrunoMikoski.AnimationSequencer
         [ShowIf("toInputType", DataInputType.Object)]
         [SerializeField]
         private Vector3 toOffset;
-        public Vector3 ToOffset
-        {
+        public Vector3 ToOffset {
             get => toOffset;
             set => toOffset = value;
         }
@@ -74,8 +66,7 @@ namespace BrunoMikoski.AnimationSequencer
             "Use this to constrain movement to a single axis (X, Y, or Z) or a combination of them.")]
         [SerializeField]
         private AxisConstraint axisConstraint;
-        public AxisConstraint AxisConstraint
-        {
+        public AxisConstraint AxisConstraint {
             get => axisConstraint;
             set => axisConstraint = value;
         }
@@ -84,8 +75,7 @@ namespace BrunoMikoski.AnimationSequencer
             "Useful for animations that require precise, whole number positioning.")]
         [SerializeField]
         private bool snapping;
-        public bool Snapping
-        {
+        public bool Snapping {
             get => snapping;
             set => snapping = value;
         }
@@ -93,25 +83,20 @@ namespace BrunoMikoski.AnimationSequencer
         private Transform targetTransform;
         private Vector3 originalPosition;
 
-        protected override Tweener GenerateTween_Internal(GameObject target, float duration)
-        {
+        protected override Tweener GenerateTween_Internal(GameObject target, float duration) {
             targetTransform = target.transform;
 
-            if (toInputType == DataInputType.Object && this.toTarget == null)
-            {
+            if (toInputType == DataInputType.Object && toTarget == null) {
                 Debug.LogWarning($"The <b>\"{DisplayName}\"</b> Action does not have a <b>\"Target\"</b>. Please consider assigning a <b>\"Target\"</b>, " +
                     $"selecting another <b>\"Input Type\"</b> or removing the action.");
                 return null;
             }
 
             TweenerCore<Vector3, Vector3, VectorOptions> tween;
-            if (toInputType == DataInputType.Vector && toLocalSpace)
-            {
+            if (toInputType == DataInputType.Vector && toLocalSpace) {
                 originalPosition = targetTransform.localPosition;
                 tween = targetTransform.DOLocalMove(GetPosition(), duration, axisConstraint, snapping);
-            }
-            else
-            {
+            } else {
                 originalPosition = targetTransform.position;
                 tween = targetTransform.DOMove(GetPosition(), duration, axisConstraint, snapping);
             }
@@ -119,15 +104,15 @@ namespace BrunoMikoski.AnimationSequencer
             return tween;
         }
 
-        private Vector3 GetPosition()
-        {
-            switch (toInputType)
-            {
+        private Vector3 GetPosition() {
+            switch (toInputType) {
                 case DataInputType.Vector:
-                    if (toRelative)
+                    if (toRelative) {
                         return toLocalSpace ? targetTransform.localPosition + toPosition : targetTransform.position + toPosition;
-                    else
+                    } else {
                         return toPosition;
+                    }
+
                 case DataInputType.Object:
                     return toTarget.position + toOffset;
             }
@@ -135,15 +120,16 @@ namespace BrunoMikoski.AnimationSequencer
             return Vector3.zero;
         }
 
-        protected override void ResetToInitialState_Internal()
-        {
-            if (targetTransform == null)
+        protected override void ResetToInitialState_Internal() {
+            if (targetTransform == null) {
                 return;
+            }
 
-            if (toInputType == DataInputType.Vector && toLocalSpace)
+            if (toInputType == DataInputType.Vector && toLocalSpace) {
                 targetTransform.localPosition = originalPosition;
-            else
+            } else {
                 targetTransform.position = originalPosition;
+            }
         }
     }
 }

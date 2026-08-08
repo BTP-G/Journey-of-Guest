@@ -3,11 +3,9 @@
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
-namespace Animancer
-{
+namespace Animancer {
     /// https://kybernetik.com.au/animancer/api/Animancer/AnimancerState
-    partial class AnimancerState
-    {
+    public partial class AnimancerState {
         /************************************************************************************************************************/
 
         /// <summary>The system which manages the <see cref="SharedEvents"/>.</summary>
@@ -41,20 +39,18 @@ namespace Animancer
         /// <see href="https://kybernetik.com.au/animancer/docs/manual/events/animancer">
         /// Animancer Events</see>
         /// </remarks>
-        public AnimancerEvent.Sequence OwnedEvents
-        {
-            get
-            {
+        public AnimancerEvent.Sequence OwnedEvents {
+            get {
                 _EventDispatcher ??= new(this);
                 _EventDispatcher.InitializeEvents(out var events);
                 return events;
             }
-            set
-            {
-                if (value != null)
+            set {
+                if (value != null) {
                     (_EventDispatcher ??= new(this)).SetEvents(value, true);
-                else
+                } else {
                     _EventDispatcher = null;
+                }
             }
         }
 
@@ -72,16 +68,15 @@ namespace Animancer
         /// <see href="https://kybernetik.com.au/animancer/docs/manual/events/animancer">
         /// Animancer Events</see>
         /// </remarks>
-        public AnimancerEvent.Sequence SharedEvents
-        {
+        public AnimancerEvent.Sequence SharedEvents {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => _EventDispatcher?.Events;
-            set
-            {
-                if (value != null)
+            set {
+                if (value != null) {
                     (_EventDispatcher ??= new(this)).SetEvents(value, false);
-                else
+                } else {
                     _EventDispatcher = null;
+                }
             }
         }
 
@@ -155,8 +150,7 @@ namespace Animancer
         /// If you only need to initialize the End Event, 
         /// consider using <see cref="Events(object)"/> instead.
         /// </remarks>
-        public bool Events(object owner, out AnimancerEvent.Sequence events)
-        {
+        public bool Events(object owner, out AnimancerEvent.Sequence events) {
             AssertOwnership(owner);
             _EventDispatcher ??= new(this);
             return _EventDispatcher.InitializeEvents(out events);
@@ -200,8 +194,7 @@ namespace Animancer
         /// use <see cref="Events(object, out AnimancerEvent.Sequence)"/> instead.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public AnimancerEvent.Sequence Events(object owner)
-        {
+        public AnimancerEvent.Sequence Events(object owner) {
             Events(owner, out var events);
             return events;
         }
@@ -250,23 +243,24 @@ namespace Animancer
         /// }
         /// </code>
         /// </remarks>
-        public bool Events(ref AnimancerEvent.Sequence events)
-        {
+        public bool Events(ref AnimancerEvent.Sequence events) {
             _EventDispatcher ??= new(this);
 
             var justInitialized = events == null;
-            if (justInitialized)
+            if (justInitialized) {
                 events = new(_EventDispatcher.Events);
+            }
 
 #if UNITY_ASSERTIONS
             // Normally swapping owners is an error,
             // but with this method it's fine to swap between event sequences since each caller is responsible for its own.
             if (Owner != null &&
                 Owner != events &&
-                Owner is not AnimancerEvent.Sequence)
+                Owner is not AnimancerEvent.Sequence) {
                 AssertOwnership(events);
-            else
+            } else {
                 Owner = events;
+            }
 #endif
 
             _EventDispatcher.SetEvents(events, false);
@@ -276,14 +270,11 @@ namespace Animancer
         /************************************************************************************************************************/
 
         /// <summary>Copies the contents of the <see cref="_EventDispatcher"/>.</summary>
-        private void CopyEvents(AnimancerState copyFrom, CloneContext context)
-        {
-            if (copyFrom._EventDispatcher != null)
-            {
+        private void CopyEvents(AnimancerState copyFrom, CloneContext context) {
+            if (copyFrom._EventDispatcher != null) {
                 var original = copyFrom._EventDispatcher.Events;
                 var events = context.GetOrCreateCloneOrOriginal(original);
-                if (events != null)
-                {
+                if (events != null) {
                     _EventDispatcher ??= new(this);
                     _EventDispatcher.SetEvents(events, true);
                     return;
@@ -315,26 +306,26 @@ namespace Animancer
         /// <summary>
         /// Checks if any events should be invoked based on the current time of this state.
         /// </summary>
-        protected internal virtual void UpdateEvents()
-            => _EventDispatcher?.UpdateEvents(ShouldRaiseEvents);
+        protected internal virtual void UpdateEvents() {
+            _EventDispatcher?.UpdateEvents(ShouldRaiseEvents);
+        }
 
         /// <summary>
         /// Checks if any events should be invoked on the `parent` and its children recursively.
         /// </summary>
-        public static void UpdateEventsRecursive(AnimancerState parent)
-            => UpdateEventsRecursive(
-                parent,
-                parent.ShouldRaiseEvents);
+        public static void UpdateEventsRecursive(AnimancerState parent) {
+            UpdateEventsRecursive(
+                                                                                        parent,
+                                                                                        parent.ShouldRaiseEvents);
+        }
 
         /// <summary>
         /// Checks if any events should be invoked on the `parent` and its children recursively.
         /// </summary>
-        public static void UpdateEventsRecursive(AnimancerState parent, bool raiseEvents)
-        {
+        public static void UpdateEventsRecursive(AnimancerState parent, bool raiseEvents) {
             parent._EventDispatcher?.UpdateEvents(raiseEvents);
 
-            for (int i = parent.ChildCount - 1; i >= 0; i--)
-            {
+            for (var i = parent.ChildCount - 1; i >= 0; i--) {
                 var child = parent.GetChild(i);
                 UpdateEventsRecursive(child, raiseEvents && child.Weight > 0);
             }
@@ -346,12 +337,12 @@ namespace Animancer
         /// Sets the <see cref="NormalizedTime"/> to the <see cref="NormalizedEndTime"/>
         /// and invokes any remaining <see cref="AnimancerEvent"/>s.
         /// </summary>
-        public void FinishImmediately()
-        {
-            if (_EventDispatcher != null)
+        public void FinishImmediately() {
+            if (_EventDispatcher != null) {
                 _EventDispatcher.FinishImmediately();
-            else
+            } else {
                 NormalizedTime = AnimancerEvent.Sequence.GetDefaultNormalizedEndTime(EffectiveSpeed);
+            }
         }
 
         /************************************************************************************************************************/
@@ -379,14 +370,13 @@ namespace Animancer
         /// </summary>
         /// <remarks>This helps detect if multiple scripts attempt to manage the same state.</remarks>
         [System.Diagnostics.Conditional(Strings.Assertions)]
-        public void AssertOwnership(object owner)
-        {
+        public void AssertOwnership(object owner) {
 #if UNITY_ASSERTIONS
-            if (Owner == owner)
+            if (Owner == owner) {
                 return;
+            }
 
-            if (Owner != null)
-            {
+            if (Owner != null) {
                 Debug.LogError(
                     $"Multiple objects have asserted ownership over the state '{ToString()}':" +
                     $"\n• Old Owner: {AnimancerUtilities.ToStringOrNull(Owner)}" +

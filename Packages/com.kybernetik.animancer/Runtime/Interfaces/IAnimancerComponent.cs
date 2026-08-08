@@ -2,8 +2,7 @@
 
 using UnityEngine;
 
-namespace Animancer
-{
+namespace Animancer {
     /// <summary>Interface for components that manage an <see cref="AnimancerGraph"/>.</summary>
     /// <remarks>
     /// Despite the name, this interface is not necessarily limited to only <see cref="Component"/>s.
@@ -18,8 +17,7 @@ namespace Animancer
     /// </remarks>
     /// https://kybernetik.com.au/animancer/api/Animancer/IAnimancerComponent
     /// 
-    public interface IAnimancerComponent
-    {
+    public interface IAnimancerComponent {
         /************************************************************************************************************************/
 #pragma warning disable IDE1006 // Naming Styles.
         /************************************************************************************************************************/

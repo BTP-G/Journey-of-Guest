@@ -1,12 +1,10 @@
-﻿using UnityEngine;
+using UnityEngine;
 
-namespace EditorAttributes
-{
+namespace EditorAttributes {
     /// <summary>
     /// Attribute to wrap over a numeric value after it surpases it's limits
     /// </summary>
-    public class WrapAttribute : PropertyAttribute, IMinMaxAxisValueAttribute
-    {
+    public class WrapAttribute : PropertyAttribute, IMinMaxAxisValueAttribute {
         public float MinValueX { get; private set; }
         public float MaxValueX { get; private set; }
 
@@ -57,8 +55,7 @@ namespace EditorAttributes
         /// <param name="maxValueZ">The max value on Z before it wraps arround</param>
         /// <param name="minValueW">The min value on W before it wraps arround</param>
         /// <param name="maxValueW">The max value on W before it wraps arround</param>
-        public WrapAttribute(float minValueX, float maxValueX, float minValueY, float maxValueY, float minValueZ, float maxValueZ, float minValueW, float maxValueW)
-        {
+        public WrapAttribute(float minValueX, float maxValueX, float minValueY, float maxValueY, float minValueZ, float maxValueZ, float minValueW, float maxValueW) {
             MinValueX = minValueX;
             MaxValueX = maxValueX;
 

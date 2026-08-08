@@ -10,8 +10,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace Animancer.Editor.Previews
-{
+namespace Animancer.Editor.Previews {
     /// <summary>Persistent settings for the <see cref="TransitionPreviewWindow"/>.</summary>
     /// <remarks>
     /// <strong>Documentation:</strong>
@@ -20,8 +19,7 @@ namespace Animancer.Editor.Previews
     /// </remarks>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor.Previews/TransitionPreviewSettings
     [Serializable, InternalSerializableType]
-    public class TransitionPreviewSettings : AnimancerSettingsGroup
-    {
+    public class TransitionPreviewSettings : AnimancerSettingsGroup {
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
@@ -40,8 +38,7 @@ namespace Animancer.Editor.Previews
         /************************************************************************************************************************/
 
         /// <summary>Draws the Inspector GUI for these settings.</summary>
-        public static void DoInspectorGUI()
-        {
+        public static void DoInspectorGUI() {
             AnimancerSettings.SerializedObject.Update();
 
             EditorGUI.indentLevel++;
@@ -60,8 +57,7 @@ namespace Animancer.Editor.Previews
         #region Misc
         /************************************************************************************************************************/
 
-        private static void DoMiscGUI()
-        {
+        private static void DoMiscGUI() {
             Instance.DoPropertyField(nameof(_AutoClose));
         }
 
@@ -82,13 +78,12 @@ namespace Animancer.Editor.Previews
         private bool _SceneLighting = false;
 
         /// <summary>Should the scene lighting be enabled?</summary>
-        public static bool SceneLighting
-        {
+        public static bool SceneLighting {
             get => Instance._SceneLighting;
-            set
-            {
-                if (SceneLighting == value)
+            set {
+                if (SceneLighting == value) {
                     return;
+                }
 
                 var property = Instance.GetSerializedProperty(nameof(_SceneLighting));
                 property.boolValue = value;
@@ -103,13 +98,12 @@ namespace Animancer.Editor.Previews
         private bool _ShowSkybox = false;
 
         /// <summary>Should the skybox be visible?</summary>
-        public static bool ShowSkybox
-        {
+        public static bool ShowSkybox {
             get => Instance._ShowSkybox;
-            set
-            {
-                if (ShowSkybox == value)
+            set {
+                if (ShowSkybox == value) {
                     return;
+                }
 
                 var property = Instance.GetSerializedProperty(nameof(_ShowSkybox));
                 property.boolValue = value;
@@ -145,14 +139,12 @@ namespace Animancer.Editor.Previews
 
         /************************************************************************************************************************/
 
-        private static void DoEnvironmentGUI()
-        {
+        private static void DoEnvironmentGUI() {
             EditorGUI.BeginChangeCheck();
 
             var property = Instance.DoPropertyField(nameof(_SceneEnvironment));
 
-            if (EditorGUI.EndChangeCheck())
-            {
+            if (EditorGUI.EndChangeCheck()) {
                 property.serializedObject.ApplyModifiedProperties();
                 TransitionPreviewWindow.InstanceScene.OnEnvironmentPrefabChanged();
             }
@@ -164,8 +156,7 @@ namespace Animancer.Editor.Previews
         #region Models
         /************************************************************************************************************************/
 
-        private static void DoModelsGUI()
-        {
+        private static void DoModelsGUI() {
             var property = ModelsProperty;
 
             var area = AnimancerGUI.LayoutSingleLineRect();
@@ -177,29 +168,30 @@ namespace Animancer.Editor.Previews
 
             EditorGUI.BeginChangeCheck();
             var count = property.arraySize = EditorGUI.DelayedIntField(valueArea, property.arraySize);
-            if (EditorGUI.EndChangeCheck())
+            if (EditorGUI.EndChangeCheck()) {
                 property.isExpanded = true;
+            }
 
             HandleModelDragAndDrop(area);
 
-            if (count == 0)
+            if (count == 0) {
                 return;
+            }
 
             property.isExpanded = EditorGUI.Foldout(area, property.isExpanded, nameof(Models), true);
-            if (!property.isExpanded)
+            if (!property.isExpanded) {
                 return;
+            }
 
             EditorGUI.indentLevel++;
 
             var model = property.GetArrayElementAtIndex(0);
-            for (int i = 0; i < count; i++)
-            {
+            for (var i = 0; i < count; i++) {
                 GUILayout.BeginHorizontal();
 
                 EditorGUILayout.ObjectField(model);
 
-                if (GUILayout.Button(AnimancerIcons.ClearIcon("Remove model"), AnimancerGUI.NoPaddingButtonStyle))
-                {
+                if (GUILayout.Button(AnimancerIcons.ClearIcon("Remove model"), AnimancerGUI.NoPaddingButtonStyle)) {
                     Serialization.RemoveArrayElement(property, i);
                     property.serializedObject.ApplyModifiedProperties();
 
@@ -220,17 +212,15 @@ namespace Animancer.Editor.Previews
 
         private static DragAndDropHandler<GameObject> _ModelDropHandler;
 
-        private static void HandleModelDragAndDrop(Rect area)
-        {
-            _ModelDropHandler ??= (gameObject, isDrop) =>
-            {
+        private static void HandleModelDragAndDrop(Rect area) {
+            _ModelDropHandler ??= (gameObject, isDrop) => {
                 if (!EditorUtility.IsPersistent(gameObject) ||
                     Models.Contains(gameObject) ||
-                    gameObject.GetComponentInChildren<Animator>() == null)
+                    gameObject.GetComponentInChildren<Animator>() == null) {
                     return false;
+                }
 
-                if (isDrop)
-                {
+                if (isDrop) {
                     var modelsProperty = ModelsProperty;
                     modelsProperty.serializedObject.Update();
 
@@ -253,10 +243,8 @@ namespace Animancer.Editor.Previews
 
         /// <summary>The models previously used in the <see cref="TransitionPreviewWindow"/>.</summary>
         /// <remarks>Accessing this property removes missing and duplicate models from the list.</remarks>
-        public static List<GameObject> Models
-        {
-            get
-            {
+        public static List<GameObject> Models {
+            get {
                 var instance = Instance;
                 AnimancerEditorUtilities.RemoveMissingAndDuplicates(ref instance._Models);
                 return instance._Models;
@@ -269,29 +257,26 @@ namespace Animancer.Editor.Previews
         /************************************************************************************************************************/
 
         /// <summary>Adds a `model` to the list of preview models.</summary>
-        public static void AddModel(GameObject model)
-        {
+        public static void AddModel(GameObject model) {
             if (model == GetOrCreateDefaultHumanoid(null) ||
-                model == GetOrCreateDefaultSprite(null))
+                model == GetOrCreateDefaultSprite(null)) {
                 return;
+            }
 
-            if (EditorUtility.IsPersistent(model))
-            {
+            if (EditorUtility.IsPersistent(model)) {
                 AddModel(Models, model);
                 AnimancerSettings.SetDirty();
-            }
-            else
-            {
+            } else {
                 AddModel(TemporarySettings.PreviewModels, model);
             }
         }
 
-        private static void AddModel(List<GameObject> models, GameObject model)
-        {
+        private static void AddModel(List<GameObject> models, GameObject model) {
             // Remove if it was already there so that when we add it, it will be moved to the end.
             var index = models.LastIndexOf(model);// Search backwards because it's more likely to be near the end.
-            if (index >= 0 && index < models.Count)
+            if (index >= 0 && index < models.Count) {
                 models.RemoveAt(index);
+            }
 
             models.Add(model);
         }
@@ -304,33 +289,36 @@ namespace Animancer.Editor.Previews
         /// Returns the default preview object for Humanoid animations
         /// if it has already been loaded.
         /// </summary>
-        public static GameObject GetDefaultHumanoidIfAlreadyLoaded()
-            => _DefaultHumanoid;
+        public static GameObject GetDefaultHumanoidIfAlreadyLoaded() {
+            return _DefaultHumanoid;
+        }
 
         /// <summary>Returns the default preview object for Humanoid animations.</summary>
         /// <remarks>A `parent` is only required if Animancer's or Unity's default objects fail to load.</remarks>
-        public static GameObject GetOrCreateDefaultHumanoid(Transform parent)
-        {
-            if (_DefaultHumanoid != null)
+        public static GameObject GetOrCreateDefaultHumanoid(Transform parent) {
+            if (_DefaultHumanoid != null) {
                 return _DefaultHumanoid;
+            }
 
             // Try to load Animancer Humanoid.
             var path = AssetDatabase.GUIDToAssetPath("f976ca0fb1329b44a8bc3dcca706751a");
-            if (!string.IsNullOrEmpty(path))
-            {
+            if (!string.IsNullOrEmpty(path)) {
                 _DefaultHumanoid = AssetDatabase.LoadAssetAtPath<GameObject>(path);
-                if (_DefaultHumanoid != null)
+                if (_DefaultHumanoid != null) {
                     return _DefaultHumanoid;
+                }
             }
 
             // Otherwise try to load Unity's DefaultAvatar.
             _DefaultHumanoid = EditorGUIUtility.Load("Avatar/DefaultAvatar.fbx") as GameObject;
 
-            if (_DefaultHumanoid != null)
+            if (_DefaultHumanoid != null) {
                 return _DefaultHumanoid;
+            }
 
-            if (parent == null)
+            if (parent == null) {
                 return null;
+            }
 
             // Otherwise just create an empty object.
             _DefaultHumanoid = EditorUtility.CreateGameObjectWithHideFlags(
@@ -349,15 +337,14 @@ namespace Animancer.Editor.Previews
         /// Returns the default preview object for <see cref="Sprite"/> animations
         /// if it has already been created.
         /// </summary>
-        public static GameObject GetDefaultSpriteIfAlreadyCreated()
-            => _DefaultSprite;
+        public static GameObject GetDefaultSpriteIfAlreadyCreated() {
+            return _DefaultSprite;
+        }
 
         /// <summary>Returns the default preview object for <see cref="Sprite"/> animations.</summary>
         /// <remarks>A `parent` is required to create the object.</remarks>
-        public static GameObject GetOrCreateDefaultSprite(Transform parent)
-        {
-            if (_DefaultSprite == null && parent != null)
-            {
+        public static GameObject GetOrCreateDefaultSprite(Transform parent) {
+            if (_DefaultSprite == null && parent != null) {
                 _DefaultSprite = EditorUtility.CreateGameObjectWithHideFlags(
                     "DefaultSprite",
                     HideFlags.HideAndDontSave,
@@ -377,30 +364,30 @@ namespace Animancer.Editor.Previews
         /// </summary>
         public static Transform TrySelectBestModel(
             object animationClipSource,
-            Transform parent)
-        {
-            if (animationClipSource.IsNullOrDestroyed())
+            Transform parent) {
+            if (animationClipSource.IsNullOrDestroyed()) {
                 return null;
+            }
 
-            using (SetPool<AnimationClip>.Instance.Acquire(out var clips))
-            {
+            using (SetPool<AnimationClip>.Instance.Acquire(out var clips)) {
                 clips.GatherFromSource(animationClipSource);
-                if (clips.Count == 0)
+                if (clips.Count == 0) {
                     return null;
+                }
 
                 var model = TrySelectBestModel(clips, TemporarySettings.PreviewModels);
-                if (model != null)
+                if (model != null) {
                     return model;
+                }
 
                 model = TrySelectBestModel(clips, Models);
-                if (model != null)
+                if (model != null) {
                     return model;
+                }
 
-                foreach (var clip in clips)
-                {
+                foreach (var clip in clips) {
                     var type = AnimationBindings.GetAnimationType(clip);
-                    switch (type)
-                    {
+                    switch (type) {
                         case AnimationType.Humanoid:
                             return GetOrCreateDefaultHumanoid(parent).transform;
 
@@ -415,49 +402,46 @@ namespace Animancer.Editor.Previews
 
         /************************************************************************************************************************/
 
-        private static Transform TrySelectBestModel(HashSet<AnimationClip> clips, List<GameObject> models)
-        {
+        private static Transform TrySelectBestModel(HashSet<AnimationClip> clips, List<GameObject> models) {
             var animatableBindings = new HashSet<EditorCurveBinding>[models.Count];
 
-            for (int i = 0; i < models.Count; i++)
-            {
+            for (var i = 0; i < models.Count; i++) {
                 animatableBindings[i] = AnimationBindings.GetBindings(models[i]).ObjectBindings;
             }
 
             var bestMatchIndex = -1;
             var bestMatchCount = 0;
-            foreach (var clip in clips)
-            {
+            foreach (var clip in clips) {
                 var clipBindings = AnimationBindings.GetBindings(clip);
 
-                for (int iModel = animatableBindings.Length - 1; iModel >= 0; iModel--)
-                {
+                for (var iModel = animatableBindings.Length - 1; iModel >= 0; iModel--) {
                     var modelBindings = animatableBindings[iModel];
                     var matches = 0;
 
-                    for (int iBinding = 0; iBinding < clipBindings.Length; iBinding++)
-                    {
-                        if (modelBindings.Contains(clipBindings[iBinding]))
+                    for (var iBinding = 0; iBinding < clipBindings.Length; iBinding++) {
+                        if (modelBindings.Contains(clipBindings[iBinding])) {
                             matches++;
+                        }
                     }
 
-                    if (bestMatchCount < matches && matches > clipBindings.Length / 2)
-                    {
+                    if (bestMatchCount < matches && matches > clipBindings.Length / 2) {
                         bestMatchCount = matches;
                         bestMatchIndex = iModel;
 
                         // If it matches all bindings, use it.
-                        if (bestMatchCount == clipBindings.Length)
+                        if (bestMatchCount == clipBindings.Length) {
                             goto FoundBestMatch;
+                        }
                     }
                 }
             }
 
-            FoundBestMatch:
-            if (bestMatchIndex >= 0)
+        FoundBestMatch:
+            if (bestMatchIndex >= 0) {
                 return models[bestMatchIndex].transform;
-            else
+            } else {
                 return null;
+            }
         }
 
         /************************************************************************************************************************/
@@ -466,8 +450,7 @@ namespace Animancer.Editor.Previews
         #region Scene Hierarchy
         /************************************************************************************************************************/
 
-        private static void DoHierarchyGUI()
-        {
+        private static void DoHierarchyGUI() {
             GUILayout.BeginVertical(GUI.skin.box);
             GUILayout.Label("Preview Scene Hierarchy");
             DoHierarchyGUI(TransitionPreviewWindow.InstanceScene.PreviewSceneRoot);
@@ -478,40 +461,38 @@ namespace Animancer.Editor.Previews
 
         private static GUIStyle _HierarchyButtonStyle;
 
-        private static void DoHierarchyGUI(Transform root)
-        {
+        private static void DoHierarchyGUI(Transform root) {
             var area = AnimancerGUI.LayoutSingleLineRect();
 
-            _HierarchyButtonStyle ??= new(EditorStyles.miniButton)
-            {
+            _HierarchyButtonStyle ??= new(EditorStyles.miniButton) {
                 alignment = TextAnchor.MiddleLeft,
             };
 
-            if (GUI.Button(EditorGUI.IndentedRect(area), root.name, _HierarchyButtonStyle))
-            {
+            if (GUI.Button(EditorGUI.IndentedRect(area), root.name, _HierarchyButtonStyle)) {
                 Selection.activeTransform = root;
                 GUIUtility.ExitGUI();
             }
 
             var childCount = root.childCount;
-            if (childCount == 0)
+            if (childCount == 0) {
                 return;
+            }
 
             var expandedHierarchy = TransitionPreviewWindow.InstanceScene.ExpandedHierarchy;
             var index = expandedHierarchy != null ? expandedHierarchy.IndexOf(root) : -1;
             var isExpanded = EditorGUI.Foldout(area, index >= 0, GUIContent.none);
-            if (isExpanded)
-            {
-                if (index < 0)
+            if (isExpanded) {
+                if (index < 0) {
                     expandedHierarchy.Add(root);
+                }
 
                 EditorGUI.indentLevel++;
-                for (int i = 0; i < childCount; i++)
+                for (var i = 0; i < childCount; i++) {
                     DoHierarchyGUI(root.GetChild(i));
+                }
+
                 EditorGUI.indentLevel--;
-            }
-            else if (index >= 0)
-            {
+            } else if (index >= 0) {
                 expandedHierarchy.RemoveAt(index);
             }
         }

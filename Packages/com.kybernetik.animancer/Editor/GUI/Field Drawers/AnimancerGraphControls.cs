@@ -9,18 +9,15 @@ using UnityEngine;
 using static Animancer.Editor.AnimancerGUI;
 using Object = UnityEngine.Object;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only] Draws manual controls for the <see cref="AnimancerGraph.PlayableGraph"/>.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/AnimancerGraphControls
     [Serializable, InternalSerializableType]
-    public class AnimancerGraphControls : AnimancerSettingsGroup
-    {
+    public class AnimancerGraphControls : AnimancerSettingsGroup {
         /************************************************************************************************************************/
 
         /// <summary>Draws manual controls for the <see cref="AnimancerGraph.PlayableGraph"/>.</summary>
-        public static void DoGraphGUI(AnimancerGraph graph, out Rect area)
-        {
+        public static void DoGraphGUI(AnimancerGraph graph, out Rect area) {
             GUILayout.BeginVertical();
 
             DoSpeedSliderGUI(graph);
@@ -35,10 +32,10 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Draws the <see cref="AnimancerGraphSpeedSlider"/>.</summary>
-        private static void DoSpeedSliderGUI(AnimancerGraph graph)
-        {
-            if (!AnimancerGraphSpeedSlider.Instance.IsOn)
+        private static void DoSpeedSliderGUI(AnimancerGraph graph) {
+            if (!AnimancerGraphSpeedSlider.Instance.IsOn) {
                 return;
+            }
 
             var area = LayoutSingleLineRect();
             area = area.Expand(StandardSpacing, 0);
@@ -50,8 +47,7 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Draws a toggle to play and pause the graph.</summary>
-        public static void DoPlayPauseToggle(Rect area, AnimancerGraph graph, GUIStyle style = null)
-        {
+        public static void DoPlayPauseToggle(Rect area, AnimancerGraph graph, GUIStyle style = null) {
             EditorGUI.BeginChangeCheck();
 
             var isGraphPlaying = AnimancerGUI.DoPlayPauseToggle(
@@ -59,27 +55,28 @@ namespace Animancer.Editor
                 graph.IsGraphPlaying,
                 style);
 
-            if (EditorGUI.EndChangeCheck())
+            if (EditorGUI.EndChangeCheck()) {
                 graph.IsGraphPlaying = isGraphPlaying;
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <summary>Draws a button to step time forward.</summary>
-        public static void DoFrameStepButton(Rect area, AnimancerGraph graph, GUIStyle style)
-        {
-            if (GUI.Button(area, AnimancerIcons.StepForwardIcon, style))
+        public static void DoFrameStepButton(Rect area, AnimancerGraph graph, GUIStyle style) {
+            if (GUI.Button(area, AnimancerIcons.StepForwardIcon, style)) {
                 graph.Evaluate(FrameStep);
+            }
         }
 
         /************************************************************************************************************************/
         #region Add Animation
         /************************************************************************************************************************/
 
-        private static void DoAddAnimationGUI(AnimancerGraph graph)
-        {
-            if (!AnimancerGraphDrawer.ShowAddAnimation)
+        private static void DoAddAnimationGUI(AnimancerGraph graph) {
+            if (!AnimancerGraphDrawer.ShowAddAnimation) {
                 return;
+            }
 
             var label = "Add Animation";
 
@@ -99,28 +96,25 @@ namespace Animancer.Editor
 
             EditorGUI.indentLevel = indentLevel;
 
-            if (sourceClip is AnimationClip sourceClipTyped)
-            {
+            if (sourceClip is AnimationClip sourceClipTyped) {
                 graph.Layers[0].Play(sourceClipTyped);
                 return;
             }
 
-            if (source == null)
+            if (source == null) {
                 return;
+            }
 
-            if (source is ITransition transition)
-            {
+            if (source is ITransition transition) {
                 graph.Layers[0].Play(transition);
                 return;
             }
 
             var transitionAsset = TryCreateTransitionAttribute.TryCreateTransitionAsset(source);
-            if (transitionAsset != null)
-            {
+            if (transitionAsset != null) {
                 var state = graph.Layers[0].Play(transitionAsset);
 
-                if (!EditorUtility.IsPersistent(transitionAsset))
-                {
+                if (!EditorUtility.IsPersistent(transitionAsset)) {
                     state.SetDebugName(source);
                     Object.DestroyImmediate(transitionAsset);
                 }
@@ -128,11 +122,11 @@ namespace Animancer.Editor
                 return;
             }
 
-            using (SetPool<AnimationClip>.Instance.Acquire(out var clips))
-            {
+            using (SetPool<AnimationClip>.Instance.Acquire(out var clips)) {
                 clips.GatherFromSource(source);
-                foreach (var clip in clips)
+                foreach (var clip in clips) {
                     graph.Layers[0].Play(clip);
+                }
             }
         }
 

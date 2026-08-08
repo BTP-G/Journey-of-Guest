@@ -8,15 +8,13 @@ using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Animancer.Editor.TransitionLibraries
-{
+namespace Animancer.Editor.TransitionLibraries {
     /// <summary>[Editor-Only]
     /// A custom Inspector for <see cref="TransitionLibrarySelection"/>.
     /// </summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor.TransitionLibraries/TransitionLibrarySelectionEditor
     [CustomEditor(typeof(TransitionLibrarySelection), true)]
-    public class TransitionLibrarySelectionEditor : UnityEditor.Editor
-    {
+    public class TransitionLibrarySelectionEditor : UnityEditor.Editor {
         /************************************************************************************************************************/
 
         /// <summary>Casts the <see cref="UnityEditor.Editor.target"/>.</summary>
@@ -26,16 +24,15 @@ namespace Animancer.Editor.TransitionLibraries
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void OnInspectorGUI()
-        {
+        public override void OnInspectorGUI() {
             var target = Target;
-            if (target == null || !target.Validate())
+            if (target == null || !target.Validate()) {
                 return;
+            }
 
             EditorGUI.BeginChangeCheck();
 
-            switch (target.Type)
-            {
+            switch (target.Type) {
                 case TransitionLibrarySelection.SelectionType.Library:
                     DoNestedEditorGUI(target.Selected as TransitionLibraryAsset, "Transition Library");
                     break;
@@ -58,8 +55,9 @@ namespace Animancer.Editor.TransitionLibraries
                     break;
             }
 
-            if (EditorGUI.EndChangeCheck())
+            if (EditorGUI.EndChangeCheck()) {
                 target.Window.Repaint();
+            }
         }
 
         /************************************************************************************************************************/
@@ -73,21 +71,21 @@ namespace Animancer.Editor.TransitionLibraries
 
         /// <summary>Draws the <see cref="UnityEditor.Editor"/> for the `target`.</summary>
         private void DoNestedEditorGUI<T>(T target, string referenceLabel)
-            where T : Object
-        {
-            using (new EditorGUI.DisabledScope(true))
+            where T : Object {
+            using (new EditorGUI.DisabledScope(true)) {
                 AnimancerGUI.DoObjectFieldGUI(referenceLabel, target, false);
+            }
 
             var editor = NestedEditor.GetEditor(target);
-            if (editor != null)
+            if (editor != null) {
                 editor.OnInspectorGUI();
+            }
         }
 
         /************************************************************************************************************************/
 
         /// <summary>Cleans up any nested editors.</summary>
-        protected virtual void OnDestroy()
-        {
+        protected virtual void OnDestroy() {
             NestedEditor.Dispose();
             NestedEditor2.Dispose();
         }
@@ -100,8 +98,7 @@ namespace Animancer.Editor.TransitionLibraries
 
         /// <summary>Draws the GUI for the `transition`.</summary>
         private void DoTransitionGUI(
-            TransitionAssetBase transition)
-        {
+            TransitionAssetBase transition) {
             DoTransitionNameGUI(transition);
             DoNestedEditorGUI(transition, "Transition Asset");
         }
@@ -110,8 +107,7 @@ namespace Animancer.Editor.TransitionLibraries
 
         /// <summary>Draws a field for editing the name of the `transition`.</summary>
         private void DoTransitionNameGUI(
-            TransitionAssetBase transition)
-        {
+            TransitionAssetBase transition) {
             var isSubAsset = AssetDatabase.IsSubAsset(transition);
             var isMainAsset = !isSubAsset && AssetDatabase.IsMainAsset(transition);
             var label = isSubAsset
@@ -125,16 +121,12 @@ namespace Animancer.Editor.TransitionLibraries
             var name = TransitionModifierTableGUI.GetTransitionName(transition);
             name = EditorGUILayout.DelayedTextField(label, name);
 
-            if (EditorGUI.EndChangeCheck() && transition != null)
-            {
+            if (EditorGUI.EndChangeCheck() && transition != null) {
                 transition.SetName(name);
 
-                if (isSubAsset)
-                {
+                if (isSubAsset) {
                     AssetDatabase.SaveAssets();
-                }
-                else if (isMainAsset)
-                {
+                } else if (isMainAsset) {
                     AssetDatabase.RenameAsset(
                         AssetDatabase.GetAssetPath(transition),
                         name);
@@ -157,14 +149,12 @@ namespace Animancer.Editor.TransitionLibraries
         /// <summary>Draws the GUI for the `modifier`.</summary>
         private void DoModifierGUI(
             TransitionLibrarySelection selection,
-            TransitionModifierDefinition modifier)
-        {
+            TransitionModifierDefinition modifier) {
             var library = selection.Window.Data;
             DoTransitionField(library, NestedEditor, IsFromExpanded, modifier.FromIndex, "From");
             DoTransitionField(library, NestedEditor2, IsToExpanded, modifier.ToIndex, "To");
 
-            if (selection.Window.TryGetPage<TransitionLibraryFadeDurationsPage>(out var fadeDurations))
-            {
+            if (selection.Window.TryGetPage<TransitionLibraryFadeDurationsPage>(out var fadeDurations)) {
                 var area = AnimancerGUI.LayoutSingleLineRect();
                 TransitionModifierTableGUI.DoModifierValueGUI(
                     area,
@@ -176,8 +166,7 @@ namespace Animancer.Editor.TransitionLibraries
                     false);
             }
 
-            if (selection.Window.TryGetPage<TransitionLibraryStartTimesPage>(out var startTimes))
-            {
+            if (selection.Window.TryGetPage<TransitionLibraryStartTimesPage>(out var startTimes)) {
                 var area = AnimancerGUI.LayoutSingleLineRect();
                 TransitionModifierTableGUI.DoModifierValueGUI(
                     area,
@@ -198,8 +187,7 @@ namespace Animancer.Editor.TransitionLibraries
             CachedEditor cachedEditor,
             BoolPref isExpanded,
             int transitionIndex,
-            string label)
-        {
+            string label) {
             library.TryGetTransition(transitionIndex, out var transition);
 
             var area = AnimancerGUI.LayoutSingleLineRect(AnimancerGUI.SpacingMode.After);
@@ -215,8 +203,7 @@ namespace Animancer.Editor.TransitionLibraries
 
             GUI.enabled = enabled;
 
-            if (isExpanded)
-            {
+            if (isExpanded) {
                 GUILayout.BeginVertical(GUI.skin.box);
 
                 var editor = cachedEditor.GetEditor(transition);
@@ -237,8 +224,7 @@ namespace Animancer.Editor.TransitionLibraries
         /// <summary>Draws the GUI for the `group`.</summary>
         private void DoGroupGUI(
             TransitionLibrarySelection selection,
-            TransitionGroup group)
-        {
+            TransitionGroup group) {
             group.Name = EditorGUILayout.TextField("Group Name", group.Name);
 
             var enabled = GUI.enabled;
@@ -247,11 +233,11 @@ namespace Animancer.Editor.TransitionLibraries
             EditorGUILayout.LabelField("Transition Count", group.TransitionIndices.Count.ToStringCached());
 
             var transitions = selection.Window.Data.Transitions;
-            for (int i = 0; i < group.TransitionIndices.Count; i++)
-            {
+            for (var i = 0; i < group.TransitionIndices.Count; i++) {
                 var index = group.TransitionIndices[i];
-                if (!transitions.TryGetObject(index, out var transition))
+                if (!transitions.TryGetObject(index, out var transition)) {
                     continue;
+                }
 
                 EditorGUILayout.ObjectField(
                     $"Transition {i.ToStringCached()}",

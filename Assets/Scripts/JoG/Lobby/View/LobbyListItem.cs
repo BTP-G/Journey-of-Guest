@@ -1,7 +1,4 @@
-using EditorAttributes;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace JoG.Lobby.View {
 

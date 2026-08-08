@@ -10,8 +10,7 @@ using UnityEditorInternal;
 using UnityEngine;
 using static Animancer.Editor.AnimancerGUI;
 
-namespace Animancer.Editor.Tools
-{
+namespace Animancer.Editor.Tools {
     /// <summary>[Editor-Only] [Pro-Only] 
     /// A <see cref="SpriteModifierTool"/> for generating <see cref="AnimationClip"/>s from <see cref="Sprite"/>s.
     /// </summary>
@@ -23,8 +22,7 @@ namespace Animancer.Editor.Tools
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor.Tools/GenerateSpriteAnimationsTool
     /// 
     [Serializable]
-    public class GenerateSpriteAnimationsTool : SpriteModifierTool
-    {
+    public class GenerateSpriteAnimationsTool : SpriteModifierTool {
         /************************************************************************************************************************/
         #region Tool
         /************************************************************************************************************************/
@@ -49,12 +47,11 @@ namespace Animancer.Editor.Tools
         public override string HelpURL => Strings.DocsURLs.GenerateSpriteAnimations;
 
         /// <inheritdoc/>
-        public override string Instructions
-        {
-            get
-            {
-                if (Sprites.Count == 0)
+        public override string Instructions {
+            get {
+                if (Sprites.Count == 0) {
                     return "Select the Sprites you want to generate animations from.";
+                }
 
                 return "Configure the animation settings then click Generate.";
             }
@@ -63,8 +60,7 @@ namespace Animancer.Editor.Tools
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void OnEnable(int index)
-        {
+        public override void OnEnable(int index) {
             base.OnEnable(index);
 
             _Names = new();
@@ -82,8 +78,7 @@ namespace Animancer.Editor.Tools
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void OnSelectionChanged()
-        {
+        public override void OnSelectionChanged() {
             _NameToSprites.Clear();
             _Names.Clear();
             _NamesAreDirty = true;
@@ -92,27 +87,26 @@ namespace Animancer.Editor.Tools
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void DoBodyGUI()
-        {
+        public override void DoBodyGUI() {
             var property = GenerateSpriteAnimationsSettings.SerializedProperty;
             property.serializedObject.Update();
-            using (var label = PooledGUIContent.Acquire("Settings"))
+            using (var label = PooledGUIContent.Acquire("Settings")) {
                 EditorGUILayout.PropertyField(property, label, true);
+            }
+
             property.serializedObject.ApplyModifiedProperties();
 
             GenerateSpriteAnimationsSettings.Instance.FillDefaults();
 
             var sprites = Sprites;
 
-            if (_NamesAreDirty)
-            {
+            if (_NamesAreDirty) {
                 _NamesAreDirty = false;
                 GatherNameToSprites(sprites, _NameToSprites);
                 _Names.AddRange(_NameToSprites.Keys);
             }
 
-            using (new EditorGUI.DisabledScope(true))
-            {
+            using (new EditorGUI.DisabledScope(true)) {
                 var previewCurrentTime = EditorApplication.timeSinceStartup - _PreviewStartTime;
                 _PreviewFrameIndex = (long)(previewCurrentTime * GenerateSpriteAnimationsSettings.FrameRate);
 
@@ -124,8 +118,7 @@ namespace Animancer.Editor.Tools
 
                     GUI.enabled = sprites.Count > 0;
 
-                    if (GUILayout.Button("Generate"))
-                    {
+                    if (GUILayout.Button("Generate")) {
                         Deselect();
                         GenerateAnimationsBySpriteName(sprites);
                     }
@@ -138,8 +131,7 @@ namespace Animancer.Editor.Tools
                 "\n• The Context Menu in the top right of the Inspector for Sprite and Texture assets",
                 MessageType.Info);
 
-            if (_RequiresRepaint)
-            {
+            if (_RequiresRepaint) {
                 _RequiresRepaint = false;
                 AnimancerToolsWindow.Repaint();
             }
@@ -148,10 +140,10 @@ namespace Animancer.Editor.Tools
         /************************************************************************************************************************/
 
         /// <summary>Calculates the height of an animation to generate.</summary>
-        private float CalculateDisplayElementHeight(int index)
-        {
-            if (_NameToSprites.Count <= 0 || _Names.Count <= 0)
+        private float CalculateDisplayElementHeight(int index) {
+            if (_NameToSprites.Count <= 0 || _Names.Count <= 0) {
                 return 0;
+            }
 
             var lineCount = _NameToSprites[_Names[index]].Count + 3;
             return (LineHeight + StandardSpacing) * lineCount;
@@ -160,9 +152,8 @@ namespace Animancer.Editor.Tools
         /************************************************************************************************************************/
 
         /// <summary>Draws the details of an animation to generate.</summary>
-        private void DrawDisplayElement(Rect area, int index, bool isActive, bool isFocused)
-        {
-            area.y = Mathf.Ceil(area.y + StandardSpacing * 0.5f);
+        private void DrawDisplayElement(Rect area, int index, bool isActive, bool isFocused) {
+            area.y = Mathf.Ceil(area.y + (StandardSpacing * 0.5f));
             area.height = LineHeight;
 
             DrawAnimationHeader(ref area, index, out var sprites);
@@ -172,11 +163,10 @@ namespace Animancer.Editor.Tools
         /************************************************************************************************************************/
 
         /// <summary>Draws the name and preview of an animation to generate.</summary>
-        private void DrawAnimationHeader(ref Rect area, int index, out List<Sprite> sprites)
-        {
+        private void DrawAnimationHeader(ref Rect area, int index, out List<Sprite> sprites) {
             var width = area.width;
 
-            var previewSize = 3 * LineHeight + 2 * StandardSpacing;
+            var previewSize = (3 * LineHeight) + (2 * StandardSpacing);
             var previewArea = StealFromRight(ref area, previewSize, StandardSpacing);
             previewArea.height = previewSize;
 
@@ -186,8 +176,7 @@ namespace Animancer.Editor.Tools
 
             AnimancerToolsWindow.BeginChangeCheck();
             name = EditorGUI.TextField(area, name);
-            if (AnimancerToolsWindow.EndChangeCheck())
-            {
+            if (AnimancerToolsWindow.EndChangeCheck()) {
                 _Names[index] = name;
             }
 
@@ -218,8 +207,7 @@ namespace Animancer.Editor.Tools
             var hotControl = GUIUtility.hotControl;
 
             if (newFrame != frame ||
-                (hotControl > beforeControlID && hotControl < afterControlID))
-            {
+                (hotControl > beforeControlID && hotControl < afterControlID)) {
                 _PreviewStartTime = EditorApplication.timeSinceStartup;
                 _PreviewStartTime -= newFrame / GenerateSpriteAnimationsSettings.FrameRate;
                 _PreviewFrameIndex = newFrame;
@@ -241,12 +229,10 @@ namespace Animancer.Editor.Tools
         /************************************************************************************************************************/
 
         /// <summary>Draws the sprite contents of an animation to generate.</summary>
-        private void DrawAnimationBody(ref Rect area, List<Sprite> sprites)
-        {
+        private void DrawAnimationBody(ref Rect area, List<Sprite> sprites) {
             var previewFrame = (int)(_PreviewFrameIndex % sprites.Count);
 
-            for (int i = 0; i < sprites.Count; i++)
-            {
+            for (var i = 0; i < sprites.Count; i++) {
                 var sprite = sprites[i];
 
                 var fieldArea = area;
@@ -257,13 +243,13 @@ namespace Animancer.Editor.Tools
 
                 AnimancerToolsWindow.BeginChangeCheck();
                 sprite = DoObjectFieldGUI(fieldArea, "", sprite, false);
-                if (AnimancerToolsWindow.EndChangeCheck())
-                {
+                if (AnimancerToolsWindow.EndChangeCheck()) {
                     sprites[i] = sprite;
                 }
 
-                if (i == previewFrame)
+                if (i == previewFrame) {
                     EditorGUI.DrawRect(fieldArea, new(0.25f, 1, 0.25f, 0.1f));
+                }
 
                 DrawSprite(thumbnailArea, sprite);
 
@@ -278,10 +264,10 @@ namespace Animancer.Editor.Tools
         /************************************************************************************************************************/
 
         /// <summary>Uses <see cref="GatherNameToSprites"/> and creates new animations from those groups.</summary>
-        private static void GenerateAnimationsBySpriteName(List<Sprite> sprites)
-        {
-            if (sprites.Count == 0)
+        private static void GenerateAnimationsBySpriteName(List<Sprite> sprites) {
+            if (sprites.Count == 0) {
                 return;
+            }
 
             sprites.Sort(NaturalCompare);
 
@@ -295,15 +281,13 @@ namespace Animancer.Editor.Tools
 
             const int MaxLines = 25;
             var line = 0;
-            foreach (var nameToSpriteGroup in nameToSprites)
-            {
+            foreach (var nameToSpriteGroup in nameToSprites) {
                 var path = AssetDatabase.GetAssetPath(nameToSpriteGroup.Value[0]);
                 path = Path.GetDirectoryName(path);
                 path = Path.Combine(path, nameToSpriteGroup.Key + ".anim");
                 pathToSprites.Add(path, nameToSpriteGroup.Value);
 
-                if (++line <= MaxLines)
-                {
+                if (++line <= MaxLines) {
                     message.AppendLine()
                         .Append("- ")
                         .Append(path)
@@ -313,19 +297,20 @@ namespace Animancer.Editor.Tools
                 }
             }
 
-            if (line > MaxLines)
-            {
+            if (line > MaxLines) {
                 message.AppendLine()
                     .Append("And ")
                     .Append(line - MaxLines)
                     .Append(" others.");
             }
 
-            if (!EditorUtility.DisplayDialog("Generate Sprite Animations?", message.ReleaseToString(), "Generate", "Cancel"))
+            if (!EditorUtility.DisplayDialog("Generate Sprite Animations?", message.ReleaseToString(), "Generate", "Cancel")) {
                 return;
+            }
 
-            foreach (var pathToSpriteGroup in pathToSprites)
+            foreach (var pathToSpriteGroup in pathToSprites) {
                 CreateAnimation(pathToSpriteGroup.Key, pathToSpriteGroup.Value.ToArray());
+            }
 
             AssetDatabase.SaveAssets();
         }
@@ -335,10 +320,8 @@ namespace Animancer.Editor.Tools
         private static char[] _Numbers, _TrimOther;
 
         /// <summary>Groups the `sprites` by name into the `nameToSptires`.</summary>
-        private static void GatherNameToSprites(List<Sprite> sprites, Dictionary<string, List<Sprite>> nameToSprites)
-        {
-            for (int i = 0; i < sprites.Count; i++)
-            {
+        private static void GatherNameToSprites(List<Sprite> sprites, Dictionary<string, List<Sprite>> nameToSprites) {
+            for (var i = 0; i < sprites.Count; i++) {
                 var sprite = sprites[i];
                 var name = sprite.name;
 
@@ -352,41 +335,38 @@ namespace Animancer.Editor.Tools
 
                 // Doing both at once would turn "Attack2-0" (Attack 2 Frame 0) into "Attack" (losing the number).
 
-                if (!nameToSprites.TryGetValue(name, out var spriteGroup))
-                {
+                if (!nameToSprites.TryGetValue(name, out var spriteGroup)) {
                     spriteGroup = new();
                     nameToSprites.Add(name, spriteGroup);
                 }
 
                 // Add the sprite to the group if it's not a duplicate.
-                if (spriteGroup.Count == 0 || spriteGroup[^1] != sprite)
+                if (spriteGroup.Count == 0 || spriteGroup[^1] != sprite) {
                     spriteGroup.Add(sprite);
+                }
             }
         }
 
         /************************************************************************************************************************/
 
         /// <summary>Creates and saves a new <see cref="AnimationClip"/> that plays the `sprites`.</summary>
-        private static void CreateAnimation(string path, params Sprite[] sprites)
-        {
+        private static void CreateAnimation(string path, params Sprite[] sprites) {
             var frameRate = GenerateSpriteAnimationsSettings.FrameRate;
             var hierarchyPath = GenerateSpriteAnimationsSettings.HierarchyPath;
             var type = GenerateSpriteAnimationsSettings.TargetType.Type ?? typeof(SpriteRenderer);
 
             var property = GenerateSpriteAnimationsSettings.PropertyName;
-            if (string.IsNullOrWhiteSpace(property))
+            if (string.IsNullOrWhiteSpace(property)) {
                 property = "m_Sprite";
+            }
 
-            var clip = new AnimationClip
-            {
+            var clip = new AnimationClip {
                 frameRate = frameRate,
             };
 
             var spriteKeyFrames = new ObjectReferenceKeyframe[sprites.Length];
-            for (int i = 0; i < spriteKeyFrames.Length; i++)
-            {
-                spriteKeyFrames[i] = new()
-                {
+            for (var i = 0; i < spriteKeyFrames.Length; i++) {
+                spriteKeyFrames[i] = new() {
                     time = i / (float)frameRate,
                     value = sprites[i]
                 };
@@ -410,14 +390,13 @@ namespace Animancer.Editor.Tools
 
         /// <summary>Should <see cref="GenerateAnimationsBySpriteName()"/> be enabled or greyed out?</summary>
         [MenuItem(Strings.CreateMenuPrefix + GenerateAnimationsBySpriteNameFunctionName, validate = true)]
-        private static bool ValidateGenerateAnimationsBySpriteName()
-        {
+        private static bool ValidateGenerateAnimationsBySpriteName() {
             var selection = Selection.objects;
-            for (int i = 0; i < selection.Length; i++)
-            {
+            for (var i = 0; i < selection.Length; i++) {
                 var selected = selection[i];
-                if (selected is Sprite || selected is Texture)
+                if (selected is Sprite or Texture) {
                     return true;
+                }
             }
 
             return false;
@@ -427,20 +406,15 @@ namespace Animancer.Editor.Tools
         [MenuItem(
             itemName: Strings.CreateMenuPrefix + GenerateAnimationsBySpriteNameFunctionName,
             priority = Strings.AssetMenuOrder + 8)]
-        private static void GenerateAnimationsBySpriteName()
-        {
+        private static void GenerateAnimationsBySpriteName() {
             var sprites = new List<Sprite>();
 
             var selection = Selection.objects;
-            for (int i = 0; i < selection.Length; i++)
-            {
+            for (var i = 0; i < selection.Length; i++) {
                 var selected = selection[i];
-                if (selected is Sprite sprite)
-                {
+                if (selected is Sprite sprite) {
                     sprites.Add(sprite);
-                }
-                else if (selected is Texture2D texture)
-                {
+                } else if (selected is Texture2D texture) {
                     sprites.AddRange(LoadAllSpritesInTexture(texture));
                 }
             }
@@ -456,16 +430,14 @@ namespace Animancer.Editor.Tools
         /// Returns a list of <see cref="Sprite"/>s which will be passed into
         /// <see cref="GenerateAnimationsBySpriteName(List{Sprite})"/> by <see cref="EditorApplication.delayCall"/>.
         /// </summary>
-        private static List<Sprite> GetCachedSpritesToGenerateAnimations()
-        {
-            if (_CachedSprites == null)
+        private static List<Sprite> GetCachedSpritesToGenerateAnimations() {
+            if (_CachedSprites == null) {
                 return _CachedSprites = new();
+            }
 
             // Delay the call in case multiple objects are selected.
-            if (_CachedSprites.Count == 0)
-            {
-                EditorApplication.delayCall += () =>
-                {
+            if (_CachedSprites.Count == 0) {
+                EditorApplication.delayCall += () => {
                     GenerateAnimationsBySpriteName(_CachedSprites);
                     _CachedSprites.Clear();
                 };
@@ -480,8 +452,7 @@ namespace Animancer.Editor.Tools
         /// Adds the <see cref="MenuCommand.context"/> to the <see cref="GetCachedSpritesToGenerateAnimations"/>.
         /// </summary>
         [MenuItem("CONTEXT/" + nameof(Sprite) + GenerateAnimationsBySpriteNameFunctionName)]
-        private static void GenerateAnimationsFromSpriteByName(MenuCommand command)
-        {
+        private static void GenerateAnimationsFromSpriteByName(MenuCommand command) {
             GetCachedSpritesToGenerateAnimations().Add((Sprite)command.context);
         }
 
@@ -489,8 +460,7 @@ namespace Animancer.Editor.Tools
 
         /// <summary>Should <see cref="GenerateAnimationsFromTextureBySpriteName"/> be enabled or greyed out?</summary>
         [MenuItem("CONTEXT/" + nameof(TextureImporter) + GenerateAnimationsBySpriteNameFunctionName, validate = true)]
-        private static bool ValidateGenerateAnimationsFromTextureBySpriteName(MenuCommand command)
-        {
+        private static bool ValidateGenerateAnimationsFromTextureBySpriteName(MenuCommand command) {
             var importer = (TextureImporter)command.context;
             var sprites = LoadAllSpritesAtPath(importer.assetPath);
             return sprites.Length > 0;
@@ -501,8 +471,7 @@ namespace Animancer.Editor.Tools
         /// <see cref="GetCachedSpritesToGenerateAnimations"/>.
         /// </summary>
         [MenuItem("CONTEXT/" + nameof(TextureImporter) + GenerateAnimationsBySpriteNameFunctionName)]
-        private static void GenerateAnimationsFromTextureBySpriteName(MenuCommand command)
-        {
+        private static void GenerateAnimationsFromTextureBySpriteName(MenuCommand command) {
             var cachedSprites = GetCachedSpritesToGenerateAnimations();
             var importer = (TextureImporter)command.context;
             cachedSprites.AddRange(LoadAllSpritesAtPath(importer.assetPath));
@@ -520,8 +489,7 @@ namespace Animancer.Editor.Tools
     /// <summary>[Editor-Only] Settings for <see cref="GenerateSpriteAnimationsTool"/>.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor.Tools/GenerateSpriteAnimationsSettings
     [Serializable, InternalSerializableType]
-    public class GenerateSpriteAnimationsSettings : AnimancerSettingsGroup
-    {
+    public class GenerateSpriteAnimationsSettings : AnimancerSettingsGroup {
         /************************************************************************************************************************/
 
         /// <summary>Gets or creates an instance.</summary>
@@ -590,13 +558,14 @@ namespace Animancer.Editor.Tools
         /************************************************************************************************************************/
 
         /// <summary>Reverts any empty values to their defaults.</summary>
-        public void FillDefaults()
-        {
-            if (string.IsNullOrWhiteSpace(_TargetType.QualifiedName))
+        public void FillDefaults() {
+            if (string.IsNullOrWhiteSpace(_TargetType.QualifiedName)) {
                 _TargetType = new(typeof(SpriteRenderer));
+            }
 
-            if (string.IsNullOrWhiteSpace(_PropertyName))
+            if (string.IsNullOrWhiteSpace(_PropertyName)) {
                 _PropertyName = DefaultPropertyName;
+            }
         }
 
         /************************************************************************************************************************/

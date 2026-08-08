@@ -1,14 +1,10 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-using Antlr4.Runtime;
-using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Misc;
-using Antlr4.Runtime.Sharpen;
 
-namespace Antlr4.Runtime.Atn
-{
+namespace Antlr4.Runtime.Atn {
     /// <summary>
     /// Executes a custom lexer action by calling
     /// <see cref="Antlr4.Runtime.Recognizer{Symbol, ATNInterpreter}.Action(Antlr4.Runtime.RuleContext, int, int)"/>
@@ -24,8 +20,7 @@ namespace Antlr4.Runtime.Atn
     /// </summary>
     /// <author>Sam Harwell</author>
     /// <since>4.2</since>
-    public sealed class LexerCustomAction : ILexerAction
-    {
+    public sealed class LexerCustomAction : ILexerAction {
         private readonly int ruleIndex;
 
         private readonly int actionIndex;
@@ -48,8 +43,7 @@ namespace Antlr4.Runtime.Atn
         /// <see cref="Antlr4.Runtime.Recognizer{Symbol, ATNInterpreter}.Action(Antlr4.Runtime.RuleContext, int, int)"/>
         /// .
         /// </param>
-        public LexerCustomAction(int ruleIndex, int actionIndex)
-        {
+        public LexerCustomAction(int ruleIndex, int actionIndex) {
             this.ruleIndex = ruleIndex;
             this.actionIndex = actionIndex;
         }
@@ -60,10 +54,8 @@ namespace Antlr4.Runtime.Atn
         /// .
         /// </summary>
         /// <returns>The rule index for the custom action.</returns>
-        public int RuleIndex
-        {
-            get
-            {
+        public int RuleIndex {
+            get {
                 return ruleIndex;
             }
         }
@@ -74,10 +66,8 @@ namespace Antlr4.Runtime.Atn
         /// .
         /// </summary>
         /// <returns>The action index for the custom action.</returns>
-        public int ActionIndex
-        {
-            get
-            {
+        public int ActionIndex {
+            get {
                 return actionIndex;
             }
         }
@@ -88,10 +78,8 @@ namespace Antlr4.Runtime.Atn
         /// <see cref="LexerActionType.Custom"/>
         /// .
         /// </returns>
-        public LexerActionType ActionType
-        {
-            get
-            {
+        public LexerActionType ActionType {
+            get {
                 return LexerActionType.Custom;
             }
         }
@@ -112,10 +100,8 @@ namespace Antlr4.Runtime.Atn
         /// <see langword="true"/>
         /// .
         /// </returns>
-        public bool IsPositionDependent
-        {
-            get
-            {
+        public bool IsPositionDependent {
+            get {
                 return true;
             }
         }
@@ -127,34 +113,27 @@ namespace Antlr4.Runtime.Atn
         /// with the
         /// appropriate rule and action indexes.</p>
         /// </summary>
-        public void Execute(Lexer lexer)
-        {
+        public void Execute(Lexer lexer) {
             lexer.Action(null, ruleIndex, actionIndex);
         }
 
-        public override int GetHashCode()
-        {
-            int hash = MurmurHash.Initialize();
-            hash = MurmurHash.Update(hash, (int)(ActionType));
+        public override int GetHashCode() {
+            var hash = MurmurHash.Initialize();
+            hash = MurmurHash.Update(hash, (int)ActionType);
             hash = MurmurHash.Update(hash, ruleIndex);
             hash = MurmurHash.Update(hash, actionIndex);
             return MurmurHash.Finish(hash, 3);
         }
 
-        public override bool Equals(object obj)
-        {
-            if (obj == this)
-            {
+        public override bool Equals(object obj) {
+            if (obj == this) {
                 return true;
-            }
-            else
-            {
-                if (!(obj is Antlr4.Runtime.Atn.LexerCustomAction))
-                {
+            } else {
+                if (obj is not LexerCustomAction) {
                     return false;
                 }
             }
-            Antlr4.Runtime.Atn.LexerCustomAction other = (Antlr4.Runtime.Atn.LexerCustomAction)obj;
+            var other = (Antlr4.Runtime.Atn.LexerCustomAction)obj;
             return ruleIndex == other.ruleIndex && actionIndex == other.actionIndex;
         }
     }

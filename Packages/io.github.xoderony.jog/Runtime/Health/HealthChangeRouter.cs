@@ -1,5 +1,3 @@
-using Xoderony.Logging;
-using Xoderony;
 using JoG.Networking;
 using MessagePipe;
 using System;
@@ -7,6 +5,8 @@ using Unity.Collections;
 using Unity.Netcode;
 using VContainer;
 using VContainer.Unity;
+using Xoderony;
+using Xoderony.Logging;
 
 namespace JoG.Health {
 
@@ -103,7 +103,5 @@ namespace JoG.Health {
                 this.LogWarning($"Received health change message for non-existent target.");
             }
         }
-
     }
-
 }

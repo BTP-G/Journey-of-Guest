@@ -1,9 +1,7 @@
-﻿using UnityEngine;
+using UnityEngine;
 
-namespace EditorAttributes
-{
-    public enum ReferenceFixMode
-    {
+namespace EditorAttributes {
+    public enum ReferenceFixMode {
         None,
         Auto,
         Self,
@@ -16,8 +14,7 @@ namespace EditorAttributes
     /// <summary>
     /// Attribute that validates a null field in the inspector
     /// </summary>
-    public class RequiredAttribute : PropertyAttribute
-    {
+    public class RequiredAttribute : PropertyAttribute {
         public ReferenceFixMode FixMode { get; private set; }
 
         public bool ThrowValidationError { get; private set; }
@@ -31,8 +28,7 @@ namespace EditorAttributes
         /// <param name="throwValidationError">Throws an error in the console if validation fails</param>
         /// <param name="buildKiller">Throws an error during build time and cancels it if validation fails (unless build validation is disabled in the project settings)</param>
         /// <param name="fixMode">Specifies how the field should be auto-referenced by the Fix button</param>
-        public RequiredAttribute(bool throwValidationError = false, bool buildKiller = false, ReferenceFixMode fixMode = ReferenceFixMode.None)
-        {
+        public RequiredAttribute(bool throwValidationError = false, bool buildKiller = false, ReferenceFixMode fixMode = ReferenceFixMode.None) {
             FixMode = fixMode;
             BuildKiller = buildKiller;
             ThrowValidationError = throwValidationError;
@@ -44,6 +40,8 @@ namespace EditorAttributes
         /// <param name="customFixFunctionName">The name of the custom function to run by the Fix button</param>
         /// <param name="throwValidationError">Throws an error in the console if validation fails</param>
         /// <param name="buildKiller">Throws an error during build time and cancels it if validation fails (unless build validation is disabled in the project settings)</param>
-        public RequiredAttribute(string customFixFunctionName, bool throwValidationError = false, bool buildKiller = false) : this(throwValidationError, buildKiller, ReferenceFixMode.Custom) => CustomFixFunctionName = customFixFunctionName;
+        public RequiredAttribute(string customFixFunctionName, bool throwValidationError = false, bool buildKiller = false) : this(throwValidationError, buildKiller, ReferenceFixMode.Custom) {
+            CustomFixFunctionName = customFixFunctionName;
+        }
     }
 }

@@ -1,12 +1,12 @@
-using JoG.Health;
-using Xoderony;
-using Xoderony.PropertyAttributes;
 using JoG.Character.Components;
+using JoG.Health;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
+using Xoderony;
+using Xoderony.PropertyAttributes;
 
 namespace JoG.Character.States.Ghost {
 

@@ -1,17 +1,15 @@
-﻿namespace EditorAttributes
-{
-    public interface IMinMaxAxisValueAttribute
-    {
-        public float MinValueX { get; }
-        public float MaxValueX { get; }
+namespace EditorAttributes {
+    public interface IMinMaxAxisValueAttribute {
+        float MinValueX { get; }
+        float MaxValueX { get; }
 
-        public float MinValueY { get; }
-        public float MaxValueY { get; }
+        float MinValueY { get; }
+        float MaxValueY { get; }
 
-        public float MinValueZ { get; }
-        public float MaxValueZ { get; }
+        float MinValueZ { get; }
+        float MaxValueZ { get; }
 
-        public float MinValueW { get; }
-        public float MaxValueW { get; }
+        float MinValueW { get; }
+        float MaxValueW { get; }
     }
 }

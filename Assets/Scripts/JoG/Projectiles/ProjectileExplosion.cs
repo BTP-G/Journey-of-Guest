@@ -1,11 +1,11 @@
-using JoG.Health;
-using Xoderony.Extensions;
-using Xoderony.ObjectPool.Generic;
 using JoG.Core;
+using JoG.Health;
 using System;
 using System.Buffers;
 using UnityEngine;
 using VContainer;
+using Xoderony.Extensions;
+using Xoderony.ObjectPool.Generic;
 
 namespace JoG.Projectiles {
 

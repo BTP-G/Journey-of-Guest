@@ -1,9 +1,9 @@
-using Xoderony.Localization;
-using JoG.UI.Popup;
 using JoG.Localization;
+using JoG.UI.Popup;
 using TMPro;
 using UnityEngine;
 using VContainer;
+using Xoderony.Localization;
 
 namespace JoG.Player {
 
@@ -19,7 +19,10 @@ namespace JoG.Player {
 
         private async void SetNickname(string nickname) {
             try {
-                if (nickname == _profileService.Nickname) return;
+                if (nickname == _profileService.Nickname) {
+                    return;
+                }
+
                 await _profileService.SetNicknameAsync(nickname);
             } catch (NicknameException e) {
                 var error = e.Message;

@@ -2,8 +2,7 @@
 
 using UnityEngine;
 
-namespace Animancer
-{
+namespace Animancer {
     /************************************************************************************************************************/
 
     /// <summary>
@@ -21,8 +20,7 @@ namespace Animancer
 
     /// <summary>An <see cref="IPolymorphic"/> with a <see cref="Reset"/> method.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer/IPolymorphicReset
-    public interface IPolymorphicReset : IPolymorphic
-    {
+    public interface IPolymorphicReset : IPolymorphic {
         /// <summary>Called when an instance of this type is created in a [<see cref="SerializeReference"/>] field.</summary>
         void Reset(object oldValue = null);
     }

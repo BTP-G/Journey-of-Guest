@@ -1,10 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Viewer : MonoBehaviour
-{
+public class Viewer : MonoBehaviour {
     public ParticleSystem[] Particles;
     public int showNum = 0;
     public GameObject ShowPos;
@@ -18,12 +15,10 @@ public class Viewer : MonoBehaviour
     public GameObject _Cam;
 
     private bool isPaused;
-   
+
     // Start is called before the first frame update
-    void Start()
-    {
-        for(int i = 0; i < Particles.Length; i++)
-        {
+    private void Start() {
+        for (var i = 0; i < Particles.Length; i++) {
             Particles[i].gameObject.SetActive(false);
         }
         isPaused = false;
@@ -32,153 +27,112 @@ public class Viewer : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
-    {
+    private void Update() {
         showNum = Mathf.Clamp(showNum, 0, Particles.Length - 1);
 
-        if (!isPaused)
-        {
+        if (!isPaused) {
             _fxNameText.text = Particles[showNum].gameObject.name;
             _PauseText.text = "Pause";
-        }
-        else
-        {
+        } else {
             _fxNameText.text = Particles[showNum].gameObject.name + "-" + "Paused";
             _PauseText.text = "Resume";
         }
 
-        if (Particles[showNum].IsAlive())
-        {
+        if (Particles[showNum].IsAlive()) {
             _PauseButton.gameObject.SetActive(true);
             _PlayButton.gameObject.SetActive(false);
-        }
-        else
-        {
+        } else {
             _PauseButton.gameObject.SetActive(false);
             _PlayButton.gameObject.SetActive(true);
         }
 
-
-
-        if(Input.GetKeyDown(KeyCode.LeftArrow))
-        {
+        if (Input.GetKeyDown(KeyCode.LeftArrow)) {
             Previous();
         }
-        if (Input.GetKeyDown(KeyCode.RightArrow))
-        {
+        if (Input.GetKeyDown(KeyCode.RightArrow)) {
             Next();
         }
-        if ((Input.GetKeyDown(KeyCode.Space) && !Particles[showNum].IsAlive()) || (Input.GetKeyDown(KeyCode.Space) && isPaused))
-        {
+        if ((Input.GetKeyDown(KeyCode.Space) && !Particles[showNum].IsAlive()) || (Input.GetKeyDown(KeyCode.Space) && isPaused)) {
             PlayFX();
-        }
-        else if(Input.GetKeyDown(KeyCode.Space) && Particles[showNum].IsAlive() && !isPaused)
-        {
+        } else if (Input.GetKeyDown(KeyCode.Space) && Particles[showNum].IsAlive() && !isPaused) {
             PauseFX();
         }
 
-        if(Input.GetMouseButtonDown(0))
-        {
-            Ray ray = _Cam.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-            if(Physics.Raycast(ray, out hit, Mathf.Infinity))
-            {
-                GameObject spawnFX = Instantiate(Particles[showNum].gameObject, hit.point, Quaternion.FromToRotation(Particles[showNum].transform.up, hit.normal));
+        if (Input.GetMouseButtonDown(0)) {
+            var ray = _Cam.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(ray, out var hit, Mathf.Infinity)) {
+                var spawnFX = Instantiate(Particles[showNum].gameObject, hit.point, Quaternion.FromToRotation(Particles[showNum].transform.up, hit.normal));
                 spawnFX.gameObject.SetActive(true);
                 spawnFX.GetComponent<ParticleSystem>().Play();
 
                 Destroy(spawnFX, spawnFX.GetComponent<ParticleSystem>().main.duration);
             }
-            
         }
-        
 
         //Camera Rotate
-        if (Input.GetMouseButton(1))
-        {
-            float xRotateMove = Input.GetAxis("Mouse X") * Time.deltaTime * Rotspeed;
-            float yRotateMove = Input.GetAxis("Mouse Y") * Time.deltaTime * Rotspeed;
+        if (Input.GetMouseButton(1)) {
+            var xRotateMove = Input.GetAxis("Mouse X") * Time.deltaTime * Rotspeed;
+            var yRotateMove = Input.GetAxis("Mouse Y") * Time.deltaTime * Rotspeed;
 
-            Vector3 stagePosition = ShowPos.transform.position;
+            var stagePosition = ShowPos.transform.position;
 
             _Cam.transform.RotateAround(stagePosition, Vector3.right, yRotateMove);
             _Cam.transform.RotateAround(stagePosition, Vector3.up, xRotateMove);
 
             _Cam.transform.LookAt(stagePosition);
         }
-        
-
     }
 
-    public void Next()
-    {
+    public void Next() {
         isPaused = false;
-        if (showNum != Particles.Length - 1)
-        {
+        if (showNum != Particles.Length - 1) {
             Particles[showNum].gameObject.SetActive(false);
             showNum += 1;
             Particles[showNum].gameObject.transform.position = ShowPos.transform.position;
             Particles[showNum].gameObject.SetActive(true);
-        }
-        else
-        {
+        } else {
             Particles[showNum].gameObject.SetActive(false);
             showNum = 0;
             Particles[showNum].gameObject.transform.position = ShowPos.transform.position;
             Particles[showNum].gameObject.SetActive(true);
 
         }
-
     }
 
-    public void Previous()
-    {
+    public void Previous() {
         isPaused = false;
-        if (showNum != 0)
-        {
+        if (showNum != 0) {
             Particles[showNum].gameObject.SetActive(false);
             showNum -= 1;
             Particles[showNum].gameObject.transform.position = ShowPos.transform.position;
             Particles[showNum].gameObject.SetActive(true);
-        }
-        else
-        {
+        } else {
             Particles[showNum].gameObject.SetActive(false);
-            showNum = Particles.Length -1;
+            showNum = Particles.Length - 1;
             Particles[showNum].gameObject.transform.position = ShowPos.transform.position;
             Particles[showNum].gameObject.SetActive(true);
         }
-        
     }
 
-    public void PlayFX()
-    {
-        if (!Particles[showNum].IsAlive())
-        {
+    public void PlayFX() {
+        if (!Particles[showNum].IsAlive()) {
             Particles[showNum].gameObject.transform.position = ShowPos.transform.position;
             Particles[showNum].gameObject.SetActive(true);
             Particles[showNum].Play();
         }
-        if(isPaused)
-        {
+        if (isPaused) {
             Particles[showNum].Play();
             isPaused = false;
         }
     }
 
-    public void PauseFX()
-    {
-        if (!isPaused)
-        {
+    public void PauseFX() {
+        if (!isPaused) {
             isPaused = true;
             Particles[showNum].Pause();
-        }
-        else if (isPaused)
-        {
+        } else if (isPaused) {
             isPaused = false;
             Particles[showNum].Play();
         }
     }
-
-
 }

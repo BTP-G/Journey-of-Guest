@@ -9,16 +9,14 @@ using UnityEngine;
 using static Animancer.Editor.AnimancerGUI;
 using Object = UnityEngine.Object;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only]
     /// A custom Inspector for an <see cref="AnimancerLayer"/> which sorts and exposes some of its internal values.
     /// </summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/AnimancerLayerDrawer
     /// 
     [CustomGUI(typeof(AnimancerLayer))]
-    public class AnimancerLayerDrawer : AnimancerNodeDrawer<AnimancerLayer>
-    {
+    public class AnimancerLayerDrawer : AnimancerNodeDrawer<AnimancerLayer> {
         /************************************************************************************************************************/
 
         /// <summary>The states in the target layer which have non-zero <see cref="AnimancerNode.Weight"/>.</summary>
@@ -39,19 +37,14 @@ namespace Animancer.Editor
         internal static void GatherLayerEditors(
             AnimancerGraph graph,
             List<AnimancerLayerDrawer> editors,
-            out int count)
-        {
+            out int count) {
             count = graph.Layers.Count;
-            for (int i = 0; i < count; i++)
-            {
+            for (var i = 0; i < count; i++) {
                 AnimancerLayerDrawer editor;
-                if (editors.Count <= i)
-                {
+                if (editors.Count <= i) {
                     editor = new();
                     editors.Add(editor);
-                }
-                else
-                {
+                } else {
                     editor = editors[i];
                 }
 
@@ -64,24 +57,22 @@ namespace Animancer.Editor
         /// <summary>
         /// Sets the target `layer` and sorts its states and their keys into the active/inactive lists.
         /// </summary>
-        private void GatherStates(AnimancerLayer layer)
-        {
+        private void GatherStates(AnimancerLayer layer) {
             Value = layer;
 
             ActiveStates.Clear();
             InactiveStates.Clear();
 
-            foreach (var state in layer)
-            {
+            foreach (var state in layer) {
                 if (state.IsActive ||
-                    (!AnimancerGraphDrawer.SeparateActiveFromInactiveStates && AnimancerGraphDrawer.ShowInactiveStates))
-                {
+                    (!AnimancerGraphDrawer.SeparateActiveFromInactiveStates && AnimancerGraphDrawer.ShowInactiveStates)) {
                     ActiveStates.Add(state);
                     continue;
                 }
 
-                if (AnimancerGraphDrawer.ShowInactiveStates)
+                if (AnimancerGraphDrawer.ShowInactiveStates) {
                     InactiveStates.Add(state);
+                }
             }
 
             SortAndGatherKeys(ActiveStates);
@@ -94,31 +85,33 @@ namespace Animancer.Editor
         /// Sorts any entries that use another state as their key to come right after that state.
         /// See <see cref="AnimancerLayer.Play(AnimancerState, float, FadeMode)"/>.
         /// </summary>
-        private static void SortAndGatherKeys(List<AnimancerState> states)
-        {
+        private static void SortAndGatherKeys(List<AnimancerState> states) {
             var count = states.Count;
-            if (count == 0)
+            if (count == 0) {
                 return;
+            }
 
             AnimancerGraphDrawer.ApplySortStatesByName(states);
 
             // Sort any states that use another state as their key to be right after the key.
-            for (int i = 0; i < count; i++)
-            {
+            for (var i = 0; i < count; i++) {
                 var state = states[i];
                 var key = state.Key;
 
-                if (key is not AnimancerState keyState)
+                if (key is not AnimancerState keyState) {
                     continue;
+                }
 
                 var keyStateIndex = states.IndexOf(keyState);
-                if (keyStateIndex < 0 || keyStateIndex + 1 == i)
+                if (keyStateIndex < 0 || keyStateIndex + 1 == i) {
                     continue;
+                }
 
                 states.RemoveAt(i);
 
-                if (keyStateIndex < i)
+                if (keyStateIndex < i) {
                     keyStateIndex++;
+                }
 
                 states.Insert(keyStateIndex, state);
 
@@ -131,11 +124,11 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Draws the layer's name and weight.</summary>
-        protected override void DoLabelGUI(Rect area)
-        {
+        protected override void DoLabelGUI(Rect area) {
             var label = Value.IsAdditive ? "Additive" : "Override";
-            if (Value._Mask != null)
+            if (Value._Mask != null) {
                 label = $"{label} ({Value._Mask.GetCachedName()})";
+            }
 
             area.xMin += FoldoutIndent;
 
@@ -149,11 +142,10 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>The number of pixels of indentation required to fit the foldout arrow.</summary>
-        const float FoldoutIndent = 12;
+        private const float FoldoutIndent = 12;
 
         /// <inheritdoc/>
-        protected override void DoFoldoutGUI(Rect area)
-        {
+        protected override void DoFoldoutGUI(Rect area) {
             var hierarchyMode = EditorGUIUtility.hierarchyMode;
             EditorGUIUtility.hierarchyMode = true;
 
@@ -166,14 +158,12 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override void DoDetailsGUI()
-        {
+        protected override void DoDetailsGUI() {
             EditorGUI.indentLevel++;
 
             base.DoDetailsGUI();
 
-            if (IsExpanded)
-            {
+            if (IsExpanded) {
                 GUILayout.BeginHorizontal();
                 GUILayout.Space(FoldoutIndent);
                 GUILayout.BeginVertical();
@@ -195,8 +185,7 @@ namespace Animancer.Editor
         /// <summary>
         /// Draws controls for <see cref="AnimancerLayer.IsAdditive"/> and <see cref="AnimancerLayer._Mask"/>.
         /// </summary>
-        private void DoLayerDetailsGUI()
-        {
+        private void DoLayerDetailsGUI() {
             var area = LayoutSingleLineRect(SpacingMode.Before);
             area = EditorGUI.IndentedRect(area);
             area.xMin += ExtraLeftPadding;
@@ -207,7 +196,7 @@ namespace Animancer.Editor
 
             var additiveLabel = "Is Additive";
 
-            var additiveWidth = GUI.skin.toggle.CalculateWidth(additiveLabel) + StandardSpacing * 2;
+            var additiveWidth = GUI.skin.toggle.CalculateWidth(additiveLabel) + (StandardSpacing * 2);
             var additiveArea = StealFromLeft(ref area, additiveWidth, StandardSpacing);
             var maskArea = area;
 
@@ -215,17 +204,18 @@ namespace Animancer.Editor
             EditorGUIUtility.labelWidth = CalculateLabelWidth(additiveLabel);
             EditorGUI.BeginChangeCheck();
             var isAdditive = EditorGUI.Toggle(additiveArea, additiveLabel, Value.IsAdditive);
-            if (EditorGUI.EndChangeCheck())
+            if (EditorGUI.EndChangeCheck()) {
                 Value.IsAdditive = isAdditive;
+            }
 
             // Mask.
-            using (var label = PooledGUIContent.Acquire("Mask"))
-            {
+            using (var label = PooledGUIContent.Acquire("Mask")) {
                 EditorGUIUtility.labelWidth = CalculateLabelWidth(label.text);
                 EditorGUI.BeginChangeCheck();
                 var mask = DoObjectFieldGUI(maskArea, label, Value.Mask, false);
-                if (EditorGUI.EndChangeCheck())
+                if (EditorGUI.EndChangeCheck()) {
                     Value.Mask = mask;
+                }
             }
 
             EditorGUI.indentLevel = indentLevel;
@@ -234,58 +224,53 @@ namespace Animancer.Editor
 
         /************************************************************************************************************************/
 
-        private void DoStatesGUI()
-        {
-            if (!AnimancerGraphDrawer.ShowInactiveStates)
-            {
+        private void DoStatesGUI() {
+            if (!AnimancerGraphDrawer.ShowInactiveStates) {
                 DoStatesGUI("Active States", ActiveStates);
-            }
-            else if (AnimancerGraphDrawer.SeparateActiveFromInactiveStates)
-            {
+            } else if (AnimancerGraphDrawer.SeparateActiveFromInactiveStates) {
                 DoStatesGUI("Active States", ActiveStates);
                 DoStatesGUI("Inactive States", InactiveStates);
-            }
-            else
-            {
+            } else {
                 DoStatesGUI("States", ActiveStates);
             }
 
             if (Value.Weight != 0 &&
                 !Value.IsAdditive &&
-                !Mathf.Approximately(Value.GetTotalChildWeight(), 1))
-            {
+                !Mathf.Approximately(Value.GetTotalChildWeight(), 1)) {
                 var message =
                     "The total Weight of all states in this layer does not equal 1" +
                     " which will likely give undesirable results.";
 
-                if (AreAllStatesFadingOut())
+                if (AreAllStatesFadingOut()) {
                     message +=
                         " If you no longer want anything playing on a layer," +
                         " you should fade out that layer instead of fading out its states.";
+                }
 
                 message += " Click here for more information.";
 
                 EditorGUILayout.HelpBox(message, MessageType.Warning);
 
-                if (TryUseClickEventInLastRect())
+                if (TryUseClickEventInLastRect()) {
                     EditorUtility.OpenWithDefaultApp(Strings.DocsURLs.Layers);
+                }
             }
         }
 
         /************************************************************************************************************************/
 
         /// <summary>Are all the target's states fading out to 0?</summary>
-        private bool AreAllStatesFadingOut()
-        {
+        private bool AreAllStatesFadingOut() {
             var count = Value.ActiveStates.Count;
-            if (count == 0)
+            if (count == 0) {
                 return false;
+            }
 
-            for (int i = 0; i < count; i++)
-            {
+            for (var i = 0; i < count; i++) {
                 var state = Value.ActiveStates[i];
-                if (state.TargetWeight != 0)
+                if (state.TargetWeight != 0) {
                     return false;
+                }
             }
 
             return true;
@@ -294,8 +279,7 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Draws all `states` in the given list.</summary>
-        public void DoStatesGUI(string label, List<AnimancerState> states)
-        {
+        public void DoStatesGUI(string label, List<AnimancerState> states) {
             var area = LayoutSingleLineRect();
 
             const string Label = "Weight";
@@ -305,8 +289,7 @@ namespace Animancer.Editor
             EditorGUI.LabelField(area, label, states.Count.ToStringCached());
 
             EditorGUI.indentLevel++;
-            for (int i = 0; i < states.Count; i++)
-            {
+            for (var i = 0; i < states.Count; i++) {
                 DoStateGUI(states[i]);
             }
             EditorGUI.indentLevel--;
@@ -319,10 +302,8 @@ namespace Animancer.Editor
             StateInspectors = new();
 
         /// <summary>Draws the Inspector for the given `state`.</summary>
-        private void DoStateGUI(AnimancerState state)
-        {
-            if (!StateInspectors.TryGetValue(state, out var inspector))
-            {
+        private void DoStateGUI(AnimancerState state) {
+            if (!StateInspectors.TryGetValue(state, out var inspector)) {
                 inspector = CustomGUIFactory.GetOrCreateForObject(state);
                 StateInspectors.Add(state, inspector);
             }
@@ -334,16 +315,18 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Draws all child states of the `state`.</summary>
-        private void DoChildStatesGUI(AnimancerState state)
-        {
-            if (!state._IsInspectorExpanded)
+        private void DoChildStatesGUI(AnimancerState state) {
+            if (!state._IsInspectorExpanded) {
                 return;
+            }
 
             EditorGUI.indentLevel++;
 
-            foreach (var child in state)
-                if (child != null)
+            foreach (var child in state) {
+                if (child != null) {
                     DoStateGUI(child);
+                }
+            }
 
             EditorGUI.indentLevel--;
         }
@@ -351,8 +334,7 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override void DoHeaderGUI()
-        {
+        protected override void DoHeaderGUI() {
             if (!AnimancerGraphDrawer.ShowSingleLayerHeader &&
                 Value.Graph.Layers.Count == 1 &&
                 Value.Weight == 1 &&
@@ -362,8 +344,9 @@ namespace Animancer.Editor
                 Value._Mask == null &&
                 Value.Graph.Component != null &&
                 Value.Graph.Component.Animator != null &&
-                Value.Graph.Component.Animator.runtimeAnimatorController == null)
+                Value.Graph.Component.Animator.runtimeAnimatorController == null) {
                 return;
+            }
 
             base.DoHeaderGUI();
         }
@@ -371,10 +354,10 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        public override void DoGUI()
-        {
-            if (!Value.IsValid())
+        public override void DoGUI() {
+            if (!Value.IsValid()) {
                 return;
+            }
 
             base.DoGUI();
 
@@ -388,10 +371,10 @@ namespace Animancer.Editor
         /// If <see cref="AnimationClip"/>s or <see cref="IAnimationClipSource"/>s are dropped inside the `dropArea`,
         /// this method creates a new state in the `target` for each animation.
         /// </summary>
-        public static void HandleDragAndDropToPlay(Rect area, object layerOrGraph)
-        {
-            if (layerOrGraph == null)
+        public static void HandleDragAndDropToPlay(Rect area, object layerOrGraph) {
+            if (layerOrGraph == null) {
                 return;
+            }
 
             _DragAndDropPlayTarget = layerOrGraph;
 
@@ -409,64 +392,67 @@ namespace Animancer.Editor
             ?? (_DragAndDropPlayTarget is AnimancerGraph graph ? graph.Layers[0] : null);
 
         /// <summary>Handles drag and drop events to play animations and transitions.</summary>
-        public static bool HandleDragAndDropToPlay(Object obj, bool isDrop)
-        {
-            if (_DragAndDropPlayTarget == null)
+        public static bool HandleDragAndDropToPlay(Object obj, bool isDrop) {
+            if (_DragAndDropPlayTarget == null) {
                 return false;
+            }
 
-            if (obj is AnimationClip clip)
-            {
-                if (clip.legacy)
+            if (obj is AnimationClip clip) {
+                if (clip.legacy) {
                     return false;
+                }
 
-                if (isDrop)
+                if (isDrop) {
                     DragAndDropPlayTargetLayer.Play(clip);
+                }
 
                 return true;
             }
 
-            if (obj is ITransition transition)
-            {
-                if (isDrop)
+            if (obj is ITransition transition) {
+                if (isDrop) {
                     DragAndDropPlayTargetLayer.Play(transition);
+                }
 
                 return true;
             }
 
             var transitionAsset = TryCreateTransitionAttribute.TryCreateTransitionAsset(obj);
-            if (transitionAsset != null)
-            {
-                if (isDrop)
+            if (transitionAsset != null) {
+                if (isDrop) {
                     DragAndDropPlayTargetLayer.Play(transitionAsset);
+                }
 
-                if (!EditorUtility.IsPersistent(transitionAsset))
+                if (!EditorUtility.IsPersistent(transitionAsset)) {
                     Object.DestroyImmediate(transitionAsset);
+                }
 
                 return true;
             }
 
-            using (ListPool<AnimationClip>.Instance.Acquire(out var clips))
-            {
+            using (ListPool<AnimationClip>.Instance.Acquire(out var clips)) {
                 clips.GatherFromSource(obj);
 
                 var anyValid = false;
 
-                for (int i = 0; i < clips.Count; i++)
-                {
+                for (var i = 0; i < clips.Count; i++) {
                     clip = clips[i];
-                    if (clip.legacy)
+                    if (clip.legacy) {
                         continue;
+                    }
 
-                    if (!isDrop)
+                    if (!isDrop) {
                         return true;
+                    }
 
                     anyValid = true;
                     DragAndDropPlayTargetLayer.Play(clip);
 
                 }
 
-                if (anyValid)
+                if (anyValid) {
                     return true;
+                }
             }
 
             return false;
@@ -477,8 +463,7 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <inheritdoc/>
-        protected override void PopulateContextMenu(GenericMenu menu)
-        {
+        protected override void PopulateContextMenu(GenericMenu menu) {
             menu.AddDisabledItem(new($"{DetailsPrefix}{nameof(Value.CurrentState)}: {Value.CurrentState}"));
             menu.AddDisabledItem(new($"{DetailsPrefix}{nameof(Value.CommandCount)}: {Value.CommandCount}"));
 
@@ -514,12 +499,11 @@ namespace Animancer.Editor
 
         /************************************************************************************************************************/
 
-        private bool HasAnyStates(Func<AnimancerState, bool> condition)
-        {
-            foreach (var state in Value)
-            {
-                if (condition(state))
+        private bool HasAnyStates(Func<AnimancerState, bool> condition) {
+            foreach (var state in Value) {
+                if (condition(state)) {
                     return true;
+                }
             }
 
             return false;

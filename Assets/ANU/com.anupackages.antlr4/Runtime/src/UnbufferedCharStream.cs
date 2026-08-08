@@ -1,16 +1,14 @@
-﻿/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
+using Antlr4.Runtime.Misc;
+using Antlr4.Runtime.Sharpen;
 using System;
 using System.IO;
 using System.Text;
-using Antlr4.Runtime;
-using Antlr4.Runtime.Misc;
-using Antlr4.Runtime.Sharpen;
 
-namespace Antlr4.Runtime
-{
+namespace Antlr4.Runtime {
     /// <summary>Do not buffer up the entire char stream.</summary>
     /// <remarks>
     /// Do not buffer up the entire char stream. It does keep a small buffer
@@ -18,8 +16,7 @@ namespace Antlr4.Runtime
     /// lookahead prediction in parser). "Unbuffered" here refers to fact
     /// that it doesn't buffer all data, not that's it's on demand loading of char.
     /// </remarks>
-    public class UnbufferedCharStream : ICharStream
-    {
+    public class UnbufferedCharStream : ICharStream {
         /// <summary>A moving window buffer of the data being scanned.</summary>
         /// <remarks>
         /// A moving window buffer of the data being scanned. While there's a marker,
@@ -111,55 +108,46 @@ namespace Antlr4.Runtime
         /// <summary>Useful for subclasses that pull char from other than this.input.</summary>
         /// <remarks>Useful for subclasses that pull char from other than this.input.</remarks>
         public UnbufferedCharStream()
-            : this(256)
-        {
+            : this(256) {
         }
 
         /// <summary>Useful for subclasses that pull char from other than this.input.</summary>
         /// <remarks>Useful for subclasses that pull char from other than this.input.</remarks>
-        public UnbufferedCharStream(int bufferSize)
-        {
+        public UnbufferedCharStream(int bufferSize) {
             n = 0;
             data = new int[bufferSize];
         }
 
         public UnbufferedCharStream(Stream input)
-            : this(input, 256)
-        {
+            : this(input, 256) {
         }
 
         public UnbufferedCharStream(TextReader input)
-            : this(input, 256)
-        {
+            : this(input, 256) {
         }
 
         public UnbufferedCharStream(Stream input, int bufferSize)
-            : this(bufferSize)
-        {
+            : this(bufferSize) {
             this.input = new StreamReader(input);
             Fill(1);
         }
 
         public UnbufferedCharStream(TextReader input, int bufferSize)
-            : this(bufferSize)
-        {
+            : this(bufferSize) {
             // prime
             this.input = input;
             Fill(1);
         }
 
         // prime
-        public virtual void Consume()
-        {
-            if (LA(1) == IntStreamConstants.EOF)
-            {
+        public virtual void Consume() {
+            if (LA(1) == IntStreamConstants.EOF) {
                 throw new InvalidOperationException("cannot consume EOF");
             }
             // buf always has at least data[p==0] in this method due to ctor
             lastChar = data[p];
             // track last char for LA(-1)
-            if (p == n - 1 && numMarkers == 0)
-            {
+            if (p == n - 1 && numMarkers == 0) {
                 n = 0;
                 p = -1;
                 // p++ will leave this at 0
@@ -187,12 +175,10 @@ namespace Antlr4.Runtime
         /// <c>data.length</c>
         /// .
         /// </summary>
-        protected internal virtual void Sync(int want)
-        {
-            int need = (p + want - 1) - n + 1;
+        protected internal virtual void Sync(int want) {
+            var need = p + want - 1 - n + 1;
             // how many more elements we need?
-            if (need > 0)
-            {
+            if (need > 0) {
                 Fill(need);
             }
         }
@@ -208,53 +194,34 @@ namespace Antlr4.Runtime
         /// <paramref name="n"/>
         /// characters could be added.
         /// </summary>
-        protected internal virtual int Fill(int n)
-        {
-            for (int i = 0; i < n; i++)
-            {
-                if (this.n > 0 && data[this.n - 1] == IntStreamConstants.EOF)
-                {
+        protected internal virtual int Fill(int n) {
+            for (var i = 0; i < n; i++) {
+                if (this.n > 0 && data[this.n - 1] == IntStreamConstants.EOF) {
                     return i;
                 }
 
-                int c = NextChar();
-                if (c > char.MaxValue || c == IntStreamConstants.EOF)
-                {
+                var c = NextChar();
+                if (c is > char.MaxValue or IntStreamConstants.EOF) {
                     Add(c);
-                }
-                else
-                {
-                    char ch = unchecked((char)c);
-                    if (Char.IsLowSurrogate(ch))
-                    {
+                } else {
+                    var ch = unchecked((char)c);
+                    if (char.IsLowSurrogate(ch)) {
                         throw new ArgumentException("Invalid UTF-16 (low surrogate with no preceding high surrogate)");
-                    }
-                    else if (Char.IsHighSurrogate(ch))
-                    {
-                        int lowSurrogate = NextChar();
-                        if (lowSurrogate > char.MaxValue)
-                        {
+                    } else if (char.IsHighSurrogate(ch)) {
+                        var lowSurrogate = NextChar();
+                        if (lowSurrogate > char.MaxValue) {
                             throw new ArgumentException("Invalid UTF-16 (high surrogate followed by code point > U+FFFF");
-                        }
-                        else if (lowSurrogate == IntStreamConstants.EOF)
-                        {
+                        } else if (lowSurrogate == IntStreamConstants.EOF) {
                             throw new ArgumentException("Invalid UTF-16 (low surrogate with no preceding high surrogate)");
-                        }
-                        else
-                        {
-                            char lowSurrogateChar = unchecked((char)lowSurrogate);
-                            if (Char.IsLowSurrogate(lowSurrogateChar))
-                            {
-                                Add(Char.ConvertToUtf32(ch, lowSurrogateChar));
-                            }
-                            else
-                            {
+                        } else {
+                            var lowSurrogateChar = unchecked((char)lowSurrogate);
+                            if (char.IsLowSurrogate(lowSurrogateChar)) {
+                                Add(char.ConvertToUtf32(ch, lowSurrogateChar));
+                            } else {
                                 throw new ArgumentException("Invalid UTF-16 (low surrogate with no preceding high surrogate)");
                             }
                         }
-                    }
-                    else
-                    {
+                    } else {
                         Add(c);
                     }
                 }
@@ -268,35 +235,28 @@ namespace Antlr4.Runtime
         /// .
         /// </summary>
         /// <exception cref="System.IO.IOException"/>
-        protected internal virtual int NextChar()
-        {
+        protected internal virtual int NextChar() {
             return input.Read();
         }
 
-        protected internal virtual void Add(int c)
-        {
-            if (n >= data.Length)
-            {
+        protected internal virtual void Add(int c) {
+            if (n >= data.Length) {
                 data = Arrays.CopyOf(data, data.Length * 2);
             }
             data[n++] = c;
         }
 
-        public virtual int LA(int i)
-        {
-            if (i == -1)
-            {
+        public virtual int LA(int i) {
+            if (i == -1) {
                 return lastChar;
             }
             // special case
             Sync(i);
-            int index = p + i - 1;
-            if (index < 0)
-            {
+            var index = p + i - 1;
+            if (index < 0) {
                 throw new ArgumentOutOfRangeException();
             }
-            if (index >= n)
-            {
+            if (index >= n) {
                 return IntStreamConstants.EOF;
             }
             return data[index];
@@ -312,13 +272,11 @@ namespace Antlr4.Runtime
         /// <c>release()</c>
         /// is called in the wrong order.</p>
         /// </remarks>
-        public virtual int Mark()
-        {
-            if (numMarkers == 0)
-            {
+        public virtual int Mark() {
+            if (numMarkers == 0) {
                 lastCharBufferStart = lastChar;
             }
-            int mark = -numMarkers - 1;
+            var mark = -numMarkers - 1;
             numMarkers++;
             return mark;
         }
@@ -326,31 +284,26 @@ namespace Antlr4.Runtime
         /// <summary>Decrement number of markers, resetting buffer if we hit 0.</summary>
         /// <remarks>Decrement number of markers, resetting buffer if we hit 0.</remarks>
         /// <param name="marker"/>
-        public virtual void Release(int marker)
-        {
-            int expectedMark = -numMarkers;
-            if (marker != expectedMark)
-            {
+        public virtual void Release(int marker) {
+            var expectedMark = -numMarkers;
+            if (marker != expectedMark) {
                 throw new InvalidOperationException("release() called with an invalid marker.");
             }
             numMarkers--;
-            if (numMarkers == 0 && p > 0)
-            {
+            if (numMarkers == 0 && p > 0) {
                 // release buffer when we can, but don't do unnecessary work
                 // Copy data[p]..data[n-1] to data[0]..data[(n-1)-p], reset ptrs
                 // p is last valid char; move nothing if p==n as we have no valid char
                 System.Array.Copy(data, p, data, 0, n - p);
                 // shift n-p char from p to 0
-                n = n - p;
+                n -= p;
                 p = 0;
                 lastCharBufferStart = lastChar;
             }
         }
 
-        public virtual int Index
-        {
-            get
-            {
+        public virtual int Index {
+            get {
                 return currentCharIndex;
             }
         }
@@ -367,94 +320,72 @@ namespace Antlr4.Runtime
         /// <c>index-bufferStartIndex</c>
         /// .
         /// </remarks>
-        public virtual void Seek(int index)
-        {
-            if (index == currentCharIndex)
-            {
+        public virtual void Seek(int index) {
+            if (index == currentCharIndex) {
                 return;
             }
-            if (index > currentCharIndex)
-            {
+            if (index > currentCharIndex) {
                 Sync(index - currentCharIndex);
                 index = Math.Min(index, BufferStartIndex + n - 1);
             }
             // index == to bufferStartIndex should set p to 0
-            int i = index - BufferStartIndex;
-            if (i < 0)
-            {
+            var i = index - BufferStartIndex;
+            if (i < 0) {
                 throw new ArgumentException("cannot seek to negative index " + index);
-            }
-            else
-            {
-                if (i >= n)
-                {
+            } else {
+                if (i >= n) {
                     throw new NotSupportedException("seek to index outside buffer: " + index + " not in " + BufferStartIndex + ".." + (BufferStartIndex + n));
                 }
             }
             p = i;
             currentCharIndex = index;
-            if (p == 0)
-            {
+            if (p == 0) {
                 lastChar = lastCharBufferStart;
-            }
-            else
-            {
+            } else {
                 lastChar = data[p - 1];
             }
         }
 
-        public virtual int Size
-        {
-            get
-            {
+        public virtual int Size {
+            get {
                 throw new NotSupportedException("Unbuffered stream cannot know its size");
             }
         }
 
-        public virtual string SourceName
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(name))
-                {
+        public virtual string SourceName {
+            get {
+                if (string.IsNullOrEmpty(name)) {
                     return IntStreamConstants.UnknownSourceName;
                 }
                 return name;
             }
         }
 
-        public virtual string GetText(Interval interval)
-        {
-            if (interval.a < 0 || interval.b < interval.a - 1)
-            {
+        public virtual string GetText(Interval interval) {
+            if (interval.a < 0 || interval.b < interval.a - 1) {
                 throw new ArgumentException("invalid interval");
             }
-            int bufferStartIndex = BufferStartIndex;
-            if (n > 0 && data[n - 1] == IntStreamConstants.EOF)
-            {
-                if (interval.a + interval.Length > bufferStartIndex + n)
-                {
+            var bufferStartIndex = BufferStartIndex;
+            if (n > 0 && data[n - 1] == IntStreamConstants.EOF) {
+                if (interval.a + interval.Length > bufferStartIndex + n) {
                     throw new ArgumentException("the interval extends past the end of the stream");
                 }
             }
-            if (interval.a < bufferStartIndex || interval.b >= bufferStartIndex + n)
-            {
+            if (interval.a < bufferStartIndex || interval.b >= bufferStartIndex + n) {
                 throw new NotSupportedException("interval " + interval + " outside buffer: " + bufferStartIndex + ".." + (bufferStartIndex + n - 1));
             }
             // convert from absolute to local index
-            int i = interval.a - bufferStartIndex;
+            var i = interval.a - bufferStartIndex;
             // build a UTF-16 string from the Unicode code points in data
             var sb = new StringBuilder(interval.Length);
-            for (int offset = 0; offset < interval.Length; offset++) {
-                sb.Append(Char.ConvertFromUtf32(data[i + offset]));
+            for (var offset = 0; offset < interval.Length; offset++) {
+                sb.Append(char.ConvertFromUtf32(data[i + offset]));
             }
             return sb.ToString();
         }
 
-        protected internal int BufferStartIndex
-        {
-            get
-            {
+        protected internal int BufferStartIndex {
+            get {
                 return currentCharIndex - p;
             }
         }

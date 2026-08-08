@@ -25,7 +25,9 @@ namespace JoG.Cinemachine {
 
         private void Update() {
 #if UNITY_EDITOR
-            if (!Application.isPlaying) return;
+            if (!Application.isPlaying) {
+                return;
+            }
 #endif
             UpdateControllers();
         }

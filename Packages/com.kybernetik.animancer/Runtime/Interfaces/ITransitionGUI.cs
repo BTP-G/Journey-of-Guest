@@ -4,8 +4,7 @@
 
 using UnityEngine;
 
-namespace Animancer.Editor
-{
+namespace Animancer.Editor {
     /// <summary>[Editor-Only] An object that can draw custom GUI elements relating to transitions.</summary>
     /// <remarks>
     /// Implement this in a custom transition type to give it custom GUI elements.
@@ -42,8 +41,7 @@ namespace Animancer.Editor
     /// #endif
     /// </code></remarks>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/ITransitionGUI
-    public interface ITransitionGUI
-    {
+    public interface ITransitionGUI {
         /************************************************************************************************************************/
 
         /// <summary>Called while drawing the GUI for the <see cref="Previews.TransitionPreviewWindow"/> scene.</summary>
@@ -115,8 +113,7 @@ namespace Animancer.Editor
 
     /// <summary>[Editor-Only] Details about the current preview used by <see cref="ITransitionGUI.OnPreviewSceneGUI"/>.</summary>
     /// https://kybernetik.com.au/animancer/api/Animancer.Editor/TransitionPreviewDetails
-    public readonly struct TransitionPreviewDetails
-    {
+    public readonly struct TransitionPreviewDetails {
         /************************************************************************************************************************/
 
         /// <summary>The <see cref="AnimancerGraph"/> used to play the preview.</summary>
@@ -128,8 +125,7 @@ namespace Animancer.Editor
         /************************************************************************************************************************/
 
         /// <summary>Creates a new <see cref="TransitionPreviewDetails"/>.</summary>
-        public TransitionPreviewDetails(AnimancerGraph animancer)
-        {
+        public TransitionPreviewDetails(AnimancerGraph animancer) {
             Animancer = animancer;
         }
 
