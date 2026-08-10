@@ -1,12 +1,12 @@
 using EditorAttributes;
 using JoG.Character.Components;
-using JoG.Character.InputBanks;
 using JoG.Health;
 using JoG.Networking.Components;
 using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
 using Xoderony.Numerics;
+using Xoderony.InputChannels;
 
 namespace JoG.Character.States.Fighter {
 
@@ -60,15 +60,15 @@ namespace JoG.Character.States.Fighter {
 
         private Animator _animator;
 
-        private PrimarySkillInputBank _primarySkillInput;
+        private InputChannel<bool> _primarySkillInput;
 
-        private SecondarySkillInputBank _secondarySkillInput;
+        private InputChannel<bool> _secondarySkillInput;
 
         [Inject]
-        internal void Inject(InputBankHub inputBankHub, Animator animator) {
+        internal void Inject(InputChannelHub inputChannelHub, Animator animator) {
             _animator = animator;
-            _primarySkillInput = inputBankHub.GetInputBank<PrimarySkillInputBank>();
-            _secondarySkillInput = inputBankHub.GetInputBank<SecondarySkillInputBank>();
+            _primarySkillInput = inputChannelHub.GetInputChannel<bool>(InputKeys.PrimarySkill);
+            _secondarySkillInput = inputChannelHub.GetInputChannel<bool>(InputKeys.SecondarySkill);
         }
 
         private void OnEnable() {
@@ -85,9 +85,9 @@ namespace JoG.Character.States.Fighter {
         }
 
         private void Update() {
-            _animator.SetBool(AnimatorHashs.isAttackingR, _primarySkillInput.Value);
-            _animator.SetBool(AnimatorHashs.isAttackingL, _secondarySkillInput.Value);
-            if (_primarySkillInput.Value || _secondarySkillInput.Value) {
+            _animator.SetBool(AnimatorHashs.isAttackingR, _primarySkillInput.value);
+            _animator.SetBool(AnimatorHashs.isAttackingL, _secondarySkillInput.value);
+            if (_primarySkillInput.value || _secondarySkillInput.value) {
                 aimInputHandler.aimTime = 3;
             }
         }

@@ -1,6 +1,5 @@
 using EditorAttributes;
 using JoG.Character.Components;
-using JoG.Character.InputBanks;
 using JoG.Networking;
 using JoG.Networking.Components;
 using JoG.Projectiles;
@@ -10,6 +9,7 @@ using UnityEngine;
 using VContainer;
 using Xoderony;
 using Xoderony.YooAsset;
+using Xoderony.InputChannels;
 
 namespace JoG.Character.States.Mage {
 
@@ -28,20 +28,20 @@ namespace JoG.Character.States.Mage {
         [Inject] internal Entity attacker;
         [Inject] internal CharacterAimInputHandler aimInputHander;
 
-        private PrimarySkillInputBank _primarySkillInput;
-        private SecondarySkillInputBank _secondarySkillInput;
-        private AimInputBank _aimInput;
+        private InputChannel<bool> _primarySkillInput;
+        private InputChannel<bool> _secondarySkillInput;
+        private InputChannel<AimInput> _aimInput;
 
         private IDelegateSubscriber<AnimationEventHandler> _animationEvents;
 
         [Inject]
         internal void Inject(
-            InputBankHub inputBankHub,
+            InputChannelHub inputChannelHub,
             IDelegateSubscriber<AnimationEventHandler> animationEvents) {
 
-            _aimInput = inputBankHub.GetInputBank<AimInputBank>();
-            _primarySkillInput = inputBankHub.GetInputBank<PrimarySkillInputBank>();
-            _secondarySkillInput = inputBankHub.GetInputBank<SecondarySkillInputBank>();
+            _aimInput = inputChannelHub.GetInputChannel<AimInput>(InputKeys.Aim);
+            _primarySkillInput = inputChannelHub.GetInputChannel<bool>(InputKeys.PrimarySkill);
+            _secondarySkillInput = inputChannelHub.GetInputChannel<bool>(InputKeys.SecondarySkill);
             _animationEvents = animationEvents;
         }
 
@@ -56,8 +56,8 @@ namespace JoG.Character.States.Mage {
         }
 
         private void Update() {
-            animator.SetBool(AnimatorHashs.isChargingL, _primarySkillInput.Value);
-            animator.SetBool(AnimatorHashs.isChargingR, _secondarySkillInput.Value);
+            animator.SetBool(AnimatorHashs.isChargingL, _primarySkillInput.value);
+            animator.SetBool(AnimatorHashs.isChargingR, _secondarySkillInput.value);
         }
 
         private void OnDisable() {
@@ -111,30 +111,24 @@ namespace JoG.Character.States.Mage {
             var position = spell.muzzle.position;
             var networkPrefab = spell.networkPrefabCache;
             var up = body.rotation * Vector3.up;
-            var rotation = Quaternion.LookRotation(_aimInput.vector3 - position, up);
+            var rotation = Quaternion.LookRotation(_aimInput.value.position - position, up);
             var projectile = networkObjectFactory.Instantiate(networkPrefab, position: position, rotation: rotation);
-            projectile.GetComponent<ProjectileEntity>()
-                   .SetOwner(entity)
-                   .SetProperty(Properties.Attacker, attacker)
-                   .SetProperty(Properties.DamageValue, attackPowerStat.Value * spell.damageMultiplier)
-                   .SetProperty(Properties.IgnoreColliders, entity.Colliders)
-                   .SetProperty(Properties.InheritedVelocity, body.GetPointVelocity(position));
+            projectile.GetComponent<LinearProjectile>()
+                   .Initialize(entity, attacker, attackPowerStat.Value * spell.damageMultiplier, body.GetPointVelocity(position), entity.Colliders);
             projectile.Spawn(true);
         }
 
         private void CallProjectile(in Spell spell) {
             var mask = LayerMasks.Default | LayerMasks.Prop;
             var origin = spell.muzzle.position;
-            var direction = _aimInput.vector3 - origin;
+            var direction = _aimInput.value.position - origin;
             if (Physics.Raycast(origin, direction, out var hitInfo, 300, mask, QueryTriggerInteraction.Ignore)) {
                 var projectile = networkObjectFactory.Instantiate(
                     spell.networkPrefabCache,
                     position: hitInfo.point,
                     rotation: body.rotation);
-                projectile.GetComponent<ProjectileEntity>()
-                       .SetOwner(entity)
-                       .SetProperty(Properties.Attacker, attacker)
-                       .SetProperty(Properties.DamageValue, attackPowerStat.Value * spell.damageMultiplier);
+                projectile.GetComponent<PlacedProjectile>()
+                       .Initialize(entity, attacker, attackPowerStat.Value * spell.damageMultiplier);
                 projectile.Spawn(true);
             }
         }

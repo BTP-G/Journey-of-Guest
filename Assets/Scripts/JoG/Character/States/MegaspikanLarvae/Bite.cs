@@ -1,7 +1,6 @@
+using JoG.Combat;
 using JoG.Health;
 using System;
-using System.Buffers;
-using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
 using Xoderony;
@@ -17,8 +16,8 @@ namespace JoG.Character.States.MegaspikanLarvae {
         public HealthChangeFlag damageFlags;
 
         [Inject] internal Entity attacker;
+        [Inject] internal CombatDamage combatDamage;
         [Inject, Key(Constants.Stats.AttackPower)] internal Stat attackPowerStat;
-        private HashSet<Entity> hits = new();
         private IDelegateSubscriber<AnimationEventHandler> _animationEvents;
 
         [Inject]
@@ -29,29 +28,20 @@ namespace JoG.Character.States.MegaspikanLarvae {
         protected void OnEnable() {
             animator.SetBool("isBiting", true);
             _animationEvents.Subscribe(HandleAnimationEvent);
-            hits.Clear();
         }
 
         protected void HandleAnimationEvent(in AnimationEvent animationEvent) {
             if (animationEvent.stringParameter == "bite") {
-                var buffer = ArrayPool<Collider>.Shared.Rent(256);
-                var count = Physics.OverlapSphereNonAlloc(attackPoint.position, biteRadius, buffer, attackMask, QueryTriggerInteraction.Ignore);
-                var damageValue = attackPowerStat.Value * damageMultiplierPercent / 100;
-                foreach (var c in buffer.AsSpan(0, count)) {
-                    if (c.TryGetComponent<Damageable>(out var damageable)
-                        && damageable.Entity != attacker
-                        && hits.Add(damageable.Entity)
-                        && damageable.CanTakeDamage(attacker)) {
-                        var message = new HealthChangeMessage() {
-                            Position = c.ClosestPoint(attackPoint.position),
-                            //impulse = new Vector3(0, 10, 0),
-                            Value = damageValue,
-                            Flags = damageFlags,
-                        };
-                        damageable.TakeDamage(ref message, attacker);
-                    }
-                }
-                ArrayPool<Collider>.Shared.Return(buffer);
+                combatDamage.ApplySphere(
+                    attacker,
+                    attackPoint.position,
+                    biteRadius,
+                    attackMask,
+                    QueryTriggerInteraction.Ignore,
+                    attackPowerStat.Value * damageMultiplierPercent / 100,
+                    damageFlags,
+                    null,
+                    broadcast: true);
             } else if (animationEvent.stringParameter == "exit") {
                 //TransitionTo(null);
             }

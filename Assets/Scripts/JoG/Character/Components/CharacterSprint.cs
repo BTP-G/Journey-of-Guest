@@ -1,7 +1,7 @@
-using JoG.Character.InputBanks;
 using UnityEngine;
 using VContainer;
 using Xoderony.Numerics;
+using Xoderony.InputChannels;
 
 namespace JoG.Character.Components {
 
@@ -10,7 +10,7 @@ namespace JoG.Character.Components {
         [Inject] internal Animator _animator;
         [Inject, Key(Constants.Stats.MaxMoveSpeed)] internal Stat _maxMoveSpeed;
         [Inject, Key(Constants.Stats.MoveAcceleration)] internal Stat _acceleration;
-        private BooleanInputBank sprintInput;
+        private InputChannel<bool> sprintInput;
 
         private bool _isSprinting;
 
@@ -42,12 +42,12 @@ namespace JoG.Character.Components {
         }
 
         [Inject]
-        internal void Inject(InputBankHub inputBankHub) {
-            sprintInput = inputBankHub.GetInputBank<SprintInputBank>();
+        internal void Inject(InputChannelHub inputChannelHub) {
+            sprintInput = inputChannelHub.GetInputChannel<bool>(InputKeys.Sprint);
         }
 
         protected void Update() {
-            if (sprintInput.Value) {
+            if (sprintInput.value) {
                 if (!_isSprinting) {
                     StartSprinting();
                 }

@@ -1,8 +1,8 @@
 using JoG.Character;
+using JoG.Combat;
 using JoG.GameplayEffects.Data;
 using JoG.Health;
 using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
@@ -11,7 +11,6 @@ using Xoderony;
 using Xoderony.Collections;
 using Xoderony.Extensions;
 using Xoderony.GameplayEffects;
-using Xoderony.ObjectPool.Generic;
 using Xoderony.ObjectPool.Unity;
 using Xoderony.Unity;
 using Xoderony.YooAsset;
@@ -24,7 +23,7 @@ namespace JoG.GameplayEffects.Controllers {
 
         [Inject] internal Entity owner;
 
-        [Inject] internal HealthChangeRouter healthChangeRouter;
+        [Inject] internal CombatDamage combatDamage;
 
         private readonly ArrayList<EffectState> _states = new();
 
@@ -84,33 +83,7 @@ namespace JoG.GameplayEffects.Controllers {
                 return;
             }
 
-            var buffer = ArrayPool<Collider>.Shared.Rent(256);
-            var count = Physics.OverlapSphereNonAlloc(position, radius, buffer, hitLayer, QueryTriggerInteraction.Collide);
-            using (DictionaryPool<Entity, AreaHit>.Rent(out var entityToHit)) {
-                foreach (var collider in buffer.AsSpan(0, count)) {
-                    if (!collider.TryGetComponent<Damageable>(out var damageable) || !damageable.CanTakeDamage(source)) {
-                        continue;
-                    }
-
-                    var target = damageable.Entity;
-                    var hitPoint = collider.ClosestPoint(position);
-                    var sqrDistance = (hitPoint - position).sqrMagnitude;
-                    if (entityToHit.TryGetValue(target, out var existing) && sqrDistance >= existing.SqrDistance) {
-                        continue;
-                    }
-                    entityToHit[target] = new AreaHit(target, hitPoint, sqrDistance);
-                }
-
-                foreach (var hit in entityToHit.Values) {
-                    var message = new HealthChangeMessage {
-                        Value = damage,
-                        Flags = flags,
-                        Position = hit.Point,
-                    };
-                    healthChangeRouter.Route(source, hit.Target, ref message);
-                }
-            }
-            ArrayPool<Collider>.Shared.Return(buffer, true);
+            combatDamage.ApplySphere(source, position, radius, hitLayer, QueryTriggerInteraction.Collide, -damage, flags, null, broadcast: false);
         }
 
         private void SpawnEffect(ref YooAssetReference<GameObject> reference, Vector3 position, Quaternion rotation) {
@@ -180,21 +153,6 @@ namespace JoG.GameplayEffects.Controllers {
             public ConditionalAreaDamageEffectData Data;
 
             public int Count;
-        }
-
-        private readonly struct AreaHit {
-
-            public readonly Entity Target;
-
-            public readonly Vector3 Point;
-
-            public readonly float SqrDistance;
-
-            public AreaHit(Entity target, Vector3 point, float sqrDistance) {
-                Target = target;
-                Point = point;
-                SqrDistance = sqrDistance;
-            }
         }
     }
 }

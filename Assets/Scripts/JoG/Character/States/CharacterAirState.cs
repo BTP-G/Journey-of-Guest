@@ -1,8 +1,8 @@
 using Animancer;
-using JoG.Character.InputBanks;
 using UnityEngine;
 using VContainer;
 using Xoderony.Movement;
+using Xoderony.InputChannels;
 
 namespace JoG.Character.States {
 
@@ -26,11 +26,11 @@ namespace JoG.Character.States {
         [Key(Constants.Stats.MoveAcceleration)]
         internal Stat moveAcceleration;
 
-        private MoveInputBank _moveInput;
+        private InputChannel<Vector3> _moveInput;
 
         [Inject]
-        internal void Inject(InputBankHub inputBankHub) {
-            _moveInput = inputBankHub.GetInputBank<MoveInputBank>();
+        internal void Inject(InputChannelHub inputChannelHub) {
+            _moveInput = inputChannelHub.GetInputChannel<Vector3>(InputKeys.Move);
         }
 
         protected void OnEnable() {
@@ -42,7 +42,7 @@ namespace JoG.Character.States {
         }
 
         protected void FixedUpdate() {
-            var planarInput = Vector3.ProjectOnPlane(_moveInput.vector3, motor.Up);
+            var planarInput = Vector3.ProjectOnPlane(_moveInput.value, motor.Up);
             var maxMoveSpeedValue = maxMoveSpeed.Value;
             var targetVelocity = Vector3.ClampMagnitude(planarInput, 1) * maxMoveSpeedValue;
             var acceleration = moveAcceleration.Value * _airControl;

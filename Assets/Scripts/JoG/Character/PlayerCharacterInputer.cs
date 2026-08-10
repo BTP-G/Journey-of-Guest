@@ -1,8 +1,8 @@
-using JoG.Character.InputBanks;
 using JoG.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using VContainer;
+using Xoderony.InputChannels;
 
 namespace JoG.Character {
 
@@ -16,25 +16,25 @@ namespace JoG.Character {
         [Inject, Key(Constants.InputAction.Sprint)] internal InputAction _sprint;
         [Inject, Key(Constants.InputAction.Skill)] internal InputAction _skill;
         [Inject, Key(Constants.InputAction.Interact)] internal InputAction _interact;
-        private SprintInputBank sprintInputBank;
-        private JumpInputBank jumpInputBank;
-        private PrimarySkillInputBank primarySkillInputBank;
-        private SecondarySkillInputBank secondarySkillInputBank;
-        private SpecialSkillInputBank specialSkillInputBank;
-        private MoveInputBank moveInputBank;
-        private AimInputBank aimInputBank;
-        private InteractInputBank ineractInputBank;
+        private InputChannel<bool> sprintInputChannel;
+        private InputChannel<bool> jumpInputChannel;
+        private InputChannel<bool> primarySkillInputChannel;
+        private InputChannel<bool> secondarySkillInputChannel;
+        private InputChannel<bool> specialSkillInputChannel;
+        private InputChannel<Vector3> moveInputChannel;
+        private InputChannel<AimInput> aimInputChannel;
+        private InputChannel<bool> ineractInputChannel;
 
         void ICharacterInputDriver.Bind(CharacterEntity body) {
-            var inputBankHub = body.InputBankHub;
-            jumpInputBank = inputBankHub.GetInputBank<JumpInputBank>();
-            moveInputBank = inputBankHub.GetInputBank<MoveInputBank>();
-            primarySkillInputBank = inputBankHub.GetInputBank<PrimarySkillInputBank>();
-            secondarySkillInputBank = inputBankHub.GetInputBank<SecondarySkillInputBank>();
-            specialSkillInputBank = inputBankHub.GetInputBank<SpecialSkillInputBank>();
-            sprintInputBank = inputBankHub.GetInputBank<SprintInputBank>();
-            aimInputBank = inputBankHub.GetInputBank<AimInputBank>();
-            ineractInputBank = inputBankHub.GetInputBank<InteractInputBank>();
+            var inputChannelHub = body.InputChannelHub;
+            jumpInputChannel = inputChannelHub.GetInputChannel<bool>(InputKeys.Jump);
+            moveInputChannel = inputChannelHub.GetInputChannel<Vector3>(InputKeys.Move);
+            primarySkillInputChannel = inputChannelHub.GetInputChannel<bool>(InputKeys.PrimarySkill);
+            secondarySkillInputChannel = inputChannelHub.GetInputChannel<bool>(InputKeys.SecondarySkill);
+            specialSkillInputChannel = inputChannelHub.GetInputChannel<bool>(InputKeys.SpecialSkill);
+            sprintInputChannel = inputChannelHub.GetInputChannel<bool>(InputKeys.Sprint);
+            aimInputChannel = inputChannelHub.GetInputChannel<AimInput>(InputKeys.Aim);
+            ineractInputChannel = inputChannelHub.GetInputChannel<bool>(InputKeys.Interact);
             enabled = true;
         }
 
@@ -62,9 +62,9 @@ namespace JoG.Character {
 
         private void Update() {
             var moveInput = _move.ReadValue<Vector2>();
-            aimInputBank.vector3 = aimer.AimPoint;
-            aimInputBank.target = aimer.AimTarget?.transform;
-            moveInputBank.vector3 = aimer.AimRotation * new Vector3(moveInput.x, 0, moveInput.y);
+            var aimTarget = aimer.AimTarget?.transform;
+            aimInputChannel.value = new AimInput(aimer.AimPoint, aimTarget);
+            moveInputChannel.value = aimer.AimRotation * new Vector3(moveInput.x, 0, moveInput.y);
         }
 
         private void OnDisable() {
@@ -82,27 +82,27 @@ namespace JoG.Character {
         }
 
         private void OnPrimaryAction(InputAction.CallbackContext context) {
-            primarySkillInputBank.UpdateState(context.performed);
+            primarySkillInputChannel.value = context.performed;
         }
 
         private void OnSecondaryAction(InputAction.CallbackContext context) {
-            secondarySkillInputBank.UpdateState(context.performed);
+            secondarySkillInputChannel.value = context.performed;
         }
 
         private void OnJump(InputAction.CallbackContext context) {
-            jumpInputBank.UpdateState(context.performed);
+            jumpInputChannel.value = context.performed;
         }
 
         private void OnSprint(InputAction.CallbackContext context) {
-            sprintInputBank.UpdateState(!sprintInputBank.Value);
+            sprintInputChannel.value = !sprintInputChannel.value;
         }
 
         private void OnInteract(InputAction.CallbackContext context) {
-            ineractInputBank.UpdateState(context.performed);
+            ineractInputChannel.value = context.performed;
         }
 
         private void OnSkill(InputAction.CallbackContext context) {
-            specialSkillInputBank.UpdateState(context.performed);
+            specialSkillInputChannel.value = context.performed;
         }
     }
 }

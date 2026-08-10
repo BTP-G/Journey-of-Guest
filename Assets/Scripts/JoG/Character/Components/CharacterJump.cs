@@ -1,9 +1,9 @@
 using EditorAttributes;
-using JoG.Character.InputBanks;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 using VContainer;
 using Xoderony.Movement;
+using Xoderony.InputChannels;
 
 namespace JoG.Character.Components {
 
@@ -15,9 +15,9 @@ namespace JoG.Character.Components {
 
         public int forceNotGroundedFrames = 3;
         [Inject] internal CharacterMotor motor;
-        [Inject] internal InputBankHub _inputBankHub;
+        [Inject] internal InputChannelHub _inputChannelHub;
 
-        private JumpInputBank jumpInput;
+        private InputChannel<bool> jumpInput;
 
         public float JumpHeight {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -34,14 +34,14 @@ namespace JoG.Character.Components {
         }
 
         [Inject]
-        internal void Inject(InputBankHub inputBankHub) {
-            jumpInput = _inputBankHub.GetInputBank<JumpInputBank>();
+        internal void Inject(InputChannelHub inputChannelHub) {
+            jumpInput = _inputChannelHub.GetInputChannel<bool>(InputKeys.Jump);
         }
 
         private void Update() {
-            if (jumpInput.Value && motor.IsStable) {
+            if (jumpInput.value && motor.IsStable) {
                 Jump();
-                jumpInput.UpdateState(false);
+                jumpInput.value = false;
             }
         }
     }

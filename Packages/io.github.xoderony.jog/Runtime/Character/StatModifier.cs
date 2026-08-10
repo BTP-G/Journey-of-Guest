@@ -9,13 +9,19 @@ namespace JoG.Character {
 
         private readonly Stat _stat;
 
-        private readonly int _slotIndex;
+        private int _slotIndex;
 
         private bool _removed;
 
         internal StatModifier(Stat stat, int slotIndex) {
             _stat = stat;
             _slotIndex = slotIndex;
+        }
+
+        // 密集槽位在移除后发生移动，Stat 通过该索引回写保持句柄有效。
+        internal int SlotIndex {
+            get => _slotIndex;
+            set => _slotIndex = value;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -29,7 +35,7 @@ namespace JoG.Character {
                 return;
             }
             _removed = true;
-            _stat.ReleaseMultiplierSlot(_slotIndex);
+            _stat.RemoveMultiplierSlot(_slotIndex);
         }
     }
 }

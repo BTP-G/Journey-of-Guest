@@ -1,9 +1,9 @@
 using EditorAttributes;
 using JoG.Character;
-using JoG.Character.InputBanks;
 using UnityEngine;
 using UnityEngine.AI;
 using VContainer;
+using Xoderony.InputChannels;
 
 namespace JoG.AI {
 
@@ -12,7 +12,7 @@ namespace JoG.AI {
         [Required] public Transform aimOrigin;
         [Inject] internal AITarget target;
         private NavMeshAgent _agent;
-        private PrimarySkillInputBank _inputBank;
+        private InputChannel<bool> _inputChannel;
 
         [Inject]
         internal void Inject(NavMeshAgentController agentController) {
@@ -20,7 +20,7 @@ namespace JoG.AI {
         }
 
         void ICharacterInputDriver.Bind(CharacterEntity character) {
-            _inputBank = character.InputBankHub.GetInputBank<PrimarySkillInputBank>();
+            _inputChannel = character.InputChannelHub.GetInputChannel<bool>(InputKeys.PrimarySkill);
             enabled = true;
         }
 
@@ -37,9 +37,9 @@ namespace JoG.AI {
                 var aimRay = new Ray(aimOrigin.position, target.target.position - aimOrigin.position);
                 var isInRange = collider.Raycast(aimRay, out _, minTriggerDistance)
                     && _agent.remainingDistance < minTriggerDistance;
-                _inputBank.UpdateState(isInRange);
+                _inputChannel.value = isInRange;
             } else {
-                _inputBank.UpdateState(false);
+                _inputChannel.value = false;
             }
         }
     }

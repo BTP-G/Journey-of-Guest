@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Xoderony.InputChannels;
 
 namespace JoG.Character {
 
@@ -31,7 +32,7 @@ namespace JoG.Character {
             }
 
             UnbindDrivers();
-            _body?.InputBankHub.ResetAll();
+            _body?.InputChannelHub.ResetAll();
             _body = body;
             RefreshDrivers();
         }
@@ -47,7 +48,7 @@ namespace JoG.Character {
                 }
             } else {
                 UnbindDrivers();
-                _body?.InputBankHub.ResetAll();
+                _body?.InputChannelHub.ResetAll();
             }
             _isEnabled = enabled;
         }

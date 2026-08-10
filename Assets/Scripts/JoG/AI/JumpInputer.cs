@@ -1,14 +1,14 @@
 using JoG.Character;
-using JoG.Character.InputBanks;
 using UnityEngine;
 using UnityEngine.AI;
 using VContainer;
+using Xoderony.InputChannels;
 
 namespace JoG.AI {
 
     public class JumpInputer : MonoBehaviour, IComponent, ICharacterInputDriver {
         private NavMeshAgent _agent;
-        private JumpInputBank _jumpInputBank;
+        private InputChannel<bool> _jumpInputChannel;
 
         [Inject]
         internal void Inject(NavMeshAgentController agentController) {
@@ -16,8 +16,8 @@ namespace JoG.AI {
         }
 
         void ICharacterInputDriver.Bind(CharacterEntity character) {
-            var inputBankHub = character.InputBankHub;
-            _jumpInputBank = inputBankHub.GetInputBank<JumpInputBank>();
+            var inputChannelHub = character.InputChannelHub;
+            _jumpInputChannel = inputChannelHub.GetInputChannel<bool>(InputKeys.Jump);
             enabled = true;
         }
 
@@ -30,7 +30,7 @@ namespace JoG.AI {
         }
 
         private void Update() {
-            _jumpInputBank.UpdateState(_agent.isOnOffMeshLink);
+            _jumpInputChannel.value = _agent.isOnOffMeshLink;
         }
     }
 }

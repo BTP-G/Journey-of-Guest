@@ -1,11 +1,11 @@
 using JoG.Character.Components;
-using JoG.Character.InputBanks;
 using JoG.Networking;
 using JoG.Projectiles;
 using Unity.Netcode;
 using UnityEngine;
 using VContainer;
 using Xoderony.YooAsset;
+using Xoderony.InputChannels;
 
 namespace JoG.Character.States.Spitter {
 
@@ -24,15 +24,15 @@ namespace JoG.Character.States.Spitter {
         [Inject] internal Entity attacker;
         [Inject] internal Entity entity;
         private Animator _animator;
-        private PrimarySkillInputBank _primarySkillInput;
-        private AimInputBank _aimInput;
+        private InputChannel<bool> _primarySkillInput;
+        private InputChannel<AimInput> _aimInput;
         private NetworkObject _networkPrefab;
 
         [Inject]
-        internal void Inject(InputBankHub inputBankHub, Animator animator) {
+        internal void Inject(InputChannelHub inputChannelHub, Animator animator) {
             _animator = animator;
-            _primarySkillInput = inputBankHub.GetInputBank<PrimarySkillInputBank>();
-            _aimInput = inputBankHub.GetInputBank<AimInputBank>();
+            _primarySkillInput = inputChannelHub.GetInputChannel<bool>(InputKeys.PrimarySkill);
+            _aimInput = inputChannelHub.GetInputChannel<AimInput>(InputKeys.Aim);
         }
 
         private void Awake() {
@@ -45,8 +45,8 @@ namespace JoG.Character.States.Spitter {
         }
 
         private void Update() {
-            _animator.SetBool(AnimatorHashs.isAttacking, _primarySkillInput.Value);
-            if (_primarySkillInput.Value) {
+            _animator.SetBool(AnimatorHashs.isAttacking, _primarySkillInput.value);
+            if (_primarySkillInput.value) {
                 aimInputHandler.aimTime = 3;
             }
         }
@@ -64,14 +64,10 @@ namespace JoG.Character.States.Spitter {
             var position = muzzle.position;
             var networkPrefab = _networkPrefab;
             var up = body.rotation * Vector3.up;
-            var rotation = Quaternion.LookRotation(_aimInput.vector3 - position, up);
+            var rotation = Quaternion.LookRotation(_aimInput.value.position - position, up);
             var projectile = networkObjectFactory.Instantiate(networkPrefab, position: position, rotation: rotation);
-            projectile.GetComponent<ProjectileEntity>()
-                   .SetOwner(entity)
-                   .SetProperty(Properties.Attacker, attacker)
-                   .SetProperty(Properties.DamageValue, attackPowerStat.Value * damageMultiplier)
-                   .SetProperty(Properties.IgnoreColliders, entity.Colliders)
-                   .SetProperty(Properties.InheritedVelocity, body.GetPointVelocity(position));
+            projectile.GetComponent<LinearProjectile>()
+                   .Initialize(entity, attacker, attackPowerStat.Value * damageMultiplier, body.GetPointVelocity(position), entity.Colliders);
             projectile.Spawn(true);
         }
     }

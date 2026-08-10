@@ -1,12 +1,10 @@
 using JoG.Character.Components;
-using JoG.Character.InputBanks;
+using JoG.Combat;
 using JoG.Health;
-using System.Buffers;
-using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using VContainer;
-using Xoderony.Extensions;
+using Xoderony.InputChannels;
 
 namespace JoG.Character.States.Golem {
 
@@ -29,14 +27,14 @@ namespace JoG.Character.States.Golem {
         [Inject] internal Rigidbody body;
         [Inject] internal Entity attacker;
         [Inject] internal Entity entity;
-        private readonly HashSet<Entity> _hits = new();
+        [Inject] internal CombatDamage combatDamage;
         private Animator _animator;
-        private PrimarySkillInputBank _primarySkillInput;
+        private InputChannel<bool> _primarySkillInput;
 
         [Inject]
-        internal void Inject(InputBankHub inputBankHub, Animator animator) {
+        internal void Inject(InputChannelHub inputChannelHub, Animator animator) {
             _animator = animator;
-            _primarySkillInput = inputBankHub.GetInputBank<PrimarySkillInputBank>();
+            _primarySkillInput = inputChannelHub.GetInputChannel<bool>(InputKeys.PrimarySkill);
         }
 
         private void OnEnable() {
@@ -44,8 +42,8 @@ namespace JoG.Character.States.Golem {
         }
 
         private void Update() {
-            _animator.SetBool(AnimatorHashs.isAttacking, _primarySkillInput.Value);
-            if (_primarySkillInput.Value) {
+            _animator.SetBool(AnimatorHashs.isAttacking, _primarySkillInput.value);
+            if (_primarySkillInput.value) {
                 aimInputHandler.aimTime = 3;
             }
         }
@@ -56,29 +54,17 @@ namespace JoG.Character.States.Golem {
         }
 
         private void OnStomp(AnimationEvent arg) {
-            var buffer = ArrayPool<Collider>.Shared.Rent(256);
             var hitTransform = hitBox.transform;
-            var sourcePosition = hitTransform.position;
-            var hitRadius = hitBox.radius;
-            var count = Physics.OverlapSphereNonAlloc(sourcePosition, hitRadius, buffer, hitMask, QueryTriggerInteraction.Ignore);
-            foreach (ref readonly var hit in buffer.AsReadOnlySpan(0, count)) {
-                if (hit.TryGetComponent<Damageable>(out var damageable) && _hits.Add(damageable.Entity) && damageable.CanTakeDamage(attacker)) {
-                    var hitPoint = hit.ClosestPoint(sourcePosition);
-                    var hitDistance = sourcePosition.DistanceTo(hitPoint);
-                    var falloffValue = damageFalloff.Evaluate(hitDistance / hitRadius);
-                    var damageValue = (int)(attackPowerStat.Value * damageMultiplier * falloffValue);
-                    var impulse = force * falloffValue * (hitPoint - sourcePosition).normalized;
-                    var message = new HealthChangeMessage() {
-                        Position = hitPoint,
-                        //impulse = impulse,
-                        Value = damageValue,
-                        Flags = damageFlags,
-                    };
-                    damageable.TakeDamage(ref message, attacker);
-                }
-            }
-            ArrayPool<Collider>.Shared.Return(buffer);
-            _hits.Clear();
+            combatDamage.ApplySphere(
+                attacker,
+                hitTransform.position,
+                hitBox.radius,
+                hitMask,
+                QueryTriggerInteraction.Ignore,
+                attackPowerStat.Value * damageMultiplier,
+                damageFlags,
+                damageFalloff,
+                broadcast: true);
         }
     }
 }

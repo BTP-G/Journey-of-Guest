@@ -1,8 +1,8 @@
-using JoG.Character.InputBanks;
 using UnityEngine;
 using VContainer;
 using Xoderony.Extensions;
 using Xoderony.Movement;
+using Xoderony.InputChannels;
 
 namespace JoG.Character.Components {
 
@@ -11,11 +11,11 @@ namespace JoG.Character.Components {
         public float aimTime;
         public float rotateSpeed;
         [Inject] internal CharacterMotor _motor;
-        private AimInputBank _aimInput;
+        private InputChannel<AimInput> _aimInput;
 
         [Inject]
-        internal void Inject(InputBankHub inputBankHub) {
-            _aimInput = inputBankHub.GetInputBank<AimInputBank>();
+        internal void Inject(InputChannelHub inputChannelHub) {
+            _aimInput = inputChannelHub.GetInputChannel<AimInput>(InputKeys.Aim);
         }
 
         private void FixedUpdate() {
@@ -24,7 +24,7 @@ namespace JoG.Character.Components {
             Vector3 forward;
             if (aimTime > 0) {
                 aimTime -= Time.deltaTime;
-                forward = (_aimInput.vector3 - _motor.Position).ProjectOnPlane(up).normalized;
+                forward = (_aimInput.value.position - _motor.Position).ProjectOnPlane(up).normalized;
             } else {
                 forward = _motor.InputVelocity.normalized;
             }

@@ -4,6 +4,7 @@ using UnityEngine;
 using VContainer;
 using Xoderony;
 using Xoderony.Movement;
+using Xoderony.InputChannels;
 
 namespace JoG.Character {
 
@@ -31,7 +32,7 @@ namespace JoG.Character {
 
         public CharacterMotor Motor { get; private set; }
 
-        public InputBankHub InputBankHub { get; private set; }
+        public InputChannelHub InputChannelHub { get; private set; }
 
         public HealthChangeRouter HealthChangeRouter { get; private set; }
 
@@ -53,7 +54,7 @@ namespace JoG.Character {
             base.Configure(builder);
             builder.RegisterInstance(this).As<Entity>();
             builder.RegisterBuildCallback(OnBuilt);
-            builder.Register<InputBankHub>(Lifetime.Singleton).AsSelf();
+            builder.Register<InputChannelHub>(Lifetime.Singleton).AsSelf();
             builder.RegisterInstance(Rigidbody = GetComponentInChildren<Rigidbody>());
             builder.RegisterInstance(Animator = GetComponentInChildren<Animator>());
             builder.RegisterInstance(Motor = GetComponentInChildren<CharacterMotor>());
@@ -65,7 +66,7 @@ namespace JoG.Character {
         }
 
         private void OnBuilt(IObjectResolver container) {
-            InputBankHub = container.Resolve<InputBankHub>();
+            InputChannelHub = container.Resolve<InputChannelHub>();
             Health = container.Resolve<HealthComponent>();
             Effects = container.Resolve<CharacterEffects>();
             PeriodicHealthChanges = container.Resolve<CharacterPeriodicHealthChanges>();

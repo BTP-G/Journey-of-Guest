@@ -1,11 +1,11 @@
 using EditorAttributes;
 using JoG.Character.Components;
-using JoG.Character.InputBanks;
 using JoG.Health;
 using JoG.Networking.Components;
 using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
+using Xoderony.InputChannels;
 
 namespace JoG.Character.States.Skeleton {
 
@@ -25,12 +25,12 @@ namespace JoG.Character.States.Skeleton {
         [Inject] internal Entity attacker;
         private readonly HashSet<Entity> _hits = new();
         private Animator _animator;
-        private PrimarySkillInputBank _primarySkillInput;
+        private InputChannel<bool> _primarySkillInput;
 
         [Inject]
-        internal void Inject(InputBankHub inputBankHub, Animator animator) {
+        internal void Inject(InputChannelHub inputChannelHub, Animator animator) {
             _animator = animator;
-            _primarySkillInput = inputBankHub.GetInputBank<PrimarySkillInputBank>();
+            _primarySkillInput = inputChannelHub.GetInputChannel<bool>(InputKeys.PrimarySkill);
         }
 
         private void OnEnable() {
@@ -40,8 +40,8 @@ namespace JoG.Character.States.Skeleton {
         }
 
         private void Update() {
-            _animator.SetBool(AnimatorHashs.isAttacking, _primarySkillInput.Value);
-            if (_primarySkillInput.Value) {
+            _animator.SetBool(AnimatorHashs.isAttacking, _primarySkillInput.value);
+            if (_primarySkillInput.value) {
                 aimInputHandler.aimTime = 3;
             }
         }

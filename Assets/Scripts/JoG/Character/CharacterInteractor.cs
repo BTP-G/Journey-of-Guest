@@ -1,4 +1,3 @@
-using JoG.Character.InputBanks;
 using JoG.Interaction;
 using JoG.UI;
 using UnityEngine;
@@ -6,6 +5,7 @@ using VContainer;
 using Xoderony;
 using Xoderony.Extensions;
 using Xoderony.ObjectPool.Generic;
+using Xoderony.InputChannels;
 
 namespace JoG.Character {
 
@@ -15,22 +15,22 @@ namespace JoG.Character {
         [Inject] internal CharacterModel model;
         [Inject] internal WorldTooltip _tooltip;
         private Transform _currentTarget;
-        private InteractInputBank _interactInput;
-        private AimInputBank _aimInput;
+        private InputChannel<bool> _interactInput;
+        private InputChannel<AimInput> _aimInput;
         private IDelegateDispatcher<InteractionHandler> _interactionHandlers;
 
         [Inject]
         internal void Inject(
-            InputBankHub inputBankHub,
+            InputChannelHub inputChannelHub,
             IDelegateDispatcher<InteractionHandler> interactionHandlers) {
 
-            _interactInput = inputBankHub.GetInputBank<InteractInputBank>();
-            _aimInput = inputBankHub.GetInputBank<AimInputBank>();
+            _interactInput = inputChannelHub.GetInputChannel<bool>(InputKeys.Interact);
+            _aimInput = inputChannelHub.GetInputChannel<AimInput>(InputKeys.Aim);
             _interactionHandlers = interactionHandlers;
         }
 
         private void Update() {
-            var interactTarget = _aimInput.target;
+            var interactTarget = _aimInput.value.target;
             var hasTarget = interactTarget != null && model.Center.SqrDistanceTo(interactTarget.transform.position) < maxSqrtDistance;
             if (hasTarget) {
                 if (_currentTarget != null) {
@@ -42,7 +42,7 @@ namespace JoG.Character {
                 OnExitInteraction(_currentTarget);
                 _currentTarget = null;
             }
-            if (_interactInput.Value && hasTarget) {
+            if (_interactInput.value && hasTarget) {
                 Interact(interactTarget);
             }
         }
@@ -54,7 +54,7 @@ namespace JoG.Character {
                     if (interactable.CanInteract(entity)) {
                         _interactionHandlers.Handlers?.Invoke(interactable);
                         interactable.OnInteracted(entity);
-                        _interactInput.UpdateState(false);
+                        _interactInput.value = false;
                     }
                 }
             }

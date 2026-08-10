@@ -1,4 +1,3 @@
-using JoG.Core;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
@@ -7,15 +6,16 @@ using Xoderony.Unity;
 
 namespace JoG.Projectiles {
 
-    public class ProjectileEntity : Entity {
-        public readonly PropertyHub propertyHub = new();
+    /// <summary>射弹网络实体基类：同步 Owner、按 lifetime 超时销毁。弹种类型继承本类并自持行为。</summary>
+    public abstract class ProjectileEntity : Entity {
         public float lifetime = 3f;
         private float _lifeEndTime;
-        private PropertyValue<Entity> _ownerEntity;
+        private Entity _owner;
 
-        public PropertyHub SetOwner(Entity owner) {
-            _ownerEntity.value = owner;
-            return propertyHub;
+        public Entity Owner => _owner;
+
+        public void SetOwner(Entity owner) {
+            _owner = owner;
         }
 
         public override void OnNetworkSpawn() {
@@ -29,27 +29,21 @@ namespace JoG.Projectiles {
         public override void OnNetworkDespawn() {
             base.OnNetworkDespawn();
             PreUpdateLoop<FixedUpdate.ScriptRunBehaviourFixedUpdate>.Unregister(OnPreFixedUpdate);
-            propertyHub.Reset();
-        }
-
-        protected new void Awake() {
-            base.Awake();
-            _ownerEntity = propertyHub.GetProperty<Entity>(Properties.Owner);
         }
 
         protected override void Configure(IContainerBuilder builder) {
             base.Configure(builder);
-            builder.RegisterInstance(propertyHub);
+            builder.RegisterInstance(this).As<Entity>();
         }
 
         protected override void OnSynchronize<T>(ref BufferSerializer<T> serializer) {
             base.OnSynchronize(ref serializer);
             if (serializer.IsWriter) {
                 var writer = serializer.GetFastBufferWriter();
-                writer.WriteValueSafe(_ownerEntity.value);
+                writer.WriteValueSafe(_owner);
             } else {
                 var reader = serializer.GetFastBufferReader();
-                reader.ReadValueSafe(out _ownerEntity.value);
+                reader.ReadValueSafe(out _owner);
             }
         }
 

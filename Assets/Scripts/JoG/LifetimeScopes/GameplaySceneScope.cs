@@ -1,6 +1,7 @@
 using EditorAttributes;
 using JoG.AI.Patrol;
 using JoG.Chat;
+using JoG.Combat;
 using JoG.Gameplay;
 using JoG.Health;
 using JoG.Networking;
@@ -36,6 +37,7 @@ namespace JoG.LifetimeScopes {
             builder.RegisterEntryPoint<ChatService>();
             builder.RegisterEntryPoint<HealthChangeRouter>().AsSelf();
             builder.RegisterEntryPoint<HitRouter>().AsSelf();
+            builder.Register<CombatDamage>(Lifetime.Singleton);
             builder.RegisterInstance(Camera.main).Keyed(Constants.Camera.MainCamera);
             builder.RegisterComponent(_floatingTextController);
             builder.RegisterComponent(_worldTooltip);

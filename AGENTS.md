@@ -31,6 +31,7 @@
 - 遍历集合时优先使用 `foreach`，并优先让遍历目标保持为数组、`Span<T>` 或具体集合类型；避免在高频路径通过 `IEnumerable<T>`、`IReadOnlyList<T>` 等接口枚举。只有确实需要索引时才使用 `for`。依赖注入边界必须使用集合接口时，尽早取得具体存储再遍历。
 - 消除程序集循环时优先重新划分具体类型的模块归属，并把强耦合类型放在同一领域模块；不要仅为打破循环增加独立接口层。
 - 模块采用职责明确且有自然扩展空间的领域命名，避免过大的聚合模块或过度细碎的程序集。
+- 输入通道以 string key + 泛型 `InputChannel<T>` 表达（跨项目基础设施，核心在 `Xoderony.InputChannels`（Foundation 程序集），Unity 载荷如 `AimInput` 同命名空间放 `Xoderony.Unity` 程序集；key 常量 `InputKeys` 是玩法约定，放游戏项目 `JoG.Character`）；同一 key 的读写方必须约定相同的泛型类型（如 `InputKeys.Jump` 固定为 `InputChannel<bool>`），类型不一致由 Hub 的断言直接暴露。
 
 ## 状态机与网络协议
 
@@ -41,6 +42,7 @@
 - 自定义数据序列化失败时，状态标识仍须同步。
 - RPC 与 `NetworkVariable` 只传协议类型（`int`、Q16、原生容器、Entity ID），不传引用类型与 ScriptableObject；跨端计算使用定点数保证结果一致。
 - 只有权威端写 `NetworkVariable` 或发起玩法 RPC，远端只读并应用；`NetworkVariable` 变更回调内不重入写入。
+- `HealthChangeMessage.Value` 负值为伤害、正值为治疗；攻击检测与伤害施加统一经 `JoG.Combat`（`HitQuery` 查询去重 + `CombatDamage` 施加，参数为正伤害量并内部取负）。Effects 内部已同步的效果用本地 `Route`，权威端生效的射弹与近战用 `Broadcast`。
 
 ## C# 与 Unity 编辑器
 

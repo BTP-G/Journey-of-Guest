@@ -1,22 +1,22 @@
 using EditorAttributes;
-using JoG.Character.InputBanks;
 using JoG.StateMachines;
 using JoG.States;
 using VContainer;
+using Xoderony.InputChannels;
 
 namespace JoG.Character.States {
 
     public class PrimarySkillInputHandler : MonoStateMachine, IComponent {
         [Required] public State skillState;
-        private PrimarySkillInputBank _inputBank;
+        private InputChannel<bool> _inputChannel;
 
         [Inject]
-        internal void Inject(InputBankHub inputBankHub) {
-            _inputBank = inputBankHub.GetInputBank<PrimarySkillInputBank>();
+        internal void Inject(InputChannelHub inputChannelHub) {
+            _inputChannel = inputChannelHub.GetInputChannel<bool>(InputKeys.PrimarySkill);
         }
 
         private void Update() {
-            //if (_inputBank.Value && CurrentState == null) {
+            //if (_inputChannel.value && CurrentState == null) {
             //    TransitionTo(skillState);
             //}
         }

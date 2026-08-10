@@ -1,9 +1,9 @@
 using EditorAttributes;
-using JoG.Character.InputBanks;
 using JoG.StateMachines;
 using UnityEngine;
 using VContainer;
 using Xoderony.Movement;
+using Xoderony.InputChannels;
 
 namespace JoG.Character.States {
 
@@ -25,11 +25,11 @@ namespace JoG.Character.States {
         [Inject]
         internal CharacterMotor motor;
 
-        private MoveInputBank _moveInput;
+        private InputChannel<Vector3> _moveInput;
 
         [Inject]
-        internal void Inject(InputBankHub inputBankHub) {
-            _moveInput = inputBankHub.GetInputBank<MoveInputBank>();
+        internal void Inject(InputChannelHub inputChannelHub) {
+            _moveInput = inputChannelHub.GetInputChannel<Vector3>(InputKeys.Move);
         }
 
         protected void Awake() {
@@ -59,7 +59,7 @@ namespace JoG.Character.States {
                 return _airState;
             }
 
-            var planarInput = Vector3.ProjectOnPlane(_moveInput.vector3, motor.Up);
+            var planarInput = Vector3.ProjectOnPlane(_moveInput.value, motor.Up);
             return planarInput.sqrMagnitude > _moveDeadZoneSquared ? _moveState : _idleState;
         }
     }

@@ -1,8 +1,8 @@
 using JoG.Character;
-using JoG.Character.InputBanks;
 using UnityEngine;
 using UnityEngine.AI;
 using VContainer;
+using Xoderony.InputChannels;
 
 namespace JoG.AI {
 
@@ -10,8 +10,8 @@ namespace JoG.AI {
         [Inject] internal AITarget target;
         [Inject] internal Rigidbody body;
         private NavMeshAgent _agent;
-        private MoveInputBank _moveInputBank;
-        private AimInputBank _aimInputBank;
+        private InputChannel<Vector3> _moveInputChannel;
+        private InputChannel<AimInput> _aimInputChannel;
 
         [Inject]
         internal void Inject(NavMeshAgentController agentController) {
@@ -19,9 +19,9 @@ namespace JoG.AI {
         }
 
         void ICharacterInputDriver.Bind(CharacterEntity character) {
-            var inputBankHub = character.InputBankHub;
-            _moveInputBank = inputBankHub.GetInputBank<MoveInputBank>();
-            _aimInputBank = inputBankHub.GetInputBank<AimInputBank>();
+            var inputChannelHub = character.InputChannelHub;
+            _moveInputChannel = inputChannelHub.GetInputChannel<Vector3>(InputKeys.Move);
+            _aimInputChannel = inputChannelHub.GetInputChannel<AimInput>(InputKeys.Aim);
             enabled = true;
         }
 
@@ -36,16 +36,14 @@ namespace JoG.AI {
         private void Update() {
             if (_agent.isOnOffMeshLink) {
                 var off = _agent.currentOffMeshLinkData;
-                _moveInputBank.vector3 = off.endPos - body.position;
+                _moveInputChannel.value = off.endPos - body.position;
             } else if (_agent.isOnNavMesh) {
-                _moveInputBank.vector3 = _agent.desiredVelocity;
+                _moveInputChannel.value = _agent.desiredVelocity;
             }
-            _aimInputBank.target = target.target;
-            if (target.target != null) {
-                _aimInputBank.vector3 = target.target.position;
-            } else {
-                _aimInputBank.vector3 = _agent.destination;
-            }
+            var aimTarget = target.target;
+            _aimInputChannel.value = aimTarget != null
+                ? new AimInput(aimTarget.position, aimTarget)
+                : new AimInput(_agent.destination, null);
         }
     }
 }

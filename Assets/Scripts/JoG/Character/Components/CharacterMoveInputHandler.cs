@@ -1,8 +1,8 @@
-using JoG.Character.InputBanks;
 using UnityEngine;
 using VContainer;
 using Xoderony.Extensions;
 using Xoderony.Movement;
+using Xoderony.InputChannels;
 
 namespace JoG.Character.Components {
 
@@ -23,17 +23,17 @@ namespace JoG.Character.Components {
         [Inject]
         internal Animator _animator;
 
-        private MoveInputBank _moveInput;
+        private InputChannel<Vector3> _moveInput;
 
         [Inject]
-        internal void Inject(InputBankHub inputBankHub) {
-            _moveInput = inputBankHub.GetInputBank<MoveInputBank>();
+        internal void Inject(InputChannelHub inputChannelHub) {
+            _moveInput = inputChannelHub.GetInputChannel<Vector3>(InputKeys.Move);
         }
 
         private void FixedUpdate() {
             var stateInfo = _animator.GetCurrentAnimatorStateInfo(0);
             var up = _motor.Up;
-            var moveDirection = _moveInput.vector3.ProjectOnPlane(up).normalized;
+            var moveDirection = _moveInput.value.ProjectOnPlane(up).normalized;
             var maxMoveSpeed = _maxMoveSpeed.Value;
             var targetVelocity = moveDirection * maxMoveSpeed;
             var a = (float)_moveAcceleration.Value;

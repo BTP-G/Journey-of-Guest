@@ -2,6 +2,7 @@ using System;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.Assertions;
+using Xoderony.Collections;
 using Xoderony.Numerics;
 
 namespace JoG.Character {
@@ -9,9 +10,9 @@ namespace JoG.Character {
     [Serializable]
     public class Stat : IComponent, ISerializationCallbackReceiver {
 
-        private const int InitialMultiplierSlotCount = 2;
+        private const int InitialModifierSlotCount = 2;
 
-        private const int MaxMultiplierSlotCount = 128;
+        private const int MaxModifierSlotCount = 128;
 
         [SerializeField]
         private string _name;
@@ -28,17 +29,12 @@ namespace JoG.Character {
         [NonSerialized]
         private int _value;
 
+        // 密集槽位：只有前 Count 个元素有效；_multiplierSlots 与之一一对应并保持同步。
+        [NonSerialized]
+        private ArrayList<StatModifier> _modifierSlots;
+
         [NonSerialized]
         private Q16[] _multiplierSlots;
-
-        [NonSerialized]
-        private int[] _freeSlotIndices;
-
-        [NonSerialized]
-        private int _freeSlotCount;
-
-        [NonSerialized]
-        private bool _dirty;
 
         object IComponent.Key => _name;
 
@@ -46,20 +42,14 @@ namespace JoG.Character {
 
         public int Value {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get {
-                if (_dirty) {
-                    Recalculate();
-                }
-                return _value;
-            }
+            get => _value;
         }
 
-        // 写路径（Add/Release/Set）标脏后立即触发：值可能已变化，订阅者在回调中读取 Value 获取最新值。
+        // 写路径（Add/Release/Set）立即重算并触发：订阅者在回调中读取 Value 即为最新值。
         [field: NonSerialized]
         public event Action ValueChanged;
 
-        public Stat() {
-            ResetMultiplierSlots();
+        public Stat() : this(null, 0, int.MinValue, int.MaxValue) {
         }
 
         public Stat(string name, int baseValue, int minValue, int maxValue) {
@@ -67,117 +57,87 @@ namespace JoG.Character {
             _baseValue = baseValue;
             _minValue = minValue;
             _maxValue = maxValue;
-            ResetMultiplierSlots();
-            NormalizeSerializedValues();
-            Recalculate();
+            ResetRuntimeState();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public StatModifier AddModifier(Q16 multiplier) {
-            var slotIndex = AcquireMultiplierSlot(multiplier);
-            return new StatModifier(this, slotIndex);
-        }
-
-        void ISerializationCallbackReceiver.OnBeforeSerialize() {
-            NormalizeSerializedValues();
-        }
-
-        void ISerializationCallbackReceiver.OnAfterDeserialize() {
-            ResetMultiplierSlots();
-            NormalizeSerializedValues();
-            Recalculate();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal int AcquireMultiplierSlot(Q16 multiplier) {
             Assert.IsTrue(multiplier > Q16.Zero);
-            if (_freeSlotCount == 0) {
-                GrowByOne();
-            }
-
-            _freeSlotCount--;
-            var slotIndex = _freeSlotIndices[_freeSlotCount];
+            var slotIndex = _modifierSlots.Count;
+            EnsureMultiplierCapacity(slotIndex + 1);
+            var modifier = new StatModifier(this, slotIndex);
+            _modifierSlots.Add(modifier);
             _multiplierSlots[slotIndex] = multiplier;
-            _dirty = true;
+            Recalculate();
             ValueChanged?.Invoke();
-            return slotIndex;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void ReleaseMultiplierSlot(int slotIndex) {
-            ValidateSlotIndex(slotIndex);
-            _multiplierSlots[slotIndex] = Q16.One;
-            _freeSlotIndices[_freeSlotCount] = slotIndex;
-            _freeSlotCount++;
-            _dirty = true;
-            ValueChanged?.Invoke();
+            return modifier;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void SetMultiplier(int slotIndex, Q16 multiplier) {
             Assert.IsTrue(multiplier > Q16.Zero);
-            ValidateSlotIndex(slotIndex);
+            Assert.IsTrue((uint)slotIndex < (uint)_modifierSlots.Count, $"Invalid modifier slot index: {slotIndex}.");
             _multiplierSlots[slotIndex] = multiplier;
-            _dirty = true;
+            Recalculate();
             ValueChanged?.Invoke();
         }
 
-        private void GrowByOne() {
-            var oldLength = _multiplierSlots.Length;
-            var newLength = oldLength + 1;
-            Assert.IsTrue(newLength <= MaxMultiplierSlotCount, $"Exceeded max multiplier slot capacity ({newLength}).");
-            var newMultiplierSlots = new Q16[newLength];
-            Array.Copy(_multiplierSlots, newMultiplierSlots, oldLength);
-            newMultiplierSlots[oldLength] = Q16.One;
-            _multiplierSlots = newMultiplierSlots;
-
-            var newFreeSlotIndices = new int[newLength];
-            Array.Copy(_freeSlotIndices, newFreeSlotIndices, _freeSlotCount);
-            newFreeSlotIndices[_freeSlotCount] = oldLength;
-            _freeSlotIndices = newFreeSlotIndices;
-            _freeSlotCount++;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void RemoveMultiplierSlot(int slotIndex) {
+            Assert.IsTrue((uint)slotIndex < (uint)_modifierSlots.Count, $"Invalid modifier slot index: {slotIndex}.");
+            var lastIndex = _modifierSlots.Count - 1;
+            // 移除最后一个槽位时三条赋值均为自赋值，可无分支统一处理。
+            _modifierSlots[slotIndex] = _modifierSlots[lastIndex];
+            _modifierSlots[slotIndex].SlotIndex = slotIndex;
+            _multiplierSlots[slotIndex] = _multiplierSlots[lastIndex];
+            _modifierSlots.RemoveAt(lastIndex);
+            Recalculate();
+            ValueChanged?.Invoke();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        // 序列化前统一归一化，避免把非法范围写入数据。
+        void ISerializationCallbackReceiver.OnBeforeSerialize() {
+            NormalizeSerializedValues();
+        }
+
+        void ISerializationCallbackReceiver.OnAfterDeserialize() {
+            ResetRuntimeState();
+        }
+
+        private void EnsureMultiplierCapacity(int capacity) {
+            Assert.IsTrue(capacity <= MaxModifierSlotCount, $"Exceeded max modifier slot capacity ({capacity}).");
+            if (capacity <= _multiplierSlots.Length) {
+                return;
+            }
+            var newCapacity = Math.Max(_multiplierSlots.Length * 2, capacity);
+            Array.Resize(ref _multiplierSlots, newCapacity);
+        }
+
+        // 序列化字段的归一化只在构造/反序列化与序列化前执行；运行时字段保持不变。
         private void NormalizeSerializedValues() {
             if (_maxValue < _minValue) {
                 _maxValue = _minValue;
             }
-
             _baseValue = Math.Clamp(_baseValue, _minValue, _maxValue);
         }
 
+        // 纯重算：序列化字段已归一化且运行时不变，直接按槽位连乘并夹取。
         private void Recalculate() {
-            _dirty = false;
             var value = (long)_baseValue;
-            foreach (var multiplier in _multiplierSlots) {
-                value = multiplier.Multiply(value);
+            // 只有前 Count 个槽位有效，尾部残留值不参与计算。
+            var count = _modifierSlots.Count;
+            for (var i = 0; i < count; i++) {
+                value = _multiplierSlots[i].Multiply(value);
             }
-
-            value = Math.Clamp(value, _minValue, _maxValue);
-            var nextValue = (int)value;
-            if (_value == nextValue) {
-                return;
-            }
-
-            _value = nextValue;
+            _value = (int)Math.Clamp(value, _minValue, _maxValue);
         }
 
-        private void ResetMultiplierSlots() {
-            _multiplierSlots = new Q16[InitialMultiplierSlotCount];
-            _freeSlotIndices = new int[InitialMultiplierSlotCount];
-            for (var i = 0; i < InitialMultiplierSlotCount; i++) {
-                _multiplierSlots[i] = Q16.One;
-                _freeSlotIndices[i] = i;
-            }
-
-            _freeSlotCount = InitialMultiplierSlotCount;
-            _dirty = true;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void ValidateSlotIndex(int slotIndex) {
-            Assert.IsTrue((uint)slotIndex < (uint)_multiplierSlots.Length, $"Invalid multiplier slot index: {slotIndex}.");
+        // 构造与反序列化后统一重建运行时槽位，并归一化序列化字段后重算。
+        private void ResetRuntimeState() {
+            _modifierSlots = new ArrayList<StatModifier>(InitialModifierSlotCount);
+            _multiplierSlots = new Q16[InitialModifierSlotCount];
+            NormalizeSerializedValues();
+            Recalculate();
         }
     }
 }
