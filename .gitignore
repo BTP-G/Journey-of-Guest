@@ -120,3 +120,7 @@ InitTestScene*.unity*
 .DS_Store
 Thumbs.db
 Desktop.ini
+
+# Baked lighting for GameplayScene_2 (regenerate locally; not needed in git)
+/Assets/Scenes/GameplayScene_2/*.exr
+/Assets/Scenes/GameplayScene_2/*.png
