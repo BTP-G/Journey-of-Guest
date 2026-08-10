@@ -12,7 +12,7 @@
 | 玩法 | 多人合作冒险肉鸽；会话基于 Unity Services Multiplayer + Relay + QoS 选最低延迟区域 |
 | 技术栈 | VContainer（git）、Animancer Pro `8.3.0`（本地包）、UniTask、MessagePipe、Input System `1.19.0`、YooAsset `3.0.5`、ZString、FastReflection、Facepunch Transport、Newtonsoft.Json |
 | 程序集 | `Assets/Scripts/JoG`（264 个 .cs，无 asmdef）→ `Assembly-CSharp`；`Packages/io.github.xoderony.jog` → `JoG`（Mod 契约，不反向依赖 Assembly-CSharp）；`io.github.xoderony.*` → `Xoderony.*` |
-| 场景 | `BootstrapScene.unity` + `MainScene.unity` 启用（Build Settings 入口）；`GameplayScene_1/2.unity` 未启用；另启用 3 个第三方演示场景（非入口）；`Test.unity` 不在 Build Settings |
+| 场景 | `BootstrapScene.unity` + `MainScene.unity` 启用（Build Settings 入口）；`GameplayScene_1/2.unity` 未启用；`Test.unity` 不在 Build Settings |
 | DI 入口 | `Assets/Scripts/JoG/RootScope.cs`（根）；`LifetimeScopes/GameplaySceneScope.cs`（玩法场景）；`LifetimeScopes/MainSceneScope.cs`（空占位） |
 | 数据注册 | YooAsset DefaultPackage 标签 `item_data` / `character_data` / `gameplay_effect_def` / `periodic_health_change_def` / `network_prefab` → `AssetsUtility.LoadDataFromPackage` → 各 Shared 注册表 + NGO PrefabHandler |
 | 效果 ID | `GameplayEffectDefinitionRegistry.Shared`：`Animator.StringToHash(name)`，冲突抛异常，Id 0 保留 |
@@ -28,7 +28,7 @@
 | --- | --- |
 | 启动、依赖注入 | `Assets/Scripts/JoG/RootScope.cs`、`LifetimeScopes/GameplaySceneScope.cs`、相关 Scene |
 | 实体、组件生命周期 | `Packages/io.github.xoderony.jog/Runtime/Entities/Entity.cs`、`IComponent.cs`、`EntitySerializer.cs`、`JoG.asmdef` |
-| 角色整体、输入、能力 | `Assets/Scripts/JoG/Character/CharacterEntity.cs`、`CharacterSpawner.cs`、`CharacterInputBinding.cs`、包 `Runtime/Character/InputBanks`、项目 `Character/Components` |
+| 角色整体、输入、能力 | `Assets/Scripts/JoG/Character/CharacterEntity.cs`、`CharacterSpawner.cs`、`CharacterInputBinding.cs`、`InputKeys.cs`、包 `io.github.xoderony.foundation/Runtime/InputChannels`、项目 `Character/Components` |
 | 状态机、动画、移动 | 包 `Runtime/StateMachines`、`Assets/Scripts/JoG/StateMachines/CharacterRootStateMachine.cs`、`Character/States`、`Packages/io.github.xoderony.movement` |
 | 状态网络同步 | 包 `Runtime/StateMachines/NetworkStateMachine.cs`、`Entity.OnSynchronize` 链 |
 | 属性、生命 | 包 `Runtime/Character/Stat.cs`、`StatModifier.cs`、`Runtime/Health/*`（HealthComponent、HealthChangeRouter、Damageable/Healable、HealthComponentChangeResolver） |
@@ -49,9 +49,10 @@
 | 路径 | 主要职责 |
 | --- | --- |
 | `Assets/Scripts/JoG` | `Assembly-CSharp` 项目实现：角色、效果、战斗、弹体、物品、AI、交互、大厅、UI、场景服务、具体网络玩法 |
-| `Packages/io.github.xoderony.jog` | `JoG` 契约：Entity/IComponent、Stat/StatModifier、Health 路由与消息、StateMachines/States、InputBanks、Interaction、Faction、Modding、UnnamedMessageBroker、Q16Serializer、EntitySerializer |
-| `io.github.xoderony.foundation` | `Xoderony.Foundation`：无 Unity 依赖集合（IntMap/SpanList/SpanIntMap 等）、委托通道（DelegateChannel/IDelegateDispatcher/IDelegateSubscriber）、扩展、对象池 |
-| `io.github.xoderony.unity` | `Xoderony.Unity`/`.Editor`：Q16、PlayerLoop（PostUpdateLoop/PreUpdateLoop）、GameObject/ComponentPool、通用组件（Billboarder/ColliderEvents/ParticleSystemEvents）、ArrayList、编辑器控件与属性 |
+| `Packages/io.github.xoderony.jog` | `JoG` 契约：Entity/IComponent、Stat/StatModifier、Health 路由与消息、StateMachines/States、Interaction、Faction、Modding、UnnamedMessageBroker、Q16Serializer、EntitySerializer |
+| `io.github.xoderony.jog` 的 `Runtime/Combat` | `JoG.Combat`：HitQuery 形状查询（按实体去重）+ CombatDamage 伤害施加（正伤害量→负 Value；Route/Broadcast 双模式） |
+| `io.github.xoderony.foundation` | `Xoderony.Foundation`：无 Unity 依赖集合（IntMap/SpanList/SpanIntMap 等）、委托通道（DelegateChannel/IDelegateDispatcher/IDelegateSubscriber）、扩展、对象池、输入通道（InputChannel<T>/InputChannelHub） |
+| `io.github.xoderony.unity` | `Xoderony.Unity`/`.Editor`：Q16、PlayerLoop（PostUpdateLoop/PreUpdateLoop）、GameObject/ComponentPool、通用组件（Billboarder/ColliderEvents/ParticleSystemEvents）、ArrayList、AimInput（输入通道 Unity 载荷）、编辑器控件与属性 |
 | `io.github.xoderony.gameplay-effects` | `Xoderony.GameplayEffects`：GameplayEffectData/Definition/Controller 契约 + 全局注册表（不依赖 JoG/NGO/VContainer） |
 | `io.github.xoderony.movement` | CharacterMotor、地面检测/扫掠（GroundDetectionResult/SweepResult） |
 | `io.github.xoderony.netcode` | NetworkBehaviour 编辑器扩展、NetworkObjectReferenceExtensions |
@@ -73,7 +74,7 @@
 | `Character/PlayerSpawner.cs` | 玩家角色创建（DebugCommand、UI 卡片）；`OnBodyAssigned` 满血 |
 | `AI/EnemySpawner.cs` | 敌人重生（`_respawnCount`/`_respawnAt`）；按 DifficultyManager 差值施加 MaxHealth/AttackPower 效果 |
 | `Character/CharacterBody.cs` | 旧 Body 组件（迁移中，仍挂在角色 Prefab） |
-| 包 `Character/InputBanks` + `InputBankHub` | 输入银行（Move/Aim/Jump/Sprint/Primary/Secondary/Special/Interact/Boolean/Vector3），按类型懒创建 |
+| `io.github.xoderony.foundation` 包 `Runtime/InputChannels`（+ `io.github.xoderony.unity` 的 `AimInput`；key 常量 `InputKeys` 在项目 `JoG.Character`） | 输入通道（`Xoderony.InputChannels`，string key + 泛型 `InputChannel<T>`），按 key 懒创建；key 常量 `InputKeys`（Move/Aim/Jump/Sprint/PrimarySkill/SecondarySkill/SpecialSkill/Interact）；Aim 通道用 `AimInput`（position+target） |
 
 ### 状态机与移动
 
@@ -127,12 +128,12 @@
 
 | 文件 | 职责 |
 | --- | --- |
-| `Projectiles/ProjectileEntity.cs` | Entity 子类；PropertyHub（Owner/Attacker/DamageValue 等）；OnSynchronize 同步 Owner；Owner 端 PreUpdateLoop 到期 DeferDespawn |
-| `Projectiles/ProjectileMotor.cs` | 仅 Owner 启用碰撞；继承速度/忽略碰撞体；OnCollisionEnter 分发 `ICollisionMessageHandler` + DeferDespawn |
-| `Projectiles/ProjectileDamageOnCollision.cs` | 碰撞伤害逻辑整体注释（禁用） |
-| `Projectiles/ProjectileExplosion.cs` | `Detonate`：OverlapSphere → `CanTakeDamage` → `TakeDamage` + onDamage（爆炸伤害有效；impulse 注释） |
-| `Projectiles/ProjectileApplyEffectOnDamage.cs` / `ProjectileApplyDotOnDamage.cs` | 效果/DoT 挂载器（`OnDamage` 无调用方，未接通） |
-| `Character/States/Mage/MageSkillController.cs`、`Spitter/SpitterSkillController.cs` | 创建弹体并 `SetProperty(Attacker/DamageValue)` |
+| `Projectiles/ProjectileEntity.cs` | 射弹基类（abstract）：同步 Owner、lifetime 超时销毁；弹种类型继承本类 |
+| `Projectiles/LinearProjectile.cs` / `PlacedProjectile.cs` | 射弹类型（按输入参数集划分）：直线飞行 / 定点放置；`Initialize` 强类型初始化 |
+| `Projectiles/ProjectileExplosion.cs`、`Projectiles/Components/ProjectileDamage.cs` / `ProjectileDot.cs` / `ProjectilePenetration.cs` / `ProjectileDespawn.cs` | 能力组件（普通 IComponent，序列化在 Entity.Components）：区域爆炸 / 单目标直伤 / DoT / 穿透 / 销毁，由射弹类型被动调用 |
+| `Runtime/Combat/HitQuery.cs` / `HitResult.cs` | 统一攻击检测：Sphere/Box 一次性查询，按实体去重保留最近点；HitResult 持有 Entity/Collider/命中点，能力组件由调用方从 Collider 解析 |
+| `Runtime/Combat/CombatDamage.cs` | 伤害施加：阵营准入 + falloff + Route（Effects 内部）/ Broadcast（射弹、近战）；含 `ApplySingle` |
+| `Character/States/Mage/MageSkillController.cs`、`Spitter/SpitterSkillController.cs` | 创建弹体并 `Initialize` 强类型初始化 |
 
 ### 网络与会话
 
@@ -186,6 +187,8 @@
 
 ## 已知迁移状态
 
+- 2026-08-10 冗余清理：移除零引用第三方资源包与演示场景（含 Build Settings 中 3 个演示场景），文件备份于仓库外 `E:\UnityProjects\Journey of Guest Backup\2026-08-10-redundant`；`GameplayScene_2` 烘焙光照贴图（`.exr/.png`）改为本地生成并加入 `.gitignore`，克隆不再下载。
+
 ### 稳定实现（静态核对，未运行验证）
 
 - 实体链路：Entity 子作用域 + IComponent 注册 + 委托通道；CharacterEntity 缓存入口。
@@ -206,7 +209,9 @@
   - 角色同时保留 Animator 与 Animancer，迁移未完成。
   - 仍由 `CharacterMoveInputHandler` 驱动 Motor，新移动状态机（`CharacterLocomotionStateMachine`/Idle/Move/Air）未挂 Prefab；不能让两套逻辑同时写 CharacterMotor。
   - 输入 Driver 仍在角色 Prefab 上（兼容旧序列化）；`CharacterInputBinding` 优先用 Spawner Driver，无则回退 Body 旧 Driver；后续迁至 Spawner。
-- 弹体战斗：`ProjectileDamageOnCollision` 伤害块被注释 → 碰撞伤害禁用（爆炸伤害可用）；`ProjectileApplyEffectOnDamage` 仅加载无挂钩；`ProjectileApplyDotOnDamage.OnDamage` 无调用方；`Gameplay/Attacker.cs` 整体注释（旧 Source 类型已移除）。
+- 弹体战斗（2026-08-09 重构）：类型继承 `ProjectileEntity`（`LinearProjectile`/`PlacedProjectile`，按输入参数集划分）+ 能力组件被动组合（普通 IComponent，配置在 `Entity.Components` 列表，类型经容器 `TryGetComponent` 解析）；伤害统一走 `CombatDamage`（`ApplySingle`/`ApplySphere`，Broadcast）。旧脚本（Motor/DamageOnCollision/ExplosionOn*/EffectOn*/ApplyDot/Properties 等）已删除，旧 `.meta` 待 Unity 刷新清理；4 个射弹 Prefab 需重新组装（主脚本 + `Entity.Components` 配置能力 + 网络骨架，由用户处理）。
+- 战斗检测（2026-08-09 新增 `JoG.Combat`）：`HitQuery`/`CombatDamage` 已接入 Golem/Ghost/Bite/ConditionalArea；Fighter/Skeleton（HitBox 触发式）与 Projectile 模块待各自重构时迁移。
+- 符号风险（代码事实）：`HealthChangeMessage.Value` 负值为伤害；射弹已迁移至 `CombatDamage`（传正伤害量，内部取负）；未迁移的近战（Fighter/Skeleton）仍以正 `Value` 调 `TakeDamage`，会走治疗分支，待 HitBox 重构时统一。
 - 祭坛：`DemonAltarInteraction` 的生命代价与效果施加被注释，仅广播交互事件（`CanInteract` 仍检查血量比例）。
 - Steam 大厅：`SteamLobbyController.OnLobbyEntered` 中 transport 启动被注释 → 加入大厅不会自动联网；`FacepunchTransportController` 可手动 Start。Unity Services 会话为当前主路径（两路径共存行为未验证）。
 - 占位实现：`MainSceneScope`（空）、`IngameOverlayController`（空）、`JoGApplication.Initialize`（空）。
