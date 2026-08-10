@@ -187,7 +187,7 @@
 
 ## 已知迁移状态
 
-- 2026-08-10 冗余清理：移除零引用第三方资源包与演示场景（含 Build Settings 中 3 个演示场景），文件备份于仓库外 `E:\UnityProjects\Journey of Guest Backup\2026-08-10-redundant`；`GameplayScene_2` 烘焙光照贴图（`.exr/.png`）改为本地生成并加入 `.gitignore`，克隆不再下载。
+- 2026-08-10 冗余清理：移除零引用第三方资源包与演示场景（含 Build Settings 中 3 个演示场景），文件备份于仓库外 `E:\UnityProjects\Journey of Guest Backup\2026-08-10-redundant`；`GameplayScene_2` 烘焙光照贴图（`.exr/.png`）改为本地生成并加入 `.gitignore`，克隆不再下载。同日用 `git filter-repo` 重写历史（清除全部已删除路径，pack 3.34 GiB → 0.47 GiB）并 force push，旧克隆需重新同步。
 
 ### 稳定实现（静态核对，未运行验证）
 
