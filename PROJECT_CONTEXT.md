@@ -187,6 +187,8 @@
 
 ## 已知迁移状态
 
+- 2026-08-12 开发用嵌入式包：`Packages/io.github.xoderony.networking`（独立仓库 `Xoderony/io.github.xoderony.networking`，程序集 `Xoderony.Networking`，无 JoG/NGO/Steamworks 依赖）以本地 clone 形式放入项目内开发，尚未接入玩法；主仓库 `.git/info/exclude` 忽略该目录，包代码在其自身仓库提交。
+- 2026-08-14 生成模块迁移：`NetworkObject`/`NetworkSpawnManager` 按对等模型重写，`networkObjectId` 定案为复合 id `NetworkObjectId(PeerId, LocalId)`（PeerId 取信封 sender，载荷只传 LocalId）；Spawn/Despawn/EntityState（类型 2/3/4）由 `NetworkSpawnManager` 构造时注册，新对等端加入时补发本端对象、离开/停止时清理；协议载荷上限 1024。包内 Runtime 静态编译验证通过，未在 Unity 编译/运行；样例与 README 重写、游戏项目接线仍待办。
 - 2026-08-10 冗余清理：移除零引用第三方资源包与演示场景（含 Build Settings 中 3 个演示场景），文件备份于仓库外 `E:\UnityProjects\Journey of Guest Backup\2026-08-10-redundant`；`GameplayScene_2` 烘焙光照贴图（`.exr/.png`）改为本地生成并加入 `.gitignore`，克隆不再下载。同日用 `git filter-repo` 重写历史（清除全部已删除路径，pack 3.34 GiB → 0.47 GiB）并 force push，旧克隆需重新同步。
 
 ### 稳定实现（静态核对，未运行验证）

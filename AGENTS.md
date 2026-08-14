@@ -43,6 +43,7 @@
 - 自定义数据序列化失败时，状态标识仍须同步。
 - RPC 与 `NetworkVariable` 只传协议类型（`int`、Q16、原生容器、Entity ID），不传引用类型与 ScriptableObject；跨端计算使用定点数保证结果一致。
 - 只有权威端写 `NetworkVariable` 或发起玩法 RPC，远端只读并应用；`NetworkVariable` 变更回调内不重入写入。
+- `Xoderony.Networking` 协议消息须在所有对端注册，未注册的消息视为未知类型丢弃；消息以网格直发（无主机中继、无握手）。消息类型为 `byte`（0–255），信封首字节即类型。
 - `HealthChangeMessage.Value` 负值为伤害、正值为治疗；攻击检测与伤害施加统一经 `JoG.Combat`（`HitQuery` 查询去重 + `CombatDamage` 施加，参数为正伤害量并内部取负）。Effects 内部已同步的效果用本地 `Route`，权威端生效的射弹与近战用 `Broadcast`。
 
 ## C# 与 Unity 编辑器
