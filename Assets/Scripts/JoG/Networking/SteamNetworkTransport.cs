@@ -9,16 +9,18 @@ using Xoderony.Networking.Transport;
 namespace JoG.Networking
 {
     /// <summary>
-    /// Steam P2P 传输，基于 Facepunch.Steamworks 的 SteamNetworkingSockets。
-    /// 需要 Steam 客户端运行并已登录；<see cref="SteamAppId"/> 默认 480（Spacewar）用于开发测试。
+    /// Steam P2P 传输（Facepunch.Steamworks / SteamNetworkingSockets）。
+    /// peerId 即 SteamID；本端始终监听（接受入站），并按需建立出站连接（<see cref="ConnectPeer"/>）。
+    /// 进程级单例约定：SteamClient.Init 每进程一次，<see cref="Start"/> 仅调用一次。
     /// </summary>
-    public sealed class SteamNetworkTransport : NetworkTransport, IConnectionManager, ISocketManager
+    public sealed class SteamNetworkTransport : INetworkTransport, ISocketManager
     {
         private static bool s_steamInitialized;
         private static bool s_relayInitialized;
 
-        private readonly Dictionary<ulong, Connection> _clients = new Dictionary<ulong, Connection>();
-        private ConnectionManager _connectionManager;
+        private readonly Dictionary<ulong, Connection> _connections = new Dictionary<ulong, Connection>();
+        private readonly List<OutgoingConnection> _outgoing = new List<OutgoingConnection>();
+        private readonly List<OutgoingConnection> _pendingOutgoingRemovals = new List<OutgoingConnection>();
         private SocketManager _socketManager;
         private byte[] _payloadCache = new byte[4096];
         private byte[] _sendBuffer = new byte[4096];
@@ -26,95 +28,96 @@ namespace JoG.Networking
         /// <summary>Steam App ID，默认 480（Spacewar，开发测试用）。</summary>
         public uint SteamAppId { get; set; } = 480;
 
-        /// <summary>作为客户端加入时，目标房主的 Steam ID。</summary>
-        public ulong TargetSteamId { get; set; }
+        /// <summary>本机 SteamID；Start 成功前无效（0）。</summary>
+        public ulong LocalPeerId => SteamClient.SteamId;
 
-        public override ulong ServerClientId => 0;
+        public event Action<ulong> PeerConnected;
+        public event Action<ulong> PeerDisconnected;
+        public event NetworkDataReceivedHandler DataReceived;
 
-        public override event Action<ulong> PeerConnected;
-        public override event Action<ulong> PeerDisconnected;
-        public override event NetworkDataReceivedHandler DataReceived;
-
-        public override bool StartClient()
-        {
-            if (TargetSteamId == 0)
-            {
-                this.LogError("Steam transport: TargetSteamId is not set.");
-                return false;
-            }
-
-            if (!EnsureSteamInitialized())
-            {
-                return false;
-            }
-
-            _connectionManager = SteamNetworkingSockets.ConnectRelay<ConnectionManager>(TargetSteamId);
-            _connectionManager.Interface = this;
-            return true;
-        }
-
-        public override bool StartServer()
+        public bool Start()
         {
             if (!EnsureSteamInitialized())
             {
                 return false;
             }
 
+            // P2P 网格：本端始终监听入站连接，出站连接由 ConnectPeer 建立。
             _socketManager = SteamNetworkingSockets.CreateRelaySocket<SocketManager>();
             _socketManager.Interface = this;
             return true;
         }
 
-        public override void Send(ulong clientId, ReadOnlySpan<byte> payload, NetworkDelivery networkDelivery)
+        /// <summary>按 SteamID 建立出站直连；连接建立后经 <see cref="PeerConnected"/> 上报。重复调用幂等。</summary>
+        public bool ConnectPeer(ulong peerId)
         {
-            var sendType = networkDelivery == NetworkDelivery.Unreliable ? SendType.Unreliable : SendType.Reliable;
+            if (peerId == 0 || !EnsureSteamInitialized())
+            {
+                return false;
+            }
 
+            foreach (var existing in _outgoing)
+            {
+                if (existing.PeerId == peerId)
+                {
+                    return true;
+                }
+            }
+
+            var manager = SteamNetworkingSockets.ConnectRelay<ConnectionManager>(peerId);
+            var outgoing = new OutgoingConnection(this, peerId, manager);
+            manager.Interface = outgoing;
+            _outgoing.Add(outgoing);
+            return true;
+        }
+
+        public void SendData(ulong peerId, ReadOnlySpan<byte> payload, NetworkDelivery delivery)
+        {
+            var sendType = delivery == NetworkDelivery.Unreliable ? SendType.Unreliable : SendType.Reliable;
             EnsureSendCapacity(payload.Length);
             payload.CopyTo(_sendBuffer);
 
-            if (clientId == ServerClientId)
-            {
-                _connectionManager?.Connection.SendMessage(_sendBuffer, 0, payload.Length, sendType);
-            }
-            else if (_clients.TryGetValue(clientId, out var connection))
+            if (_connections.TryGetValue(peerId, out var connection))
             {
                 connection.SendMessage(_sendBuffer, 0, payload.Length, sendType);
             }
             else
             {
-                this.LogWarning($"Steam transport: dropped send to unknown client {clientId}.");
+                this.LogWarning($"Steam transport: dropped send to unknown peer {peerId}.");
             }
         }
 
-        public override void DisconnectRemoteClient(ulong clientId)
+        public void DisconnectPeer(ulong peerId)
         {
-            if (!_clients.TryGetValue(clientId, out var connection))
+            if (!_connections.TryGetValue(peerId, out var connection))
             {
                 return;
             }
 
             connection.Flush();
             connection.Close();
-            _clients.Remove(clientId);
+            if (_connections.Remove(peerId))
+            {
+                // 主动断开：本地立即上报一次；后续 OnDisconnected 回调因 Remove 失败而不再重复。
+                PeerDisconnected?.Invoke(peerId);
+            }
         }
 
-        public override void DisconnectLocalClient()
+        public void Stop()
         {
-            _connectionManager?.Connection.Close();
-        }
+            foreach (var outgoing in _outgoing)
+            {
+                outgoing.Manager.Close();
+            }
 
-        public override ulong GetCurrentRtt(ulong clientId) => 0;
-
-        public override void Shutdown()
-        {
-            _connectionManager?.Close();
+            _outgoing.Clear();
+            _pendingOutgoingRemovals.Clear();
             _socketManager?.Close();
-            _connectionManager = null;
             _socketManager = null;
-            _clients.Clear();
+            _connections.Clear();
         }
 
-        public override void Poll()
+        public void Poll()
         {
             if (!s_steamInitialized)
             {
@@ -129,9 +132,19 @@ namespace JoG.Networking
                 s_relayInitialized = true;
             }
 
-            _connectionManager?.Receive();
+            // Receive 回调可能触发上层再次 ConnectPeer（遍历中新增安全）；
+            // 断开产生的移除统一延迟到遍历后，避免遍历中修改集合。
+            for (var i = 0; i < _outgoing.Count; i++)
+            {
+                _outgoing[i].Manager.Receive();
+            }
+
             _socketManager?.Receive();
+            ApplyPendingOutgoingRemovals();
         }
+
+        /// <summary>Steam SDR 未提供结构化 RTT（仅 DetailedStatus 文本），维持 0。</summary>
+        public ulong GetRtt(ulong peerId) => 0;
 
         private bool EnsureSteamInitialized()
         {
@@ -169,26 +182,49 @@ namespace JoG.Networking
             }
         }
 
-        void IConnectionManager.OnConnecting(ConnectionInfo info)
+        private void OnPeerConnected(ulong steamId, Connection connection)
         {
+            _connections[steamId] = connection;
+            PeerConnected?.Invoke(steamId);
         }
 
-        void IConnectionManager.OnConnected(ConnectionInfo info)
+        private void OnPeerDisconnected(ulong steamId)
         {
-            PeerConnected?.Invoke(ServerClientId);
+            if (_connections.Remove(steamId))
+            {
+                PeerDisconnected?.Invoke(steamId);
+            }
         }
 
-        void IConnectionManager.OnDisconnected(ConnectionInfo info)
+        private void OnOutgoingDisconnected(OutgoingConnection outgoing)
         {
-            PeerDisconnected?.Invoke(ServerClientId);
+            // Receive 栈内不能直接改 _outgoing（Poll 正在遍历），延迟到遍历后统一移除。
+            _pendingOutgoingRemovals.Add(outgoing);
+            OnPeerDisconnected(outgoing.PeerId);
         }
 
-        void IConnectionManager.OnMessage(IntPtr data, int size, long messageNum, long recvTime, int channel)
+        private void ApplyPendingOutgoingRemovals()
+        {
+            if (_pendingOutgoingRemovals.Count == 0)
+            {
+                return;
+            }
+
+            foreach (var outgoing in _pendingOutgoingRemovals)
+            {
+                _outgoing.Remove(outgoing);
+            }
+
+            _pendingOutgoingRemovals.Clear();
+        }
+
+        private void OnPeerMessage(ulong steamId, IntPtr data, int size, int channel)
         {
             EnsurePayloadCapacity(size);
             Marshal.Copy(data, _payloadCache, 0, size);
-            // Steam 收包不带投递信息（SendMessage 无 channel 重载），中继统一按 Reliable 处理。
-            DataReceived?.Invoke(ServerClientId, new ReadOnlySpan<byte>(_payloadCache, 0, size), NetworkDelivery.Reliable);
+            // Facepunch 收包无投递信息可区分（SendMessage 无 channel 重载，收包 channel 恒为 0），
+            // 统一按 Reliable 上报；上层协议消息亦默认 Reliable。
+            DataReceived?.Invoke(steamId, new ReadOnlySpan<byte>(_payloadCache, 0, size), NetworkDelivery.Reliable);
         }
 
         void ISocketManager.OnConnecting(Connection connection, ConnectionInfo info)
@@ -198,19 +234,12 @@ namespace JoG.Networking
 
         void ISocketManager.OnConnected(Connection connection, ConnectionInfo info)
         {
-            if (!_clients.ContainsKey(connection.Id))
-            {
-                _clients.Add(connection.Id, connection);
-                PeerConnected?.Invoke(connection.Id);
-            }
+            OnPeerConnected(info.Identity.SteamId, connection);
         }
 
         void ISocketManager.OnDisconnected(Connection connection, ConnectionInfo info)
         {
-            if (_clients.Remove(connection.Id))
-            {
-                PeerDisconnected?.Invoke(connection.Id);
-            }
+            OnPeerDisconnected(info.Identity.SteamId);
         }
 
         void ISocketManager.OnMessage(
@@ -222,10 +251,46 @@ namespace JoG.Networking
             long recvTime,
             int channel)
         {
-            EnsurePayloadCapacity(size);
-            Marshal.Copy(data, _payloadCache, 0, size);
-            // Steam 收包不带投递信息（SendMessage 无 channel 重载），中继统一按 Reliable 处理。
-            DataReceived?.Invoke(connection.Id, new ReadOnlySpan<byte>(_payloadCache, 0, size), NetworkDelivery.Reliable);
+            OnPeerMessage(identity.SteamId, data, size, channel);
+        }
+
+        /// <summary>
+        /// 出站连接适配器：每个出站 ConnectionManager 持有独立回调，用于区分多连接；
+        /// PeerId 构造时固定，避免连接未完成即断开时用 0 查找。
+        /// </summary>
+        private sealed class OutgoingConnection : IConnectionManager
+        {
+            private readonly SteamNetworkTransport _transport;
+
+            public OutgoingConnection(SteamNetworkTransport transport, ulong peerId, ConnectionManager manager)
+            {
+                _transport = transport;
+                PeerId = peerId;
+                Manager = manager;
+            }
+
+            public ulong PeerId { get; }
+
+            public ConnectionManager Manager { get; }
+
+            public void OnConnecting(ConnectionInfo info)
+            {
+            }
+
+            public void OnConnected(ConnectionInfo info)
+            {
+                _transport.OnPeerConnected(PeerId, Manager.Connection);
+            }
+
+            public void OnDisconnected(ConnectionInfo info)
+            {
+                _transport.OnOutgoingDisconnected(this);
+            }
+
+            public void OnMessage(IntPtr data, int size, long messageNum, long recvTime, int channel)
+            {
+                _transport.OnPeerMessage(PeerId, data, size, channel);
+            }
         }
     }
 }
