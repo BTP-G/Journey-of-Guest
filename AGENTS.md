@@ -2,98 +2,71 @@
 
 ## 工作方式
 
-- 默认使用简体中文；代码标识符、命令、路径、协议字段和第三方名称保持原文。
-- 表达简洁并以决策和结果为导向；需求明确时直接实施，不止步于方案。
-- 开始项目任务时先读根目录 `PROJECT_CONTEXT.md`，按任务导航定位入口；优先读取直接相关文件，信息不足时再用 `rg` 逐步扩大范围。
-- `AGENTS.md` 只记录长期协作规则和稳定设计原则；`PROJECT_CONTEXT.md` 只记录项目事实、模块职责、关键入口和当前风险。
-- 形成持久规则或架构事实时同步更新对应文档；一次性要求、未确认设想和临时调试结论不写入。发现内容过时则以代码和配置为准并修正文档；重大冲突无法判断时先询问用户。
-- 遇到新问题时先提炼是否形成稳定规则：持久规则追加到 `AGENTS.md` 对应章节并在回复中说明"已新增规则"；一次性结论只进 `PROJECT_CONTEXT.md` 或代码注释。
-- 规则冲突时以用户最新指示和代码/配置为准；发现 `AGENTS.md` 或 `PROJECT_CONTEXT.md` 过时，主动修正并提示用户。
+- 默认使用简体中文，代码、命令、路径、协议字段和第三方名称保持原文；结论先行，需求明确时直接实施。
+- 项目任务先读 `PROJECT_INDEX.md`，再按需读取最相关的模块 `README.md` 与入口源码；信息不足时用 `rg` 扩展，不预读全部上下文。
+- `AGENTS.md` 记录长期规则，`PROJECT_INDEX.md` 负责导航，模块 `README.md` 记录稳定事实与风险。
+- 用户最新指示和代码配置优先；确认规则或事实变化后更新对应文档，临时结论不持久化，重大冲突无法判断时询问用户。
+- 新增长期规则时在回复中说明“已新增规则”；发现文档过时则主动修正并提示。
 
 ## 项目与架构
 
-- 这是 Unity 6 多人合作项目。具体 Unity 和包版本以 `ProjectSettings/ProjectVersion.txt`、`Packages/manifest.json`、`Packages/packages-lock.json` 为准。
-- 构建后端为 Mono，当前不考虑 IL2CPP；网络序列化等代码无需为 IL2CPP 兼容性做特殊处理。
-- 项目业务代码使用 `JoG.*` 并保留在 `Assets/Scripts/JoG`，统一编入 `Assembly-CSharp`；供 Mod 独立引用的稳定 JoG 契约放入 `Packages/io.github.xoderony.jog` 的 `JoG` 程序集，且不得反向依赖 `Assembly-CSharp`。跨项目复用的基础设施优先进入 `io.github.xoderony.*` UPM 包并使用 `Xoderony.*`。`Xoderony` 是作者的 GitHub 用户名。
-- 优先使用职责单一的组件扩展能力，保持调用链短、所有权明确；不要持续膨胀基础类或建立庞大统一上下文。
-- 约定大于配置：能用清晰约定覆盖的边界不引入配置参数；可读性和性能优先，安全性其次。程序员可手动避免的异常不写防御性检查（如 null 参数守卫），以调用约定表达。
-- 只靠约定出问题不好定位时加断言，不抛异常：用断言代替防御性抛异常，失败直接暴露位置；发布构建自动剥离，无运行时开销。可引用 Unity 的代码用 `UnityEngine.Debug.Assert`（`UNITY_ASSERTIONS`，编辑器与 Development Build 生效）；无 Unity 依赖的代码用 `System.Diagnostics.Debug.Assert`（`DEBUG`，默认仅编辑器生效）。
-- 不为不存在或未证实的需求设计通用抽象：完全相同的代码可以抽基类复用，不通用的情况单独实现；允许少量直接重复，不为强行统一引入额外基类、回调参数或配置项。
-- 角色由轻量状态机统一协调 Animancer、CharacterMotor、输入、玩法组件和网络同步，不另设并行的统一物理或动画控制器。
-- 多个简单状态机可以并行或借助 GameObject 组合成层级。状态只处理自身行为并报告完成等事实；具体状态机决定状态转移。
-- 网络同步位于状态机边界。状态可序列化自身额外数据，但不感知 RPC 或其他网络实现；本地所有者和远端实例尽量复用玩法逻辑。
-- 不要依赖禁用 `NetworkBehaviour` 所在 GameObject 来切换状态或玩法内容；网络同步组件应持续可用。
-- 实体能力不因需要挂载或注入而继承 `MonoBehaviour`；无 Unity 生命周期或场景引用需求时，优先使用可由 `Entity.Components` 序列化的普通 `IComponent`。只有需要 RPC、`NetworkVariable` 或 NGO 生命周期的组件才使用 `NetworkBehaviour`。
-- 阵营关系由实体的 `Faction` 组件表达；Unity Tag 只用于 Unity 对象分类，不参与伤害、治疗、AI 选敌或目标统计等玩法敌我判定。
-- `UnityEvent` 和 `UnityEvent2` 原则上只用于 UI 等 Inspector 表现层；核心玩法组件使用实体局部委托或消息通信，不序列化 UnityEvent。
-- 属性等数据对象保持被动，不反向依赖玩法组件；需要把数值变化写入有状态系统时，使用职责单一的连接组件。
-- 数值表示按语义选择：离散、协议或确定性数值优先整数或定点数，连续 Unity 数值使用浮点数。转换放在明确边界；泛型基础实现只共享类型确定的不变量操作，不用虚转换隐藏热路径。少量直接重复可用于换取更短调用链和清晰性能特征。
-- 高频玩法与网络路径避免托管分配。
-- 遍历集合时优先使用 `foreach`，并优先让遍历目标保持为数组、`Span<T>` 或具体集合类型；避免在高频路径通过 `IEnumerable<T>`、`IReadOnlyList<T>` 等接口枚举。只有确实需要索引时才使用 `for`。依赖注入边界必须使用集合接口时，尽早取得具体存储再遍历。
-- 消除程序集循环时优先重新划分具体类型的模块归属，并把强耦合类型放在同一领域模块；不要仅为打破循环增加独立接口层。
-- 模块采用职责明确且有自然扩展空间的领域命名，避免过大的聚合模块或过度细碎的程序集。
-- 输入通道以 string key + 泛型 `InputChannel<T>` 表达（跨项目基础设施，核心在 `Xoderony.InputChannels`（Foundation 程序集），Unity 载荷如 `AimInput` 同命名空间放 `Xoderony.Unity` 程序集；key 常量 `InputKeys` 是玩法约定，放游戏项目 `JoG.Character`）；同一 key 的读写方必须约定相同的泛型类型（如 `InputKeys.Jump` 固定为 `InputChannel<bool>`），类型不一致由 Hub 的断言直接暴露。
+- 项目使用 Unity 6、Mono 后端；版本以项目配置为准，不为 IL2CPP 特殊适配。
+- 项目实现使用 `JoG.*` 并留在 `Assembly-CSharp`；Mod 契约进入 `JoG` 包且不得反向依赖项目程序集；跨项目基础设施进入 `Xoderony.*` 包。
+- 以职责单一的组件扩展能力，保持调用链短、所有权明确；避免膨胀基类和统一上下文。
+- 可读性和性能优先；约定可表达的边界不增加配置或防御分支，难定位的约定错误使用与程序集依赖匹配的断言。
+- 不为未证实需求抽象；仅在实现确实相同时复用，允许少量直接重复。
+- 角色能力由轻量状态机统一协调；状态只处理自身行为和事实，状态机负责转移，层级通过组合形成。
+- 网络同步位于状态机边界；状态不感知传输实现，本地与远端尽量复用玩法逻辑；网络组件保持持续可用。
+- 无 Unity 生命周期或场景引用的实体能力使用普通 `IComponent`；仅网络生命周期与同步能力使用 `NetworkBehaviour`。
+- 玩法敌我关系只使用 `Faction`；Unity Tag 仅用于对象分类。
+- Inspector 事件仅用于表现层；核心玩法使用实体局部委托或消息。
+- 数据对象保持被动；状态写入由职责单一的连接组件完成。
+- 数值表示遵循语义，确定性边界使用整数或定点数，连续 Unity 数值使用浮点数，转换显式完成；泛型基础只共享类型不变量，不用虚转换隐藏热路径。
+- 高频玩法与网络路径避免托管分配；集合优先以具体存储 `foreach` 遍历，仅需索引时使用 `for`，接口注入后尽早取得具体存储。
+- 通过调整类型归属消除程序集循环；强耦合类型归入同一领域，模块粒度保持职责完整且可扩展。
+- 输入通道使用 string key + `InputChannel<T>`；同一 key 的载荷类型必须一致，不一致由断言暴露。
 
 ## 状态机与网络协议
 
 - 除非有意修改协议，同步状态 ID 使用 `sbyte`，状态自定义数据最大序列化大小为 `1024`。
-- NGO RPC 数据优先使用 `FastBufferWriter`、`FastBufferReader` 和适当的原生容器实现零 GC 传输。
-- 项目网络序列化不使用 `BytePacker` / `ByteUnpacker` 压缩；字段按其实际类型通过 `WriteValueSafe` / `ReadValueSafe` 读写。
-- 状态序列化和反序列化回调必须由 `try/catch` 隔离。
-- 自定义数据序列化失败时，状态标识仍须同步。
-- RPC 与 `NetworkVariable` 只传协议类型（`int`、Q16、原生容器、Entity ID），不传引用类型与 ScriptableObject；跨端计算使用定点数保证结果一致。
-- 只有权威端写 `NetworkVariable` 或发起玩法 RPC，远端只读并应用；`NetworkVariable` 变更回调内不重入写入。
-- `Xoderony.Networking` 协议消息须在所有对端注册，未注册的消息视为未知类型丢弃；消息以网格直发（无主机中继、无握手）。消息类型为 `byte`（0–255），信封首字节即类型。
-- 对象 RPC/State/Spawn 等短生命周期发送缓冲用 `ArrayPool<byte>`，`Send*` 返回后立即 `Return`（会话会先拷进信封，传输再拷一次）。会话信封 `_envelopeBuffer` 每会话一块常驻，热路径不 Rent/Return。
-- 对象状态用 `NetworkVariableBase` 列表：由 `NetworkObject.Register`/`Unregister` 显式登记（变量不反向调用对象），按下标进入快照与 Flush，`IsDirty` 一帧内多次置位只在 `INetworkObjectManager.Flush` 时发最终值。`NetworkObject.Serialize`/`Deserialize` 只附加在 Spawn/晚加入快照末尾，不参与 Flush，不成对则流错位。RPC 仍走对象通道 `Register`/`SendToOthers`，每次立即发送。不在 `NetworkObject` 上用虚函数写整包增量状态。不引入 NGO 式 `NetworkBehaviour` 或源生成。
-- `INetworkObject` 保留为 `NetworkObject` 的公开契约视图，两者公开成员必须随时同步；`NetworkObject` 新增公开成员时同步补进接口。
-- `HealthChangeMessage.Value` 负值为伤害、正值为治疗；攻击检测与伤害施加统一经 `JoG.Combat`（`HitQuery` 查询去重 + `CombatDamage` 施加，参数为正伤害量并内部取负）。Effects 内部已同步的效果用本地 `Route`，权威端生效的射弹与近战用 `Broadcast`。
+- NGO 序列化使用 `FastBufferWriter`/`FastBufferReader` 和原生容器；按实际字段类型安全读写，不使用 `BytePacker`/`ByteUnpacker`。
+- 状态序列化回调由 `try/catch` 隔离；自定义数据失败仍同步状态 ID。
+- RPC 与 `NetworkVariable` 只传值语义协议类型；跨端计算使用定点数。
+- 仅权威端写网络状态或发起玩法 RPC；远端只应用，变更回调不重入写入。
+- `Xoderony.Networking` 消息须在所有对端注册，未知类型丢弃；消息网格直发且无握手，信封首字节为 `byte` 类型。
+- 短生命周期发送缓冲使用 `ArrayPool<byte>` 并在发送后归还；会话信封按会话常驻。
+- 对象状态通过 `NetworkObject` 显式登记的 `NetworkVariableBase` 顺序列表同步；变量不反向依赖对象，脏状态在 Flush 合并，快照扩展序列化仅用于 Spawn 与晚加入且必须成对。
+- 对象 RPC 按通道即时发送；不使用虚函数整包增量状态，也不引入 NGO 式行为层或源生成。
+- `INetworkObject` 与 `NetworkObject` 的公开契约始终同步。
+- `HealthChangeMessage.Value` 负伤害、正治疗；攻击向 `CombatDamage` 传正值，内部效果用 `Route`，权威端攻击用 `Broadcast`。
 
 ## C# 与 Unity 编辑器
 
-- 遵循根目录 `.editorconfig` 和附近 `JoG` 风格；行尾永远以 `.editorconfig` 为准（`*.cs`：UTF-8 无 BOM、LF、末尾换行），存量不一致文件按配置转换，不迁就子仓库现状。方法签名不换行。
-- API 标识符使用 `PascalCase`；私有实例字段使用 `_camelCase`；参数和局部变量使用 `camelCase`。类型成员顺序：常量 → 字段 → 属性/事件（与接口一致）→ 构造 → 公开 API（与接口一致）→ 私有。同族成对成员排在一起（如 Write/Apply、Register/Unregister）。
-- 依赖注入优先使用 `[Inject]` 字段；只有需要在注入时组合、转换或立即执行初始化逻辑时才使用方法注入。
-- 在语义等价且生命周期有保证时，优先通过成对注册/注销和输入值边界直接表达行为，避免额外状态标记与重复保护分支。
-- 对仅承载少量值且不需要引用身份的类型，优先使用 `readonly struct`；设计集合、接口和委托路径时同时检查装箱与大结构体复制，确保确实减少堆分配。只读且方法内不写入的结构体参数用 `in`；需要写入的用 `ref`。接口实现与 `IEquatable` 等固定签名除外。
-- 编译期可确定且类型允许的稳定实现常量优先使用 `const`；其余固定、不可变的预定义静态值优先使用 `static readonly` 字段；只有值需要动态计算、反映可变状态或确实需要属性封装时才使用静态属性，不为固定值增加只读自动属性。
-- 提取有业务意义的魔法数字和重复字符串；`0`、`1` 等结构值在命名反而降低可读性时可直接保留。
-- 缩短变量生命周期，一个变量只承担一种用途。方法按获取、创建、配置、初始化、注册、组合、返回等清晰阶段排列。
-- 需要把另一方法的返回值作为参数时，先使用含义明确的局部变量。
-- 只有确实降低复杂度、减少有效重复或符合既有模式时才添加抽象；注释说明意图和约束，不复述代码。
-- 注释统一使用中文；日志消息统一使用英文（中文在控制台可能乱码）。
-- 契约注释保持依赖方向：抽象/契约类型只描述自身语义，不在注释中引用具体实现类型或其行为；需要举例时写在实现侧。
-- 方法签名清晰度优先于注释：参数语义、单位、表示方式或重载选择可能产生歧义时，先用清晰签名表达，仍不足再写 XML 注释。公共 API 的 XML 注释不是必须的，签名足够清晰时不加；确需注释时按对应标签书写（`<summary>`、`<typeparam>`、`<param>`、`<returns>`、`<remarks>`），不只写 summary。
-- PropertyDrawer 优先使用 UI Toolkit `CreatePropertyGUI`，可行时保留行为一致的 `OnGUI`。
-- 编辑器 UI 使用 `SerializedObject` / `SerializedProperty`，正确支持 Undo、多对象编辑、Prefab Override 和 `showMixedValue`。
-- 程序化同步 UI 可能产生反馈循环或底层无法精确表示输入时，使用 `SetValueWithoutNotify`。
-- 小而高频、非虚/接口重写且无隐式分配（装箱、闭包等）的简单方法，显式标记 `[MethodImpl(MethodImplOptions.AggressiveInlining)]`；新增代码时先检查是否符合条件，避免遗漏。
-- 多次使用同一索引访问集合元素（如多次 `_states[i]`）时，先引入含义明确的局部变量；需要写回元素时使用 `ref` 局部。
-- 事件订阅、委托注册必须成对退订/注销（`OnEnable`↔`OnDisable`、`OnSpawn`↔`OnDespawn`、`OnDestroy` 释放），禁止累积泄漏。
-- `Awake` 只初始化自身，不依赖其他组件已执行 `Awake`；需要跨组件就绪的逻辑放 `Start`/`OnSpawn`。
-- `Update`/`FixedUpdate` 内不做 `GetComponent`、`Find*`、`Resources` 查找；频繁访问的组件引用在初始化时缓存。
-- 异步统一使用 UniTask，取消走 `CancellationToken`；禁止 `async void`（事件入口除外）和同步阻塞（`.Wait()`/`.Result`）。
-- 热路径禁止字符串拼接/插值、LINQ（`Where`/`Select`/`ToArray` 等）、匿名函数捕获和装箱；需要拼接时使用 ZString。
-- 高频对象使用 `ArrayPool`/`ListPool` 或对象池复用，热路径不 `new` 容器。
-- 高频委托缓存为 `static` 或字段，不在每帧创建闭包。
-- 热循环内不引入跳过分支：当被跳过项代价接近无操作（如乘 `Q16.One`）且分布不规则时，无分支连乘优于 `if` 提前跳过，避免分支预测失败。
-- YooAsset 引用成对 `Load`/`Unload`（`Awake` 加载、`OnDestroy` 卸载），同一引用缓存复用，不重复加载。
-- 日志统一走 `Xoderony.Logging`（`this.LogX`），业务代码不直接使用 `Debug.Log`。
-- 对外 API 使用业务语义命名（如 `AddModifier`/`SetValue`），不用实现细节命名（如 `Slot`/`Index`/`Table`）。
-- 返回实例句柄的 API 让调用方持有句柄操作（如 `Modifier.Remove()`），不返回裸索引让调用方自行配对。
+- 遵循 `.editorconfig` 和邻近代码风格；C# 使用 UTF-8 无 BOM、LF、末尾换行，方法签名不换行。
+- 标识符遵循 .NET 命名；私有实例字段使用 `_camelCase`。成员按常量、字段、属性/事件、构造、公开 API、私有实现排列，契约顺序一致，成对成员相邻。
+- 依赖注入优先用 `[Inject]` 字段；仅需转换、组合或立即初始化时使用方法注入。
+- 生命周期有保证时用输入边界和成对注册表达行为，不增加状态标记或重复保护。
+- 小型值类型优先 `readonly struct`；按读写语义使用 `in`/`ref`，同时避免装箱和大结构体复制。
+- 编译期常量用 `const`，其余固定值用 `static readonly`；动态或需封装的值才用静态属性。
+- 只提取有业务意义的常量；变量短生命周期且单一用途，方法按执行阶段排列，嵌套调用结果先赋予语义明确的局部变量。
+- 抽象只用于降低复杂度或有效重复；注释说明意图与约束，不复述实现。
+- 注释使用中文；日志使用英文并统一走 `Xoderony.Logging`。
+- 契约只描述自身语义；优先用清晰签名表达参数，必要时使用完整 XML 标签补充。
+- PropertyDrawer 优先 UI Toolkit 并保持 IMGUI 行为一致；编辑器 UI 使用序列化 API，支持 Undo、多对象编辑和 Prefab Override，程序化同步避免反馈通知。
+- 热路径小方法若非虚、非接口实现且无隐式分配，标记 `[MethodImpl(MethodImplOptions.AggressiveInlining)]`。
+- 重复索引访问先取局部变量，需要写回时使用 `ref` 局部。
+- 注册与订阅必须成对释放；初始化不依赖同阶段跨组件顺序，频繁引用预先缓存。
+- 异步使用 UniTask 与 `CancellationToken`；除事件入口外禁用 `async void`，禁止同步阻塞异步任务。
+- 热路径禁用隐式分配、LINQ 和动态字符串构造；复用容器与委托，字符串构建使用 ZString。
+- 热循环不为低成本无操作项增加不可预测分支，除非测量证明有收益。
+- YooAsset 引用成对加载与卸载，同一引用缓存复用。
+- 对外 API 使用业务语义并返回可操作句柄，不暴露需调用方配对的实现索引。
 
 ## 修改与验证边界
 
-- 修改前阅读现有实现，只改当前任务所需内容；优先选择范围小、风险低的方案，不顺带重构无关代码。
-- 重构方案评估不被现有代码设计限制：若重写整个模块能更干净地实现目标，将其与局部修补方案一并列出，说明各自的改动范围、风险与收益权衡，由用户选择；实施仍以任务目标为界，不顺带改动无关内容。
-- 专门重构底层/基座时，代码质量最优先、上层兼容性其次：不被现有上层消费方（如 Loopback、NetworkManager）的实现限制，上层在对应模块阶段随迁。
-- 只有用户明确要求时才执行或考虑 Git 相关操作；其他任务不检查、分析或汇报未提交状态，也不因工作区存在修改而暂停实施。
-- 代码重构以目标架构和代码完整性为优先，不为现有 Prefab 序列化配置保留过渡兼容代码；Prefab 迁移由用户处理，除非用户明确要求同时修改。
-- 对 Unity 刷新即可自动生成或清理的 `.meta` 文件，默认不手动创建、删除或改名；只有必须保留既有 GUID 和资源引用时才操作。若在 Unity 中刷新、重绑或迁移更简单，先告知用户并交由用户处理。
-- 不为没有需求或证据的场景增加泛化异常处理、回退路径或预防性分支。
-- 未经确认不做超出请求范围的大规模架构调整，不修改 Asset Store 插件或 Package Cache。
-- 不编辑 `Library`、`Temp`、`Logs`、`obj` 等生成目录；保留工作区中用户的其他修改，不撤销、覆盖或批量格式化无关内容。
-- 默认只做差异、引用和格式等轻量静态验证，不启动 Unity、不编译、不重新生成解决方案；只有用户明确要求时才执行完整验证。
-- 未执行编译或运行验证时，在结果中明确说明。
-- 用户要求 Git 操作时，分支使用 `codex/` 前缀。
-- 提交按逻辑原子切分，不含生成目录与无关文件；提交消息格式「类型: 简述」（`feat`/`fix`/`refactor`/`chore`），中文描述。
+- 修改前阅读现有实现，只改任务所需内容并保留用户的其他修改；不顺带重构、格式化或修改外部插件与生成目录。
+- 评估重构时同时考虑局部修改与完整重写；说明范围、风险和收益，超出请求的架构调整由用户决定。
+- 底层重构以目标契约和代码质量为先，上层消费方随迁；不为 Prefab 序列化保留过渡代码，除非用户要求迁移 Prefab。
+- `.meta` 默认交由 Unity 刷新；仅在必须保留 GUID 或资源引用时手动操作。
+- 仅在用户明确要求时执行或分析 Git；分支使用 `codex/` 前缀，提交保持逻辑原子并采用中文「类型: 简述」，类型限 `feat`/`fix`/`refactor`/`chore`。
+- 默认执行差异、引用和格式等静态验证；启动 Unity、编译或重新生成解决方案须由用户明确要求，未执行时在结果中说明。
