@@ -45,12 +45,13 @@
 - 只有权威端写 `NetworkVariable` 或发起玩法 RPC，远端只读并应用；`NetworkVariable` 变更回调内不重入写入。
 - `Xoderony.Networking` 协议消息须在所有对端注册，未注册的消息视为未知类型丢弃；消息以网格直发（无主机中继、无握手）。消息类型为 `byte`（0–255），信封首字节即类型。
 - 对象 RPC/State/Spawn 等短生命周期发送缓冲用 `ArrayPool<byte>`，`Send*` 返回后立即 `Return`（会话会先拷进信封，传输再拷一次）。会话信封 `_envelopeBuffer` 每会话一块常驻，热路径不 Rent/Return。
-- 对象状态用 `NetworkVariableBase` 列表：由 `NetworkObject.Register`/`Unregister` 显式登记（变量不反向调用对象），按下标进入快照与 Flush，`IsDirty` 一帧内多次置位只在 `INetworkObjectManager.Flush` 时发最终值。`NetworkObject.Write`/`Read` 只附加在 Spawn/晚加入快照末尾，不参与 Flush，不成对则流错位。RPC 仍走对象通道 `Register`/`SendToOthers`，每次立即发送。不在 `NetworkObject` 上用虚函数写整包增量状态。不引入 NGO 式 `NetworkBehaviour` 或源生成。
+- 对象状态用 `NetworkVariableBase` 列表：由 `NetworkObject.Register`/`Unregister` 显式登记（变量不反向调用对象），按下标进入快照与 Flush，`IsDirty` 一帧内多次置位只在 `INetworkObjectManager.Flush` 时发最终值。`NetworkObject.Serialize`/`Deserialize` 只附加在 Spawn/晚加入快照末尾，不参与 Flush，不成对则流错位。RPC 仍走对象通道 `Register`/`SendToOthers`，每次立即发送。不在 `NetworkObject` 上用虚函数写整包增量状态。不引入 NGO 式 `NetworkBehaviour` 或源生成。
+- `INetworkObject` 保留为 `NetworkObject` 的公开契约视图，两者公开成员必须随时同步；`NetworkObject` 新增公开成员时同步补进接口。
 - `HealthChangeMessage.Value` 负值为伤害、正值为治疗；攻击检测与伤害施加统一经 `JoG.Combat`（`HitQuery` 查询去重 + `CombatDamage` 施加，参数为正伤害量并内部取负）。Effects 内部已同步的效果用本地 `Route`，权威端生效的射弹与近战用 `Broadcast`。
 
 ## C# 与 Unity 编辑器
 
-- 遵循根目录 `.editorconfig` 和附近 `JoG` 风格；当前 C# 文件使用 UTF-8（无 BOM）、LF，并保留末尾换行。方法签名不换行。
+- 遵循根目录 `.editorconfig` 和附近 `JoG` 风格；行尾永远以 `.editorconfig` 为准（`*.cs`：UTF-8 无 BOM、LF、末尾换行），存量不一致文件按配置转换，不迁就子仓库现状。方法签名不换行。
 - API 标识符使用 `PascalCase`；私有实例字段使用 `_camelCase`；参数和局部变量使用 `camelCase`。类型成员顺序：常量 → 字段 → 属性/事件（与接口一致）→ 构造 → 公开 API（与接口一致）→ 私有。同族成对成员排在一起（如 Write/Apply、Register/Unregister）。
 - 依赖注入优先使用 `[Inject]` 字段；只有需要在注入时组合、转换或立即执行初始化逻辑时才使用方法注入。
 - 在语义等价且生命周期有保证时，优先通过成对注册/注销和输入值边界直接表达行为，避免额外状态标记与重复保护分支。
