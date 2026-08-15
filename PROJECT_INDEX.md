@@ -11,7 +11,7 @@
 | Gameplay Effects | [效果](Assets/Scripts/JoG/GameplayEffects/README.md) | `Character/CharacterEffects.cs`、`Character/CharacterTimedEffects.cs`、`Character/CharacterPeriodicHealthChanges.cs` |
 | 物品、库存、掉落、存档 | [库存](Assets/Scripts/JoG/Inventory/README.md) | `Inventory/CharacterInventory.cs`、`Item/ItemData.cs` |
 | 战斗、命中、弹体 | [战斗与弹体](Assets/Scripts/JoG/Projectiles/README.md) | JoG 包 `Runtime/Combat`、`Projectiles` |
-| 会话、消息、网络对象、大厅 | [网络](Assets/Scripts/JoG/Networking/README.md) | `Networking/SessionService.cs`、JoG 包 `UnnamedMessageBroker.cs` |
+| 会话、消息、网络对象、大厅 | [网络](Assets/Scripts/JoG/Networking/README.md) | `Networking/SessionService.cs`、`Assets/Scripts/Networking/JoGNetworkObject.cs`、JoG 包 `UnnamedMessageBroker.cs` |
 | 交互、AI、寻路、道具 | [交互与 AI](Assets/Scripts/JoG/AI/README.md) | `Character/CharacterInteractor.cs`、`AI/TargetFinder.cs`、`Props` |
 | HUD、音视频、表现 | [UI 与表现](Assets/Scripts/JoG/UI/README.md) | `UI`、`Character/CharacterNameplate.cs`、`Character/PlayerCharacterOverlay.cs` |
 | 数据注册、Mod API | [数据与 Modding](Assets/Scripts/JoG/Modding/README.md) | `Utilities/AssetsUtility.cs`、`Modding/ModManager.cs` |

@@ -3,6 +3,7 @@
 ## 工作方式
 
 - 默认使用简体中文，代码、命令、路径、协议字段和第三方名称保持原文；结论先行，需求明确时直接实施。
+- 新任务的首轮只读取信息并建立基础上下文，不修改文件或外部状态；将用户首条信息视为任务简述，等待进一步指示后再实施。
 - 项目任务先读 `PROJECT_INDEX.md`，再按需读取最相关的模块 `README.md` 与入口源码；信息不足时用 `rg` 扩展，不预读全部上下文。
 - `AGENTS.md` 记录长期规则，`PROJECT_INDEX.md` 负责导航，模块 `README.md` 记录稳定事实与风险。
 - 用户最新指示和代码配置优先；确认规则或事实变化后更新对应文档，临时结论不持久化，重大冲突无法判断时询问用户。
@@ -12,6 +13,7 @@
 
 - 项目使用 Unity 6、Mono 后端；版本以项目配置为准，不为 IL2CPP 特殊适配。
 - 项目实现使用 `JoG.*` 并留在 `Assembly-CSharp`；Mod 契约进入 `JoG` 包且不得反向依赖项目程序集；跨项目基础设施进入 `Xoderony.*` 包。
+- 跨项目包只保留多个项目实现确实相同的机制；对象布局、消息协议、调度与玩法同步策略优先由具体项目直接实现，需要复用时再提取为依赖核心的可选包。
 - 以职责单一的组件扩展能力，保持调用链短、所有权明确；避免膨胀基类和统一上下文。
 - 可读性和性能优先；约定可表达的边界不增加配置或防御分支，难定位的约定错误使用与程序集依赖匹配的断言。
 - 不为未证实需求抽象；仅在实现确实相同时复用，允许少量直接重复。
@@ -34,9 +36,12 @@
 - RPC 与 `NetworkVariable` 只传值语义协议类型；跨端计算使用定点数。
 - 仅权威端写网络状态或发起玩法 RPC；远端只应用，变更回调不重入写入。
 - `Xoderony.Networking` 消息须在所有对端注册，未知类型丢弃；消息网格直发且无握手，信封首字节为 `byte` 类型。
-- 短生命周期发送缓冲使用 `ArrayPool<byte>` 并在发送后归还；会话信封按会话常驻。
-- 对象状态通过 `NetworkObject` 显式登记的 `NetworkVariableBase` 顺序列表同步；变量不反向依赖对象，脏状态在 Flush 合并，快照扩展序列化仅用于 Spawn 与晚加入且必须成对。
-- 对象 RPC 按通道即时发送；不使用虚函数整包增量状态，也不引入 NGO 式行为层或源生成。
+- `Xoderony.Networking` 核心包只提供会话消息、对象生命周期、Prefab、对象 id 解析和派生对象快照，不提供 NV、RPC 或帧驱动策略；`NetworkObjectManager` 只发布 `Spawned`/`Despawning` 并实现 `INetworkObjectResolver`。
+- JoG 对象扩展实现位于 `Assets/Scripts/Networking` 的 `JoG.Networking.P2P` 命名空间：`JoGNetworkObject` 按需创建并直接保存有序变量列表与 RPC handler 数组，变量与 handler 在 Spawn 前登记；State/RPC 模块经 Resolver 查找一次后直接访问对象，不增加对象到协议状态的字典映射。
+- 项目对象变量与 RPC 发送使用固定容量 `stackalloc` 缓冲，其中变量状态仅在确认存在脏变量后分配；包内 Spawn/Despawn 使用 `ArrayPool<byte>` 并在发送后归还，会话信封按会话常驻。
+- 项目 `NetworkVariable<T>` 仅接受 `unmanaged`，值实际变化时置脏并触发 `ValueChanged`；默认按 `T` 原始内存布局编码，需要稳定或紧凑协议时成对覆盖 `Serializer<T>.Serialize` 与 `Deserializer<T>.Deserialize`。
+- `NetworkVariableModule` 通过对象生命周期事件只维护本端拥有且包含变量的对象列表，并由 VContainer PlayerLoop Flush；`NetworkRpcModule` 按通道即时发送和投递，两者自行注册项目消息且不由 `NetworkObjectManager` 驱动。
+- 包与项目对象均不内置 Transform 同步；需要同步位姿时由具体项目对象或组件直接实现。
 - `INetworkObject` 与 `NetworkObject` 的公开契约始终同步。
 - `HealthChangeMessage.Value` 负伤害、正治疗；攻击向 `CombatDamage` 传正值，内部效果用 `Route`，权威端攻击用 `Broadcast`。
 

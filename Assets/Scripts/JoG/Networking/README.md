@@ -22,16 +22,23 @@
 
 - `Packages/io.github.xoderony.networking` 是独立仓库 `Xoderony/io.github.xoderony.networking` 的本地 clone，程序集 `Xoderony.Networking`，不依赖 JoG、NGO 或 Steamworks。
 - 主仓库通过 `.git/info/exclude` 忽略该目录，包代码应在自己的仓库提交；目前尚未接入游戏玩法。
-- `INetworkObjectManager`/`NetworkObjectManager` 负责对象生成、销毁、查找、状态/RPC 投递、晚加入快照与离开清理。
-- 本地 `Spawn` 接收外部已创建实例，远端收包经 `INetworkObjectFactory.Create`；`SpawnLocal`/`DestroyLocal` 只负责绑定和解绑。
-- 对象状态是由 `NetworkObject.Register`/`Unregister` 显式登记的 `NetworkVariableBase` 列表，按下标写入快照与 Flush；一帧多次置脏只在 Flush 发送最终值。
-- `NetworkObject.Serialize`/`Deserialize` 只追加于 Spawn/晚加入快照，不参与 Flush，必须与变量列表顺序成对读取。
-- RPC 使用对象通道 `Register`/`SendToOthers`，每次立即发送。
-- State 帧为 `Sequence + index + payload`（类型 4）；Rpc 帧为 `Sequence + channel + payload`（类型 5）。Spawn/Despawn 为类型 2/3。
+- 包只负责会话消息、对象生成/销毁、Prefab、对象 id 解析和派生对象快照，不提供 NV、RPC 或帧驱动策略。
+- `NetworkObjectManager` 实现 `INetworkObjectEvents` 与 `INetworkObjectResolver`；扩展模块只依赖窄契约，不由 Manager 登记或驱动。
+- 本地 `Spawn` 接收外部已创建实例，远端收包经 `INetworkObjectFactory.Create`；`Spawned` 在快照完成后发布，`Despawning` 在解绑和销毁前发布。
+- `NetworkObject.OnSerializeSnapshot`/`OnDeserializeSnapshot` 只用于 Spawn 与晚加入，布局由项目派生类型拥有且必须成对。
 - `NetworkObjectId` 由 PeerId 和 Sequence 构成，载荷只传 Sequence。PrefabId 为 `Animator.StringToHash(prefab.name)` 的 int，0 保留，冲突断言，YooAsset 预制体名必须全局唯一。
-- 状态自定义数据上限 1024。对象 Rpc/State 与 Spawn/Despawn 临时发送缓冲使用 `ArrayPool<byte>`；会话信封按 PayloadCapacity 常驻分配。
-- 位姿变量在 Awake 登记一次，不随 Bind/Unbind 插拔。
+- Spawn/Despawn 临时发送缓冲使用 `ArrayPool<byte>`，会话信封按会话常驻；应用协议自行选择缓冲和调度策略。
+
+## JoG 对象扩展协议
+
+- 项目实现位于 `Assets/Scripts/Networking`，使用 `JoG.Networking.P2P` 命名空间以避免与并存的 NGO 类型歧义，尚未接入当前 NGO RootScope。
+- `JoGNetworkObject` 按需创建并直接保存有序 `NetworkVariableBase` 列表和 RPC channel handler 数组；变量与 handler 在 Spawn 前登记，快照覆写直接序列化变量，不经过全局映射。
+- `NetworkVariable<T>` 仅接受 `unmanaged`，值实际变化时置脏并触发 `ValueChanged`；默认编码由包内 `Serializer<T>`/`Deserializer<T>` 提供，自定义稳定协议须成对覆盖。
+- `NetworkVariableModule` 通过 `INetworkObjectEvents` 只维护本端拥有且包含变量的 `JoGNetworkObject` 列表，通过 VContainer `ITickable` Flush；每个对象仅在确认存在脏变量后 `stackalloc` 发送缓冲。
+- `NetworkRpcModule` 不保存对象映射；收包经 `INetworkObjectResolver` 查找后直接投递到 `JoGNetworkObject`，仅 owner 可发送。
+- 项目 State 帧为 `Sequence + index + payload`（类型 `NetworkMessageType.User`），Rpc 帧为 `Sequence + channel + payload`（下一类型）；包内 Spawn/Despawn 仍为类型 2/3。
+- `JoGNetworkObject` 不内置 Transform 同步；需要同步位姿时由具体项目对象或组件直接实现。
 
 ## 未完成项
 
-Xoderony.Networking 尚未进行 Unity 编译/运行验证；Loopback 样例会话 API 仍待迁移，游戏项目接线仍待办。NGO API 有疑问时应查当前包源码或对应版本官方文档，不依赖旧版本记忆。
+Xoderony.Networking 与项目侧对象扩展尚未进行 Unity 编译/运行验证；LoopbackTransport 仍为空壳，P2P 会话的 VContainer 组合入口仍待接入。NGO API 有疑问时应查当前包源码或对应版本官方文档，不依赖旧版本记忆。
