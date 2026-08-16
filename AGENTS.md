@@ -35,10 +35,13 @@
 - 状态序列化回调由 `try/catch` 隔离；自定义数据失败仍同步状态 ID。
 - RPC 与 `NetworkVariable` 只传值语义协议类型；跨端计算使用定点数。
 - 仅权威端写网络状态或发起玩法 RPC；远端只应用，变更回调不重入写入。
-- `Xoderony.Networking` 消息须在所有对端注册，未知类型丢弃；消息网格直发且无握手，信封首字节为 `byte` 类型。
-- `Xoderony.Networking` 核心包只提供会话消息、对象生命周期、Prefab、对象 id 解析和派生对象快照，不提供 NV、RPC 或帧驱动策略；`NetworkObjectManager` 只发布 `Spawned`/`Despawning` 并实现 `INetworkObjectResolver`。
-- JoG 对象扩展实现位于 `Assets/Scripts/Networking` 的 `JoG.Networking.P2P` 命名空间：`JoGNetworkObject` 按需创建并直接保存有序变量列表与 RPC handler 数组，变量与 handler 在 Spawn 前登记；State/RPC 模块经 Resolver 查找一次后直接访问对象，不增加对象到协议状态的字典映射。
-- 项目对象变量与 RPC 发送使用固定容量 `stackalloc` 缓冲，其中变量状态仅在确认存在脏变量后分配；包内 Spawn/Despawn 使用 `ArrayPool<byte>` 并在发送后归还，会话信封按会话常驻。
+- `Xoderony.Networking` 消息须在所有对端注册，未知类型丢弃；消息网格直发且无握手，首字节为 `byte` 类型，其余为载荷；远端发送者身份取自 Transport 的直连 PeerId。
+- `Xoderony.Networking` 核心包只提供会话事实契约、消息路由、对象生命周期、Prefab、对象 id 解析和派生对象快照，不提供具体 Lobby、NV、RPC 或帧驱动策略；`INetworkObjectManager` 统一提供对象管理、id 解析及对称的 `Spawned`/`Despawned` 事件，前者在绑定并完成初始化后发布，后者在移除并解绑后、工厂销毁前发布。
+- `INetworkSession` 只表达逻辑会话成员与 Owner 事实；Steam 实现是 Lobby 状态的唯一所有者。Transport 连接是可重连的物理状态：`PeerConnected` 只触发快照补发，只有 `MemberLeft` 才清理该成员对象；Owner 离开时 `OwnerChanged` 先于 `MemberLeft`。
+- `NetworkObject.Id` 直接使用会话内稳定且唯一的 `uint`，高 8 位为会话内不回收的 `RangeId`，低 24 位为 Sequence，0 保留；Peer 以 Lobby Member Data 的 `ReservedEnd` 请求下一块，Session Owner 在 Lobby 全局数据中按 SteamID 分别保存 `RangeId` 与 `ReservedEnd`，首次授权后由 Peer 发布 `network.id.ready=1`，物理连接只观察 Lobby 状态。对象当前权威独立使用 `OwnerPeerId`，State/RPC/Despawn 按 Id 查找后校验发送者为当前 Owner，权威转移不得修改 Id。
+- 协议规定的固定消息容量与对象 id 位域容量由约定保证；超出容量只以断言暴露，不实现动态扩容、RangeId/Sequence 耗尽恢复或回收分支。
+- JoG 对象扩展实现位于 `Assets/Scripts/Networking` 的 `JoG.Networking.P2P` 命名空间：`JoGNetworkObject` 按需创建并直接保存有序变量列表与 RPC handler 数组，变量与 handler 在 Spawn 前登记；State/RPC 模块经 `INetworkObjectManager` 查找一次后直接访问对象，不增加对象到协议状态的字典映射。
+- 项目对象变量、RPC 与包内 Spawn/Despawn 发送均使用固定容量 `stackalloc` 缓冲，其中变量状态仅在确认存在脏变量后分配；发送方组装完整消息，`NetworkMessageManager` 不增加会话信封并直接交给 Transport。
 - 项目 `NetworkVariable<T>` 仅接受 `unmanaged`，值实际变化时置脏并触发 `ValueChanged`；默认按 `T` 原始内存布局编码，需要稳定或紧凑协议时成对覆盖 `Serializer<T>.Serialize` 与 `Deserializer<T>.Deserialize`。
 - `NetworkVariableModule` 通过对象生命周期事件只维护本端拥有且包含变量的对象列表，并由 VContainer PlayerLoop Flush；`NetworkRpcModule` 按通道即时发送和投递，两者自行注册项目消息且不由 `NetworkObjectManager` 驱动。
 - 包与项目对象均不内置 Transform 同步；需要同步位姿时由具体项目对象或组件直接实现。

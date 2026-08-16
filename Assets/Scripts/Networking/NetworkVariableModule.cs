@@ -10,15 +10,13 @@ using Xoderony.Networking.Transport;
 namespace JoG.Networking.P2P {
     /// <summary>JoG 对象变量协议；由 VContainer PlayerLoop 每帧刷新脏变量。</summary>
     public sealed class NetworkVariableModule : IInitializable, ITickable, IDisposable {
-        private readonly INetworkManager _networkManager;
-        private readonly INetworkObjectEvents _objectEvents;
-        private readonly INetworkObjectResolver _objectResolver;
+        private readonly INetworkMessageManager _messageManager;
+        private readonly INetworkObjectManager _objectManager;
         private readonly List<JoGNetworkObject> _spawnedObjects = new List<JoGNetworkObject>();
 
-        public NetworkVariableModule(INetworkManager networkManager, INetworkObjectEvents objectEvents, INetworkObjectResolver objectResolver) {
-            _networkManager = networkManager;
-            _objectEvents = objectEvents;
-            _objectResolver = objectResolver;
+        public NetworkVariableModule(INetworkMessageManager messageManager, INetworkObjectManager objectManager) {
+            _messageManager = messageManager;
+            _objectManager = objectManager;
         }
 
         public void Flush() {
@@ -28,10 +26,9 @@ namespace JoG.Networking.P2P {
         }
 
         void IInitializable.Initialize() {
-            _networkManager.Started += OnSessionStarted;
-            _networkManager.Stopped += OnSessionStopped;
-            _objectEvents.Spawned += OnObjectSpawned;
-            _objectEvents.Despawning += OnObjectDespawning;
+            _messageManager.RegisterMessage(NetworkObjectMessageType.State, OnStateMessage);
+            _objectManager.Spawned += OnObjectSpawned;
+            _objectManager.Despawned += OnObjectDespawned;
         }
 
         void ITickable.Tick() {
@@ -39,24 +36,13 @@ namespace JoG.Networking.P2P {
         }
 
         public void Dispose() {
-            _networkManager.Started -= OnSessionStarted;
-            _networkManager.Stopped -= OnSessionStopped;
-            _networkManager.UnregisterMessage(NetworkObjectMessageType.State, OnStateMessage);
-            _objectEvents.Spawned -= OnObjectSpawned;
-            _objectEvents.Despawning -= OnObjectDespawning;
+            _messageManager.UnregisterMessage(NetworkObjectMessageType.State, OnStateMessage);
+            _objectManager.Spawned -= OnObjectSpawned;
+            _objectManager.Despawned -= OnObjectDespawned;
             _spawnedObjects.Clear();
         }
 
-        private void OnSessionStarted() {
-            _networkManager.RegisterMessage(NetworkObjectMessageType.State, OnStateMessage);
-        }
-
-        private void OnSessionStopped() {
-            _networkManager.UnregisterMessage(NetworkObjectMessageType.State, OnStateMessage);
-            _spawnedObjects.Clear();
-        }
-
-        private void OnObjectSpawned(Xoderony.Networking.NetworkObject networkObject) {
+        private void OnObjectSpawned(Xoderony.Networking.NetworkObject networkObject, uint id) {
             if (networkObject is not JoGNetworkObject jogNetworkObject || !jogNetworkObject.IsOwner || jogNetworkObject.VariableCount == 0) {
                 return;
             }
@@ -65,15 +51,20 @@ namespace JoG.Networking.P2P {
             _spawnedObjects.Add(jogNetworkObject);
         }
 
-        private void OnObjectDespawning(Xoderony.Networking.NetworkObject networkObject) {
+        private void OnObjectDespawned(Xoderony.Networking.NetworkObject networkObject, uint id) {
             if (networkObject is JoGNetworkObject jogNetworkObject) {
                 _spawnedObjects.Remove(jogNetworkObject);
             }
         }
 
         private void OnStateMessage(ulong senderPeerId, BufferReader reader) {
-            var id = new NetworkObjectId(senderPeerId, reader.ReadUInt());
-            if (!_objectResolver.TryGetSpawned(id, out var networkObject) || networkObject is not JoGNetworkObject jogNetworkObject) {
+            var id = reader.ReadUInt();
+            if (!_objectManager.TryGetSpawned(id, out var networkObject) || networkObject is not JoGNetworkObject jogNetworkObject) {
+                return;
+            }
+
+            if (jogNetworkObject.OwnerPeerId != senderPeerId) {
+                Debug.Assert(false, "Only the current owner can send network variable state.");
                 return;
             }
 
@@ -91,7 +82,7 @@ namespace JoG.Networking.P2P {
                 return;
             }
 
-            Span<byte> buffer = stackalloc byte[NetworkMessageLimits.PayloadCapacity];
+            Span<byte> buffer = stackalloc byte[NetworkMessageLimits.MessageCapacity];
             for (var i = firstDirtyIndex; i < networkObject.VariableCount; i++) {
                 var variable = networkObject.GetVariable(i);
                 if (!variable.IsDirty) {
@@ -99,10 +90,11 @@ namespace JoG.Networking.P2P {
                 }
 
                 var writer = new BufferWriter(buffer);
-                writer.WriteUInt(networkObject.Id.Sequence);
+                writer.WriteByte(NetworkObjectMessageType.State);
+                writer.WriteUInt(networkObject.Id);
                 writer.WriteByte((byte)i);
                 variable.Serialize(ref writer);
-                _networkManager.SendToOthers(NetworkObjectMessageType.State, writer.Written, NetworkDelivery.Reliable);
+                _messageManager.SendToOthers(writer.Written, NetworkDelivery.Reliable);
             }
         }
     }

@@ -10,7 +10,7 @@ namespace JoG.Networking {
     /// <summary>
     /// Steam P2P 传输（Facepunch.Steamworks / SteamNetworkingSockets）。
     /// peerId 即 SteamID；本端始终监听（接受入站），并按需建立出站连接（<see cref="ConnectPeer"/>）。
-    /// 进程级单例约定：SteamClient.Init 每进程一次，<see cref="Start"/> 仅调用一次。
+    /// SteamClient.Init 每进程一次；Transport 可在 <see cref="Stop"/> 后重新 <see cref="Start"/>。
     /// </summary>
     public sealed class SteamNetworkTransport : INetworkTransport, ISocketManager {
         private static bool s_steamInitialized;
@@ -93,11 +93,16 @@ namespace JoG.Networking {
                 outgoing.Manager.Close();
             }
 
-            _outgoing.Clear();
-            _pendingOutgoingRemovals.Clear();
             _socketManager?.Close();
             _socketManager = null;
-            _connections.Clear();
+
+            var peerIds = new List<ulong>(_connections.Keys);
+            foreach (var peerId in peerIds) {
+                OnPeerDisconnected(peerId);
+            }
+
+            _outgoing.Clear();
+            _pendingOutgoingRemovals.Clear();
         }
 
         public void Poll() {
