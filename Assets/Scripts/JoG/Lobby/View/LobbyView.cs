@@ -37,7 +37,7 @@ namespace JoG.Lobby.View {
                , controller.LobbyName
                , controller.MaxMembers
                , controller.LobbyType
-               , controller.IsServer);
+               , controller.IsOwner);
             while (_memberCards.Count < controller.MemberCount) {
                 _memberCards.Add(Instantiate(_cardPrefab, LobbyMemberCardContent));
             }

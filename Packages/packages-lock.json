@@ -630,6 +630,12 @@
         "com.unity.netcode.gameobjects": "2.13.0"
       }
     },
+    "io.github.xoderony.networking": {
+      "version": "file:io.github.xoderony.networking",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "io.github.xoderony.unity": {
       "version": "file:io.github.xoderony.unity",
       "depth": 0,
