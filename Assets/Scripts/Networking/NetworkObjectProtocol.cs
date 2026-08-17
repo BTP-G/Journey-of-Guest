@@ -1,3 +1,5 @@
+using System;
+using System.Globalization;
 using Xoderony.Networking.Messaging;
 
 namespace JoG.Networking.P2P {
@@ -7,12 +9,25 @@ namespace JoG.Networking.P2P {
         public const byte Rpc = NetworkMessageType.User + 1;
     }
 
-    /// <summary>Steam Lobby 中的网络对象 id 分配状态字段。</summary>
-    internal static class NetworkObjectIdLobbyData {
-        public const string PeerRangeIdKeyPrefix = "network.id.peer.range";
-        public const string PeerReservedEndKeyPrefix = "network.id.peer.end";
-        public const string RangeRequestKey = "network.id.request";
-        public const string ReadyKey = "network.id.ready";
-        public const string ReadyValue = "1";
+    /// <summary>Steam Lobby 中的网络对象 id 分配键。</summary>
+    internal static class NetworkObjectIdLobbyKeys {
+        private const string KeyPrefix = "network.id.";
+        private const string PeerRangeIdKeyPrefix = KeyPrefix + "peer.range";
+
+        public const string NextRangeIdCounterKey = KeyPrefix + "range.next";
+        public const string IdReadyKey = KeyPrefix + "ready";
+        public const string IdReadyValue = "1";
+
+        public static string PeerRangeIdKey(ulong peerId) {
+            return PeerRangeIdKeyPrefix + peerId.ToString(CultureInfo.InvariantCulture);
+        }
+
+        public static bool IsPeerRangeIdKey(string key) {
+            return key.StartsWith(PeerRangeIdKeyPrefix, StringComparison.Ordinal);
+        }
+
+        public static bool IsIdReady(string memberData) {
+            return memberData == IdReadyValue;
+        }
     }
 }

@@ -4,6 +4,7 @@ using JoG.Item;
 using JoG.Localization;
 using JoG.Modding;
 using JoG.Networking;
+using JoG.Networking.P2P;
 using JoG.Player;
 using JoG.UI.Popup;
 using System.Collections.Generic;
@@ -13,6 +14,7 @@ using UnityEngine.InputSystem;
 using VContainer;
 using VContainer.Unity;
 using Xoderony.GameplayEffects;
+using Xoderony.Networking;
 
 namespace JoG {
 
@@ -53,6 +55,7 @@ namespace JoG {
                 configuration.Add<DefaultLanguageBuilder>();
                 configuration.Add<SessionService>();
                 configuration.Add<JoGApplication>();
+                configuration.Add<SteamNetworkSession>().AsSelf().As<INetworkSession>();
             });
             builder.RegisterBuildCallback(static container => {
                 var manager = container.Resolve<NetworkManager>();

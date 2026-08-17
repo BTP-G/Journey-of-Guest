@@ -44,11 +44,12 @@
 | 包 | 主要职责 |
 | --- | --- |
 | `io.github.xoderony.jog` | Entity/IComponent、Stat、Health、StateMachines、Interaction、Faction、Modding、旧消息 Broker、序列化契约 |
+| `io.github.xoderony.networking` | P2P 核心：会话事实、消息路由、对象生命周期/Prefab/id 解析与入网快照；不含 Lobby、NV、RPC；本地独立仓库 clone，细节见 `Networking/README.md` |
 | `io.github.xoderony.foundation` | 集合、委托通道、对象池、`InputChannel<T>`/`InputChannelHub` |
 | `io.github.xoderony.unity` | Q16、PlayerLoop、Unity 组件与池、AimInput、编辑器控件 |
 | `io.github.xoderony.gameplay-effects` | 与 JoG/NGO/VContainer 解耦的效果 Data/Definition/Controller 契约与注册表 |
 | `io.github.xoderony.movement` | CharacterMotor、地面检测和扫掠 |
-| `io.github.xoderony.netcode` | NetworkBehaviour 编辑器扩展、NetworkObjectReference 扩展 |
+| `io.github.xoderony.netcode` | NetworkBehaviour 编辑器扩展、NetworkObjectReference 扩展（仍服务当前 NGO 路径） |
 | logging/localization/navigation/yooasset/integrations | 日志、本地化、寻路过滤、YooAsset 工具和 ZString 扩展 |
 
 ## 仓库级已知状态
@@ -56,6 +57,7 @@
 - 2026-08-10 已移除零引用第三方资源包和演示场景，备份位于仓库外 `E:\UnityProjects\Journey of Guest Backup\2026-08-10-redundant`。
 - `GameplayScene_2` 烘焙光照贴图改为本地生成并被 `.gitignore` 忽略。
 - 同日使用 `git filter-repo` 清理历史并 force push，pack 从约 3.34 GiB 降至 0.47 GiB；旧克隆需要重新同步。
+- 2026-08-17：`Xoderony.Networking` 与项目侧 `JoG.Networking.P2P`（`Assets/Scripts/Networking`）已落地会话/消息/对象 id 分配与 NV/RPC 模块，玩法仍走 NGO；P2P 未接线、未做 Unity 验证。`PROJECT_CONTEXT.md` 已拆为 `PROJECT_INDEX.md` + 各模块 README。
 - 当前占位实现包括 `LifetimeScopes/MainSceneScope.cs`、`UI/IngameOverlayController.cs`、`JoGApplication.Initialize`。
 - `Assets/Scripts/JoG/Buff` 只剩旧目录元数据；实现已迁到 GameplayEffects/CharacterEffects。
 

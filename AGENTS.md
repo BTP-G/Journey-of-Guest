@@ -37,8 +37,8 @@
 - 仅权威端写网络状态或发起玩法 RPC；远端只应用，变更回调不重入写入。
 - `Xoderony.Networking` 消息须在所有对端注册，未知类型丢弃；消息网格直发且无握手，首字节为 `byte` 类型，其余为载荷；远端发送者身份取自 Transport 的直连 PeerId。
 - `Xoderony.Networking` 核心包只提供会话事实契约、消息路由、对象生命周期、Prefab、对象 id 解析和派生对象快照，不提供具体 Lobby、NV、RPC 或帧驱动策略；`INetworkObjectManager` 统一提供对象管理、id 解析及对称的 `Spawned`/`Despawned` 事件，前者在绑定并完成初始化后发布，后者在移除并解绑后、工厂销毁前发布。
-- `INetworkSession` 只表达逻辑会话成员与 Owner 事实；Steam 实现是 Lobby 状态的唯一所有者。Transport 连接是可重连的物理状态：`PeerConnected` 只触发快照补发，只有 `MemberLeft` 才清理该成员对象；Owner 离开时 `OwnerChanged` 先于 `MemberLeft`。
-- `NetworkObject.Id` 直接使用会话内稳定且唯一的 `uint`，高 8 位为会话内不回收的 `RangeId`，低 24 位为 Sequence，0 保留；Peer 以 Lobby Member Data 的 `ReservedEnd` 请求下一块，Session Owner 在 Lobby 全局数据中按 SteamID 分别保存 `RangeId` 与 `ReservedEnd`，首次授权后由 Peer 发布 `network.id.ready=1`，物理连接只观察 Lobby 状态。对象当前权威独立使用 `OwnerPeerId`，State/RPC/Despawn 按 Id 查找后校验发送者为当前 Owner，权威转移不得修改 Id。
+- `INetworkSession` 只表达逻辑会话成员与 Owner 事实；Steam 实现是 Lobby 状态的唯一所有者。`Started` 后已有成员由实现读模型提供（Steam 下为 `Lobby.Members`），`MemberJoined`/`MemberLeft` 仅表示会话进行中的远端增量；本人离开为 `Stopped`，不逐个补发 `MemberLeft`。Transport 连接是可重连的物理状态：`PeerConnected` 只触发快照补发，只有 `MemberLeft` 才清理该成员对象。`OwnerChanged` 与 `MemberLeft` 是独立事实，到达顺序不保证；消费方不得依赖先后。
+- `NetworkObject.Id` 直接使用会话内稳定且唯一的 `uint`，高 8 位为会话内不回收的 `RangeId`，低 24 位为 Sequence，0 保留；Session Owner 在成员每次进房时发放新的 `RangeId`（Lobby `network.id.range.next` 只增不减，重进覆盖该 SteamID 映射），Peer 本地从 Sequence 1 递增，无需同步 Sequence 高水位。首次取得 RangeId 后 Peer 发布 `network.id.ready=1`。对象当前权威独立使用 `OwnerPeerId`，权威转移不得修改 Id；持久对象可不随成员离开销毁。
 - 协议规定的固定消息容量与对象 id 位域容量由约定保证；超出容量只以断言暴露，不实现动态扩容、RangeId/Sequence 耗尽恢复或回收分支。
 - JoG 对象扩展实现位于 `Assets/Scripts/Networking` 的 `JoG.Networking.P2P` 命名空间：`JoGNetworkObject` 按需创建并直接保存有序变量列表与 RPC handler 数组，变量与 handler 在 Spawn 前登记；State/RPC 模块经 `INetworkObjectManager` 查找一次后直接访问对象，不增加对象到协议状态的字典映射。
 - 项目对象变量、RPC 与包内 Spawn/Despawn 发送均使用固定容量 `stackalloc` 缓冲，其中变量状态仅在确认存在脏变量后分配；发送方组装完整消息，`NetworkMessageManager` 不增加会话信封并直接交给 Transport。
@@ -63,7 +63,7 @@
 - PropertyDrawer 优先 UI Toolkit 并保持 IMGUI 行为一致；编辑器 UI 使用序列化 API，支持 Undo、多对象编辑和 Prefab Override，程序化同步避免反馈通知。
 - 热路径小方法若非虚、非接口实现且无隐式分配，标记 `[MethodImpl(MethodImplOptions.AggressiveInlining)]`。
 - 重复索引访问先取局部变量，需要写回时使用 `ref` 局部。
-- 注册与订阅必须成对释放；初始化不依赖同阶段跨组件顺序，频繁引用预先缓存。
+- 注册与订阅必须成对释放；初始化不依赖同阶段跨组件顺序，频繁引用预先缓存。入口 `Initialize`/`Start` 时会话尚未 `Started`，禁止用 `IsStarted` 补跑 `Started` 处理。
 - 异步使用 UniTask 与 `CancellationToken`；除事件入口外禁用 `async void`，禁止同步阻塞异步任务。
 - 热路径禁用隐式分配、LINQ 和动态字符串构造；复用容器与委托，字符串构建使用 ZString。
 - 热循环不为低成本无操作项增加不可预测分支，除非测量证明有收益。

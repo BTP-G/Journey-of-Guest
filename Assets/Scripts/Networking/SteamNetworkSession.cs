@@ -1,24 +1,29 @@
 using Steamworks;
 using System;
-using UnityEngine;
+using VContainer.Unity;
 using Xoderony.Logging;
 using Xoderony.Networking;
 using SLobby = Steamworks.Data.Lobby;
 
 namespace JoG.Networking.P2P {
-    /// <summary>以 Steam Lobby 成员关系和 Owner 作为逻辑会话事实源。</summary>
-    public sealed class SteamNetworkSession : MonoBehaviour, INetworkSession {
+    /// <summary>
+    /// Steam Lobby 会话事实源：VContainer 入口中订阅 Matchmaking，将成员与 Owner 收敛为 <see cref="INetworkSession"/>。
+    /// 不发起 Join/Leave；平台进出由大厅控制器等调用方负责。
+    /// 对齐 Steam Lobby：进房仅 <see cref="Started"/>（已有成员由消费方读 <see cref="Lobby"/>）；
+    /// 之后远端进出走 <see cref="MemberJoined"/> / <see cref="MemberLeft"/>；本人离开走 <see cref="Stopped"/>。
+    /// Owner 只在 Lobby Data 回调中对照 <c>lobby.Owner</c>。
+    /// </summary>
+    public sealed class SteamNetworkSession : INetworkSession, IInitializable, IDisposable {
         private SLobby _lobby;
         private ulong _ownerPeerId;
-        private ulong _pendingOwnerDeparturePeerId;
 
-        public SLobby Lobby => _lobby;
-
-        public bool IsJoined => _lobby.Id.IsValid;
+        public bool IsStarted => _lobby.Id.IsValid;
 
         public ulong OwnerPeerId => _ownerPeerId;
 
-        public bool IsOwner => IsJoined && _ownerPeerId == SteamClient.SteamId;
+        public bool IsOwner => IsStarted && _ownerPeerId == SteamClient.SteamId;
+
+        public SLobby Lobby => _lobby;
 
         public event Action Started;
 
@@ -34,17 +39,7 @@ namespace JoG.Networking.P2P {
 
         public event Action<Friend> LobbyMemberDataChanged;
 
-        public void Leave() {
-            if (!IsJoined) {
-                return;
-            }
-
-            var lobby = _lobby;
-            StopSession();
-            lobby.Leave();
-        }
-
-        private void Awake() {
+        void IInitializable.Initialize() {
             SteamMatchmaking.OnLobbyEntered += OnLobbyEntered;
             SteamMatchmaking.OnLobbyDataChanged += OnLobbyDataChanged;
             SteamMatchmaking.OnLobbyMemberDataChanged += OnLobbyMemberDataChanged;
@@ -52,12 +47,11 @@ namespace JoG.Networking.P2P {
             SteamMatchmaking.OnLobbyMemberLeave += OnLobbyMemberLeave;
         }
 
-        private void OnApplicationQuit() {
-            Leave();
-        }
+        public void Dispose() {
+            if (IsStarted) {
+                StopSession();
+            }
 
-        private void OnDestroy() {
-            Leave();
             SteamMatchmaking.OnLobbyEntered -= OnLobbyEntered;
             SteamMatchmaking.OnLobbyDataChanged -= OnLobbyDataChanged;
             SteamMatchmaking.OnLobbyMemberDataChanged -= OnLobbyMemberDataChanged;
@@ -66,26 +60,15 @@ namespace JoG.Networking.P2P {
         }
 
         private void OnLobbyEntered(SLobby lobby) {
-            if (IsJoined && _lobby.Id == lobby.Id) {
+            if (IsStarted && _lobby.Id == lobby.Id) {
                 return;
             }
 
-            if (IsJoined) {
-                var previousLobby = _lobby;
+            if (IsStarted) {
                 StopSession();
-                previousLobby.Leave();
             }
 
-            _lobby = lobby;
-            _ownerPeerId = lobby.Owner.Id;
-            this.Log($"Joined lobby: {lobby.Id}");
-            Started?.Invoke();
-
-            foreach (var member in lobby.Members) {
-                if (!member.IsMe) {
-                    MemberJoined?.Invoke(member.Id);
-                }
-            }
+            StartSession(lobby);
         }
 
         private void OnLobbyDataChanged(SLobby lobby) {
@@ -93,8 +76,13 @@ namespace JoG.Networking.P2P {
                 return;
             }
 
-            ReconcileOwner(lobby);
-            PublishPendingOwnerDeparture();
+            var ownerPeerId = (ulong)lobby.Owner.Id;
+            if (ownerPeerId != _ownerPeerId) {
+                var previousOwnerPeerId = _ownerPeerId;
+                _ownerPeerId = ownerPeerId;
+                OwnerChanged?.Invoke(previousOwnerPeerId, ownerPeerId);
+            }
+
             LobbyDataChanged?.Invoke();
         }
 
@@ -120,49 +108,28 @@ namespace JoG.Networking.P2P {
                 return;
             }
 
-            var peerId = (ulong)friend.Id;
-            if (peerId != _ownerPeerId) {
-                MemberLeft?.Invoke(peerId);
-                return;
-            }
-
-            _pendingOwnerDeparturePeerId = peerId;
-            ReconcileOwner(lobby);
-            PublishPendingOwnerDeparture();
+            MemberLeft?.Invoke(friend.Id);
         }
 
-        private bool IsCurrentLobby(in SLobby lobby) {
-            return IsJoined && _lobby.Id == lobby.Id;
-        }
-
-        private void ReconcileOwner(in SLobby lobby) {
-            var ownerPeerId = (ulong)lobby.Owner.Id;
-            if (ownerPeerId == _ownerPeerId) {
-                return;
-            }
-
-            var previousOwnerPeerId = _ownerPeerId;
-            _ownerPeerId = ownerPeerId;
-            OwnerChanged?.Invoke(previousOwnerPeerId, ownerPeerId);
-        }
-
-        private void PublishPendingOwnerDeparture() {
-            if (_pendingOwnerDeparturePeerId == 0 || _pendingOwnerDeparturePeerId == _ownerPeerId) {
-                return;
-            }
-
-            var peerId = _pendingOwnerDeparturePeerId;
-            _pendingOwnerDeparturePeerId = 0;
-            MemberLeft?.Invoke(peerId);
+        private void StartSession(in SLobby lobby) {
+            _lobby = lobby;
+            _ownerPeerId = lobby.Owner.Id;
+            this.Log($"Session started. Lobby={lobby.Id} Owner={_ownerPeerId}");
+            Started?.Invoke();
         }
 
         private void StopSession() {
             var lobbyId = _lobby.Id;
+            var ownerPeerId = _ownerPeerId;
+            this.Log($"Session stopped. Lobby={lobbyId} Owner={ownerPeerId}");
+            // 先 Stopped，便于观察方在 Lobby 引用仍有效时做最后一次写入。
+            Stopped?.Invoke();
             _lobby = default;
             _ownerPeerId = 0;
-            _pendingOwnerDeparturePeerId = 0;
-            this.Log($"Left lobby: {lobbyId}");
-            Stopped?.Invoke();
+        }
+
+        private bool IsCurrentLobby(in SLobby lobby) {
+            return IsStarted && _lobby.Id == lobby.Id;
         }
     }
 }

@@ -14,11 +14,12 @@
 
 ## Steam 大厅
 
-- `SteamNetworkSession` 是 Steam Lobby 状态的唯一所有者，实现包内 `INetworkSession`，并发布会话启停、成员加入/离开和 Owner 变化；Owner 离开时先发布 `OwnerChanged`，再发布 `MemberLeft`。
-- `SteamNetworkObjectIdAllocator` 只依赖 `SteamNetworkSession`：Peer 以 Lobby Member Data 发布当前 `ReservedEnd`，Session Owner 在 Lobby 全局数据中按 SteamID 分别保存 `RangeId` 与新的 `ReservedEnd`；每次预留 `2^18` 个 Sequence，重连和重新加入从已预留上界继续。
-- Allocator 首次取得区间后写入 Member Data `network.id.ready=1`；`SteamNetworkPeerConnector` 只依赖 Session 和 Transport，在本端 Ready 标志发布后连接 Lobby 中已 Ready 的成员，不直接依赖 Allocator。
+- `SteamNetworkSession`：对齐 Steam Lobby——`Started` 后已有成员经 `Lobby.Members` 读取；`MemberJoined`/`MemberLeft` 只表示进房之后的远端增量；本人离开为 `Stopped`。`OwnerChanged` 仅在 Lobby Data 回调中对照 `lobby.Owner`。
+- 平台进出由 `SteamLobbyController`（或其它调用方）负责：`Join` / `LeaveCurrentLobby`；会话 `Started`/`Stopped` 仅由回调收敛。换大厅时 Session 先停再启；Controller 经 `[Inject]` 取得 `SteamNetworkSession`，并缓存 `_leaveLobby` 供销毁/退出时 `Leave`。
+- `SteamNetworkObjectIdAllocator`：Session Owner 在成员每次进房时发放新的、不回收的 `RangeId`（`network.id.range.next` + `network.id.peer.range{steamId}`）；`MemberLeft` 时删除该映射以免重进读到旧值。重进房换新 RangeId，Peer 本地从 Sequence 1 递增，不申报 Sequence。首次应用 RangeId 后写 `network.id.ready=1`。代价是长局频繁进出会消耗 8-bit RangeId；异常掉线若未收到 `MemberLeft` 仍可能短暂撞到旧映射（与会话异常停机一并待补）。
+- `SteamNetworkPeerConnector` 只依赖 `SteamNetworkSession` 和 Transport：本端 `network.id.ready` 后连接已 Ready 的远端；远端晚 Ready 时补连。不直接依赖 Allocator。
 - `Lobby/SteamLobbyController.cs` 只保留大厅配置、邀请和 UI 命令，并从 `SteamNetworkSession` 读取 Lobby 状态。
-- Steam Runtime、Transport 监听与 VContainer 组合入口尚未接线；接线后应先启动 Steam 回调与 Relay Listener，再加入 Lobby，由 `SteamNetworkPeerConnector` 通过 Member Data Ready 标志建立出站连接。
+- Transport、Allocator、PeerConnector 与完整 P2P 对象栈的 VContainer 组合入口尚未接线；接线后应先启动 Steam 回调与 Relay Listener，再加入 Lobby。
 - `UI/FacepunchTransportController.cs` 可手动切换 Transport 并 StartHost/Server/Client。
 - Unity Services 是当前主路径；两条路径并存行为尚未验证。
 
@@ -43,7 +44,7 @@
 - `NetworkVariableModule` 通过 `INetworkObjectManager` 的生命周期事件只维护本端拥有且包含变量的 `JoGNetworkObject` 列表，通过 VContainer `ITickable` Flush；每个对象仅在确认存在脏变量后 `stackalloc` 发送缓冲。
 - `NetworkRpcModule` 不保存对象映射；收包经 `INetworkObjectManager` 查找后直接投递到 `JoGNetworkObject`，仅 owner 可发送。
 - 项目 State 消息为 `type + Id + index + payload`（类型 `NetworkMessageType.User`），Rpc 消息为 `type + Id + channel + payload`（下一类型）；包内 Spawn/Despawn 仍为类型 2/3。
-- Id Range 不占用 P2P 消息类型；Peer 在剩余 `2^16` 个 Sequence 时以当前 `ReservedEnd` 提前续租，Owner 只在请求值仍匹配已发布上界时预留下一块，Lobby Data 不进入对象生成热路径。
+- Id 分配不占用 P2P 消息类型；仅 RangeId 映射与下一 RangeId 计数走 Steam Lobby Data，Allocate 为纯本地递增。
 - `JoGNetworkObject` 不内置 Transform 同步；需要同步位姿时由具体项目对象或组件直接实现。
 
 ## 未完成项

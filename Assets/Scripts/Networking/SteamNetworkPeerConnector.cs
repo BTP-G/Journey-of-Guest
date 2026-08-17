@@ -1,17 +1,16 @@
-using System;
-using System.Collections.Generic;
 using Steamworks;
+using System;
 using UnityEngine;
 using VContainer.Unity;
 using Xoderony.Networking.Transport;
 
 namespace JoG.Networking.P2P {
-    /// <summary>本端取得首个对象 id 区间后，连接进入 Lobby 时已经存在的 Peer。</summary>
+    /// <summary>本端 Id Ready 后，向已 Ready 的远端建立出站连接；远端晚 Ready 时补连。</summary>
     public sealed class SteamNetworkPeerConnector : IInitializable, IDisposable {
         private readonly SteamNetworkSession _session;
         private readonly INetworkTransport _transport;
-        private readonly HashSet<ulong> _memberPeerIds = new HashSet<ulong>();
-        private bool _connectionsStarted;
+
+        private bool _localIdReady;
 
         public SteamNetworkPeerConnector(SteamNetworkSession session, INetworkTransport transport) {
             _session = session;
@@ -21,87 +20,86 @@ namespace JoG.Networking.P2P {
         void IInitializable.Initialize() {
             _session.Started += OnSessionStarted;
             _session.Stopped += OnSessionStopped;
-            _session.MemberJoined += OnMemberJoined;
             _session.MemberLeft += OnMemberLeft;
             _session.LobbyMemberDataChanged += OnLobbyMemberDataChanged;
-
-            if (_session.IsJoined) {
-                OnSessionStarted();
-            }
         }
 
         public void Dispose() {
             _session.Started -= OnSessionStarted;
             _session.Stopped -= OnSessionStopped;
-            _session.MemberJoined -= OnMemberJoined;
             _session.MemberLeft -= OnMemberLeft;
             _session.LobbyMemberDataChanged -= OnLobbyMemberDataChanged;
-            DisconnectMembers();
+
+            DisconnectRemotes();
         }
 
         private void OnSessionStarted() {
-            _connectionsStarted = false;
-            _memberPeerIds.Clear();
-            foreach (var member in _session.Lobby.Members) {
-                if (!member.IsMe) {
-                    _memberPeerIds.Add(member.Id);
-                }
-            }
+            _localIdReady = false;
 
-            if (IsLocalMemberReady()) {
-                StartConnections();
+            if (IsLocalIdReady()) {
+                MarkLocalIdReadyAndConnect();
             }
         }
 
         private void OnSessionStopped() {
-            DisconnectMembers();
-        }
-
-        private void OnMemberJoined(ulong peerId) {
-            _memberPeerIds.Add(peerId);
+            DisconnectRemotes();
         }
 
         private void OnMemberLeft(ulong peerId) {
-            _memberPeerIds.Remove(peerId);
             _transport.DisconnectPeer(peerId);
         }
 
         private void OnLobbyMemberDataChanged(Friend member) {
-            if (member.IsMe && !_connectionsStarted && IsMemberReady(member)) {
-                StartConnections();
+            if (!IsMemberIdReady(member)) {
+                return;
+            }
+
+            if (member.IsMe) {
+                if (!_localIdReady) {
+                    MarkLocalIdReadyAndConnect();
+                }
+
+                return;
+            }
+
+            if (_localIdReady) {
+                ConnectPeer(member.Id);
             }
         }
 
-        private void StartConnections() {
-            _connectionsStarted = true;
+        private void MarkLocalIdReadyAndConnect() {
+            _localIdReady = true;
+
             foreach (var member in _session.Lobby.Members) {
-                if (!member.IsMe && IsMemberReady(member)) {
-                    Debug.Assert(_transport.ConnectPeer(member.Id), "Failed to start the Steam peer connection.");
+                if (!member.IsMe && IsMemberIdReady(member)) {
+                    ConnectPeer(member.Id);
                 }
             }
         }
 
-        private bool IsLocalMemberReady() {
-            foreach (var member in _session.Lobby.Members) {
-                if (member.IsMe) {
-                    return IsMemberReady(member);
+        private void ConnectPeer(ulong peerId) {
+            Debug.Assert(_transport.ConnectPeer(peerId), "Failed to start the Steam peer connection.");
+        }
+
+        private bool IsLocalIdReady() {
+            return IsMemberIdReady(new Friend(SteamClient.SteamId));
+        }
+
+        private bool IsMemberIdReady(Friend member) {
+            return NetworkObjectIdLobbyKeys.IsIdReady(
+                _session.Lobby.GetMemberData(member, NetworkObjectIdLobbyKeys.IdReadyKey));
+        }
+
+        private void DisconnectRemotes() {
+            if (_session.IsStarted) {
+                foreach (var member in _session.Lobby.Members) {
+                    if (!member.IsMe) {
+                        _transport.DisconnectPeer(member.Id);
+                    }
                 }
             }
 
-            return false;
-        }
-
-        private bool IsMemberReady(Friend member) {
-            return _session.Lobby.GetMemberData(member, NetworkObjectIdLobbyData.ReadyKey) == NetworkObjectIdLobbyData.ReadyValue;
-        }
-
-        private void DisconnectMembers() {
-            foreach (var peerId in _memberPeerIds) {
-                _transport.DisconnectPeer(peerId);
-            }
-
-            _memberPeerIds.Clear();
-            _connectionsStarted = false;
+            _localIdReady = false;
         }
     }
 }

@@ -18,7 +18,7 @@
 
 ## 包级上下文
 
-公开职责优先读包文档：[JoG](Packages/io.github.xoderony.jog/README.md)、[Foundation](Packages/io.github.xoderony.foundation/README.md)、[Gameplay Effects](Packages/io.github.xoderony.gameplay-effects/README.md)、[Movement](Packages/io.github.xoderony.movement/README.md)、[Unity](Packages/io.github.xoderony.unity/README.md)。本地包从 `PackageTemplates/io.github.xoderony.feature-template` 开始。
+公开职责优先读包文档：[JoG](Packages/io.github.xoderony.jog/README.md)、[Networking](Packages/io.github.xoderony.networking/README.md)、[Foundation](Packages/io.github.xoderony.foundation/README.md)、[Gameplay Effects](Packages/io.github.xoderony.gameplay-effects/README.md)、[Movement](Packages/io.github.xoderony.movement/README.md)、[Unity](Packages/io.github.xoderony.unity/README.md)。本地包从 `PackageTemplates/io.github.xoderony.feature-template` 开始。P2P 网络细节以 [网络模块 README](Assets/Scripts/JoG/Networking/README.md) 为准。
 
 ## 信息优先级
 
