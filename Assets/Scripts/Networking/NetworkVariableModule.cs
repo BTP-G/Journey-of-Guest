@@ -26,7 +26,7 @@ namespace JoG.Networking.P2P {
         }
 
         void IInitializable.Initialize() {
-            _messageManager.RegisterMessage(NetworkObjectMessageType.State, OnStateMessage);
+            _messageManager.RegisterHandler(NetworkObjectMessageType.State, OnStateMessage);
             _objectManager.Spawned += OnObjectSpawned;
             _objectManager.Despawned += OnObjectDespawned;
         }
@@ -36,7 +36,7 @@ namespace JoG.Networking.P2P {
         }
 
         public void Dispose() {
-            _messageManager.UnregisterMessage(NetworkObjectMessageType.State, OnStateMessage);
+            _messageManager.UnregisterHandler(NetworkObjectMessageType.State, OnStateMessage);
             _objectManager.Spawned -= OnObjectSpawned;
             _objectManager.Despawned -= OnObjectDespawned;
             _spawnedObjects.Clear();

@@ -47,11 +47,11 @@ namespace JoG.Networking.P2P {
         }
 
         void IInitializable.Initialize() {
-            _messageManager.RegisterMessage(NetworkObjectMessageType.Rpc, OnRpcMessage);
+            _messageManager.RegisterHandler(NetworkObjectMessageType.Rpc, OnRpcMessage);
         }
 
         public void Dispose() {
-            _messageManager.UnregisterMessage(NetworkObjectMessageType.Rpc, OnRpcMessage);
+            _messageManager.UnregisterHandler(NetworkObjectMessageType.Rpc, OnRpcMessage);
         }
 
         private void OnRpcMessage(ulong senderPeerId, BufferReader reader) {

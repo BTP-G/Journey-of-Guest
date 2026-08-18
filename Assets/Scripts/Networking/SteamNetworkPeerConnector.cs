@@ -1,6 +1,5 @@
 using Steamworks;
 using System;
-using UnityEngine;
 using VContainer.Unity;
 using Xoderony.Networking.Transport;
 
@@ -78,7 +77,7 @@ namespace JoG.Networking.P2P {
         }
 
         private void ConnectPeer(ulong peerId) {
-            Debug.Assert(_transport.ConnectPeer(peerId), "Failed to start the Steam peer connection.");
+            _transport.ConnectPeer(peerId);
         }
 
         private bool IsLocalIdReady() {

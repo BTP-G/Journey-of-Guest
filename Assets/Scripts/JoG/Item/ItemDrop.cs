@@ -70,7 +70,7 @@
 //            }
 //            else
 //            {
-//                Destroy(gameObject);
+//                Release(gameObject);
 //            }
 //        }
 

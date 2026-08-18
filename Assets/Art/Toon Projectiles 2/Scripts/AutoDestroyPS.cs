@@ -17,14 +17,14 @@ public class AutoDestroyPS : MonoBehaviour {
         ParticleSystem system = GetComponent<ParticleSystem>();
         var main = system.main;
         timeLeft = main.startLifetimeMultiplier + main.duration;
-        //Destroy(gameObject, main.startLifetimeMultiplier + main.duration);
+        //Release(gameObject, main.startLifetimeMultiplier + main.duration);
     }
     public void Update()
     {
         timeLeft -= Time.deltaTime;
         if (timeLeft <= 0)
         {
-            GameObject.Destroy(gameObject);
+            GameObject.Release(gameObject);
         }
     }
     -----------------------------------------------------------*/

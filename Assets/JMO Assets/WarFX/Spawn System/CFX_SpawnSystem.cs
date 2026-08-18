@@ -163,7 +163,7 @@ public class CFX_SpawnSystem : MonoBehaviour {
             return;
         }
 
-        //Destroy all objects
+        //Release all objects
         for (var i = instantiatedObjects[uniqueId].Count - 1; i >= 0; i--) {
             var obj = instantiatedObjects[uniqueId][i];
             instantiatedObjects[uniqueId].RemoveAt(i);

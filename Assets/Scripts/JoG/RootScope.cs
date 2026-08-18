@@ -3,6 +3,7 @@ using JoG.GameplayEffects;
 using JoG.Item;
 using JoG.Localization;
 using JoG.Modding;
+using JoG.Networking;
 using JoG.Networking.P2P;
 using JoG.Player;
 using JoG.UI.Popup;
@@ -60,11 +61,11 @@ namespace JoG {
                 configuration.Add<NetworkSession>().AsSelf().As<INetworkSession>();
             });
             builder.RegisterBuildCallback(static container => {
-                var manager = container.Resolve<NetworkManager>();
-                var factory = container.Resolve<NetworkObjectFactory>();
-                var playerPrefab = manager.NetworkConfig.PlayerPrefab.GetComponent<NetworkObject>();
-                var handler = new NetworkPlayerPrefabHandler(manager, playerPrefab, container);
-                factory.AddHandler(playerPrefab, handler);
+                //var manager = container.Resolve<NetworkManager>();
+                //var factory = container.Resolve<NetworkObjectFactory>();
+                //var playerPrefab = manager.NetworkConfig.PlayerPrefab.GetComponent<JoGNetworkObject>();
+                //var handler = new NetworkPlayerPrefabHandler(manager, playerPrefab, container);
+                //factory.AddHandler(playerPrefab, handler);
             });
         }
     }

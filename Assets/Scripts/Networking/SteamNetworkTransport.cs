@@ -1,8 +1,8 @@
+using Steamworks;
+using Steamworks.Data;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using Steamworks;
-using Steamworks.Data;
 using Xoderony.Logging;
 using Xoderony.Networking.Transport;
 
@@ -45,14 +45,14 @@ namespace JoG.Networking.P2P {
         }
 
         /// <summary>按 SteamID 建立出站直连；连接建立后经 <see cref="PeerConnected"/> 上报。重复调用幂等。</summary>
-        public bool ConnectPeer(ulong peerId) {
+        public void ConnectPeer(ulong peerId) {
             if (peerId == 0 || !EnsureSteamInitialized()) {
-                return false;
+                return;
             }
 
             foreach (var existing in _outgoing) {
                 if (existing.PeerId == peerId) {
-                    return true;
+                    return;
                 }
             }
 
@@ -60,7 +60,6 @@ namespace JoG.Networking.P2P {
             var outgoing = new OutgoingConnection(this, peerId, manager);
             manager.Interface = outgoing;
             _outgoing.Add(outgoing);
-            return true;
         }
 
         public void SendData(ulong peerId, ReadOnlySpan<byte> payload, NetworkDelivery delivery) {
@@ -126,9 +125,6 @@ namespace JoG.Networking.P2P {
             _socketManager?.Receive();
             ApplyPendingOutgoingRemovals();
         }
-
-        /// <summary>Steam SDR 未提供结构化 RTT（仅 DetailedStatus 文本），维持 0。</summary>
-        public ulong GetRtt(ulong peerId) => 0;
 
         private bool EnsureSteamInitialized() {
             if (s_steamInitialized) {

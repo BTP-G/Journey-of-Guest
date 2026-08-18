@@ -41,7 +41,7 @@
 
 //        public override void OnNetworkSpawn() {
 //            if (Instance != null && Instance != this) {
-//                Destroy(gameObject);
+//                Release(gameObject);
 //                return;
 //            }
 //            Instance = this;
