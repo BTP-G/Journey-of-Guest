@@ -3,7 +3,6 @@ using JoG.GameplayEffects;
 using JoG.Item;
 using JoG.Localization;
 using JoG.Modding;
-using JoG.Networking;
 using JoG.Networking.P2P;
 using JoG.Player;
 using JoG.UI.Popup;
@@ -15,6 +14,7 @@ using VContainer;
 using VContainer.Unity;
 using Xoderony.GameplayEffects;
 using Xoderony.Networking;
+using Xoderony.Networking.Transport;
 
 namespace JoG {
 
@@ -49,13 +49,15 @@ namespace JoG {
             builder.Register<UnityProfileService>(Lifetime.Singleton).AsImplementedInterfaces();
             builder.Register<AuthenticationController>(Lifetime.Singleton).AsImplementedInterfaces();
             builder.Register<PlayerRegistry>(Lifetime.Singleton).AsSelf().AsImplementedInterfaces();
+            builder.Register<SteamNetworkTransport>(Lifetime.Singleton).AsSelf().As<INetworkTransport>();
             builder.UseEntryPoints(static configuration => {
                 configuration.Add<ModManager>();
                 configuration.Add<DefaultPackageManager>();
                 configuration.Add<DefaultLanguageBuilder>();
                 configuration.Add<SessionService>();
                 configuration.Add<JoGApplication>();
-                configuration.Add<SteamNetworkSession>().AsSelf().As<INetworkSession>();
+                configuration.Add<SteamNetworkLobby>().AsSelf();
+                configuration.Add<NetworkSession>().AsSelf().As<INetworkSession>();
             });
             builder.RegisterBuildCallback(static container => {
                 var manager = container.Resolve<NetworkManager>();

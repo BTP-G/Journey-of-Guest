@@ -27,7 +27,7 @@
 - [Gameplay Effects](GameplayEffects/README.md)
 - [物品与库存](Inventory/README.md)
 - [战斗与弹体](Projectiles/README.md)
-- [网络与会话](Networking/README.md)
+- [网络与会话](../Networking/README.md)
 - [交互与 AI](AI/README.md)
 - [UI 与表现](UI/README.md)
 - [数据注册与 Modding](Modding/README.md)
@@ -44,7 +44,7 @@
 | 包 | 主要职责 |
 | --- | --- |
 | `io.github.xoderony.jog` | Entity/IComponent、Stat、Health、StateMachines、Interaction、Faction、Modding、旧消息 Broker、序列化契约 |
-| `io.github.xoderony.networking` | P2P 核心：会话事实、消息路由、对象生命周期/Prefab/id 解析与入网快照；不含 Lobby、NV、RPC；本地独立仓库 clone，细节见 `Networking/README.md` |
+| `io.github.xoderony.networking` | P2P 核心：会话事实、消息路由、对象生命周期/Prefab/id 解析与入网快照；不含 Lobby、NV、RPC；本地独立仓库 clone，细节见 [`Assets/Scripts/Networking/README.md`](../Networking/README.md) |
 | `io.github.xoderony.foundation` | 集合、委托通道、对象池、`InputChannel<T>`/`InputChannelHub` |
 | `io.github.xoderony.unity` | Q16、PlayerLoop、Unity 组件与池、AimInput、编辑器控件 |
 | `io.github.xoderony.gameplay-effects` | 与 JoG/NGO/VContainer 解耦的效果 Data/Definition/Controller 契约与注册表 |

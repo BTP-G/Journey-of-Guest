@@ -2,18 +2,13 @@ using Steamworks;
 using System;
 using VContainer.Unity;
 using Xoderony.Logging;
-using Xoderony.Networking;
 using SLobby = Steamworks.Data.Lobby;
 
 namespace JoG.Networking.P2P {
     /// <summary>
-    /// Steam Lobby 会话事实源：VContainer 入口中订阅 Matchmaking，将成员与 Owner 收敛为 <see cref="INetworkSession"/>。
-    /// 不发起 Join/Leave；平台进出由大厅控制器等调用方负责。
-    /// 对齐 Steam Lobby：进房仅 <see cref="Started"/>（已有成员由消费方读 <see cref="Lobby"/>）；
-    /// 之后远端进出走 <see cref="MemberJoined"/> / <see cref="MemberLeft"/>；本人离开走 <see cref="Stopped"/>。
-    /// Owner 只在 Lobby Data 回调中对照 <c>lobby.Owner</c>。
+    /// Steam Lobby 平台事实：仅订阅 Matchmaking，不依赖 Transport，不实现 <see cref="Xoderony.Networking.INetworkSession"/>。
     /// </summary>
-    public sealed class SteamNetworkSession : INetworkSession, IInitializable, IDisposable {
+    public sealed class SteamNetworkLobby : IInitializable, IDisposable {
         private SLobby _lobby;
         private ulong _ownerPeerId;
 
@@ -49,7 +44,7 @@ namespace JoG.Networking.P2P {
 
         public void Dispose() {
             if (IsStarted) {
-                StopSession();
+                StopLobby();
             }
 
             SteamMatchmaking.OnLobbyEntered -= OnLobbyEntered;
@@ -65,10 +60,10 @@ namespace JoG.Networking.P2P {
             }
 
             if (IsStarted) {
-                StopSession();
+                StopLobby();
             }
 
-            StartSession(lobby);
+            StartLobby(lobby);
         }
 
         private void OnLobbyDataChanged(SLobby lobby) {
@@ -104,25 +99,24 @@ namespace JoG.Networking.P2P {
             }
 
             if (friend.IsMe) {
-                StopSession();
+                StopLobby();
                 return;
             }
 
             MemberLeft?.Invoke(friend.Id);
         }
 
-        private void StartSession(in SLobby lobby) {
+        private void StartLobby(in SLobby lobby) {
             _lobby = lobby;
             _ownerPeerId = lobby.Owner.Id;
-            this.Log($"Session started. Lobby={lobby.Id} Owner={_ownerPeerId}");
+            this.Log($"Lobby started. Lobby={lobby.Id} Owner={_ownerPeerId}");
             Started?.Invoke();
         }
 
-        private void StopSession() {
+        private void StopLobby() {
             var lobbyId = _lobby.Id;
             var ownerPeerId = _ownerPeerId;
-            this.Log($"Session stopped. Lobby={lobbyId} Owner={ownerPeerId}");
-            // 先 Stopped，便于观察方在 Lobby 引用仍有效时做最后一次写入。
+            this.Log($"Lobby stopped. Lobby={lobbyId} Owner={ownerPeerId}");
             Stopped?.Invoke();
             _lobby = default;
             _ownerPeerId = 0;

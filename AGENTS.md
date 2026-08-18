@@ -37,7 +37,7 @@
 - 仅权威端写网络状态或发起玩法 RPC；远端只应用，变更回调不重入写入。
 - `Xoderony.Networking` 消息须在所有对端注册，未知类型丢弃；消息网格直发且无握手，首字节为 `byte` 类型，其余为载荷；远端发送者身份取自 Transport 的直连 PeerId。
 - `Xoderony.Networking` 核心包只提供会话事实契约、消息路由、对象生命周期、Prefab、对象 id 解析和派生对象快照，不提供具体 Lobby、NV、RPC 或帧驱动策略；`INetworkObjectManager` 统一提供对象管理、id 解析及对称的 `Spawned`/`Despawned` 事件，前者在绑定并完成初始化后发布，后者在移除并解绑后、工厂销毁前发布。
-- `INetworkSession` 只表达逻辑会话成员与 Owner 事实；Steam 实现是 Lobby 状态的唯一所有者。`Started` 后已有成员由实现读模型提供（Steam 下为 `Lobby.Members`），`MemberJoined`/`MemberLeft` 仅表示会话进行中的远端增量；本人离开为 `Stopped`，不逐个补发 `MemberLeft`。Transport 连接是可重连的物理状态：`PeerConnected` 只触发快照补发，只有 `MemberLeft` 才清理该成员对象。`OwnerChanged` 与 `MemberLeft` 是独立事实，到达顺序不保证；消费方不得依赖先后。
+- `INetworkSession` 只表达玩法层会话成员与 Owner 事实，由项目组合平台 Lobby 与 Transport 实现。成员进出仅订阅 Transport；`MemberJoined`/`MemberLeft` 分别对应 `PeerConnected`/`PeerDisconnected`。离 Lobby 时由 `SteamNetworkPeerConnector` 主动断连并收敛为 `PeerDisconnected`。`Started`/`Stopped`/`OwnerChanged` 取自 Lobby。`Started` 后已有成员须连上传输后才经 `MemberJoined` 承认。本人离开为 `Stopped`。Steam 下 Lobby 平台事实由 `SteamNetworkLobby` 提供；Id 分配等订阅其 `MemberJoined`/`MemberLeft`。
 - `NetworkObject.Id` 直接使用会话内稳定且唯一的 `uint`，高 8 位为会话内不回收的 `RangeId`，低 24 位为 Sequence，0 保留；Session Owner 在成员每次进房时发放新的 `RangeId`（Lobby `network.id.range.next` 只增不减，重进覆盖该 SteamID 映射），Peer 本地从 Sequence 1 递增，无需同步 Sequence 高水位。首次取得 RangeId 后 Peer 发布 `network.id.ready=1`。对象当前权威独立使用 `OwnerPeerId`，权威转移不得修改 Id；持久对象可不随成员离开销毁。
 - 协议规定的固定消息容量与对象 id 位域容量由约定保证；超出容量只以断言暴露，不实现动态扩容、RangeId/Sequence 耗尽恢复或回收分支。
 - JoG 对象扩展实现位于 `Assets/Scripts/Networking` 的 `JoG.Networking.P2P` 命名空间：`JoGNetworkObject` 按需创建并直接保存有序变量列表与 RPC handler 数组，变量与 handler 在 Spawn 前登记；State/RPC 模块经 `INetworkObjectManager` 查找一次后直接访问对象，不增加对象到协议状态的字典映射。

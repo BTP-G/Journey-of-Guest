@@ -8,16 +8,16 @@ using SLobby = Steamworks.Data.Lobby;
 
 namespace JoG.Lobby.Controller {
 
-    /// <summary>大厅配置与 UI 命令；平台进出由本类发起，会话事实由 <see cref="SteamNetworkSession"/> 收敛。</summary>
+    /// <summary>大厅配置与 UI 命令；平台进出由本类发起，Lobby 事实由 <see cref="SteamNetworkLobby"/> 收敛。</summary>
     public class SteamLobbyController : MonoBehaviour {
-        private SteamNetworkSession _session;
+        private SteamNetworkLobby _lobby;
         private SLobby _leaveLobby;
 
-        public SLobby Lobby => _session.Lobby;
+        public SLobby Lobby => _lobby.Lobby;
         public string LobbyId => Lobby.Id.ToString();
         public IEnumerable<Friend> Members => Lobby.Members;
         public int MemberCount => Lobby.MemberCount;
-        public bool IsOwner => _session.IsOwner;
+        public bool IsOwner => _lobby.IsOwner;
 
         public string LobbyName {
             get => Lobby.GetData("name");
@@ -103,8 +103,8 @@ namespace JoG.Lobby.Controller {
         }
 
         [Inject]
-        private void Construct(SteamNetworkSession session) {
-            _session = session;
+        private void Construct(SteamNetworkLobby lobby) {
+            _lobby = lobby;
         }
 
         private void Awake() {
@@ -114,7 +114,7 @@ namespace JoG.Lobby.Controller {
         }
 
         private void Start() {
-            _session.Started += OnSessionStarted;
+            _lobby.Started += OnLobbyStarted;
         }
 
         private void OnApplicationQuit() {
@@ -123,8 +123,8 @@ namespace JoG.Lobby.Controller {
 
         private void OnDestroy() {
             LeaveCurrentLobby();
-            if (_session != null) {
-                _session.Started -= OnSessionStarted;
+            if (_lobby != null) {
+                _lobby.Started -= OnLobbyStarted;
             }
 
             SteamMatchmaking.OnLobbyCreated -= OnLobbyCreated;
@@ -132,9 +132,9 @@ namespace JoG.Lobby.Controller {
             SteamFriends.OnGameLobbyJoinRequested -= OnGameLobbyJoinRequested;
         }
 
-        private void OnSessionStarted() {
-            // 保留句柄供销毁时 Leave：Session 可能先 StopSession，不能依赖其 Lobby。
-            _leaveLobby = _session.Lobby;
+        private void OnLobbyStarted() {
+            // 保留句柄供销毁时 Leave：Lobby 可能先 Stop，不能依赖其 Lobby。
+            _leaveLobby = _lobby.Lobby;
         }
 
         private async void OnLobbyCreated(Result result, SLobby lobby) {
@@ -156,7 +156,7 @@ namespace JoG.Lobby.Controller {
 
         private async void OnGameLobbyJoinRequested(SLobby lobby, SteamId id) {
             this.Log("Attempted to join by Steam invite request.");
-            if (_session.IsStarted) {
+            if (_lobby.IsStarted) {
                 this.Log("You are already in a lobby!");
                 return;
             }

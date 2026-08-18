@@ -7,33 +7,33 @@ using Xoderony.Networking.Transport;
 namespace JoG.Networking.P2P {
     /// <summary>本端 Id Ready 后，向已 Ready 的远端建立出站连接；远端晚 Ready 时补连。</summary>
     public sealed class SteamNetworkPeerConnector : IInitializable, IDisposable {
-        private readonly SteamNetworkSession _session;
+        private readonly SteamNetworkLobby _lobby;
         private readonly INetworkTransport _transport;
 
         private bool _localIdReady;
 
-        public SteamNetworkPeerConnector(SteamNetworkSession session, INetworkTransport transport) {
-            _session = session;
+        public SteamNetworkPeerConnector(SteamNetworkLobby lobby, INetworkTransport transport) {
+            _lobby = lobby;
             _transport = transport;
         }
 
         void IInitializable.Initialize() {
-            _session.Started += OnSessionStarted;
-            _session.Stopped += OnSessionStopped;
-            _session.MemberLeft += OnMemberLeft;
-            _session.LobbyMemberDataChanged += OnLobbyMemberDataChanged;
+            _lobby.Started += OnLobbyStarted;
+            _lobby.Stopped += OnLobbyStopped;
+            _lobby.MemberLeft += OnMemberLeft;
+            _lobby.LobbyMemberDataChanged += OnLobbyMemberDataChanged;
         }
 
         public void Dispose() {
-            _session.Started -= OnSessionStarted;
-            _session.Stopped -= OnSessionStopped;
-            _session.MemberLeft -= OnMemberLeft;
-            _session.LobbyMemberDataChanged -= OnLobbyMemberDataChanged;
+            _lobby.Started -= OnLobbyStarted;
+            _lobby.Stopped -= OnLobbyStopped;
+            _lobby.MemberLeft -= OnMemberLeft;
+            _lobby.LobbyMemberDataChanged -= OnLobbyMemberDataChanged;
 
             DisconnectRemotes();
         }
 
-        private void OnSessionStarted() {
+        private void OnLobbyStarted() {
             _localIdReady = false;
 
             if (IsLocalIdReady()) {
@@ -41,7 +41,7 @@ namespace JoG.Networking.P2P {
             }
         }
 
-        private void OnSessionStopped() {
+        private void OnLobbyStopped() {
             DisconnectRemotes();
         }
 
@@ -70,7 +70,7 @@ namespace JoG.Networking.P2P {
         private void MarkLocalIdReadyAndConnect() {
             _localIdReady = true;
 
-            foreach (var member in _session.Lobby.Members) {
+            foreach (var member in _lobby.Lobby.Members) {
                 if (!member.IsMe && IsMemberIdReady(member)) {
                     ConnectPeer(member.Id);
                 }
@@ -87,12 +87,12 @@ namespace JoG.Networking.P2P {
 
         private bool IsMemberIdReady(Friend member) {
             return NetworkObjectIdLobbyKeys.IsIdReady(
-                _session.Lobby.GetMemberData(member, NetworkObjectIdLobbyKeys.IdReadyKey));
+                _lobby.Lobby.GetMemberData(member, NetworkObjectIdLobbyKeys.IdReadyKey));
         }
 
         private void DisconnectRemotes() {
-            if (_session.IsStarted) {
-                foreach (var member in _session.Lobby.Members) {
+            if (_lobby.IsStarted) {
+                foreach (var member in _lobby.Lobby.Members) {
                     if (!member.IsMe) {
                         _transport.DisconnectPeer(member.Id);
                     }
