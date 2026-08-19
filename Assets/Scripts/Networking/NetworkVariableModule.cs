@@ -59,7 +59,7 @@ namespace JoG.Networking.P2P {
             }
         }
 
-        private void OnObjectOwnerChanged(Xoderony.Networking.NetworkObject networkObject) {
+        private void OnObjectOwnerChanged(Xoderony.Networking.NetworkObject networkObject, ulong previousOwnerPeerId, ulong ownerPeerId) {
             OnObjectDespawned(networkObject);
             OnObjectSpawned(networkObject);
         }
@@ -69,9 +69,6 @@ namespace JoG.Networking.P2P {
             if (!_objectManager.TryGetSpawned(id, out var networkObject) || networkObject is not JoGNetworkObject jogNetworkObject) {
                 return;
             }
-
-            Assert.AreEqual(senderPeerId, jogNetworkObject.OwnerPeerId, "Only the current owner can send network variable state.");
-
             var index = reader.ReadByte();
             jogNetworkObject.DeserializeVariable(index, ref reader);
         }
