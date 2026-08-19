@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using UnityEngine;
+using UnityEngine.Assertions;
 using Xoderony.Networking.Serialization;
 
 namespace JoG.Networking.P2P {
@@ -30,12 +30,12 @@ namespace JoG.Networking.P2P {
         }
 
         protected sealed override void OnSerialize(ref BufferWriter writer) {
-            Debug.Assert(Serializer<T>.Serialize != null, "Network serializer is not assigned.");
+            Assert.IsNotNull(Serializer<T>.Serialize, "Network serializer is not assigned.");
             Serializer<T>.Serialize(ref writer, _value);
         }
 
         protected sealed override void OnDeserialize(ref BufferReader reader) {
-            Debug.Assert(Deserializer<T>.Deserialize != null, "Network deserializer is not assigned.");
+            Assert.IsNotNull(Deserializer<T>.Deserialize, "Network deserializer is not assigned.");
             var value = Deserializer<T>.Deserialize(ref reader);
             if (EqualityComparer<T>.Default.Equals(_value, value)) {
                 return;

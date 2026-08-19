@@ -1,6 +1,7 @@
 using JoG.Health;
 using JoG.Networking.Components;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace JoG.Projectiles {
 
@@ -57,7 +58,7 @@ namespace JoG.Projectiles {
             TryGetComponent(out _dot);
             TryGetComponent(out _penetration);
             TryGetComponent(out _despawn);
-            Debug.Assert(_despawn != null, "LinearProjectile requires a ProjectileDespawn capability.");
+            Assert.IsNotNull(_despawn, "LinearProjectile requires a ProjectileDespawn capability.");
         }
 
         private void OnCollisionEnter(Collision collision) {

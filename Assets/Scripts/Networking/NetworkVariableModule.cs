@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
+using UnityEngine.Assertions;
 using VContainer.Unity;
 using Xoderony.Networking;
 using Xoderony.Networking.Messaging;
@@ -42,16 +42,16 @@ namespace JoG.Networking.P2P {
             _spawnedObjects.Clear();
         }
 
-        private void OnObjectSpawned(Xoderony.Networking.NetworkObject networkObject, uint id) {
+        private void OnObjectSpawned(Xoderony.Networking.NetworkObject networkObject) {
             if (networkObject is not JoGNetworkObject jogNetworkObject || !jogNetworkObject.IsOwner || jogNetworkObject.VariableCount == 0) {
                 return;
             }
 
-            Debug.Assert(!_spawnedObjects.Contains(jogNetworkObject), "Network object is already tracked.");
+            Assert.IsFalse(_spawnedObjects.Contains(jogNetworkObject), "Network object is already tracked.");
             _spawnedObjects.Add(jogNetworkObject);
         }
 
-        private void OnObjectDespawned(Xoderony.Networking.NetworkObject networkObject, uint id) {
+        private void OnObjectDespawned(Xoderony.Networking.NetworkObject networkObject) {
             if (networkObject is JoGNetworkObject jogNetworkObject) {
                 _spawnedObjects.Remove(jogNetworkObject);
             }
@@ -63,10 +63,7 @@ namespace JoG.Networking.P2P {
                 return;
             }
 
-            if (jogNetworkObject.OwnerPeerId != senderPeerId) {
-                Debug.Assert(false, "Only the current owner can send network variable state.");
-                return;
-            }
+            Assert.AreEqual(senderPeerId, jogNetworkObject.OwnerPeerId, "Only the current owner can send network variable state.");
 
             var index = reader.ReadByte();
             jogNetworkObject.DeserializeVariable(index, ref reader);

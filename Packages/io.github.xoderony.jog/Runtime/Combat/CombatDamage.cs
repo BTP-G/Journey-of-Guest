@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using JoG.Health;
 using UnityEngine;
+using UnityEngine.Assertions;
 using VContainer;
 using Xoderony.ObjectPool.Generic;
 
@@ -30,7 +31,7 @@ namespace JoG.Combat {
 
         /// <param name="damage">正的伤害量；模块内部取负作为 HealthChangeMessage.Value。</param>
         public void ApplySingle(Entity source, Collider collider, in Vector3 point, float damage, HealthChangeFlag flags, bool broadcast) {
-            Debug.Assert(damage >= 0f);
+            Assert.IsTrue(damage >= 0f);
             if (!collider.TryGetComponent<Damageable>(out var damageable) || !damageable.CanTakeDamage(source)) {
                 return;
             }
@@ -38,8 +39,8 @@ namespace JoG.Combat {
         }
 
         private void Apply(Entity source, List<HitResult> hits, float damage, HealthChangeFlag flags, AnimationCurve falloff, float falloffRadius, bool broadcast) {
-            Debug.Assert(damage >= 0f);
-            Debug.Assert(falloff == null || falloffRadius > 0f);
+            Assert.IsTrue(damage >= 0f);
+            Assert.IsTrue(falloff == null || falloffRadius > 0f);
             foreach (var hit in hits) {
                 if (!hit.Collider.TryGetComponent<Damageable>(out var damageable) || !damageable.CanTakeDamage(source)) {
                     continue;

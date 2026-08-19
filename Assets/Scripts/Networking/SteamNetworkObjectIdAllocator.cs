@@ -1,7 +1,7 @@
 using Steamworks;
 using System;
 using System.Globalization;
-using UnityEngine;
+using UnityEngine.Assertions;
 using VContainer.Unity;
 using Xoderony.Networking;
 
@@ -24,8 +24,8 @@ namespace JoG.Networking.P2P {
         }
 
         public uint Allocate() {
-            Debug.Assert(_rangeId != 0, "Network object id allocation requires a RangeId.");
-            Debug.Assert(_nextSequence < SequenceLimit, "The 24-bit network object Sequence range is exhausted.");
+            Assert.AreNotEqual((byte)0, _rangeId, "Network object id allocation requires a RangeId.");
+            Assert.IsTrue(_nextSequence < SequenceLimit, "The 24-bit network object Sequence range is exhausted.");
 
             var sequence = _nextSequence++;
             return ((uint)_rangeId << RangeShift) | sequence;
@@ -91,7 +91,7 @@ namespace JoG.Networking.P2P {
                 return;
             }
 
-            Debug.Assert(_rangeId == 0, "Lobby RangeId changed for the local peer after allocation started.");
+            Assert.AreEqual((byte)0, _rangeId, "Lobby RangeId changed for the local peer after allocation started.");
 
             _rangeId = rangeId;
             _nextSequence = 1;
@@ -111,17 +111,17 @@ namespace JoG.Networking.P2P {
             var wrote = _lobby.Lobby.SetData(
                 NetworkObjectIdLobbyKeys.PeerRangeIdKey(peerId),
                 rangeId.ToString(CultureInfo.InvariantCulture));
-            Debug.Assert(wrote, "Failed to write the network object id RangeId.");
+            Assert.IsTrue(wrote, "Failed to write the network object id RangeId.");
         }
 
         private byte AllocateRangeId() {
             var nextRangeId = ReadNextRangeId();
-            Debug.Assert(nextRangeId <= byte.MaxValue, "The 8-bit network object RangeId space is exhausted.");
+            Assert.IsTrue(nextRangeId <= byte.MaxValue, "The 8-bit network object RangeId space is exhausted.");
 
             var wrote = _lobby.Lobby.SetData(
                 NetworkObjectIdLobbyKeys.NextRangeIdCounterKey,
                 (nextRangeId + 1).ToString(CultureInfo.InvariantCulture));
-            Debug.Assert(wrote, "Failed to write the next network object RangeId counter.");
+            Assert.IsTrue(wrote, "Failed to write the next network object RangeId counter.");
 
             return (byte)nextRangeId;
         }

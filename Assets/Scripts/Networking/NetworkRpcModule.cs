@@ -1,5 +1,5 @@
 using System;
-using UnityEngine;
+using UnityEngine.Assertions;
 using VContainer.Unity;
 using Xoderony.Networking;
 using Xoderony.Networking.Messaging;
@@ -20,7 +20,7 @@ namespace JoG.Networking.P2P {
         }
 
         public void SendToOthers(JoGNetworkObject networkObject, byte channel, ReadOnlySpan<byte> payload, NetworkDelivery delivery = NetworkDelivery.Reliable) {
-            Debug.Assert(networkObject.IsOwner, "Only the spawned owner can send object RPC.");
+            Assert.IsTrue(networkObject.IsOwner, "Only the spawned owner can send object RPC.");
             Span<byte> buffer = stackalloc byte[NetworkMessageLimits.MessageCapacity];
             var writer = new BufferWriter(buffer);
             writer.WriteByte(NetworkObjectMessageType.Rpc);
@@ -36,7 +36,7 @@ namespace JoG.Networking.P2P {
         }
 
         public void SendToPeer(JoGNetworkObject networkObject, ulong peerId, byte channel, ReadOnlySpan<byte> payload, NetworkDelivery delivery = NetworkDelivery.Reliable) {
-            Debug.Assert(networkObject.IsOwner, "Only the spawned owner can send object RPC.");
+            Assert.IsTrue(networkObject.IsOwner, "Only the spawned owner can send object RPC.");
             Span<byte> buffer = stackalloc byte[NetworkMessageLimits.MessageCapacity];
             var writer = new BufferWriter(buffer);
             writer.WriteByte(NetworkObjectMessageType.Rpc);
@@ -60,10 +60,7 @@ namespace JoG.Networking.P2P {
                 return;
             }
 
-            if (jogNetworkObject.OwnerPeerId != senderPeerId) {
-                Debug.Assert(false, "Only the current owner can send object RPC.");
-                return;
-            }
+            Assert.AreEqual(senderPeerId, jogNetworkObject.OwnerPeerId, "Only the current owner can send object RPC.");
 
             var channel = reader.ReadByte();
             jogNetworkObject.InvokeRpc(senderPeerId, channel, reader);

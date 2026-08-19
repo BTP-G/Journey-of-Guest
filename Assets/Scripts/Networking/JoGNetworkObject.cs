@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using UnityEngine;
+using UnityEngine.Assertions;
 using Xoderony.Networking.Messaging;
 using Xoderony.Networking.Serialization;
 
@@ -9,32 +9,30 @@ namespace JoG.Networking.P2P {
         private const int MaxVariableCount = byte.MaxValue + 1;
         private const int RpcChannelCount = byte.MaxValue + 1;
 
-        private List<NetworkVariableBase> _variables;
-        private NetworkMessageHandler[] _rpcHandlers;
+        private List<NetworkVariableBase> _variables = new List<NetworkVariableBase>();
+        private NetworkMessageHandler[] _rpcHandlers = new NetworkMessageHandler[RpcChannelCount];
 
-        internal int VariableCount => _variables?.Count ?? 0;
+        internal int VariableCount => _variables.Count;
 
         public void Register(NetworkVariableBase variable) {
-            _variables ??= new List<NetworkVariableBase>();
-            Debug.Assert(!_variables.Contains(variable), "Variable is already registered.");
-            Debug.Assert(_variables.Count < MaxVariableCount, "Too many network variables.");
+            Assert.IsFalse(_variables.Contains(variable), "Variable is already registered.");
+            Assert.IsTrue(_variables.Count < MaxVariableCount, "Too many network variables.");
             _variables.Add(variable);
         }
 
-        public void Register(byte channel, NetworkMessageHandler handler) {
-            _rpcHandlers ??= new NetworkMessageHandler[RpcChannelCount];
+        public void Register(byte channel, NetworkMessageHandler handler) { 
             _rpcHandlers[channel] += handler;
         }
 
         public void Unregister(NetworkVariableBase variable) {
-            Debug.Assert(_variables != null, "Variable is not registered.");
+            Assert.IsNotNull(_variables, "Variable is not registered.");
             var index = _variables.IndexOf(variable);
-            Debug.Assert(index >= 0, "Variable is not registered.");
+            Assert.AreNotEqual(-1, index, "Variable is not registered.");
             _variables.RemoveAt(index);
         }
 
         public void Unregister(byte channel, NetworkMessageHandler handler) {
-            Debug.Assert(_rpcHandlers != null, "RPC channel is not registered.");
+            Assert.IsNotNull(_rpcHandlers, "RPC channel is not registered.");
             _rpcHandlers[channel] -= handler;
         }
 
@@ -63,7 +61,7 @@ namespace JoG.Networking.P2P {
         }
 
         internal void DeserializeVariable(int index, ref BufferReader reader) {
-            Debug.Assert(index < _variables.Count, "State variable index is out of range.");
+            Assert.IsTrue(index < _variables.Count, "State variable index is out of range.");
             _variables[index].Deserialize(ref reader);
         }
 

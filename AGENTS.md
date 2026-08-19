@@ -15,7 +15,7 @@
 - 项目实现使用 `JoG.*` 并留在 `Assembly-CSharp`；Mod 契约进入 `JoG` 包且不得反向依赖项目程序集；跨项目基础设施进入 `Xoderony.*` 包。
 - 跨项目包只保留多个项目实现确实相同的机制；对象布局、消息协议、调度与玩法同步策略优先由具体项目直接实现，需要复用时再提取为依赖核心的可选包。
 - 以职责单一的组件扩展能力，保持调用链短、所有权明确；避免膨胀基类和统一上下文。
-- 可读性和性能优先；约定可表达的边界不增加配置或防御分支，难定位的约定错误使用与程序集依赖匹配的断言。
+- 可读性和性能优先；约定可表达的边界不增加配置或防御分支，难定位的约定错误只以断言暴露。
 - 不为未证实需求抽象；仅在实现确实相同时复用，允许少量直接重复。
 - 角色能力由轻量状态机统一协调；状态只处理自身行为和事实，状态机负责转移，层级通过组合形成。
 - 网络同步位于状态机边界；状态不感知传输实现，本地与远端尽量复用玩法逻辑；网络组件保持持续可用。
@@ -36,7 +36,7 @@
 - RPC 与 `NetworkVariable` 只传值语义协议类型；跨端计算使用定点数。
 - 仅权威端写网络状态或发起玩法 RPC；远端只应用，变更回调不重入写入。
 - `Xoderony.Networking` 消息须在所有对端注册，未知类型丢弃；消息网格直发且无握手，首字节为 `byte` 类型，其余为载荷；远端发送者身份取自 Transport 的直连 PeerId。
-- `Xoderony.Networking` 核心包只提供会话事实契约、消息路由、对象生命周期、Prefab、对象 id 解析和派生对象快照，不提供具体 Lobby、NV、RPC 或帧驱动策略；`INetworkObjectManager` 统一提供对象管理、id 解析及对称的 `Spawned`/`Despawned` 事件，前者在绑定并完成初始化后发布，后者在移除并解绑后、工厂销毁前发布。
+- `Xoderony.Networking` 核心包只提供会话事实契约、消息路由、对象生命周期、Prefab、对象 id 解析和派生对象快照，不提供具体 Lobby、NV、RPC 或帧驱动策略；`INetworkObjectManager` 统一提供对象管理、id 解析及对称的 `Spawned`/`Despawned` 事件（只传对象，Id/`IsOwner` 从对象读取）。`Spawned` 仅由 `SpawnLocal` 在绑定并入表后发布，`Despawned` 仅由 `DestroyLocal` 在从表移除后、解绑前发布。本端 `Spawn`/`Despawn` 先发协议再改本地生命周期。
 - `INetworkSession` 只表达玩法层会话成员与 Owner 事实，由项目组合平台 Lobby 与 Transport 实现。成员进出仅订阅 Transport；`MemberJoined`/`MemberLeft` 分别对应 `PeerConnected`/`PeerDisconnected`。离 Lobby 时由 `SteamNetworkPeerConnector` 主动断连并收敛为 `PeerDisconnected`。`Started`/`Stopped`/`OwnerChanged` 取自 Lobby。`Started` 后已有成员须连上传输后才经 `MemberJoined` 承认。本人离开为 `Stopped`。Steam 下 Lobby 平台事实由 `SteamNetworkLobby` 提供；Id 分配等订阅其 `MemberJoined`/`MemberLeft`。
 - `NetworkObject.Id` 直接使用会话内稳定且唯一的 `uint`，高 8 位为会话内不回收的 `RangeId`，低 24 位为 Sequence，0 保留；Session Owner 在成员每次进房时发放新的 `RangeId`（Lobby `network.id.range.next` 只增不减，重进覆盖该 SteamID 映射），Peer 本地从 Sequence 1 递增，无需同步 Sequence 高水位。首次取得 RangeId 后 Peer 发布 `network.id.ready=1`。对象当前权威独立使用 `OwnerPeerId`，权威转移不得修改 Id；持久对象可不随成员离开销毁。
 - 协议规定的固定消息容量与对象 id 位域容量由约定保证；超出容量只以断言暴露，不实现动态扩容、RangeId/Sequence 耗尽恢复或回收分支。
@@ -59,6 +59,10 @@
 - 只提取有业务意义的常量；变量短生命周期且单一用途，方法按执行阶段排列，嵌套调用结果先赋予语义明确的局部变量。
 - 抽象只用于降低复杂度或有效重复；注释说明意图与约束，不复述实现。
 - 注释使用中文；日志使用英文并统一走 `Xoderony.Logging`。
+- 无 Unity 依赖的程序集用 `System.Diagnostics.Debug.Assert`，依赖 Unity 的程序集用 `UnityEngine.Assertions.Assert`。
+- 断言与 `if` 不混用：约定错误直接断言；预期或不可信输入需要分支时，分支内打日志并返回。
+- 比较值用 `AreEqual`/`AreNotEqual` 等对应方法，不用 `IsTrue` 包一层相等判断。
+- 断言带 `[Conditional]`，参数求值随调用剥离；后续仍要使用的赋值或副作用不得写在断言参数里。
 - 契约只描述自身语义；优先用清晰签名表达参数，必要时使用完整 XML 标签补充。
 - PropertyDrawer 优先 UI Toolkit 并保持 IMGUI 行为一致；编辑器 UI 使用序列化 API，支持 Undo、多对象编辑和 Prefab Override，程序化同步避免反馈通知。
 - 热路径小方法若非虚、非接口实现且无隐式分配，标记 `[MethodImpl(MethodImplOptions.AggressiveInlining)]`。
