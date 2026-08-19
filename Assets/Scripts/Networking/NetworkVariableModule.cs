@@ -29,6 +29,7 @@ namespace JoG.Networking.P2P {
             _messageManager.RegisterHandler(NetworkObjectMessageType.State, OnStateMessage);
             _objectManager.Spawned += OnObjectSpawned;
             _objectManager.Despawned += OnObjectDespawned;
+            _objectManager.OwnerChanged += OnObjectOwnerChanged;
         }
 
         void ITickable.Tick() {
@@ -39,6 +40,7 @@ namespace JoG.Networking.P2P {
             _messageManager.UnregisterHandler(NetworkObjectMessageType.State, OnStateMessage);
             _objectManager.Spawned -= OnObjectSpawned;
             _objectManager.Despawned -= OnObjectDespawned;
+            _objectManager.OwnerChanged -= OnObjectOwnerChanged;
             _spawnedObjects.Clear();
         }
 
@@ -55,6 +57,11 @@ namespace JoG.Networking.P2P {
             if (networkObject is JoGNetworkObject jogNetworkObject) {
                 _spawnedObjects.Remove(jogNetworkObject);
             }
+        }
+
+        private void OnObjectOwnerChanged(Xoderony.Networking.NetworkObject networkObject) {
+            OnObjectDespawned(networkObject);
+            OnObjectSpawned(networkObject);
         }
 
         private void OnStateMessage(ulong senderPeerId, BufferReader reader) {
