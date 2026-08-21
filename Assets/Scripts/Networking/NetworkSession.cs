@@ -14,9 +14,11 @@ namespace JoG.Networking.P2P {
 
         public bool IsStarted => _lobby.IsStarted;
 
+        public ulong LocalPeerId => _transport.LocalPeerId;
+
         public ulong OwnerPeerId => _lobby.OwnerPeerId;
 
-        public bool IsOwner => _lobby.IsOwner;
+        public bool IsOwner => _lobby.IsStarted && _lobby.OwnerPeerId == _transport.LocalPeerId;
 
         public event Action Started;
 
@@ -57,8 +59,8 @@ namespace JoG.Networking.P2P {
             Stopped?.Invoke();
         }
 
-        private void OnLobbyOwnerChanged(ulong previousOwnerPeerId, ulong ownerPeerId) {
-            OwnerChanged?.Invoke(previousOwnerPeerId, ownerPeerId);
+        private void OnLobbyOwnerChanged(ulong previousOwnerPeerId, ulong newOwnerPeerId) {
+            OwnerChanged?.Invoke(previousOwnerPeerId, newOwnerPeerId);
         }
 
         private void OnPeerConnected(ulong peerId) {

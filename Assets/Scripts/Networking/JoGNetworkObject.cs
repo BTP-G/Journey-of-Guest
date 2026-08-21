@@ -9,8 +9,8 @@ namespace JoG.Networking.P2P {
         private const int MaxVariableCount = byte.MaxValue + 1;
         private const int RpcChannelCount = byte.MaxValue + 1;
 
-        private List<NetworkVariableBase> _variables = new List<NetworkVariableBase>();
-        private NetworkMessageHandler[] _rpcHandlers = new NetworkMessageHandler[RpcChannelCount];
+        private readonly List<NetworkVariableBase> _variables = new List<NetworkVariableBase>();
+        private readonly NetworkMessageHandler[] _rpcHandlers = new NetworkMessageHandler[RpcChannelCount];
 
         internal int VariableCount => _variables.Count;
 
@@ -20,37 +20,31 @@ namespace JoG.Networking.P2P {
             _variables.Add(variable);
         }
 
-        public void Register(byte channel, NetworkMessageHandler handler) { 
+        public void Register(byte channel, NetworkMessageHandler handler) {
             _rpcHandlers[channel] += handler;
         }
 
         public void Unregister(NetworkVariableBase variable) {
-            Assert.IsNotNull(_variables, "Variable is not registered.");
             var index = _variables.IndexOf(variable);
             Assert.AreNotEqual(-1, index, "Variable is not registered.");
             _variables.RemoveAt(index);
         }
 
         public void Unregister(byte channel, NetworkMessageHandler handler) {
-            Assert.IsNotNull(_rpcHandlers, "RPC channel is not registered.");
             _rpcHandlers[channel] -= handler;
         }
 
         protected override void OnSerializeSnapshot(ref BufferWriter writer) {
-            if (_variables != null) {
-                for (var i = 0; i < _variables.Count; i++) {
-                    _variables[i].Serialize(ref writer);
-                }
+            for (var i = 0; i < _variables.Count; i++) {
+                _variables[i].Serialize(ref writer);
             }
 
             base.OnSerializeSnapshot(ref writer);
         }
 
         protected override void OnDeserializeSnapshot(ref BufferReader reader) {
-            if (_variables != null) {
-                for (var i = 0; i < _variables.Count; i++) {
-                    _variables[i].Deserialize(ref reader);
-                }
+            for (var i = 0; i < _variables.Count; i++) {
+                _variables[i].Deserialize(ref reader);
             }
 
             base.OnDeserializeSnapshot(ref reader);
@@ -66,7 +60,7 @@ namespace JoG.Networking.P2P {
         }
 
         internal void InvokeRpc(ulong senderPeerId, byte channel, BufferReader reader) {
-            _rpcHandlers?[channel]?.Invoke(senderPeerId, reader);
+            _rpcHandlers[channel]?.Invoke(senderPeerId, reader);
         }
     }
 }

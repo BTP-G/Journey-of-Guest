@@ -10,11 +10,13 @@ using Xoderony.Networking.Transport;
 namespace JoG.Networking.P2P {
     /// <summary>JoG 对象变量协议；由 VContainer PlayerLoop 每帧刷新脏变量。</summary>
     public sealed class NetworkVariableModule : IInitializable, ITickable, IDisposable {
+        private readonly INetworkSession _session;
         private readonly INetworkMessageManager _messageManager;
         private readonly INetworkObjectManager _objectManager;
         private readonly List<JoGNetworkObject> _spawnedObjects = new List<JoGNetworkObject>();
 
-        public NetworkVariableModule(INetworkMessageManager messageManager, INetworkObjectManager objectManager) {
+        public NetworkVariableModule(INetworkSession session, INetworkMessageManager messageManager, INetworkObjectManager objectManager) {
+            _session = session;
             _messageManager = messageManager;
             _objectManager = objectManager;
         }
@@ -45,7 +47,9 @@ namespace JoG.Networking.P2P {
         }
 
         private void OnObjectSpawned(Xoderony.Networking.NetworkObject networkObject) {
-            if (networkObject is not JoGNetworkObject jogNetworkObject || !jogNetworkObject.IsOwner || jogNetworkObject.VariableCount == 0) {
+            if (networkObject is not JoGNetworkObject jogNetworkObject
+                || jogNetworkObject.OwnerPeerId != _session.LocalPeerId
+                || jogNetworkObject.VariableCount == 0) {
                 return;
             }
 
@@ -59,7 +63,7 @@ namespace JoG.Networking.P2P {
             }
         }
 
-        private void OnObjectOwnerChanged(Xoderony.Networking.NetworkObject networkObject, ulong previousOwnerPeerId, ulong ownerPeerId) {
+        private void OnObjectOwnerChanged(Xoderony.Networking.NetworkObject networkObject, ulong previousOwnerPeerId, ulong newOwnerPeerId) {
             OnObjectDespawned(networkObject);
             OnObjectSpawned(networkObject);
         }
@@ -69,6 +73,7 @@ namespace JoG.Networking.P2P {
             if (!_objectManager.TryGetSpawned(id, out var networkObject) || networkObject is not JoGNetworkObject jogNetworkObject) {
                 return;
             }
+
             var index = reader.ReadByte();
             jogNetworkObject.DeserializeVariable(index, ref reader);
         }

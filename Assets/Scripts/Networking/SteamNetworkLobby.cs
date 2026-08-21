@@ -71,11 +71,11 @@ namespace JoG.Networking.P2P {
                 return;
             }
 
-            var ownerPeerId = (ulong)lobby.Owner.Id;
-            if (ownerPeerId != _ownerPeerId) {
+            var newOwnerPeerId = (ulong)lobby.Owner.Id;
+            if (newOwnerPeerId != _ownerPeerId) {
                 var previousOwnerPeerId = _ownerPeerId;
-                _ownerPeerId = ownerPeerId;
-                OwnerChanged?.Invoke(previousOwnerPeerId, ownerPeerId);
+                _ownerPeerId = newOwnerPeerId;
+                OwnerChanged?.Invoke(previousOwnerPeerId, newOwnerPeerId);
             }
 
             LobbyDataChanged?.Invoke();

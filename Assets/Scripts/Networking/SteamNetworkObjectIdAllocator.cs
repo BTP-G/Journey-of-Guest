@@ -61,7 +61,7 @@ namespace JoG.Networking.P2P {
             TryBindLocalRangeId();
         }
 
-        private void OnOwnerChanged(ulong previousOwnerPeerId, ulong ownerPeerId) {
+        private void OnOwnerChanged(ulong previousOwnerPeerId, ulong newOwnerPeerId) {
             if (_lobby.IsOwner) {
                 EnsureMissingMemberRangeIds();
             }

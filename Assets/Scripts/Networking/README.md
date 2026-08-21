@@ -16,7 +16,7 @@
 
 本目录（`Assets/Scripts/Networking`，`JoG.Networking.P2P`）为 P2P 栈实现；NGO 接线见 `JoG/Networking/`。
 
-三层拆分：`SteamNetworkLobby`（平台 Lobby 事实）→ `SteamNetworkTransport`（连接与收发）→ `NetworkSession` : `INetworkSession`（玩法层，组合前两者）。
+三层拆分：`SteamNetworkLobby`（平台 Lobby 事实）→ `SteamNetworkTransport`（连接与收发）→ `NetworkSession` : `INetworkSession`（玩法层，组合前两者；`LocalPeerId` 取自 Transport，`IsOwner` 为 `OwnerPeerId == LocalPeerId`）。
 
 - `SteamNetworkLobby`：纯 Steam Matchmaking；`Started`/`Stopped`/`OwnerChanged`/`MemberJoined`/`MemberLeft`（大厅成员）、`Lobby`、`LobbyDataChanged`/`LobbyMemberDataChanged`。
 - `NetworkSession`：成员进出仅订阅 Transport（`PeerConnected`/`PeerDisconnected`）；`MemberLeft` 对外语义仍为断线或离局，后者由 `SteamNetworkPeerConnector` 在 Lobby `MemberLeft` 时主动 `DisconnectPeer` 收敛。
@@ -33,8 +33,8 @@
 - `Packages/io.github.xoderony.networking` 是独立仓库 `Xoderony/io.github.xoderony.networking` 的本地 clone，程序集 `Xoderony.Networking`，不依赖 JoG、NGO 或 Steamworks。
 - 主仓库通过 `.git/info/exclude` 忽略该目录，包代码应在自己的仓库提交；目前尚未接入游戏玩法。
 - 包只负责会话事实契约、消息路由、对象生成/销毁、Prefab、对象 id 解析和派生对象快照，不提供具体 Lobby、NV、RPC 或帧驱动策略。
-- `NetworkObjectManager` 实现统一的 `INetworkObjectManager`，提供对象管理、生命周期事件与 id 解析；扩展模块不由 Manager 登记或驱动。
-- `NetworkObjectManager` 以 Session 的 `MemberJoined` 补发本端对象快照。`MemberLeft` 销毁离开者拥有且 `PersistOnOwnerLeave` 为 false 的对象（玩家角色）；持久对象把权威交给当前会话房主。房主尚未更新时持久对象等到 `OwnerChanged` 再迁。
+- `NetworkObjectManager` 实现统一的 `INetworkObjectManager`，提供对象管理、生命周期事件与 id 解析；扩展模块不由 Manager 登记或驱动。本端对象权威比较使用 `INetworkSession.LocalPeerId`，对象本身不暴露 `IsOwner`。
+- `NetworkObjectManager` 以 Session 的 `MemberJoined` 补发本端对象快照。`MemberLeft` 销毁离开者拥有且 `PersistOnOwnerLeave` 为 false 的对象（玩家角色）；持久对象把权威交给当前会话房主。若离开者仍是会话房主（Lobby 房主回调尚未到达），则推迟到 `OwnerChanged` 再迁。
 - 本地 `Spawn` 接收已登记 Prefab，由 `INetworkObjectFactory.Create` 构造实例并在绑定前调用初始化委托；随后发送初始快照、绑定网络身份并发布 `Spawned`。远端先应用快照再绑定；`Despawned` 在从表移除后、解绑与工厂销毁前发布，回调期间对象仍持有网络身份。
 - `NetworkObject.OnSerializeSnapshot`/`OnDeserializeSnapshot` 只用于 Spawn 与晚加入，布局由项目派生类型拥有且必须成对。
 - `NetworkObject.Id` 是会话内稳定的 `uint`，高 8 位为 Owner 分配且会话内不回收的 `RangeId`，低 24 位为该区间的 Sequence，0 保留；当前权威身份独立存于 `OwnerPeerId`，State/RPC/Despawn 接收时必须校验发送者为当前 Owner。
@@ -46,7 +46,7 @@
 - 项目实现位于 `Assets/Scripts/Networking`，使用 `JoG.Networking.P2P` 命名空间以避免与并存的 NGO 类型歧义，尚未接入当前 NGO RootScope。
 - `JoGNetworkObject` 按需创建并直接保存有序 `NetworkVariableBase` 列表和 RPC channel handler 数组；变量与 handler 在 Spawn 前登记，快照覆写直接序列化变量，不经过全局映射。
 - `NetworkVariable<T>` 仅接受 `unmanaged`，值实际变化时置脏并触发 `ValueChanged`；默认编码由包内 `Serializer<T>`/`Deserializer<T>` 提供，自定义稳定协议须成对覆盖。
-- `NetworkVariableModule` 通过 `INetworkObjectManager` 的生命周期与 `OwnerChanged` 只维护本端拥有且包含变量的 `JoGNetworkObject` 列表，通过 VContainer `ITickable` Flush；每个对象仅在确认存在脏变量后 `stackalloc` 发送缓冲。
+- `NetworkVariableModule` 通过 `INetworkObjectManager` 的生命周期与 `OwnerChanged` 只维护本端拥有且包含变量的 `JoGNetworkObject` 列表（`OwnerPeerId == INetworkSession.LocalPeerId`），通过 VContainer `ITickable` Flush；每个对象仅在确认存在脏变量后 `stackalloc` 发送缓冲。收包不校验发送者是否为当前 Owner。
 - `NetworkRpcModule` 不保存对象映射；收包经 `INetworkObjectManager` 查找后直接投递到 `JoGNetworkObject`，仅 owner 可发送。
 - 项目 State 消息为 `type + Id + index + payload`（类型 `NetworkMessageType.User`），Rpc 消息为 `type + Id + channel + payload`（下一类型）；包内 Spawn/Despawn 仍为类型 2/3。
 - Id 分配不占用 P2P 消息类型；仅 RangeId 映射与下一 RangeId 计数走 Steam Lobby Data，Allocate 为纯本地递增。
