@@ -1,7 +1,5 @@
 # Journey of Guest - 项目导航
 
-> 选择最相关的一行：先读模块上下文，再读入口源码；不足时用 `rg` 扩展，不预读全部模块。
-
 ## 导航
 
 | 范围 | 上下文 | 入口 |
@@ -19,7 +17,3 @@
 ## 包级上下文
 
 公开职责优先读包文档：[JoG](Packages/io.github.xoderony.jog/README.md)、[Networking](Packages/io.github.xoderony.networking/README.md)、[Foundation](Packages/io.github.xoderony.foundation/README.md)、[Gameplay Effects](Packages/io.github.xoderony.gameplay-effects/README.md)、[Movement](Packages/io.github.xoderony.movement/README.md)、[Unity](Packages/io.github.xoderony.unity/README.md)。本地包从 `PackageTemplates/io.github.xoderony.feature-template` 开始。P2P 网络细节以 [网络模块 README](Assets/Scripts/Networking/README.md) 为准。
-
-## 信息优先级
-
-用户最新指示 → 源码与配置 → 模块 `README.md` → 本导航；过时信息更新到所属模块，不在此堆积细节。
