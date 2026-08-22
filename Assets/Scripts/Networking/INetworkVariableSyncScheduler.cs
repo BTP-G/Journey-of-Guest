@@ -1,6 +1,6 @@
 namespace JoG.Networking.P2P {
     /// <summary>JoG 网络对象的变量刷新调度服务。</summary>
-    public interface INetworkVariableScheduler {
+    public interface INetworkVariableSyncScheduler {
         void Schedule(JoGNetworkObject networkObject);
     }
 }

@@ -5,11 +5,11 @@ using Xoderony.Networking.Serialization;
 namespace JoG.Networking.P2P {
     /// <summary>值实际变化时置脏并通知；编码由项目选择的 Serializer/Deserializer 提供。</summary>
     public sealed class NetworkVariable<T> : NetworkVariableBase where T : unmanaged {
-        public delegate void ValueChangedDelegate(T previousValue, T value);
+        public delegate void ValueChangedDelegate(T previousValue, T newValue);
 
         private T _value;
 
-        public event ValueChangedDelegate ValueChanged;
+        public ValueChangedDelegate ValueChanged;
 
         public T Value {
             get => _value;
@@ -36,14 +36,14 @@ namespace JoG.Networking.P2P {
 
         protected sealed override void OnDeserialize(ref BufferReader reader) {
             Assert.IsNotNull(Deserializer<T>.Deserialize, "Network deserializer is not assigned.");
-            var value = Deserializer<T>.Deserialize(ref reader);
-            if (EqualityComparer<T>.Default.Equals(_value, value)) {
+            var newValue = Deserializer<T>.Deserialize(ref reader);
+            if (EqualityComparer<T>.Default.Equals(_value, newValue)) {
                 return;
             }
 
             var previousValue = _value;
-            _value = value;
-            ValueChanged?.Invoke(previousValue, value);
+            _value = newValue;
+            ValueChanged?.Invoke(previousValue, newValue);
         }
     }
 }

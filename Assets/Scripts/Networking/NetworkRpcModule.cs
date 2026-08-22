@@ -1,4 +1,5 @@
 using System;
+using UnityEngine.Assertions;
 using VContainer.Unity;
 using Xoderony.Networking;
 using Xoderony.Networking.Messaging;
@@ -6,7 +7,7 @@ using Xoderony.Networking.Serialization;
 using Xoderony.Networking.Transport;
 
 namespace JoG.Networking.P2P {
-    /// <summary>JoG 对象 RPC 协议；对象直接持有 channel handler，本模块只负责收发。</summary>
+    /// <summary>JoG 对象 RPC 协议；对象持有强类型端点，本模块只负责收发。</summary>
     public sealed class NetworkRpcModule : IInitializable, INetworkRpcSender, IDisposable {
         private readonly INetworkSession _session;
         private readonly INetworkMessageManager _messageManager;
@@ -18,29 +19,44 @@ namespace JoG.Networking.P2P {
             _objectManager = objectManager;
         }
 
-        public void SendToOthers(JoGNetworkObject networkObject, byte channel, ReadOnlySpan<byte> payload, NetworkDelivery delivery = NetworkDelivery.Reliable) {
+        public void SendToOthers(JoGNetworkObject networkObject, byte index, ReadOnlySpan<byte> payload) {
             Span<byte> buffer = stackalloc byte[NetworkMessageLimits.MessageCapacity];
             var writer = new BufferWriter(buffer);
             writer.WriteByte(NetworkObjectMessageType.Rpc);
             writer.WriteUInt(networkObject.Id);
-            writer.WriteByte(channel);
+            writer.WriteByte(index);
             writer.WriteBytes(payload);
-            _messageManager.SendToOthers(writer.Written, delivery);
+            _messageManager.SendToOthers(writer.Written, NetworkDelivery.Reliable);
         }
 
-        public void SendToAll(JoGNetworkObject networkObject, byte channel, ReadOnlySpan<byte> payload, NetworkDelivery delivery = NetworkDelivery.Reliable) {
-            SendToOthers(networkObject, channel, payload, delivery);
-            networkObject.RpcHandlers[channel]?.Invoke(_session.LocalPeerId, new BufferReader(payload));
-        }
-
-        public void SendToPeer(JoGNetworkObject networkObject, ulong peerId, byte channel, ReadOnlySpan<byte> payload, NetworkDelivery delivery = NetworkDelivery.Reliable) {
+        public void SendToAll(JoGNetworkObject networkObject, byte index, ReadOnlySpan<byte> payload) {
             Span<byte> buffer = stackalloc byte[NetworkMessageLimits.MessageCapacity];
             var writer = new BufferWriter(buffer);
             writer.WriteByte(NetworkObjectMessageType.Rpc);
             writer.WriteUInt(networkObject.Id);
-            writer.WriteByte(channel);
+            writer.WriteByte(index);
             writer.WriteBytes(payload);
-            _messageManager.SendToPeer(peerId, writer.Written, delivery);
+            _messageManager.SendToAll(writer.Written, NetworkDelivery.Reliable);
+        }
+
+        public void SendToOwner(JoGNetworkObject networkObject, byte index, ReadOnlySpan<byte> payload) {
+            if (networkObject.OwnerPeerId == _session.LocalPeerId) {
+                var reader = new BufferReader(payload);
+                Dispatch(networkObject, _session.LocalPeerId, index, ref reader);
+                return;
+            }
+
+            SendToPeer(networkObject, networkObject.OwnerPeerId, index, payload);
+        }
+
+        public void SendToPeer(JoGNetworkObject networkObject, ulong peerId, byte index, ReadOnlySpan<byte> payload) {
+            Span<byte> buffer = stackalloc byte[NetworkMessageLimits.MessageCapacity];
+            var writer = new BufferWriter(buffer);
+            writer.WriteByte(NetworkObjectMessageType.Rpc);
+            writer.WriteUInt(networkObject.Id);
+            writer.WriteByte(index);
+            writer.WriteBytes(payload);
+            _messageManager.SendToPeer(peerId, writer.Written, NetworkDelivery.Reliable);
         }
 
         void IInitializable.Initialize() {
@@ -56,8 +72,14 @@ namespace JoG.Networking.P2P {
             if (!_objectManager.TryGetSpawned(id, out var networkObject) || networkObject is not JoGNetworkObject jogNetworkObject) {
                 return;
             }
-            var channel = reader.ReadByte();
-            jogNetworkObject.RpcHandlers[channel]?.Invoke(senderPeerId, reader);
+            var index = reader.ReadByte();
+            Dispatch(jogNetworkObject, senderPeerId, index, ref reader);
+        }
+
+        private static void Dispatch(JoGNetworkObject networkObject, ulong senderPeerId, byte index, ref BufferReader reader) {
+            var rpcs = networkObject.NetworkRpcs;
+            Assert.IsTrue(index < rpcs.Length, "RPC index is out of range.");
+            rpcs[index].Deserialize(senderPeerId, ref reader);
         }
     }
 }

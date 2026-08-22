@@ -11,7 +11,7 @@ using Xoderony.Unity;
 
 namespace JoG.Networking.P2P {
     /// <summary>JoG 对象变量协议；每两个固定步在末尾刷新一次脏变量。</summary>
-    public sealed class NetworkVariableModule : IInitializable, INetworkVariableScheduler, IDisposable {
+    public sealed class NetworkVariableModule : IInitializable, INetworkVariableSyncScheduler, IDisposable {
         private readonly INetworkSession _session;
         private readonly INetworkMessageManager _messageManager;
         private readonly INetworkObjectManager _objectManager;
@@ -26,7 +26,7 @@ namespace JoG.Networking.P2P {
         }
 
         void IInitializable.Initialize() {
-            _messageManager.RegisterHandler(NetworkObjectMessageType.State, OnStateMessage);
+            _messageManager.RegisterHandler(NetworkObjectMessageType.NetworkVariable, OnNetworkVariableMessage);
             _objectManager.Spawned += OnObjectSpawned;
             _objectManager.Despawned += OnObjectDespawned;
             _objectManager.OwnerChanged += OnObjectOwnerChanged;
@@ -34,7 +34,7 @@ namespace JoG.Networking.P2P {
         }
 
         public void Dispose() {
-            _messageManager.UnregisterHandler(NetworkObjectMessageType.State, OnStateMessage);
+            _messageManager.UnregisterHandler(NetworkObjectMessageType.NetworkVariable, OnNetworkVariableMessage);
             _objectManager.Spawned -= OnObjectSpawned;
             _objectManager.Despawned -= OnObjectDespawned;
             _objectManager.OwnerChanged -= OnObjectOwnerChanged;
@@ -59,16 +59,15 @@ namespace JoG.Networking.P2P {
             Span<byte> buffer = stackalloc byte[NetworkMessageLimits.MessageCapacity];
             foreach (var networkObject in _dirtyObjects) {
                 var variables = networkObject.NetworkVariables;
-                for (var i = 0; i < variables.Length; i++) {
-                    var variable = variables[i];
+                foreach (var variable in variables) {
                     if (!variable.IsDirty) {
                         continue;
                     }
 
                     var writer = new BufferWriter(buffer);
-                    writer.WriteByte(NetworkObjectMessageType.State);
+                    writer.WriteByte(NetworkObjectMessageType.NetworkVariable);
                     writer.WriteUInt(networkObject.Id);
-                    writer.WriteByte((byte)i);
+                    writer.WriteByte(variable.Index);
                     variable.Serialize(ref writer);
                     _messageManager.SendToOthers(writer.Written, NetworkDelivery.Reliable);
                 }
@@ -100,7 +99,7 @@ namespace JoG.Networking.P2P {
             Schedule(jogNetworkObject);
         }
 
-        private void OnStateMessage(ulong senderPeerId, BufferReader reader) {
+        private void OnNetworkVariableMessage(ulong senderPeerId, BufferReader reader) {
             var id = reader.ReadUInt();
             if (!_objectManager.TryGetSpawned(id, out var networkObject) || networkObject is not JoGNetworkObject jogNetworkObject) {
                 return;
@@ -108,7 +107,7 @@ namespace JoG.Networking.P2P {
 
             var index = reader.ReadByte();
             var variables = jogNetworkObject.NetworkVariables;
-            Assert.IsTrue(index < variables.Length, "State variable index is out of range.");
+            Assert.IsTrue(index < variables.Length, "Network variable index is out of range.");
             variables[index].Deserialize(ref reader);
         }
     }
