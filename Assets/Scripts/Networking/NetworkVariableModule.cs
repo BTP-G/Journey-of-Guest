@@ -1,19 +1,23 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine.Assertions;
+using UnityEngine.PlayerLoop;
 using VContainer.Unity;
 using Xoderony.Networking;
 using Xoderony.Networking.Messaging;
 using Xoderony.Networking.Serialization;
 using Xoderony.Networking.Transport;
+using Xoderony.Unity;
 
 namespace JoG.Networking.P2P {
-    /// <summary>JoG 对象变量协议；由 VContainer PlayerLoop 每帧刷新脏变量。</summary>
-    public sealed class NetworkVariableModule : IInitializable, ITickable, IDisposable {
+    /// <summary>JoG 对象变量协议；每两个固定步在末尾刷新一次脏变量。</summary>
+    public sealed class NetworkVariableModule : IInitializable, INetworkVariableScheduler, IDisposable {
         private readonly INetworkSession _session;
         private readonly INetworkMessageManager _messageManager;
         private readonly INetworkObjectManager _objectManager;
-        private readonly List<JoGNetworkObject> _spawnedObjects = new List<JoGNetworkObject>();
+        private readonly HashSet<JoGNetworkObject> _dirtyObjects = new HashSet<JoGNetworkObject>();
+
+        private bool _skipNextFixedTick;
 
         public NetworkVariableModule(INetworkSession session, INetworkMessageManager messageManager, INetworkObjectManager objectManager) {
             _session = session;
@@ -21,21 +25,12 @@ namespace JoG.Networking.P2P {
             _objectManager = objectManager;
         }
 
-        public void Flush() {
-            for (var i = 0; i < _spawnedObjects.Count; i++) {
-                Flush(_spawnedObjects[i]);
-            }
-        }
-
         void IInitializable.Initialize() {
             _messageManager.RegisterHandler(NetworkObjectMessageType.State, OnStateMessage);
             _objectManager.Spawned += OnObjectSpawned;
             _objectManager.Despawned += OnObjectDespawned;
             _objectManager.OwnerChanged += OnObjectOwnerChanged;
-        }
-
-        void ITickable.Tick() {
-            Flush();
+            PostUpdateLoop<FixedUpdate.ScriptRunDelayedFixedFrameRate>.Register(OnPostFixedUpdate);
         }
 
         public void Dispose() {
@@ -43,29 +38,66 @@ namespace JoG.Networking.P2P {
             _objectManager.Spawned -= OnObjectSpawned;
             _objectManager.Despawned -= OnObjectDespawned;
             _objectManager.OwnerChanged -= OnObjectOwnerChanged;
-            _spawnedObjects.Clear();
+            PostUpdateLoop<FixedUpdate.ScriptRunDelayedFixedFrameRate>.Unregister(OnPostFixedUpdate);
+            _dirtyObjects.Clear();
         }
 
-        private void OnObjectSpawned(Xoderony.Networking.NetworkObject networkObject) {
-            if (networkObject is not JoGNetworkObject jogNetworkObject
-                || jogNetworkObject.OwnerPeerId != _session.LocalPeerId
-                || jogNetworkObject.VariableCount == 0) {
+        public void Schedule(JoGNetworkObject networkObject) {
+            if (networkObject.OwnerPeerId == _session.LocalPeerId) {
+                _dirtyObjects.Add(networkObject);
+            }
+        }
+
+        private void OnPostFixedUpdate() {
+            if (_skipNextFixedTick = !_skipNextFixedTick) {
+                return;
+            }
+            if (_dirtyObjects.Count == 0) {
                 return;
             }
 
-            Assert.IsFalse(_spawnedObjects.Contains(jogNetworkObject), "Network object is already tracked.");
-            _spawnedObjects.Add(jogNetworkObject);
+            Span<byte> buffer = stackalloc byte[NetworkMessageLimits.MessageCapacity];
+            foreach (var networkObject in _dirtyObjects) {
+                var variables = networkObject.NetworkVariables;
+                for (var i = 0; i < variables.Length; i++) {
+                    var variable = variables[i];
+                    if (!variable.IsDirty) {
+                        continue;
+                    }
+
+                    var writer = new BufferWriter(buffer);
+                    writer.WriteByte(NetworkObjectMessageType.State);
+                    writer.WriteUInt(networkObject.Id);
+                    writer.WriteByte((byte)i);
+                    variable.Serialize(ref writer);
+                    _messageManager.SendToOthers(writer.Written, NetworkDelivery.Reliable);
+                }
+            }
+
+            _dirtyObjects.Clear();
         }
 
-        private void OnObjectDespawned(Xoderony.Networking.NetworkObject networkObject) {
+        private void OnObjectSpawned(NetworkObject networkObject) {
+            if (networkObject is not JoGNetworkObject jogNetworkObject || jogNetworkObject.NetworkVariables.IsEmpty) {
+                return;
+            }
+
+            Schedule(jogNetworkObject);
+        }
+
+        private void OnObjectDespawned(NetworkObject networkObject) {
             if (networkObject is JoGNetworkObject jogNetworkObject) {
-                _spawnedObjects.Remove(jogNetworkObject);
+                _dirtyObjects.Remove(jogNetworkObject);
             }
         }
 
-        private void OnObjectOwnerChanged(Xoderony.Networking.NetworkObject networkObject, ulong previousOwnerPeerId, ulong newOwnerPeerId) {
-            OnObjectDespawned(networkObject);
-            OnObjectSpawned(networkObject);
+        private void OnObjectOwnerChanged(NetworkObject networkObject, ulong previousOwnerPeerId, ulong newOwnerPeerId) {
+            if (networkObject is not JoGNetworkObject jogNetworkObject || jogNetworkObject.NetworkVariables.IsEmpty) {
+                return;
+            }
+
+            _dirtyObjects.Remove(jogNetworkObject);
+            Schedule(jogNetworkObject);
         }
 
         private void OnStateMessage(ulong senderPeerId, BufferReader reader) {
@@ -75,33 +107,9 @@ namespace JoG.Networking.P2P {
             }
 
             var index = reader.ReadByte();
-            jogNetworkObject.DeserializeVariable(index, ref reader);
-        }
-
-        private void Flush(JoGNetworkObject networkObject) {
-            var firstDirtyIndex = 0;
-            while (firstDirtyIndex < networkObject.VariableCount && !networkObject.GetVariable(firstDirtyIndex).IsDirty) {
-                firstDirtyIndex++;
-            }
-
-            if (firstDirtyIndex == networkObject.VariableCount) {
-                return;
-            }
-
-            Span<byte> buffer = stackalloc byte[NetworkMessageLimits.MessageCapacity];
-            for (var i = firstDirtyIndex; i < networkObject.VariableCount; i++) {
-                var variable = networkObject.GetVariable(i);
-                if (!variable.IsDirty) {
-                    continue;
-                }
-
-                var writer = new BufferWriter(buffer);
-                writer.WriteByte(NetworkObjectMessageType.State);
-                writer.WriteUInt(networkObject.Id);
-                writer.WriteByte((byte)i);
-                variable.Serialize(ref writer);
-                _messageManager.SendToOthers(writer.Written, NetworkDelivery.Reliable);
-            }
+            var variables = jogNetworkObject.NetworkVariables;
+            Assert.IsTrue(index < variables.Length, "State variable index is out of range.");
+            variables[index].Deserialize(ref reader);
         }
     }
 }

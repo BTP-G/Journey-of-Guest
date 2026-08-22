@@ -50,7 +50,6 @@ namespace JoG {
             builder.Register<UnityProfileService>(Lifetime.Singleton).AsImplementedInterfaces();
             builder.Register<AuthenticationController>(Lifetime.Singleton).AsImplementedInterfaces();
             builder.Register<PlayerRegistry>(Lifetime.Singleton).AsSelf().AsImplementedInterfaces();
-            builder.Register<SteamNetworkTransport>(Lifetime.Singleton).AsSelf().As<INetworkTransport>();
             builder.UseEntryPoints(static configuration => {
                 configuration.Add<ModManager>();
                 configuration.Add<DefaultPackageManager>();
@@ -58,6 +57,7 @@ namespace JoG {
                 configuration.Add<SessionService>();
                 configuration.Add<JoGApplication>();
                 configuration.Add<SteamNetworkLobby>().AsSelf();
+                configuration.Add<SteamNetworkTransport>().AsSelf().As<INetworkTransport>();
                 configuration.Add<NetworkSession>().AsSelf().As<INetworkSession>();
             });
             builder.RegisterBuildCallback(static container => {

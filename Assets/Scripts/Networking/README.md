@@ -23,6 +23,7 @@
 - 平台进出由 `SteamLobbyController`（或其它调用方）负责：`Join` / `LeaveCurrentLobby`；Lobby `Started`/`Stopped` 仅由回调收敛。换大厅时 Lobby 先停再启；Controller 经 `[Inject]` 取得 `SteamNetworkLobby`，并缓存 `_leaveLobby` 供销毁/退出时 `Leave`。
 - `SteamNetworkObjectIdAllocator` 订阅 `SteamNetworkLobby`：Session Owner 在成员每次**进 Lobby** 时发放新的 `RangeId`（`MemberJoined`）；`MemberLeft` 时删除映射。重进须重新走 Lobby 进房与连接流程。
 - `SteamNetworkPeerConnector` 依赖 `SteamNetworkLobby` 与 Transport：本端 `network.id.ready` 后连接已 Ready 的远端；远端晚 Ready 时补连。不直接依赖 Allocator。
+- `SteamNetworkTransport` 在每帧玩法 Update 前自行调用 `Poll`，处理收包与连接回调；NV 在固定步末尾按自身节奏发送，二者不共用调度时机。
 - `Lobby/SteamLobbyController.cs` 只保留大厅配置、邀请和 UI 命令，并从 `SteamNetworkLobby` 读取 Lobby 状态。
 - `RootScope` 已注册 `SteamNetworkLobby`、`NetworkSession`（`INetworkSession`）与 `SteamNetworkTransport`；Allocator、PeerConnector 与完整 P2P 对象栈尚未接线。
 - `UI/FacepunchTransportController.cs` 可手动切换 Transport 并 StartHost/Server/Client。
@@ -44,10 +45,10 @@
 ## JoG 对象扩展协议
 
 - 项目实现位于 `Assets/Scripts/Networking`，使用 `JoG.Networking.P2P` 命名空间以避免与并存的 NGO 类型歧义，尚未接入当前 NGO RootScope。
-- `JoGNetworkObject` 按需创建并直接保存有序 `NetworkVariableBase` 列表和 RPC channel handler 数组；变量与 handler 在 Spawn 前登记，快照覆写直接序列化变量，不经过全局映射。
+- `JoGNetworkObject` 在 `Awake` 中由派生类收集并固定保存有序 `NetworkVariableBase` 数组与 RPC channel handler 表；收集完成后不再修改注册表，快照覆写直接序列化变量，不经过全局映射。
 - `NetworkVariable<T>` 仅接受 `unmanaged`，值实际变化时置脏并触发 `ValueChanged`；默认编码由包内 `Serializer<T>`/`Deserializer<T>` 提供，自定义稳定协议须成对覆盖。
-- `NetworkVariableModule` 通过 `INetworkObjectManager` 的生命周期与 `OwnerChanged` 只维护本端拥有且包含变量的 `JoGNetworkObject` 列表（`OwnerPeerId == INetworkSession.LocalPeerId`），通过 VContainer `ITickable` Flush；每个对象仅在确认存在脏变量后 `stackalloc` 发送缓冲。收包不校验发送者是否为当前 Owner。
-- `NetworkRpcModule` 不保存对象映射；收包经 `INetworkObjectManager` 查找后直接投递到 `JoGNetworkObject`，仅 owner 可发送。
+- `NetworkVariableModule` 实现 `INetworkVariableScheduler`；`JoGNetworkObject` 经注入服务调度变量刷新。模块只维护本端拥有且待 Flush 的 `JoGNetworkObject` 集合（`OwnerPeerId == INetworkSession.LocalPeerId`），在固定步末尾的自定义 PlayerLoop 中每两个固定步发送。收包不校验发送者是否为当前 Owner。
+- `NetworkRpcModule` 实现 `INetworkRpcSender`；`JoGNetworkObject` 经注入服务发送 RPC。模块不保存对象映射，收包经 `INetworkObjectManager` 查找后直接投递到 `JoGNetworkObject`，所有 Peer 均可发送与接收。
 - 项目 State 消息为 `type + Id + index + payload`（类型 `NetworkMessageType.User`），Rpc 消息为 `type + Id + channel + payload`（下一类型）；包内 Spawn/Despawn 仍为类型 2/3。
 - Id 分配不占用 P2P 消息类型；仅 RangeId 映射与下一 RangeId 计数走 Steam Lobby Data，Allocate 为纯本地递增。
 - `JoGNetworkObject` 不内置 Transform 同步；需要同步位姿时由具体项目对象或组件直接实现。

@@ -7,7 +7,7 @@ using Xoderony.Networking.Transport;
 
 namespace JoG.Networking.P2P {
     /// <summary>JoG 对象 RPC 协议；对象直接持有 channel handler，本模块只负责收发。</summary>
-    public sealed class NetworkRpcModule : IInitializable, IDisposable {
+    public sealed class NetworkRpcModule : IInitializable, INetworkRpcSender, IDisposable {
         private readonly INetworkSession _session;
         private readonly INetworkMessageManager _messageManager;
         private readonly INetworkObjectManager _objectManager;
@@ -30,7 +30,7 @@ namespace JoG.Networking.P2P {
 
         public void SendToAll(JoGNetworkObject networkObject, byte channel, ReadOnlySpan<byte> payload, NetworkDelivery delivery = NetworkDelivery.Reliable) {
             SendToOthers(networkObject, channel, payload, delivery);
-            networkObject.InvokeRpc(_session.LocalPeerId, channel, new BufferReader(payload));
+            networkObject.RpcHandlers[channel]?.Invoke(_session.LocalPeerId, new BufferReader(payload));
         }
 
         public void SendToPeer(JoGNetworkObject networkObject, ulong peerId, byte channel, ReadOnlySpan<byte> payload, NetworkDelivery delivery = NetworkDelivery.Reliable) {
@@ -57,7 +57,7 @@ namespace JoG.Networking.P2P {
                 return;
             }
             var channel = reader.ReadByte();
-            jogNetworkObject.InvokeRpc(senderPeerId, channel, reader);
+            jogNetworkObject.RpcHandlers[channel]?.Invoke(senderPeerId, reader);
         }
     }
 }

@@ -3,8 +3,11 @@ using Steamworks.Data;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using UnityEngine.PlayerLoop;
+using VContainer.Unity;
 using Xoderony.Logging;
 using Xoderony.Networking.Transport;
+using Xoderony.Unity;
 
 namespace JoG.Networking.P2P {
     /// <summary>
@@ -12,7 +15,7 @@ namespace JoG.Networking.P2P {
     /// peerId 即 SteamID；本端始终监听（接受入站），并按需建立出站连接（<see cref="ConnectPeer"/>）。
     /// SteamClient.Init 每进程一次；Transport 可在 <see cref="Stop"/> 后重新 <see cref="Start"/>。
     /// </summary>
-    public sealed class SteamNetworkTransport : INetworkTransport, ISocketManager {
+    public sealed class SteamNetworkTransport : INetworkTransport, IInitializable, IDisposable, ISocketManager {
         private static bool s_steamInitialized;
         private static bool s_relayInitialized;
 
@@ -32,6 +35,10 @@ namespace JoG.Networking.P2P {
         public event Action<ulong> PeerConnected;
         public event Action<ulong> PeerDisconnected;
         public event NetworkDataReceivedHandler DataReceived;
+
+        void IInitializable.Initialize() {
+            PreUpdateLoop<EarlyUpdate.ScriptRunDelayedStartupFrame>.Register(Poll);
+        }
 
         public bool Start() {
             if (!EnsureSteamInitialized()) {
@@ -102,6 +109,11 @@ namespace JoG.Networking.P2P {
 
             _outgoing.Clear();
             _pendingOutgoingRemovals.Clear();
+        }
+
+        public void Dispose() {
+            PreUpdateLoop<EarlyUpdate.ScriptRunDelayedStartupFrame>.Unregister(Poll);
+            Stop();
         }
 
         public void Poll() {

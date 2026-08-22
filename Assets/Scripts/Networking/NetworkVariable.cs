@@ -20,7 +20,7 @@ namespace JoG.Networking.P2P {
 
                 var previousValue = _value;
                 _value = value;
-                IsDirty = true;
+                MarkDirty();
                 ValueChanged?.Invoke(previousValue, value);
             }
         }
