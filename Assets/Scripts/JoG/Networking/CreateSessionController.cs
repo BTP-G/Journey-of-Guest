@@ -17,7 +17,9 @@ namespace JoG.Networking {
     internal class CreateSessionController : MonoBehaviour {
         [Inject] internal IProfileService _profileService;
         [Inject] internal ISessionService _sessionService;
-        [Inject] internal PopupManager _popupManager;
+        [Inject] internal LoaderPopup _loaderPopup;
+        [Inject] internal ConfirmPopup _confirmPopup;
+        [Inject] internal ToastPopupController _toastPopupController;
         [Inject] internal NetworkManager _networkManager;
         [SerializeField] private Button _createButton;
         [SerializeField] private TMP_InputField _sessionNameInputField;
@@ -47,14 +49,14 @@ namespace JoG.Networking {
             } else if (data.EventType == ConnectionEvent.ClientConnected) {
                 _sessionService.LeaveSessionAsync().Forget();
                 var error = Localizer.GetString(L10nKeys.Session.Create.Failed, "error");
-                _popupManager.PopupMessage(error, MessageLevel.Error);
+                _confirmPopup.ShowMessage(error, MessageLevel.Error);
             }
             _loader?.Dispose();
             _loader = null;
         }
 
         private async void Create() {
-            _loader = _popupManager.PopupLoader();
+            _loader = _loaderPopup.Show();
             try {
                 await _sessionService.CreateSessionAsync(
                      _sessionNameInputField.text,
@@ -64,13 +66,13 @@ namespace JoG.Networking {
                 );
                 var message = Localizer.GetString(L10nKeys.Session.Create.Created, _sessionService.Session.Code);
                 GUIUtility.systemCopyBuffer = _sessionService.Session.Code;
-                _popupManager.PopupToast(message, MessageLevel.Info, ToastPosition.Top);
+                _toastPopupController.Show(message, MessageLevel.Info, ToastPosition.Top);
             } catch (Exception e) {
                 _loader?.Dispose();
                 _loader = null;
                 this.LogException(e);
                 var error = Localizer.GetString(L10nKeys.Session.Create.Failed, e.Message);
-                _popupManager.PopupMessage(error, MessageLevel.Error);
+                _confirmPopup.ShowMessage(error, MessageLevel.Error);
             }
         }
     }

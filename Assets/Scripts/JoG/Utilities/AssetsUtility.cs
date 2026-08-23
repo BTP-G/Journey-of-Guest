@@ -2,6 +2,7 @@ using Hjson;
 using JoG.Character;
 using JoG.GameplayEffects;
 using JoG.Item;
+using JoG.Networking.P2P;
 using System;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -15,10 +16,10 @@ namespace JoG.Utilities {
     public static class AssetsUtility {
         private static Dictionary<ResourcePackage, List<AssetHandle>> _packageToHandles = new();
 
-        public static void LoadDataFromPackage(ResourcePackage package) {
+        public static IReadOnlyList<AssetHandle> LoadDataFromPackage(ResourcePackage package) {
             if (_packageToHandles.TryGetValue(package, out var handles)) {
                 Debug.LogError($"Has load this package: {package}");
-                return;
+                return handles;
             }
             _packageToHandles[package] = handles = new List<AssetHandle>();
             var tags = new[] { "item_data", "character_data", "gameplay_effect_def", "periodic_health_change_def", "network_prefab" };
@@ -39,7 +40,11 @@ namespace JoG.Utilities {
                     } else if (ah.AssetObject is PeriodicHealthChangeDefinition periodicHealthChangeDefinition) {
                         PeriodicHealthChangeDefinitionDictionary.Shared.Add(periodicHealthChangeDefinition);
                     } else if (ah.AssetObject is GameObject prefab) {
-                        NetworkManager.Singleton?.PrefabHandler.AddNetworkPrefab(prefab);
+                        if (prefab.TryGetComponent<NetworkObject>(out _)) {
+                            NetworkManager.Singleton?.PrefabHandler.AddNetworkPrefab(prefab);
+                        } else if (!prefab.TryGetComponent<JoGNetworkObject>(out _)) {
+                            throw new Exception($"[{nameof(AssetsUtility)}: Network prefab '{assetInfo.AssetPath}' has neither NGO NetworkObject nor JoGNetworkObject.");
+                        }
                     } else {
                         throw new Exception($"[{nameof(AssetsUtility)}: Loaded asset '{assetInfo.AssetPath}' from package '{package.PackageName}' is of unsupported type '{ah.AssetObject.GetType().FullName}'.");
                     }
@@ -49,6 +54,8 @@ namespace JoG.Utilities {
                     ah?.Release();
                 }
             }
+
+            return handles;
         }
 
         public static void UnloadDataFromPackage(ResourcePackage package) {
@@ -67,7 +74,7 @@ namespace JoG.Utilities {
                         GameplayEffectDefinitionRegistry.Shared.Remove(effectDefinition);
                     } else if (ah.AssetObject is PeriodicHealthChangeDefinition periodicHealthChangeDefinition) {
                         PeriodicHealthChangeDefinitionDictionary.Shared.Remove(periodicHealthChangeDefinition);
-                    } else if (ah.AssetObject is GameObject prefab) {
+                    } else if (ah.AssetObject is GameObject prefab && prefab.TryGetComponent<NetworkObject>(out _)) {
                         NetworkManager.Singleton?.PrefabHandler.RemoveNetworkPrefab(prefab);
                     }
                 } catch (Exception ex) {

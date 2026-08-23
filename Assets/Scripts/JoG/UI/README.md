@@ -2,7 +2,7 @@
 
 ## 关键入口
 
-- `Popup/PopupManager.cs`：Toast、Confirm、Message、Loader，使用池化并跨场景保留。
+- `Popup/LoaderPopup.cs`、`Popup/ConfirmPopup.cs`、`Popup/ToastPopupController.cs`：分别负责场景内 Loading、Confirm/Message 和 Toast；不跨场景保留。
 - `FloatingTextController.cs`：订阅 `HealthChangeReport`，按 `deltaValue`、颜色和位置显示飘字。
 - `Health/ScreenHealthBar.cs`、`WorldHealthBar.cs`：屏幕与世界血条，世界血条使用 Ratio。
 - `Buff/ScreenBuffBar.cs`、`WorldBuffBar.cs`、`BuffIcon.cs`：Buff 图标；CharacterNameplate 和 PlayerCharacterOverlay 当前每 4 帧更新。
@@ -16,3 +16,4 @@
 - `IngameOverlayController.cs` 仍为空占位。
 - `PlayerCharacterOverlay.prefab` 当前有 Missing Script，具体情况见 [角色上下文](../Character/README.md)。
 - 核心玩法组件不通过序列化 UnityEvent 通信；UnityEvent/UnityEvent2 原则上只用于 UI 和 Inspector 表现层。
+- `MainSceneScope` / `GameplaySceneScope` 按场景注册 `LoaderPopup`、`ConfirmPopup` 和 `ToastPopupController`；Loading 使用一次性句柄，Confirm 请求串行排队并在场景销毁时取消。

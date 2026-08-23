@@ -4,19 +4,33 @@ using UnityEngine;
 namespace JoG.UI.Popup {
 
     [DisallowMultipleComponent]
-    public class LoaderPopup : Popup, IDisposable {
+    public sealed class LoaderPopup : Popup {
         private int _count;
 
-        public LoaderPopup Show() {
+        public IDisposable Show() {
             enabled = true;
             _count++;
-            return this;
+            return new LoadingHandle(this);
         }
 
-        void IDisposable.Dispose() {
+        private void Hide() {
             _count--;
-            if (_count <= 0) {
+            if (_count == 0) {
                 enabled = false;
+            }
+        }
+
+        private sealed class LoadingHandle : IDisposable {
+            private LoaderPopup _popup;
+
+            public LoadingHandle(LoaderPopup popup) {
+                _popup = popup;
+            }
+
+            public void Dispose() {
+                var popup = _popup;
+                _popup = null;
+                popup?.Hide();
             }
         }
     }

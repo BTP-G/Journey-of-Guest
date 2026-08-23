@@ -6,6 +6,7 @@ using JoG.Gameplay;
 using JoG.Health;
 using JoG.Networking;
 using JoG.UI;
+using JoG.UI.Popup;
 using MessagePipe;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -16,7 +17,7 @@ using Xoderony.Unity;
 
 namespace JoG.LifetimeScopes {
 
-    public class GameplaySceneScope : LifetimeScope {
+    public class GameplayScope : LifetimeScope {
         [Required] public WorldTooltip _worldTooltip;
         [Required] public ScreenTooltip _screenTooltip;
         [Required] public ChatBoxController _chatBoxController;
@@ -27,6 +28,9 @@ namespace JoG.LifetimeScopes {
         private readonly List<GenericPrefabInstanceHandler> _prefabHandlers = new();
 
         protected override void Configure(IContainerBuilder builder) {
+            builder.RegisterComponentInHierarchy<LoaderPopup>().AsSelf();
+            builder.RegisterComponentInHierarchy<ConfirmPopup>().AsSelf();
+            builder.RegisterComponentInHierarchy<ToastPopupController>().AsSelf();
             var options = builder.RegisterMessagePipe();
             options.InstanceLifetime = InstanceLifetime.Singleton;
             builder.RegisterMessageBroker<UIStateChangedMessage>(options);

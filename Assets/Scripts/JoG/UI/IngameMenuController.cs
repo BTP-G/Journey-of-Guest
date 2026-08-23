@@ -1,10 +1,12 @@
+using Cysharp.Threading.Tasks;
 using MessagePipe;
+using System;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement;
 using VContainer;
+using Xoderony.Logging;
 
 namespace JoG.UI {
 
@@ -14,6 +16,7 @@ namespace JoG.UI {
         [Inject, Key(Constants.InputAction.IngameMenu)] internal InputAction toggleInput;
         [Inject] internal NetworkManager networkManager;
         [Inject] internal IPublisher<UIStateChangedMessage> publisher;
+        [Inject] internal SceneTransitionService sceneTransitionService;
 
         private void Awake() {
             networkManager.OnClientStopped += OnClientStopped;
@@ -44,7 +47,13 @@ namespace JoG.UI {
         }
 
         private void OnClientStopped(bool obj) {
-            SceneManager.LoadSceneAsync(1);
+            sceneTransitionService.LoadMainSceneAsync(destroyCancellationToken).Forget(HandleSceneTransitionException);
+        }
+
+        private void HandleSceneTransitionException(Exception exception) {
+            if (exception is not OperationCanceledException) {
+                this.LogException(exception);
+            }
         }
 
         private void OnToggleInput(InputAction.CallbackContext _) {

@@ -12,14 +12,14 @@ namespace JoG.Components {
         [LocalizationKey]
         public string messageKey = L10nKeys.MainMenu.Quit.Message;
 
-        [Inject] internal PopupManager _popupManager;
+        [Inject] internal ConfirmPopup _confirmPopup;
 
         public void QuitGame() {
             var message = Localizer.GetString(messageKey);
 #if UNITY_EDITOR
-            _popupManager.PopupConfirm(message, MessageLevel.Warning, UnityEditor.EditorApplication.ExitPlaymode);
+            _confirmPopup.ShowConfirm(message, MessageLevel.Warning, UnityEditor.EditorApplication.ExitPlaymode);
 #else
-            _popupManager.PopupConfirm(message, MessageLevel.Warning, Application.Quit);
+            _confirmPopup.ShowConfirm(message, MessageLevel.Warning, Application.Quit);
 #endif
         }
     }

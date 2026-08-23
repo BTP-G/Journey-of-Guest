@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 7877150298373174987}
   - component: {fileID: 2429228127949903986}
   m_Layer: 0
-  m_Name: RootScope
+  m_Name: ApplicationScope
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -46,5 +46,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   parentReference:
     TypeName: 
-  autoRun: 0
+  autoRun: 1
   autoInjectGameObjects: []

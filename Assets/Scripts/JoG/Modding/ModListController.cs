@@ -6,7 +6,7 @@ namespace JoG.Modding {
 
     public class ModListController : MonoBehaviour {
         [Inject] internal IModManager _modManager;
-        [Inject] internal LoaderPopup _popupManager;
+        [Inject] internal LoaderPopup _loaderPopup;
         private Transform modListContent;
         [SerializeField] private ModListItem modItemTemplate;
 
@@ -24,7 +24,7 @@ namespace JoG.Modding {
                 item.versionText.text = mod.Version.ToString();
                 item.enabledToggle.SetIsOnWithoutNotify(mod.Enabled);
                 item.enabledToggle.onValueChanged.AddListener(async isOn => {
-                    using (_popupManager) {
+                    using (_loaderPopup.Show()) {
                         if (isOn) {
                             await _modManager.EnableModAsync(mod.Id);
                         } else {

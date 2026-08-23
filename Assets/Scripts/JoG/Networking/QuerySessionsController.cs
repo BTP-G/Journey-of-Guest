@@ -17,7 +17,8 @@ namespace JoG.Networking {
 
     public class QuerySessionsController : MonoBehaviour {
         [Inject] internal ISessionService _sessionService;
-        [Inject] internal PopupManager _popupManager;
+        [Inject] internal LoaderPopup _loaderPopup;
+        [Inject] internal ConfirmPopup _confirmPopup;
         [Inject] internal NetworkManager _networkManager;
         private readonly List<SessionCard> _sessionCards = new();
         [Required, SerializeField] private SessionCard _sessionCardTemplate;
@@ -26,7 +27,7 @@ namespace JoG.Networking {
         private IDisposable _loader;
 
         public async void Refresh() {
-            using (_popupManager.PopupLoader()) {
+            using (_loaderPopup.Show()) {
                 var sessionsResults = await _sessionService.QuerySessions();
                 var sesions = sessionsResults.Sessions;
                 while (_sessionCards.Count < sesions.Count) {
@@ -73,7 +74,7 @@ namespace JoG.Networking {
 
         private async void OnSessionCardClick(object data) {
             var info = data as ISessionInfo;
-            _loader = _popupManager.PopupLoader();
+            _loader = _loaderPopup.Show();
             try {
                 await _sessionService.JoinSessionByIdAsync(info.Id);
             } catch (Exception ex) {
@@ -81,7 +82,7 @@ namespace JoG.Networking {
                 _loader = null;
                 this.LogException(ex);
                 var error = Localizer.GetString(L10nKeys.Session.Join.Failed, ex.Message);
-                _popupManager.PopupMessage(error, MessageLevel.Error);
+                _confirmPopup.ShowMessage(error, MessageLevel.Error);
             }
         }
     }

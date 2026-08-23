@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using UnityEngine;
 using Xoderony.Logging;
 
@@ -18,7 +19,8 @@ namespace JoG.Modding {
         public int ModCount => _idToMod.Count;
         public ReadOnlySpan<Mod> ModSpan => _mods;
 
-        async UniTask IAsyncBootstrapModule.InitializeAsync() {
+        async UniTask IAsyncBootstrapModule.InitializeAsync(CancellationToken cancellationToken) {
+            cancellationToken.ThrowIfCancellationRequested();
             var modsDirectory = Path.Combine(Application.dataPath, "Mods");
             var modCandidates = await LoadModCandidates(modsDirectory);
             if (modCandidates.Count == 0) {
@@ -65,6 +67,7 @@ namespace JoG.Modding {
                     await EnableModAsync(mod.Id);
                 }
             }
+            cancellationToken.ThrowIfCancellationRequested();
         }
 
         public bool IsModLoaded(string modId) {

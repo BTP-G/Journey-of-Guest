@@ -54,14 +54,6 @@ MonoBehaviour:
         FilterRuleName: CollectAll
         AssetTags: network_prefab
         UserData: 
-      - CollectPath: Assets/AssetsPackage/Prefabs/Buffs
-        CollectorGUID: ff794631f402bbc438ec936f78d9847d
-        CollectorType: 0
-        AddressRuleName: AddressByFileName
-        PackRuleName: PackDirectory
-        FilterRuleName: CollectAll
-        AssetTags: buff_prefab
-        UserData: 
     - GroupName: ScriptableObjects
       GroupDesc: 
       AssetTags: 
@@ -85,6 +77,19 @@ MonoBehaviour:
         UserData: 
       - CollectPath: Assets/AssetsPackage/ScriptableObjects/ItemDropTables
         CollectorGUID: 27f67de78e3e9d946ba65577d5aab233
+        CollectorType: 0
+        AddressRuleName: AddressByFileName
+        PackRuleName: PackDirectory
+        FilterRuleName: CollectAll
+        AssetTags: 
+        UserData: 
+    - GroupName: Scenes
+      GroupDesc: 
+      AssetTags: 
+      ActiveRuleName: EnableGroup
+      Collectors:
+      - CollectPath: Assets/Scenes/MainScene.unity
+        CollectorGUID: cc10df96022b19841ac18003dab61704
         CollectorType: 0
         AddressRuleName: AddressByFileName
         PackRuleName: PackDirectory

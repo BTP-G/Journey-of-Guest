@@ -14,13 +14,13 @@ namespace JoG.Networking.Components {
         [LocalizationKey]
         public string messageKey = L10nKeys.IngameMenu.Disconnect.Message;
 
-        [Inject] internal PopupManager _popupManager;
+        [Inject] internal ConfirmPopup _confirmPopup;
         [Inject] internal ISessionService _sessionService;
         [Inject] internal IPublisher<UIStateChangedMessage> _publisher;
 
         public void Disconnect() {
             var message = Localizer.GetString(messageKey);
-            _popupManager.PopupConfirm(message,
+            _confirmPopup.ShowConfirm(message,
                 MessageLevel.Warning,
                 () => _sessionService.LeaveSessionAsync().Forget()
             );

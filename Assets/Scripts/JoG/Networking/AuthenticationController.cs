@@ -1,22 +1,31 @@
 using Cysharp.Threading.Tasks;
-using JoG.UI.Popup;
+using System;
+using System.Threading;
 using Unity.Services.Authentication;
 using VContainer;
+using Xoderony.Logging;
 
 namespace JoG.Networking {
 
     internal class AuthenticationController : IAsyncBootstrapModule {
-        [Inject] internal PopupManager _popupManager;
+        private static readonly TimeSpan RetryDelay = TimeSpan.FromSeconds(5);
+
         [Inject] internal IAuthenticationService _authenticationService;
 
-        async UniTask IAsyncBootstrapModule.InitializeAsync() {
-            if (_authenticationService.IsSignedIn) {
-                return;
+        async UniTask IAsyncBootstrapModule.InitializeAsync(CancellationToken cancellationToken) {
+            while (!_authenticationService.IsSignedIn) {
+                cancellationToken.ThrowIfCancellationRequested();
+                try {
+                    await _authenticationService.SignInAnonymouslyAsync();
+                } catch (OperationCanceledException) {
+                    throw;
+                } catch (Exception exception) {
+                    this.LogException(exception);
+                    await UniTask.Delay(RetryDelay, cancellationToken: cancellationToken);
+                }
             }
 
-            using (_popupManager.PopupLoader()) {
-                await _authenticationService.SignInAnonymouslyAsync();
-            }
+            cancellationToken.ThrowIfCancellationRequested();
         }
     }
 }

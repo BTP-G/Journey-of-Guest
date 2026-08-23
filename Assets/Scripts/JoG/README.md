@@ -10,8 +10,8 @@
 | 版本来源 | `ProjectSettings/ProjectVersion.txt`、`Packages/manifest.json`、`Packages/packages-lock.json` |
 | 当前快照 | Unity `6000.0.80f1`、URP `17.0.4`、NGO `2.13.1` |
 | 构建后端 | Mono，不考虑 IL2CPP |
-| 场景 | `BootstrapScene.unity`、`MainScene.unity` 启用；`GameplayScene_1/2.unity` 未启用；`Test.unity` 不在 Build Settings |
-| DI | `RootScope.cs` 为根入口；`LifetimeScopes/GameplaySceneScope.cs` 为玩法场景入口；`MainSceneScope.cs` 当前为空占位 |
+| 场景 | Player Build Settings 只内置 `BootstrapScene.unity`；`MainScene.unity` 由 YooAsset `DefaultPackage` 运行期加载；`GameplayScene_1/2.unity` 未启用 |
+| DI | `RootScope.cs` 为根入口；`LifetimeScopes/MainSceneScope.cs` 与 `GameplaySceneScope.cs` 为场景入口 |
 | 主要技术栈 | VContainer、Animancer Pro `8.3.0`、UniTask、MessagePipe、Input System `1.19.0`、YooAsset `3.0.5`、ZString、FastReflection、Facepunch Transport、Newtonsoft.Json |
 
 ## 程序集与依赖方向
@@ -34,9 +34,9 @@
 
 ## 启动与数据注册
 
-- `RootScope.cs` 注册跨场景服务；`GameplaySceneScope.cs` 注册玩法场景对象和控制器。
+- `RootScope.cs` 由 VContainerSettings 自动创建，负责 Unity Services、根容器、并发异步启动模块、P2P Runtime 和 YooAsset 场景切换；`MainSceneScope.cs` / `GameplaySceneScope.cs` 注册各自场景对象与 Popup。
 - `DefaultPackageManager.cs` 创建 YooAsset DefaultPackage，再由 `Utilities/AssetsUtility.cs` 按标签加载数据。
-- 当前标签包括 `item_data`、`character_data`、`gameplay_effect_def`、`periodic_health_change_def`、`network_prefab`，目标是各 Shared 注册表和 NGO PrefabHandler。
+- 当前标签包括 `item_data`、`character_data`、`gameplay_effect_def`、`periodic_health_change_def`、`network_prefab`，数据和 NGO PrefabHandler 保持原有注册行为；带 `JoGNetworkObject` 的 `network_prefab` 另注册到 P2P `INetworkObjectManager`。
 - `GameplayEffectDefinitionRegistry.Shared` 使用 `Animator.StringToHash(name)` 生成 ID，`0` 保留，冲突抛异常。
 
 ## 包职责速查
@@ -58,7 +58,8 @@
 - `GameplayScene_2` 烘焙光照贴图改为本地生成并被 `.gitignore` 忽略。
 - 同日使用 `git filter-repo` 清理历史并 force push，pack 从约 3.34 GiB 降至 0.47 GiB；旧克隆需要重新同步。
 - 2026-08-17：`Xoderony.Networking` 与项目侧 `JoG.Networking.P2P`（`Assets/Scripts/Networking`）已落地会话/消息/对象 id 分配与 NV/RPC 模块，玩法仍走 NGO；P2P 未接线、未做 Unity 验证。`PROJECT_CONTEXT.md` 已拆为 `PROJECT_INDEX.md` + 各模块 README。
-- 当前占位实现包括 `LifetimeScopes/MainSceneScope.cs`、`UI/IngameOverlayController.cs`、`JoGApplication.Initialize`。
+- 2026-08-23：RootScope、场景切换、场景级 Popup 和 P2P Root Runtime 已完成源码接线；Unity 编译、Prefab/场景序列化和双 Steam 客户端仍待验证。
+- 当前占位实现包括 `UI/IngameOverlayController.cs`、`JoGApplication.Initialize`。
 - `Assets/Scripts/JoG/Buff` 只剩旧目录元数据；实现已迁到 GameplayEffects/CharacterEffects。
 
 以上状态是静态核对结果；未特别说明时，不代表已经通过 Unity 编译或运行验证。

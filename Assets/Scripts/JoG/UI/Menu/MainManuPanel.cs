@@ -11,7 +11,7 @@ namespace JoG.UI.Menu {
     public class MainManuPanel : MenuPanel {
         [SerializeField] private PanelOpenButton[] _buttons;
         [SerializeField] private Button _quitButton;
-        [Inject] internal PopupManager _popupManager;
+        [Inject] internal ConfirmPopup _confirmPopup;
 
         public override void Initialize(MenuManager manager) {
             //_quitButton.onClick.AddListener(QuitGame);
@@ -24,9 +24,9 @@ namespace JoG.UI.Menu {
         private void TryQuitGame() {
             var message = Localizer.GetString(L10nKeys.MainMenu.Quit.Message);
 #if UNITY_EDITOR
-            _popupManager.PopupConfirm(message, MessageLevel.Warning, UnityEditor.EditorApplication.ExitPlaymode);
+            _confirmPopup.ShowConfirm(message, MessageLevel.Warning, UnityEditor.EditorApplication.ExitPlaymode);
 #else
-            _popupManager.PopupConfirm(message, MessageLevel.Warning, Application.Quit);
+            _confirmPopup.ShowConfirm(message, MessageLevel.Warning, Application.Quit);
 #endif
         }
 

@@ -9,7 +9,7 @@ namespace JoG.Player {
 
     public class ProfileController : MonoBehaviour {
         [Inject] internal IProfileService _profileService;
-        [Inject] internal PopupManager _popupManager;
+        [Inject] internal ToastPopupController _toastPopupController;
         [SerializeField] private TMP_InputField _inputField;
 
         private void Awake() {
@@ -47,7 +47,7 @@ namespace JoG.Player {
                         error = Localizer.GetString(L10nKeys.Profile.Name.Error.NoValidLetters);
                         break;
                 }
-                _popupManager.PopupToast(error, MessageLevel.Error, ToastPosition.TopRight, 5);
+                _toastPopupController.Show(error, MessageLevel.Error, ToastPosition.TopRight, 5);
             }
             _inputField.SetTextWithoutNotify(_profileService.Nickname);
         }

@@ -16,7 +16,8 @@ namespace JoG.Networking {
 
     internal class JoinSessionController : MonoBehaviour {
         [Inject] internal ISessionService _sessionService;
-        [Inject] internal PopupManager _popupManager;
+        [Inject] internal LoaderPopup _loaderPopup;
+        [Inject] internal ConfirmPopup _confirmPopup;
         [Inject] internal NetworkManager _networkManager;
         [SerializeField] private Button _joinButton;
         [SerializeField] private TMP_InputField _sessionCodeInputField;
@@ -51,7 +52,7 @@ namespace JoG.Networking {
         }
 
         private async void Join() {
-            _loader = _popupManager.PopupLoader();
+            _loader = _loaderPopup.Show();
             try {
                 var sessionCode = _sessionCodeInputField.text;
                 var password = _passwordInputField.text;
@@ -61,7 +62,7 @@ namespace JoG.Networking {
                 _loader = null;
                 this.LogException(e);
                 var error = Localizer.GetString(L10nKeys.Session.Join.Failed, e.Message);
-                _popupManager.PopupMessage(error, MessageLevel.Error);
+                _confirmPopup.ShowMessage(error, MessageLevel.Error);
             }
         }
     }

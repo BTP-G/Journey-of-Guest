@@ -29,20 +29,5 @@ namespace JoG.UI {
             }
         }
 
-        //private async void JoinSession() {
-        //    using (_popupManager.PopupLoader()) {
-        //        try {
-        //            await sessionService.JoinSessionByIdAsync(_sessionId);
-        //        } catch (Exception e) {
-        //            this.LogException(e);
-        //            var error = Localizer.GetString(L10nKeys.Session.Join.Failed, e.Message);
-        //            _popupManager.PopupMessage(error, MessageLevel.Error);
-        //            return;
-        //        }
-        //    }
-        //    var message = Localizer.GetString(L10nKeys.Session.Join.Joined, sessionService.Session.Code);
-        //    GUIUtility.systemCopyBuffer = sessionService.Session.Code;
-        //    _popupManager.PopupToast(message, MessageLevel.Info, ToastPosition.TopRight);
-        //}
     }
 }

@@ -17,24 +17,26 @@ namespace Xoderony.YooAsset {
         }
 
         public static async UniTask<ResourcePackage> CreatePackageAsync(string packageName, string packageRoot = null) {
-            var package = YooAssets.CreatePackage(packageName);
-            InitializePackageOptions initParameters;
+            var package = GetOrCreatePackage(packageName);
+            if (package.InitializeStatus != EOperationStatus.Succeeded) {
+                InitializePackageOptions initParameters;
 #if UNITY_EDITOR
-            var simulateBuildResult = EditorSimulateBuildInvoker.Build(packageName, (int)EBundleType.VirtualAssetBundle);
-            var editorFileSystem = FileSystemParameters.CreateDefaultEditorFileSystemParameters(simulateBuildResult.PackageRootDirectory);
-            initParameters = new EditorSimulateModeOptions {
-                EditorFileSystemParameters = editorFileSystem,
-            };
+                var simulateBuildResult = EditorSimulateBuildInvoker.Build(packageName, (int)EBundleType.VirtualAssetBundle);
+                var editorFileSystem = FileSystemParameters.CreateDefaultEditorFileSystemParameters(simulateBuildResult.PackageRootDirectory);
+                initParameters = new EditorSimulateModeOptions {
+                    EditorFileSystemParameters = editorFileSystem,
+                };
 #else
-            var buildinFileSystem = FileSystemParameters.CreateDefaultBuiltinFileSystemParameters(packageRoot);
-            initParameters = new OfflinePlayModeOptions {
-                BuiltinFileSystemParameters = buildinFileSystem,
-            };
+                var buildinFileSystem = FileSystemParameters.CreateDefaultBuiltinFileSystemParameters(packageRoot);
+                initParameters = new OfflinePlayModeOptions {
+                    BuiltinFileSystemParameters = buildinFileSystem,
+                };
 #endif
-            var initializeOperation = package.InitializePackageAsync(initParameters);
-            await initializeOperation;
-            if (initializeOperation.Status != EOperationStatus.Succeeded) {
-                throw new Exception($"[ResourcePackage: {packageName}] Initialization failed: {initializeOperation.Error}");
+                var initializeOperation = package.InitializePackageAsync(initParameters);
+                await initializeOperation;
+                if (initializeOperation.Status != EOperationStatus.Succeeded) {
+                    throw new Exception($"[ResourcePackage: {packageName}] Initialization failed: {initializeOperation.Error}");
+                }
             }
             var requestPackageVersionOperation = package.RequestPackageVersionAsync();
             await requestPackageVersionOperation;
