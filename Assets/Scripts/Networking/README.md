@@ -25,9 +25,9 @@
 - `SteamNetworkPeerConnector` 依赖 `SteamNetworkLobby` 与 Transport：本端 `network.id.ready` 后连接已 Ready 的远端；远端晚 Ready 时补连。不直接依赖 Allocator。
 - `SteamNetworkTransport` 在每帧玩法 Update 前自行调用 `Poll`，处理收包与连接回调；NV 在固定步末尾按自身节奏发送，二者不共用调度时机。
 - `Lobby/SteamLobbyController.cs` 只保留大厅配置、邀请和 UI 命令，并从 `SteamNetworkLobby` 读取 Lobby 状态。
-- `RootScope` 已注册 `SteamNetworkLobby`、`SteamNetworkTransport`、`NetworkSession`、Allocator、PeerConnector、消息/对象管理、NV/RPC 模块和 `P2PNetworkRuntime`；Runtime 负责启动 Transport，失败时只禁用 P2P。
-- `DefaultPackageManager` 在 `AssetsUtility.LoadDataFromPackage` 后登记带 `JoGNetworkObject` 的 `network_prefab`，释放时先注销 P2P Prefab 再释放资源句柄。
-- `P2PValidationNetworkObject` / `P2PValidationSpawner` 仅用于后续双 Steam 客户端验收，不属于正式玩法接线。
+- `ApplicationScope` 已注册 `SteamNetworkLobby`、`SteamNetworkTransport`、`NetworkSession`、Allocator、PeerConnector、消息/对象管理、NV/RPC 模块和 `P2PNetworkRuntime`。模块以普通 Root 单例构造并订阅；Runtime 负责启动 Transport，并在固定步末尾每两个固定步调用 `NetworkVariableModule.Flush()`，失败时只禁用 P2P。
+- `DefaultPackageManager` 在 `AssetsUtility.LoadDataFromPackage` 后登记带包级 `NetworkObject` 的 `network_prefab`，释放时先注销 P2P Prefab 再释放资源句柄。对象是否带 NV/RPC 能力组件不影响注册。
+- `P2PValidationNetworkObject` / `P2PValidationVariables` / `P2PValidationRpcs` / `P2PValidationSpawner` 仅用于后续双 Steam 客户端验收，不属于正式玩法接线。验证 Prefab 的能力组件挂载和 YooAsset 重建仍待 Unity 侧完成。
 - `UI/FacepunchTransportController.cs` 可手动切换 Transport 并 StartHost/Server/Client。
 - Unity Services 是当前主路径；两条路径并存行为尚未验证。
 
@@ -35,25 +35,26 @@
 
 - `Packages/io.github.xoderony.networking` 是独立仓库 `Xoderony/io.github.xoderony.networking` 的本地 clone，程序集 `Xoderony.Networking`，不依赖 JoG、NGO 或 Steamworks。
 - 主仓库通过 `.git/info/exclude` 忽略该目录，包代码应在自己的仓库提交；目前尚未接入游戏玩法。
-- 包只负责会话事实契约、消息路由、对象生成/销毁、Prefab、对象 id 解析和派生对象快照，不提供具体 Lobby、NV、RPC 或帧驱动策略。
+- 包负责会话事实契约、消息路由、对象生成/销毁、Prefab、对象 id 解析、派生对象快照，以及可选的对象级 NetworkVariable/RPC 组件与模块。不提供具体 Lobby 或帧驱动策略；`Flush()` 由项目侧决定调用节奏。
 - `NetworkObjectManager` 实现统一的 `INetworkObjectManager`，提供对象管理、生命周期事件与 id 解析；扩展模块不由 Manager 登记或驱动。本端对象权威比较使用 `INetworkSession.LocalPeerId`，对象本身不暴露 `IsOwner`。
 - `NetworkObjectManager` 以 Session 的 `MemberJoined` 补发本端对象快照。`MemberLeft` 和 `OwnerChanged` 按当前源码将离开者拥有的全部对象转移给当前会话房主；玩家对象的延迟销毁由对象脚本决定，持久对象继续存在。源码没有 `PersistOnOwnerLeave` 分支。
 - 本地 `Spawn` 接收已登记 Prefab，由 `INetworkObjectFactory.Create` 构造实例并在绑定前调用初始化委托；随后发送初始快照、绑定网络身份并发布 `Spawned`。远端先应用快照再绑定；`Despawned` 在从表移除后、解绑与工厂销毁前发布，回调期间对象仍持有网络身份。
-- `NetworkObject.OnSerializeSnapshot`/`OnDeserializeSnapshot` 只用于 Spawn 与晚加入，布局由项目派生类型拥有且必须成对。
+- `NetworkObject` 在 `Awake` 中对本对象 `GetComponents<INetworkSynchronize>()` 收集快照贡献者并冻结数组；Spawn 与晚加入只遍历该数组。`NetworkVariableComponent` 实现此接口，RPC 组件不实现。自定义附加字节另挂贡献者组件，不从 `NetworkObject` 虚方法写入。
 - `NetworkObject.Id` 是会话内稳定的 `uint`，高 8 位为 Owner 分配且会话内不回收的 `RangeId`，低 24 位为该区间的 Sequence，0 保留；当前权威身份独立存于 `OwnerPeerId`，NetworkVariable 与 RPC 当前收包不校验发送者是否为当前 Owner。
 - PrefabId 为 `Animator.StringToHash(prefab.name)` 的 int，0 保留，冲突断言，YooAsset 预制体名必须全局唯一。
 - Spawn/Despawn 临时发送缓冲使用固定容量 `stackalloc`；发送方组装 `type + payload` 完整消息，`NetworkMessageManager` 直接交给 Transport，接收方以 Transport 的直连 PeerId 作为发送者身份。
 
-## JoG 对象扩展协议
+## 对象能力组件
 
-- 项目实现位于 `Assets/Scripts/Networking`，使用 `JoG.Networking.P2P` 命名空间以避免与并存的 NGO 类型歧义；P2P 技术验证栈已由 RootScope 组合，但尚未替换当前 NGO 玩法主路径。
-- `JoGNetworkObject` 在 `Awake` 中由派生类收集并固定保存有序 `NetworkVariableBase` 与 `NetworkRpcBase` 数组；收集完成后不再修改注册表，快照覆写直接序列化变量，不经过全局映射。
+- 项目 P2P 栈位于 `Assets/Scripts/Networking`，命名空间 `JoG.Networking.P2P`，已由 `ApplicationScope` 组合，但尚未替换当前 NGO 玩法主路径。
+- `NetworkObject` 只保留身份、Owner、Prefab、Spawn/Despawn 和自定义快照。NV/RPC 是同 GameObject 上的可选组件：`NetworkVariableComponent` 与 `NetworkRpcComponent` 各最多一个，模块用 `TryGetComponent` 发现，不扫描子节点。
+- 派生能力组件在 `Awake` 中按声明顺序收集端点并写入所属组件与 `byte` 索引；收集完成后结构不可修改。`enabled` 不改变协议结构。同一 Prefab 在所有 Peer 上必须具有相同组件类型、端点数量和收集顺序。
 - `NetworkVariable<T>` 仅接受 `unmanaged`，值实际变化时置脏并触发 `ValueChanged`；默认编码由包内 `Serializer<T>`/`Deserializer<T>` 提供，自定义稳定协议须成对覆盖。
-- `NetworkVariableModule` 实现 `INetworkVariableSyncScheduler`；`JoGNetworkObject` 经注入服务调度变量刷新。模块只维护本端拥有且待 Flush 的 `JoGNetworkObject` 集合（`OwnerPeerId == INetworkSession.LocalPeerId`），在固定步末尾的自定义 PlayerLoop 中每两个固定步发送。收包不校验发送者是否为当前 Owner。
-- `NetworkRpcModule` 实现 `INetworkRpcSender`；`JoGNetworkObject` 经注入服务发送可靠 RPC。`NetworkOthersRpc<T>`、`NetworkAllRpc<T>`、`NetworkOwnerRpc<T>` 分别固定发给 Others、All、当前 Owner，`NetworkPeerRpc<T>` 由调用方指定 Peer；收包经 `INetworkObjectManager` 查找后按 RPC 索引投递到强类型端点，所有 Peer 均可发送与接收。
-- 项目 NetworkVariable 消息为 `type + Id + index + payload`（类型 `NetworkMessageType.User`），Rpc 消息同为 `type + Id + index + payload`（下一类型）；包内 Spawn/Despawn 仍为类型 2/3。
-- Id 分配不占用 P2P 消息类型；仅 RangeId 映射与下一 RangeId 计数走 Steam Lobby Data，Allocate 为纯本地递增。
-- `JoGNetworkObject` 不内置 Transform 同步；需要同步位姿时由具体项目对象或组件直接实现。
+- `NetworkVariableModule` 在构造时订阅对象事件并注册消息 Handler。模块只维护本端拥有且待 Flush 的 `NetworkVariableComponent` 集合。`P2PNetworkRuntime` 在固定步末尾每两个固定步调用 `Flush()`。收包不校验发送者是否为当前 Owner。
+- `NetworkRpcModule` 在构造时写入组件 Sender 并注册消息 Handler。`NetworkOthersRpc<T>`、`NetworkAllRpc<T>`、`NetworkOwnerRpc<T>` 分别固定发给 Others、All、当前 Owner，`NetworkPeerRpc<T>` 由调用方指定 Peer；收包经 `INetworkObjectManager` 查找后按 RPC 索引投递。RPC 只允许在对象完成 Spawn、模块已写入 Sender 后发送。
+- Spawn 快照顺序为本对象 `INetworkSynchronize` 的组件顺序。NV 消息为 `type + objectId + variableIndex + payload`（类型 3），RPC 同为 `type + objectId + rpcIndex + payload`（类型 4）；应用消息仍从 `NetworkMessages.User`（16）起。
+- Id 分配不占用 P2P 消息类型；仅 RangeId 映射与下一 RangeId 计数走 Steam Lobby Data（`NetworkObjectIdLobbyKeys`），Allocate 为纯本地递增。
+- `NetworkObject` 不内置 Transform 同步；需要同步位姿时由具体项目对象或组件直接实现。
 
 ## 未完成项
 

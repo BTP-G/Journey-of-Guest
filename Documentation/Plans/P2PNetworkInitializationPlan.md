@@ -80,7 +80,7 @@ VContainerSettings 创建 RootScope
 - 继续负责创建、初始化、持有和释放离线 DefaultPackage。
 - 继续先调用 `AssetsUtility.LoadDataFromPackage(package)`，保留现有 NGO Prefab 与数据注册行为。
 - 紧接该调用之后，遍历 `network_prefab` 资源：
-  - 只处理带 `JoGNetworkObject` 的 Prefab；
+  - 只处理带包级 `NetworkObject` 的 Prefab；
   - 调用 `INetworkObjectManager.RegisterPrefab` 注册 P2P Prefab；
   - 保存注册对象及必要的 YooAsset 句柄；
   - Dispose 时先 `UnregisterPrefab`，再释放对应句柄和默认数据。
@@ -151,7 +151,7 @@ VContainerSettings 创建 RootScope
 
 ### 第一阶段对象创建边界
 
-- 最小验证用 `JoGNetworkObject` 只允许依赖 RootScope 服务。
+- 最小验证用 `NetworkObject` 只允许依赖根容器服务；NV/RPC 由同 GameObject 上的可选能力组件提供。
 - `INetworkObjectFactory` 第一阶段只需完成 Prefab 实例化以及 RootScope 注入。
 - 暂不解决网络动态对象从当前 GameplaySceneScope 获取场景服务的问题。
 - 完成双端闭环后，再单独设计玩法对象、场景对象和跨场景对象的注入父级。
@@ -203,7 +203,7 @@ VContainerSettings 创建 RootScope
 
 ### 阶段 4：最小双端验证对象
 
-- 增加最小 `JoGNetworkObject` 派生验证 Prefab。
+- 增加最小 `NetworkObject` 派生验证 Prefab，并按验证范围挂载 `NetworkVariableComponent` / `NetworkRpcComponent` 派生组件。
 - 覆盖 Spawn、初始快照、NetworkVariable、RPC、Despawn。
 - 覆盖成员离开、Owner 转移、玩家对象延迟销毁和持久对象保留。
 
@@ -250,7 +250,7 @@ VContainerSettings 创建 RootScope
 - `Assets/Scripts/Networking/NetworkSession.cs`
 - `Assets/Scripts/Networking/SteamNetworkObjectIdAllocator.cs`
 - `Assets/Scripts/Networking/SteamNetworkPeerConnector.cs`
-- `Assets/Scripts/Networking/JoGNetworkObject.cs`
+- `Assets/Scripts/Networking/P2PValidationNetworkObject.cs`
 - `Packages/io.github.xoderony.networking/Runtime/INetworkObjectManager.cs`
 - `Packages/io.github.xoderony.networking/Runtime/NetworkObjectManager.cs`
 - `Packages/io.github.xoderony.networking/Runtime/InstantiateNetworkObjectFactory.cs`

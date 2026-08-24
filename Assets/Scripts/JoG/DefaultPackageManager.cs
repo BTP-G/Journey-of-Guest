@@ -1,5 +1,4 @@
 using Cysharp.Threading.Tasks;
-using JoG.Networking.P2P;
 using JoG.Utilities;
 using System;
 using System.Collections.Generic;
@@ -18,7 +17,7 @@ namespace JoG {
 
         [Inject] internal INetworkObjectManager _networkObjectManager;
 
-        private readonly List<JoGNetworkObject> _registeredP2PPrefabs = new();
+        private readonly List<NetworkObject> _registeredP2PPrefabs = new();
         private readonly List<AssetHandle> _registeredP2PPrefabHandles = new();
         private ResourcePackage _package;
 
@@ -29,7 +28,7 @@ namespace JoG {
                     _package = await YooAssetUtility.CreatePackageAsync("DefaultPackage");
                     var handles = AssetsUtility.LoadDataFromPackage(_package);
                     foreach (var handle in handles) {
-                        if (handle.AssetObject is not GameObject prefab || !prefab.TryGetComponent<JoGNetworkObject>(out var networkObject)) {
+                        if (handle.AssetObject is not GameObject prefab || !prefab.TryGetComponent<NetworkObject>(out var networkObject)) {
                             continue;
                         }
 

@@ -2,7 +2,6 @@ using Hjson;
 using JoG.Character;
 using JoG.GameplayEffects;
 using JoG.Item;
-using JoG.Networking.P2P;
 using System;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -42,8 +41,8 @@ namespace JoG.Utilities {
                     } else if (ah.AssetObject is GameObject prefab) {
                         if (prefab.TryGetComponent<NetworkObject>(out _)) {
                             NetworkManager.Singleton?.PrefabHandler.AddNetworkPrefab(prefab);
-                        } else if (!prefab.TryGetComponent<JoGNetworkObject>(out _)) {
-                            throw new Exception($"[{nameof(AssetsUtility)}: Network prefab '{assetInfo.AssetPath}' has neither NGO NetworkObject nor JoGNetworkObject.");
+                        } else if (!prefab.TryGetComponent<Xoderony.Networking.NetworkObject>(out _)) {
+                            throw new Exception($"[{nameof(AssetsUtility)}: Network prefab '{assetInfo.AssetPath}' has neither NGO NetworkObject nor Xoderony.Networking.NetworkObject.");
                         }
                     } else {
                         throw new Exception($"[{nameof(AssetsUtility)}: Loaded asset '{assetInfo.AssetPath}' from package '{package.PackageName}' is of unsupported type '{ah.AssetObject.GetType().FullName}'.");

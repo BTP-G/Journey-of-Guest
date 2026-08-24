@@ -36,7 +36,7 @@
 
 - `RootScope.cs` 由 VContainerSettings 自动创建，负责 Unity Services、根容器、并发异步启动模块、P2P Runtime 和 YooAsset 场景切换；`MainSceneScope.cs` / `GameplaySceneScope.cs` 注册各自场景对象与 Popup。
 - `DefaultPackageManager.cs` 创建 YooAsset DefaultPackage，再由 `Utilities/AssetsUtility.cs` 按标签加载数据。
-- 当前标签包括 `item_data`、`character_data`、`gameplay_effect_def`、`periodic_health_change_def`、`network_prefab`，数据和 NGO PrefabHandler 保持原有注册行为；带 `JoGNetworkObject` 的 `network_prefab` 另注册到 P2P `INetworkObjectManager`。
+- 当前标签包括 `item_data`、`character_data`、`gameplay_effect_def`、`periodic_health_change_def`、`network_prefab`，数据和 NGO PrefabHandler 保持原有注册行为；带包级 `NetworkObject` 的 `network_prefab` 另注册到 P2P `INetworkObjectManager`。
 - `GameplayEffectDefinitionRegistry.Shared` 使用 `Animator.StringToHash(name)` 生成 ID，`0` 保留，冲突抛异常。
 
 ## 包职责速查
@@ -44,7 +44,7 @@
 | 包 | 主要职责 |
 | --- | --- |
 | `io.github.xoderony.jog` | Entity/IComponent、Stat、Health、StateMachines、Interaction、Faction、Modding、旧消息 Broker、序列化契约 |
-| `io.github.xoderony.networking` | P2P 核心：会话事实、消息路由、对象生命周期/Prefab/id 解析与入网快照；不含 Lobby、NV、RPC；本地独立仓库 clone，细节见 [`Assets/Scripts/Networking/README.md`](../Networking/README.md) |
+| `io.github.xoderony.networking` | P2P 核心：会话事实、消息路由、对象生命周期/Prefab/id 解析、入网快照，以及可选对象级 NV/RPC 组件；不含 Lobby；本地独立仓库 clone，细节见 [`Assets/Scripts/Networking/README.md`](../Networking/README.md) |
 | `io.github.xoderony.foundation` | 集合、委托通道、对象池、`InputChannel<T>`/`InputChannelHub` |
 | `io.github.xoderony.unity` | Q16、PlayerLoop、Unity 组件与池、AimInput、编辑器控件 |
 | `io.github.xoderony.gameplay-effects` | 与 JoG/NGO/VContainer 解耦的效果 Data/Definition/Controller 契约与注册表 |

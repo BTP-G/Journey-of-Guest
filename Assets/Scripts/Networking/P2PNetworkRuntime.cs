@@ -1,12 +1,16 @@
 using System;
+using UnityEngine.PlayerLoop;
 using VContainer.Unity;
 using Xoderony.Logging;
 using Xoderony.Networking;
+using Xoderony.Unity;
 
 namespace JoG.Networking.P2P {
-    /// <summary>RootScope 中启动并持有 P2P 技术验证栈。</summary>
+    /// <summary>根容器中启动并持有 P2P 技术验证栈。</summary>
     public sealed class P2PNetworkRuntime : IInitializable, IDisposable {
         private readonly SteamNetworkTransport _transport;
+        private readonly NetworkVariableModule _variableModule;
+        private bool _skipNextFixedTick;
 
         public bool IsAvailable { get; private set; }
 
@@ -19,10 +23,10 @@ namespace JoG.Networking.P2P {
             INetworkMessageManager messageManager,
             INetworkObjectManager objectManager,
             INetworkObjectFactory objectFactory,
-            INetworkVariableSyncScheduler variableScheduler,
-            INetworkRpcSender rpcSender) {
-
+            NetworkVariableModule variableModule,
+            NetworkRpcModule rpcModule) {
             _transport = transport;
+            _variableModule = variableModule;
         }
 
         void IInitializable.Initialize() {
@@ -32,10 +36,12 @@ namespace JoG.Networking.P2P {
                     return;
                 }
 
+                PostUpdateLoop<FixedUpdate.ScriptRunDelayedFixedFrameRate>.Register(OnPostFixedUpdate);
                 IsAvailable = true;
                 this.Log("P2P runtime started.");
             } catch (Exception exception) {
                 IsAvailable = false;
+                PostUpdateLoop<FixedUpdate.ScriptRunDelayedFixedFrameRate>.Unregister(OnPostFixedUpdate);
                 _transport.Stop();
                 this.LogError($"P2P runtime failed to start. P2P is disabled: {exception}");
             }
@@ -43,7 +49,16 @@ namespace JoG.Networking.P2P {
 
         void IDisposable.Dispose() {
             IsAvailable = false;
+            PostUpdateLoop<FixedUpdate.ScriptRunDelayedFixedFrameRate>.Unregister(OnPostFixedUpdate);
             _transport.Stop();
+        }
+
+        private void OnPostFixedUpdate() {
+            if (_skipNextFixedTick = !_skipNextFixedTick) {
+                return;
+            }
+
+            _variableModule.Flush();
         }
     }
 }

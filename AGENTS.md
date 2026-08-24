@@ -26,6 +26,7 @@
 - 对外 API 使用业务语义并返回可操作句柄，不暴露要求调用方配对的实现索引。
 - 生命周期有保证时通过输入边界与成对注册表达行为，不增加重复保护状态。注册、订阅、加载必须成对释放；频繁引用预先缓存。
 - 异步使用 UniTask 与 `CancellationToken`；除事件入口外禁止 `async void`，禁止同步阻塞异步任务。
+- 网络对象能力用同 GameObject 上的可选组件组合：`NetworkObject` 只保留身份，并在 `Awake` 中按本对象组件顺序收集 `INetworkSynchronize`；`NetworkVariableComponent` / `NetworkRpcComponent` 各最多一个，模块用 `TryGetComponent` 发现，不扫描子节点。`io.github.xoderony.networking` 的 RPC/NV 模块自行构造订阅与 Dispose，不依赖 VContainer；固定步 `Flush()` 由项目侧驱动。
 
 ## 性能与 Unity 编辑器
 

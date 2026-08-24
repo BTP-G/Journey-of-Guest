@@ -62,6 +62,8 @@ namespace JoG {
             builder.Register<NetworkMessageManager>(Lifetime.Singleton).AsSelf().As<INetworkMessageManager>();
             builder.Register<VContainerNetworkObjectFactory>(Lifetime.Singleton).AsSelf().As<INetworkObjectFactory>();
             builder.Register<NetworkObjectManager>(Lifetime.Singleton).AsSelf().As<INetworkObjectManager>();
+            builder.Register<NetworkVariableModule>(Lifetime.Singleton).AsSelf();
+            builder.Register<NetworkRpcModule>(Lifetime.Singleton).AsSelf();
             builder.UseEntryPoints(static configuration => {
                 configuration.Add<ModManager>();
                 configuration.Add<DefaultPackageManager>();
@@ -73,8 +75,6 @@ namespace JoG {
                 configuration.Add<NetworkSession>().AsSelf().As<INetworkSession>();
                 configuration.Add<SteamNetworkObjectIdAllocator>().AsSelf().As<INetworkObjectIdAllocator>();
                 configuration.Add<SteamNetworkPeerConnector>().AsSelf();
-                configuration.Add<NetworkVariableModule>().AsSelf().As<INetworkVariableSyncScheduler>();
-                configuration.Add<NetworkRpcModule>().AsSelf().As<INetworkRpcSender>();
                 configuration.Add<P2PNetworkRuntime>().AsSelf();
             });
         }

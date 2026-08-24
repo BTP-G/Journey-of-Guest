@@ -2,7 +2,7 @@
 
 更新时间：2026-08-24
 
-状态：方案已确认，可交由其他模型实施。当前文件只记录实施要求；尚未按本方案修改源码、Unity Prefab 或 Scene，也未执行 Unity/Steam 运行验证。
+状态：包源码与主项目接线已按本方案完成。Unity Prefab / Scene / YooAsset 与双 Steam 运行验证仍待后续步骤。
 
 ## 一、目标与边界
 
@@ -262,23 +262,7 @@ if (!networkObject.TryGetComponent(out NetworkVariableComponent component)) {
 
 ### 快照顺序
 
-保留当前实际顺序：
-
-```text
-NetworkVariableComponent 的全部变量
-→ NetworkObject.OnSerializeSnapshot 自定义数据
-```
-
-反序列化严格使用相同顺序。
-
-在 `NetworkObjectManager` 增加私有快照辅助逻辑，所有路径统一调用，避免某条路径漏掉 NV：
-
-- 本地 Spawn；
-- 晚加入快照；
-- 已存在对象收到重复 Spawn 快照；
-- 远端首次 Spawn。
-
-辅助逻辑先 `TryGetComponent<NetworkVariableComponent>` 并处理变量组件，再调用 `NetworkObject.SerializeSnapshot` / `DeserializeSnapshot`。`NetworkObject` 本身不保存变量数组、Scheduler 或 RPC Sender。
+`NetworkObject` 在 `Awake` 中对本对象 `GetComponents<INetworkSynchronize>()` 收集贡献者并冻结数组。`SerializeSynchronize` / `DeserializeSynchronize` 按该数组顺序读写。`NetworkVariableComponent` 实现此接口；自定义附加数据另挂贡献者组件，不再使用 `NetworkObject` 虚方法。`NetworkObjectManager` 四条快照路径只调用对象自身的序列化入口，不点名 NV 类型。`NetworkObject` 本身不保存变量数组、Scheduler 或 RPC Sender。
 
 ### 消息布局
 
@@ -295,14 +279,14 @@ RPC = type + objectId + rpcIndex + payload
 
 ### 消息类型
 
-RPC/NV 进入基础包后不再占用应用侧 `NetworkMessageType.User`：
+RPC/NV 进入基础包后不再占用应用侧 `NetworkMessages.User`：
 
 ```csharp
-NetworkMessageType.Spawn = 2;
-NetworkMessageType.Despawn = 3;
-NetworkMessageType.NetworkVariable = 4;
-NetworkMessageType.Rpc = 5;
-NetworkMessageType.User = 32;
+NetworkMessages.Spawn = 2;
+NetworkMessages.Despawn = 3;
+NetworkMessages.NetworkVariable = 4;
+NetworkMessages.Rpc = 5;
+NetworkMessages.User = 32;
 ```
 
 本栈尚未形成兼容版本协议，本轮允许双端同步更新消息类型；不得只改单侧。
@@ -334,7 +318,7 @@ NetworkMessageType.User = 32;
 
 ### 协议文件拆分
 
-- 将 `NetworkObjectMessageType.NetworkVariable/Rpc` 合并到包内 `NetworkMessageType`。
+- 将 `NetworkObjectMessageType.NetworkVariable/Rpc` 合并到包内 `NetworkMessages`。
 - `NetworkObjectIdLobbyKeys` 仍是 Steam Lobby 项目实现，保留在 `Assets/Scripts/Networking`，将 `NetworkObjectProtocol.cs` 收窄/改名为 `NetworkObjectIdLobbyKeys.cs`。
 
 ### 包元数据与文档
