@@ -19,7 +19,6 @@ namespace JoG.Networking.P2P {
             SteamNetworkTransport transport,
             INetworkSession session,
             INetworkObjectIdAllocator idAllocator,
-            SteamNetworkPeerConnector peerConnector,
             INetworkMessageManager messageManager,
             INetworkObjectManager objectManager,
             INetworkObjectFactory objectFactory,

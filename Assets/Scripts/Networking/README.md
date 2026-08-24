@@ -19,13 +19,13 @@
 三层拆分：`SteamNetworkLobby`（平台 Lobby 事实）→ `SteamNetworkTransport`（连接与收发）→ `NetworkSession` : `INetworkSession`（玩法层，组合前两者；`LocalPeerId` 取自 Transport，`IsOwner` 为 `OwnerPeerId == LocalPeerId`）。
 
 - `SteamNetworkLobby`：纯 Steam Matchmaking；`Started`/`Stopped`/`OwnerChanged`/`MemberJoined`/`MemberLeft`（大厅成员）、`Lobby`、`LobbyDataChanged`/`LobbyMemberDataChanged`。
-- `NetworkSession`：成员进出仅订阅 Transport（`PeerConnected`/`PeerDisconnected`）；`MemberLeft` 对外语义仍为断线或离局，后者由 `SteamNetworkPeerConnector` 在 Lobby `MemberLeft` 时主动 `DisconnectPeer` 收敛。
+- Steam Lobby Data 仍是字符串 KV；`SteamLobbyDataExtensions` 对 `Steamworks.Data.Lobby` 提供 PlayerPrefs 风格的 `HasKey` / `Get*` / `Set*` / `TryGet*`（含 Member 变体）。缺键或解析失败时 Get 返回 default。Bool 写入 `"1"`/`"0"`。
+- `NetworkSession`：Lobby 成员进出时直接 `ConnectPeer` / `DisconnectPeer`；对外 `MemberJoined` / `MemberLeft` 仍来自 Transport 的 `PeerConnected` / `PeerDisconnected`。
 - 平台进出由 `SteamLobbyController`（或其它调用方）负责：`Join` / `LeaveCurrentLobby`；Lobby `Started`/`Stopped` 仅由回调收敛。换大厅时 Lobby 先停再启；Controller 经 `[Inject]` 取得 `SteamNetworkLobby`，并缓存 `_leaveLobby` 供销毁/退出时 `Leave`。
-- `SteamNetworkObjectIdAllocator` 订阅 `SteamNetworkLobby`：Session Owner 在成员每次**进 Lobby** 时发放新的 `RangeId`（`MemberJoined`）；`MemberLeft` 时删除映射。重进须重新走 Lobby 进房与连接流程。
-- `SteamNetworkPeerConnector` 依赖 `SteamNetworkLobby` 与 Transport：本端 `network.id.ready` 后连接已 Ready 的远端；远端晚 Ready 时补连。不直接依赖 Allocator。
+- `SteamNetworkObjectIdAllocator`：Id = `(Steam AccountId << 32) | Sequence`，本端自增，不经主机。订阅 `INetworkObjectManager.Spawned`，对本端 Account 前缀对象抬高 Sequence（重连恢复）；会话 `Stopped` 后 Sequence 重置为 1，重连后须先收到相关快照再 Spawn。（待优化：水位恢复/持久化等）
 - `SteamNetworkTransport` 在每帧玩法 Update 前自行调用 `Poll`，处理收包与连接回调；NV 在固定步末尾按自身节奏发送，二者不共用调度时机。
 - `Lobby/SteamLobbyController.cs` 只保留大厅配置、邀请和 UI 命令，并从 `SteamNetworkLobby` 读取 Lobby 状态。
-- `ApplicationScope` 已注册 `SteamNetworkLobby`、`SteamNetworkTransport`、`NetworkSession`、Allocator、PeerConnector、消息/对象管理、NV/RPC 模块和 `P2PNetworkRuntime`。模块以普通 Root 单例构造并订阅；Runtime 负责启动 Transport，并在固定步末尾每两个固定步调用 `NetworkVariableModule.Flush()`，失败时只禁用 P2P。
+- `ApplicationScope` 已注册 `SteamNetworkLobby`、`SteamNetworkTransport`、`NetworkSession`、Allocator、消息/对象管理、NV/RPC 模块和 `P2PNetworkRuntime`。模块以普通 Root 单例构造并订阅；Runtime 负责启动 Transport，并在固定步末尾每两个固定步调用 `NetworkVariableModule.Flush()`，失败时只禁用 P2P。
 - `DefaultPackageManager` 在 `AssetsUtility.LoadDataFromPackage` 后登记带包级 `NetworkObject` 的 `network_prefab`，释放时先注销 P2P Prefab 再释放资源句柄。对象是否带 NV/RPC 能力组件不影响注册。
 - `P2PValidationNetworkObject` / `P2PValidationVariables` / `P2PValidationRpcs` / `P2PValidationSpawner` 仅用于后续双 Steam 客户端验收，不属于正式玩法接线。验证 Prefab 的能力组件挂载和 YooAsset 重建仍待 Unity 侧完成。
 - `UI/FacepunchTransportController.cs` 可手动切换 Transport 并 StartHost/Server/Client。
@@ -40,9 +40,9 @@
 - `NetworkObjectManager` 以 Session 的 `MemberJoined` 补发本端对象快照。`MemberLeft` 和 `OwnerChanged` 按当前源码将离开者拥有的全部对象转移给当前会话房主；玩家对象的延迟销毁由对象脚本决定，持久对象继续存在。源码没有 `PersistOnOwnerLeave` 分支。
 - 本地 `Spawn` 接收已登记 Prefab，由 `INetworkObjectFactory.Create` 构造实例并在绑定前调用初始化委托；随后发送初始快照、绑定网络身份并发布 `Spawned`。远端先应用快照再绑定；`Despawned` 在从表移除后、解绑与工厂销毁前发布，回调期间对象仍持有网络身份。
 - `NetworkObject` 在 `Awake` 中对本对象 `GetComponents<INetworkSynchronize>()` 收集快照贡献者并冻结数组；Spawn 与晚加入只遍历该数组。`NetworkVariableComponent` 实现此接口，RPC 组件不实现。自定义附加字节另挂贡献者组件，不从 `NetworkObject` 虚方法写入。
-- `NetworkObject.Id` 是会话内稳定的 `uint`，高 8 位为 Owner 分配且会话内不回收的 `RangeId`，低 24 位为该区间的 Sequence，0 保留；当前权威身份独立存于 `OwnerPeerId`，NetworkVariable 与 RPC 当前收包不校验发送者是否为当前 Owner。
+- `NetworkObject.Id` 是会话内稳定的 `ulong`，0 保留；项目侧当前编码为高 32 位 Steam AccountId、低 32 位本端 Sequence。当前权威身份独立存于 `OwnerPeerId`，NetworkVariable 与 RPC 当前收包不校验发送者是否为当前 Owner。
 - PrefabId 为 `Animator.StringToHash(prefab.name)` 的 int，0 保留，冲突断言，YooAsset 预制体名必须全局唯一。
-- Spawn/Despawn 临时发送缓冲使用固定容量 `stackalloc`；发送方组装 `type + payload` 完整消息，`NetworkMessageManager` 直接交给 Transport，接收方以 Transport 的直连 PeerId 作为发送者身份。
+- Spawn/Despawn 临时发送缓冲使用固定容量 `stackalloc`；objectId 为 `ulong`；发送方组装 `type + payload` 完整消息，`NetworkMessageManager` 直接交给 Transport，接收方以 Transport 的直连 PeerId 作为发送者身份。
 
 ## 对象能力组件
 
@@ -53,9 +53,10 @@
 - `NetworkVariableModule` 在构造时订阅对象事件并注册消息 Handler。模块只维护本端拥有且待 Flush 的 `NetworkVariableComponent` 集合。`P2PNetworkRuntime` 在固定步末尾每两个固定步调用 `Flush()`。收包不校验发送者是否为当前 Owner。
 - `NetworkRpcModule` 在构造时写入组件 Sender 并注册消息 Handler。`NetworkOthersRpc<T>`、`NetworkAllRpc<T>`、`NetworkOwnerRpc<T>` 分别固定发给 Others、All、当前 Owner，`NetworkPeerRpc<T>` 由调用方指定 Peer；收包经 `INetworkObjectManager` 查找后按 RPC 索引投递。RPC 只允许在对象完成 Spawn、模块已写入 Sender 后发送。
 - Spawn 快照顺序为本对象 `INetworkSynchronize` 的组件顺序。NV 消息为 `type + objectId + variableIndex + payload`（类型 3），RPC 同为 `type + objectId + rpcIndex + payload`（类型 4）；应用消息仍从 `NetworkMessages.User`（16）起。
-- Id 分配不占用 P2P 消息类型；仅 RangeId 映射与下一 RangeId 计数走 Steam Lobby Data（`NetworkObjectIdLobbyKeys`），Allocate 为纯本地递增。
+- Id 分配不占用 P2P 消息类型；本端 `Allocate`，项目侧经 `Spawned` 抬高水位。Spawn/Despawn/NV/RPC 消息中的 objectId 为 `ulong`。
 - `NetworkObject` 不内置 Transform 同步；需要同步位姿时由具体项目对象或组件直接实现。
 
 ## 未完成项
 
-Xoderony.Networking 与项目侧对象扩展尚未进行 Unity 编译/运行验证；LoopbackTransport 仍为空壳，P2P 双 Steam 客户端 Spawn/Owner 转移/清理验收仍待执行。NGO API 有疑问时应查当前包源码或对应版本官方文档，不依赖旧版本记忆。
+- `SteamNetworkObjectIdAllocator` 待优化：水位恢复与持久化（如 PlayerPrefs）、与 ObjectManager 的循环依赖解法、会话停止是否重置 Sequence 等。
+- Xoderony.Networking 与项目侧对象扩展尚未进行 Unity 编译/运行验证；LoopbackTransport 仍为空壳，P2P 双 Steam 客户端 Spawn/Owner 转移/清理验收仍待执行。NGO API 有疑问时应查当前包源码或对应版本官方文档，不依赖旧版本记忆。

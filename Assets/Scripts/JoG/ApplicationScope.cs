@@ -74,7 +74,6 @@ namespace JoG {
                 configuration.Add<SteamNetworkTransport>().AsSelf().As<INetworkTransport>();
                 configuration.Add<NetworkSession>().AsSelf().As<INetworkSession>();
                 configuration.Add<SteamNetworkObjectIdAllocator>().AsSelf().As<INetworkObjectIdAllocator>();
-                configuration.Add<SteamNetworkPeerConnector>().AsSelf();
                 configuration.Add<P2PNetworkRuntime>().AsSelf();
             });
         }

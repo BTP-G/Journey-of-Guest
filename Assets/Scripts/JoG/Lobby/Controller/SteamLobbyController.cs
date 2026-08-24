@@ -33,7 +33,7 @@ namespace JoG.Lobby.Controller {
         }
 
         public ELobbyType LobbyType {
-            get => byte.TryParse(Lobby.GetData("type"), out var typeIndex) ? (ELobbyType)typeIndex : ELobbyType.Private;
+            get => Lobby.TryGetByte("type", out var typeIndex) ? (ELobbyType)typeIndex : ELobbyType.Private;
             set {
                 var lobby = Lobby;
                 switch (value) {
@@ -51,7 +51,7 @@ namespace JoG.Lobby.Controller {
                         break;
                 }
                 lobby.SetJoinable(true);
-                lobby.SetData("type", ((byte)value).ToString());
+                lobby.SetByte("type", (byte)value);
             }
         }
 
@@ -144,8 +144,8 @@ namespace JoG.Lobby.Controller {
 
             lobby.SetData("app_id", SteamClient.AppId.ToString());
             lobby.SetData("_inputName", SteamClient.Name + "'s Lobby");
-            lobby.SetData("difficulty", PlayerPrefs.GetInt("difficulty").ToString());
-            lobby.SetData("mode", PlayerPrefs.GetInt("mode").ToString());
+            lobby.SetInt("difficulty", PlayerPrefs.GetInt("difficulty"));
+            lobby.SetInt("mode", PlayerPrefs.GetInt("mode"));
             await SteamNetworkingUtils.WaitForPingDataAsync();
             lobby.SetData("ping_location", SteamNetworkingUtils.LocalPingLocation.GetValueOrDefault().ToString());
         }

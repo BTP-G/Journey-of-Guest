@@ -6,7 +6,7 @@ using Xoderony.Networking.Transport;
 namespace JoG.Networking.P2P {
     /// <summary>
     /// 玩法层会话：组合 <see cref="SteamNetworkLobby"/> 与 <see cref="INetworkTransport"/>。
-    /// 成员进出仅订阅 Transport；离 Lobby 时由 <see cref="SteamNetworkPeerConnector"/> 主动断连并收敛为 <see cref="PeerDisconnected"/>。
+    /// Lobby 成员变化时直接建立/断开 Transport 连接；成员进出事件来自 Transport。
     /// </summary>
     public sealed class NetworkSession : INetworkSession, IInitializable, IDisposable {
         private readonly SteamNetworkLobby _lobby;
@@ -39,6 +39,8 @@ namespace JoG.Networking.P2P {
             _lobby.Started += OnLobbyStarted;
             _lobby.Stopped += OnLobbyStopped;
             _lobby.OwnerChanged += OnLobbyOwnerChanged;
+            _lobby.MemberJoined += OnLobbyMemberJoined;
+            _lobby.MemberLeft += OnLobbyMemberLeft;
             _transport.PeerConnected += OnPeerConnected;
             _transport.PeerDisconnected += OnPeerDisconnected;
         }
@@ -47,20 +49,37 @@ namespace JoG.Networking.P2P {
             _lobby.Started -= OnLobbyStarted;
             _lobby.Stopped -= OnLobbyStopped;
             _lobby.OwnerChanged -= OnLobbyOwnerChanged;
+            _lobby.MemberJoined -= OnLobbyMemberJoined;
+            _lobby.MemberLeft -= OnLobbyMemberLeft;
             _transport.PeerConnected -= OnPeerConnected;
             _transport.PeerDisconnected -= OnPeerDisconnected;
         }
 
         private void OnLobbyStarted() {
+            foreach (var member in _lobby.Lobby.Members) {
+                if (!member.IsMe) {
+                    _transport.ConnectPeer(member.Id);
+                }
+            }
+
             Started?.Invoke();
         }
 
         private void OnLobbyStopped() {
+            DisconnectRemotes();
             Stopped?.Invoke();
         }
 
         private void OnLobbyOwnerChanged(ulong previousOwnerPeerId, ulong newOwnerPeerId) {
             OwnerChanged?.Invoke(previousOwnerPeerId, newOwnerPeerId);
+        }
+
+        private void OnLobbyMemberJoined(ulong peerId) {
+            _transport.ConnectPeer(peerId);
+        }
+
+        private void OnLobbyMemberLeft(ulong peerId) {
+            _transport.DisconnectPeer(peerId);
         }
 
         private void OnPeerConnected(ulong peerId) {
@@ -69,6 +88,18 @@ namespace JoG.Networking.P2P {
 
         private void OnPeerDisconnected(ulong peerId) {
             MemberLeft?.Invoke(peerId);
+        }
+
+        private void DisconnectRemotes() {
+            if (!_lobby.IsStarted) {
+                return;
+            }
+
+            foreach (var member in _lobby.Lobby.Members) {
+                if (!member.IsMe) {
+                    _transport.DisconnectPeer(member.Id);
+                }
+            }
         }
     }
 }
