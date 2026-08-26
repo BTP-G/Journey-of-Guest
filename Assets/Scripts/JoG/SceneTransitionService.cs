@@ -13,11 +13,7 @@ namespace JoG {
         private SceneHandle _currentSceneHandle;
 
         public UniTask LoadMainSceneAsync(CancellationToken cancellationToken = default) {
-            var package = YooAssets.GetPackage(DefaultPackageName);
-            if (package == null) {
-                throw new InvalidOperationException($"YooAsset package '{DefaultPackageName}' is not available.");
-            }
-
+            var package = YooAssets.GetPackage(DefaultPackageName) ?? throw new InvalidOperationException($"YooAsset package '{DefaultPackageName}' is not available.");
             return LoadSceneAsync(package, MainSceneLocation, cancellationToken);
         }
 

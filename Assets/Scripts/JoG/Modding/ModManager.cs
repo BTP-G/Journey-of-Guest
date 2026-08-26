@@ -8,11 +8,14 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using UnityEngine;
+using VContainer;
 using Xoderony.Logging;
 
 namespace JoG.Modding {
 
     internal class ModManager : IModManager, IAsyncBootstrapModule {
+        [Inject] internal IResourcePackageLoader _resourcePackageLoader;
+
         private readonly Dictionary<string, Mod> _idToMod = new();
 
         private Mod[] _mods = Array.Empty<Mod>();
@@ -174,7 +177,7 @@ namespace JoG.Modding {
         private Mod CreateModInstance(Type entryType, ModCandidate candidate) {
             Mod mod;
             if (entryType == null) {
-                mod = new StandardMod();
+                mod = new StandardMod(_resourcePackageLoader);
             } else {
                 mod = Activator.CreateInstance(entryType) as Mod;
             }

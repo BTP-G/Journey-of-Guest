@@ -5,12 +5,17 @@ using System.Collections.Generic;
 using System.IO;
 using Xoderony.Localization;
 using Xoderony.Logging;
-using Xoderony.YooAsset;
 using YooAsset;
 
 namespace JoG.Modding {
 
     public class StandardMod : Mod {
+        private readonly IResourcePackageLoader _resourcePackageLoader;
+
+        internal StandardMod(IResourcePackageLoader resourcePackageLoader) {
+            _resourcePackageLoader = resourcePackageLoader;
+        }
+
         public ResourcePackage ResourcePackage { get; private set; }
 
         protected override async UniTask OnEnableAsync() {
@@ -43,7 +48,7 @@ namespace JoG.Modding {
             }
             try {
                 var packageName = Id + "Package";
-                var package = await YooAssetUtility.CreatePackageAsync(packageName, packageDirectory);
+                var package = await _resourcePackageLoader.LoadPackageAsync(packageName, packageDirectory);
                 ResourcePackage = package;
             } catch (Exception ex) {
                 this.LogError($"[Id: {Id}] Failed to load resource package from '{packageDirectory}': {ex}");
@@ -56,7 +61,7 @@ namespace JoG.Modding {
             }
 
             try {
-                await YooAssetUtility.DestroyPackageAsync(ResourcePackage);
+                await _resourcePackageLoader.UnloadPackageAsync(ResourcePackage);
             } catch (Exception ex) {
                 this.LogError($"[Id: {Id}] Failed to unload resource package '{ResourcePackage.PackageName}': {ex}");
             } finally {

@@ -8,8 +8,6 @@ using JoG.Networking;
 using JoG.UI;
 using JoG.UI.Popup;
 using MessagePipe;
-using System.Collections.Generic;
-using Unity.Netcode;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -25,7 +23,6 @@ namespace JoG.LifetimeScopes {
         [Required] public Billboarder billboarder;
         public PatrolService patrolService;
         public DifficultyManager difficultyManager;
-        private readonly List<GenericPrefabInstanceHandler> _prefabHandlers = new();
 
         protected override void Configure(IContainerBuilder builder) {
             builder.RegisterComponentInHierarchy<LoaderPopup>().AsSelf();
@@ -49,8 +46,6 @@ namespace JoG.LifetimeScopes {
             builder.RegisterComponent(_chatBoxController);
             builder.RegisterInstance(billboarder);
             builder.RegisterInstance(difficultyManager);
-            builder.RegisterBuildCallback(OnBuilt);
-            builder.RegisterDisposeCallback(OnDispose);
             builder.RegisterInstance(patrolService);
         }
 
@@ -64,26 +59,6 @@ namespace JoG.LifetimeScopes {
             if (_chatBoxController != null) {
                 _chatBoxController = FindFirstObjectByType<ChatBoxController>();
             }
-        }
-
-        private void OnBuilt(IObjectResolver container) {
-            var networkManager = container.Resolve<NetworkManager>();
-            var factory = container.Resolve<NetworkObjectFactory>();
-            foreach (var prefab in networkManager.NetworkConfig.Prefabs.Prefabs) {
-                var prefabObject = prefab.Prefab.GetComponent<NetworkObject>();
-                var handler = new GenericPrefabInstanceHandler(networkManager, prefabObject, this);
-                if (factory.AddHandler(prefabObject, handler)) {
-                    _prefabHandlers.Add(handler);
-                }
-            }
-        }
-
-        private void OnDispose(IObjectResolver container) {
-            var factory = container.Resolve<NetworkObjectFactory>();
-            foreach (var handler in _prefabHandlers) {
-                factory.RemoveHandler(handler.prefab, handler);
-            }
-            _prefabHandlers.Clear();
         }
     }
 }

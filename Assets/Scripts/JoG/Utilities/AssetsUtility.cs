@@ -4,7 +4,6 @@ using JoG.GameplayEffects;
 using JoG.Item;
 using System;
 using System.Collections.Generic;
-using Unity.Netcode;
 using UnityEngine;
 using Xoderony.Extensions;
 using Xoderony.GameplayEffects;
@@ -15,13 +14,13 @@ namespace JoG.Utilities {
     public static class AssetsUtility {
         private static Dictionary<ResourcePackage, List<AssetHandle>> _packageToHandles = new();
 
-        public static IReadOnlyList<AssetHandle> LoadDataFromPackage(ResourcePackage package) {
+        public static void LoadDataFromPackage(ResourcePackage package) {
             if (_packageToHandles.TryGetValue(package, out var handles)) {
                 Debug.LogError($"Has load this package: {package}");
-                return handles;
+                return;
             }
             _packageToHandles[package] = handles = new List<AssetHandle>();
-            var tags = new[] { "item_data", "character_data", "gameplay_effect_def", "periodic_health_change_def", "network_prefab" };
+            var tags = new[] { "item_data", "character_data", "gameplay_effect_def", "periodic_health_change_def" };
             foreach (var assetInfo in package.GetAssetInfos(tags)) {
                 AssetHandle ah = null;
                 try {
@@ -38,12 +37,6 @@ namespace JoG.Utilities {
                         GameplayEffectDefinitionRegistry.Shared.Add(effectDefinition);
                     } else if (ah.AssetObject is PeriodicHealthChangeDefinition periodicHealthChangeDefinition) {
                         PeriodicHealthChangeDefinitionDictionary.Shared.Add(periodicHealthChangeDefinition);
-                    } else if (ah.AssetObject is GameObject prefab) {
-                        if (prefab.TryGetComponent<NetworkObject>(out _)) {
-                            NetworkManager.Singleton?.PrefabHandler.AddNetworkPrefab(prefab);
-                        } else if (!prefab.TryGetComponent<Xoderony.Networking.NetworkObject>(out _)) {
-                            throw new Exception($"[{nameof(AssetsUtility)}: Network prefab '{assetInfo.AssetPath}' has neither NGO NetworkObject nor Xoderony.Networking.NetworkObject.");
-                        }
                     } else {
                         throw new Exception($"[{nameof(AssetsUtility)}: Loaded asset '{assetInfo.AssetPath}' from package '{package.PackageName}' is of unsupported type '{ah.AssetObject.GetType().FullName}'.");
                     }
@@ -53,8 +46,6 @@ namespace JoG.Utilities {
                     ah?.Release();
                 }
             }
-
-            return handles;
         }
 
         public static void UnloadDataFromPackage(ResourcePackage package) {
@@ -73,8 +64,6 @@ namespace JoG.Utilities {
                         GameplayEffectDefinitionRegistry.Shared.Remove(effectDefinition);
                     } else if (ah.AssetObject is PeriodicHealthChangeDefinition periodicHealthChangeDefinition) {
                         PeriodicHealthChangeDefinitionDictionary.Shared.Remove(periodicHealthChangeDefinition);
-                    } else if (ah.AssetObject is GameObject prefab && prefab.TryGetComponent<NetworkObject>(out _)) {
-                        NetworkManager.Singleton?.PrefabHandler.RemoveNetworkPrefab(prefab);
                     }
                 } catch (Exception ex) {
                     Debug.LogException(ex);
