@@ -1,7 +1,7 @@
 using UnityEngine;
 using Xoderony.YooAsset;
 
-namespace JoG {
+namespace Expriverse {
 
     public class YooAssetReferenceTest : MonoBehaviour {
         public YooAssetReference<GameObject> gameObjectReference;

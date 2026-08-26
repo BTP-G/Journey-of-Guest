@@ -1,7 +1,7 @@
 using UnityEngine.Assertions;
 using Xoderony.Networking;
 
-namespace JoG.Networking.P2P {
+namespace Expriverse.Networking.P2P {
     /// <summary>覆盖快照、网络变量和广播 RPC 的最小 P2P 验证对象。</summary>
     public class P2PValidationNetworkObject : NetworkObject {
         private P2PValidationVariables _variables;

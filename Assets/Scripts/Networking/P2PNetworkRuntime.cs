@@ -5,7 +5,7 @@ using Xoderony.Logging;
 using Xoderony.Networking;
 using Xoderony.Unity;
 
-namespace JoG.Networking.P2P {
+namespace Expriverse.Networking.P2P {
     /// <summary>根容器中启动并持有 P2P 技术验证栈。</summary>
     public sealed class P2PNetworkRuntime : IInitializable, IDisposable {
         private readonly SteamNetworkTransport _transport;

@@ -4,17 +4,17 @@
 
 ## 当前游戏接线（NGO）
 
-- `JoG/Networking/SessionService.cs` 使用 Unity Services Multiplayer 创建、加入、查询和离开会话，以 Distributed Authority 网络和 Relay/QoS 选择低延迟区域。
-- `JoG/Networking/AuthenticationController.cs` 作为 `IAsyncBootstrapModule` 完成匿名登录。
-- `JoG/Networking/NetworkObjectFactory.cs` 管理 PrefabHandler 注册、移除和实例化；DA 模式下 owner 使用 LocalClientId。
-- `JoG/Networking/GenericPrefabInstanceHandler.cs` 池化实例，并处理 LifetimeScope/Entity 父级注入；`NetworkPlayerPrefabHandler.cs` 处理 PlayerPrefab。
-- `JoG/Networking/SessionOwnerObjectSpawner.cs` 只在 IsSessionOwner 时从 YooAsset 引用生成对象。
+- `Expriverse/Networking/SessionService.cs` 使用 Unity Services Multiplayer 创建、加入、查询和离开会话，以 Distributed Authority 网络和 Relay/QoS 选择低延迟区域。
+- `Expriverse/Networking/AuthenticationController.cs` 作为 `IAsyncBootstrapModule` 完成匿名登录。
+- `Expriverse/Networking/NetworkObjectFactory.cs` 管理 PrefabHandler 注册、移除和实例化；DA 模式下 owner 使用 LocalClientId。
+- `Expriverse/Networking/GenericPrefabInstanceHandler.cs` 池化实例，并处理 LifetimeScope/Entity 父级注入；`NetworkPlayerPrefabHandler.cs` 处理 PlayerPrefab。
+- `Expriverse/Networking/SessionOwnerObjectSpawner.cs` 只在 IsSessionOwner 时从 YooAsset 引用生成对象。
 - 包内 `UnnamedMessageBroker` 使用 byte 类型和 FastBufferWriter/Reader，由服务端中继：1=Chat、2=HealthChange、3=Hit。
 - 稳定启动链路为 Unity Services 登录 → `SessionService` → `SessionOwnerObjectSpawner` / `PlayerSpawner`。
 
 ## Steam 大厅与 P2P
 
-本目录（`Assets/Scripts/Networking`，`JoG.Networking.P2P`）为 P2P 栈实现；NGO 接线见 `JoG/Networking/`。
+本目录（`Assets/Scripts/Networking`，`Expriverse.Networking.P2P`）为 P2P 栈实现；NGO 接线见 `Expriverse/Networking/`。
 
 三层拆分：`SteamNetworkLobby`（平台 Lobby 事实）→ `SteamNetworkTransport`（连接与收发）→ `NetworkSession` : `INetworkSession`（玩法层，组合前两者；`LocalPeerId` 取自 Transport，`IsOwner` 为 `OwnerPeerId == LocalPeerId`）。
 
@@ -33,7 +33,7 @@
 
 ## Xoderony.Networking 开发包
 
-- `Packages/io.github.xoderony.networking` 是独立仓库 `Xoderony/io.github.xoderony.networking` 的本地 clone，程序集 `Xoderony.Networking`，不依赖 JoG、NGO 或 Steamworks。
+- `Packages/io.github.xoderony.networking` 是独立仓库 `Xoderony/io.github.xoderony.networking` 的本地 clone，程序集 `Xoderony.Networking`，不依赖 Expriverse、NGO 或 Steamworks。
 - 主仓库通过 `.git/info/exclude` 忽略该目录，包代码应在自己的仓库提交；目前尚未接入游戏玩法。
 - 包负责会话事实契约、消息路由、对象生成/销毁、Prefab、对象 id 解析、派生对象快照，以及可选的对象级 NetworkVariable/RPC 组件与模块。不提供具体 Lobby 或帧驱动策略；`Flush()` 由项目侧决定调用节奏。
 - `NetworkObjectManager` 实现统一的 `INetworkObjectManager`，提供对象管理、生命周期事件与 id 解析；扩展模块不由 Manager 登记或驱动。本端对象权威比较使用 `INetworkSession.LocalPeerId`，对象本身不暴露 `IsOwner`。
@@ -46,7 +46,7 @@
 
 ## 对象能力组件
 
-- 项目 P2P 栈位于 `Assets/Scripts/Networking`，命名空间 `JoG.Networking.P2P`，已由 `ApplicationScope` 组合，但尚未替换当前 NGO 玩法主路径。
+- 项目 P2P 栈位于 `Assets/Scripts/Networking`，命名空间 `Expriverse.Networking.P2P`，已由 `ApplicationScope` 组合，但尚未替换当前 NGO 玩法主路径。
 - `NetworkObject` 只保留身份、Owner、Prefab、Spawn/Despawn 和自定义快照。NV/RPC 是同 GameObject 上的可选组件：`NetworkVariableComponent` 与 `NetworkRpcComponent` 各最多一个，模块用 `TryGetComponent` 发现，不扫描子节点。
 - 派生能力组件在 `Awake` 中按声明顺序收集端点并写入所属组件与 `byte` 索引；收集完成后结构不可修改。`enabled` 不改变协议结构。同一 Prefab 在所有 Peer 上必须具有相同组件类型、端点数量和收集顺序。
 - `NetworkVariable<T>` 仅接受 `unmanaged`，值实际变化时置脏并触发 `ValueChanged`；默认编码由包内 `Serializer<T>`/`Deserializer<T>` 提供，自定义稳定协议须成对覆盖。

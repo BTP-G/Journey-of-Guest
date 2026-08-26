@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Xoderony.Networking;
 
-namespace JoG.Networking.P2P {
+namespace Expriverse.Networking.P2P {
     /// <summary>P2P 验证对象的 NetworkVariable 能力。</summary>
     public sealed class P2PValidationVariables : NetworkVariableComponent {
         public readonly NetworkVariable<int> SnapshotValue = new();

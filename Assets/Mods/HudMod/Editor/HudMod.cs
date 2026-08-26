@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using ANU.IngameDebug.Console;
 using Xoderony.Logging;
-using JoG.Character;
-using JoG.Health;
+using Expriverse.Character;
+using Expriverse.Health;
 using MessagePipe;
 using Unity.Netcode;
 using UnityEngine;
@@ -12,7 +12,7 @@ using UnityEngine.SceneManagement;
 using VContainer;
 using VContainer.Unity;
 
-namespace JoG.Modding {
+namespace Expriverse.Modding {
 
     [AddComponentMenu("Mods/HUD Mod")]
     [DebugCommandPrefix("hud.mod")]

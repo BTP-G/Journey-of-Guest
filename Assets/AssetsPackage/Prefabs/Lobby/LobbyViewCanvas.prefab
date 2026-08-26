@@ -934,7 +934,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1546667113724671009}
-        m_TargetAssemblyTypeName: JoG.UI.TextCopyExtend, Assembly-CSharp
+        m_TargetAssemblyTypeName: Expriverse.UI.TextCopyExtend, Assembly-CSharp
         m_MethodName: CopyTextToClipboard
         m_Mode: 1
         m_Arguments:
@@ -2492,7 +2492,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: JoG.Lobby.Controller.SteamLobbyListController,
+        m_TargetAssemblyTypeName: Expriverse.Lobby.Controller.SteamLobbyListController,
           Assembly-CSharp
         m_MethodName: set_NameFilter
         m_Mode: 0
@@ -4463,7 +4463,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: JoG.Lobby.Controller.SteamLobbyListController,
+        m_TargetAssemblyTypeName: Expriverse.Lobby.Controller.SteamLobbyListController,
           Assembly-CSharp
         m_MethodName: set_NameFilter
         m_Mode: 0

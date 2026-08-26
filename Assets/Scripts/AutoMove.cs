@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace JoG {
+namespace Expriverse {
 
     public class AutoMove : MonoBehaviour {
         public Vector3 moveVector = Vector3.forward;

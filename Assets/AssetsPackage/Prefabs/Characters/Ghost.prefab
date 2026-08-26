@@ -73,7 +73,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9671682df8e32a74fbded645f7e2343b, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: JoG::JoG.States.Components.CharacterMove
+  m_EditorClassIdentifier: Expriverse::Expriverse.States.Components.CharacterMove
 --- !u!114 &6388360441540192375
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1111,7 +1111,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe078c043d998c048939ec1490e4427d, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: JoG::JoG.Character.BuffCollection
+  m_EditorClassIdentifier: Expriverse::Expriverse.Character.BuffCollection
   ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1 &4783912726696177230
 GameObject:

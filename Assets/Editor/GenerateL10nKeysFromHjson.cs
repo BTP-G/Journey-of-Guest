@@ -7,8 +7,8 @@ using UnityEngine;
 public class GenerateL10nKeysFromHjson {
     // 🔧 配置区 —— 根据你的项目调整
     private const string FilePath = "StreamingAssets/Localization/zh-CN.hjson"; // 相对于 Assets/
-    private const string OutputPath = "JoG/Localization/L10nKeys.cs";
-    private const string Namespace = "JoG.Localization";
+    private const string OutputPath = "Expriverse/Localization/L10nKeys.cs";
+    private const string Namespace = "Expriverse.Localization";
 
     [MenuItem("Tools/Localization/Generate L10nKeys from Hjson")]
     public static void Generate() {

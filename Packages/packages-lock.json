@@ -573,8 +573,8 @@
         "com.cysharp.zstring": "2.6.0"
       }
     },
-    "io.github.xoderony.jog": {
-      "version": "file:io.github.xoderony.jog",
+    "io.github.xoderony.expriverse": {
+      "version": "file:io.github.xoderony.expriverse",
       "depth": 0,
       "source": "embedded",
       "dependencies": {

@@ -10,7 +10,7 @@
 
 - `Packages/io.github.xoderony.networking` 保留最小 `NetworkObject` 身份、Owner、Prefab、Spawn/Despawn 和自定义快照能力。
 - 将通用 NetworkVariable、RPC、对应消息协议和运行模块从 `Assets/Scripts/Networking` 移入 networking 包。
-- NetworkVariable 与 RPC 不进入 `NetworkObject` 基类，也不再通过 `JoGNetworkObject` / `ReplicatedNetworkObject` 继承组合。
+- NetworkVariable 与 RPC 不进入 `NetworkObject` 基类，也不再通过 `ExpriverseNetworkObject` / `ReplicatedNetworkObject` 继承组合。
 - 增加两个对象级可选 Unity Component：
   - `NetworkVariableComponent`
   - `NetworkRpcComponent`
@@ -21,7 +21,7 @@
 ### 本轮明确不做
 
 - 不迁移当前 NGO 主路径。
-- 不重构 `Packages/io.github.xoderony.jog/Runtime/Entities/Entity.cs`、`CharacterEntity`、`ProjectileEntity` 或正式玩法 Prefab。
+- 不重构 `Packages/io.github.xoderony.expriverse/Runtime/Entities/Entity.cs`、`CharacterEntity`、`ProjectileEntity` 或正式玩法 Prefab。
 - 不移除 `NetworkObject : MonoBehaviour`；Unity Prefab、GameObject 与组件仍是当前对象工厂边界。
 - 不新增 `ReplicatedNetworkObject`、Provider 列表、多组件索引或泛型 `NetworkObjectManager<T>`。
 - 不改变 Owner 离开统一转移策略。
@@ -35,7 +35,7 @@
 
 ```text
 Xoderony.Networking.NetworkObject : MonoBehaviour
-└── 未来的 JoG.Entity
+└── 未来的 Expriverse.Entity
     ├── CharacterEntity
     └── ProjectileEntity
 ```
@@ -64,7 +64,7 @@ GameObject
 - 均添加 `[DisallowMultipleComponent]` 和 `[RequireComponent(typeof(NetworkObject))]`。
 - 只允许与 `NetworkObject` 位于同一个 GameObject；模块使用 `networkObject.TryGetComponent(...)`，不扫描子节点。
 - 基类允许直接挂载；不派生、不收集端点时表示空能力组件。
-- 派生组件通过当前 `JoGNetworkObject` 相同的 `Collect...` 模式，以显式顺序登记端点。
+- 派生组件通过当前 `ExpriverseNetworkObject` 相同的 `Collect...` 模式，以显式顺序登记端点。
 - 端点数组在组件 `Awake` 中构建一次，此后结构不可修改；`enabled` 不改变协议结构。
 - 同一 Prefab 在所有 Peer 上必须具有相同组件类型、端点数量和收集顺序。
 - networking 包不得为一次性的 `Awake` 收集重新依赖 `Xoderony.ObjectPool.Generic`；直接使用短生命周期 `List<T>` 完成收集并转为数组即可。
@@ -73,7 +73,7 @@ GameObject
 
 ### 新类型职责
 
-在 networking 包新增 `NetworkVariableComponent`，接管原 `JoGNetworkObject` 的全部 NV 对象级职责：
+在 networking 包新增 `NetworkVariableComponent`，接管原 `ExpriverseNetworkObject` 的全部 NV 对象级职责：
 
 - 缓存所在 GameObject 的 `NetworkObject`；
 - 以声明顺序收集 `NetworkVariableBase`；
@@ -147,7 +147,7 @@ public sealed class P2PValidationVariables : NetworkVariableComponent {
 
 ### 新类型职责
 
-在 networking 包新增 `NetworkRpcComponent`，对称接管原 `JoGNetworkObject` 的 RPC 对象级职责：
+在 networking 包新增 `NetworkRpcComponent`，对称接管原 `ExpriverseNetworkObject` 的 RPC 对象级职责：
 
 - 缓存所在 GameObject 的 `NetworkObject`；
 - 以声明顺序收集 `NetworkRpcBase`；
@@ -188,7 +188,7 @@ public class NetworkRpcComponent : MonoBehaviour {
 - `NetworkRpcBase` 改为直接保存：
   - `internal NetworkRpcComponent component;`
   - `internal byte index;`
-- 各强类型 RPC 端点通过所属 `NetworkRpcComponent` 发送，不再依赖 `JoGNetworkObject`。
+- 各强类型 RPC 端点通过所属 `NetworkRpcComponent` 发送，不再依赖 `ExpriverseNetworkObject`。
 - RPC 只允许在对象完成 Spawn、模块已写入 Sender 后发送；不为 Spawn 前 RPC 增加恢复路径，按约定错误断言。
 
 ### 派生组件示例
@@ -226,7 +226,7 @@ public sealed class P2PValidationRpcs : NetworkRpcComponent {
 
 ### 数据结构与查找
 
-- Dirty 集合由 `HashSet<JoGNetworkObject>` 改为 `HashSet<NetworkVariableComponent>`。
+- Dirty 集合由 `HashSet<ExpriverseNetworkObject>` 改为 `HashSet<NetworkVariableComponent>`。
 - `Schedule` 接收 `NetworkVariableComponent`，通过 `component.networkObject.OwnerPeerId` 判断本端 Owner。
 - 所有对象事件与收包路径统一：
 
@@ -314,7 +314,7 @@ NetworkMessages.User = 32;
 - `NetworkVariableComponent.cs`
 - `NetworkRpcComponent.cs`
 
-删除项目侧 `JoGNetworkObject.cs`；不在包内增加同义替代基类。
+删除项目侧 `ExpriverseNetworkObject.cs`；不在包内增加同义替代基类。
 
 ### 协议文件拆分
 
@@ -362,7 +362,7 @@ As<INetworkRpcSender>()
 
 ### DefaultPackageManager
 
-- Prefab 过滤从 `TryGetComponent<JoGNetworkObject>` 改为 `TryGetComponent<Xoderony.Networking.NetworkObject>`。
+- Prefab 过滤从 `TryGetComponent<ExpriverseNetworkObject>` 改为 `TryGetComponent<Xoderony.Networking.NetworkObject>`。
 - 注册列表改为 `List<Xoderony.Networking.NetworkObject>`。
 - 对象是否带 NV/RPC 不影响 Prefab 注册。
 - 注销顺序和 YooAsset 句柄生命周期保持不变。
@@ -411,7 +411,7 @@ As<INetworkRpcSender>()
 
 ## 十二、静态验收清单
 
-- 有效 C# 中不存在 `JoGNetworkObject` 或 `ReplicatedNetworkObject`。
+- 有效 C# 中不存在 `ExpriverseNetworkObject` 或 `ReplicatedNetworkObject`。
 - networking 包有效 C# 中不存在 `VContainer`、`IInitializable`、`PostUpdateLoop` 或 `Xoderony.Unity`。
 - `NetworkVariableComponent`、`NetworkRpcComponent` 均为对象级 `[DisallowMultipleComponent]`。
 - `NetworkVariableModule` 的所有 Spawn/Despawn/OwnerChanged/收包路径都使用 `TryGetComponent<NetworkVariableComponent>`。

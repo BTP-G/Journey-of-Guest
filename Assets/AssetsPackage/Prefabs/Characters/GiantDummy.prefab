@@ -440,16 +440,16 @@ MonoBehaviour:
     version: 2
     RefIds:
     - rid: 5903554071542891312
-      type: {class: Attacker, ns: JoG.Gameplay, asm: JoG}
+      type: {class: Attacker, ns: Expriverse.Gameplay, asm: Expriverse}
       data: 
     - rid: 5903554071542891313
-      type: {class: Victim, ns: JoG.Gameplay, asm: JoG}
+      type: {class: Victim, ns: Expriverse.Gameplay, asm: Expriverse}
       data: 
     - rid: 5903554071542891314
-      type: {class: Healer, ns: JoG.Gameplay, asm: JoG}
+      type: {class: Healer, ns: Expriverse.Gameplay, asm: Expriverse}
       data: 
     - rid: 5903554071542891315
-      type: {class: Target, ns: JoG.Gameplay, asm: JoG}
+      type: {class: Target, ns: Expriverse.Gameplay, asm: Expriverse}
       data: 
 --- !u!114 &6971469579554556610
 MonoBehaviour:
@@ -850,7 +850,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9671682df8e32a74fbded645f7e2343b, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: JoG::JoG.States.Components.CharacterMove
+  m_EditorClassIdentifier: Expriverse::Expriverse.States.Components.CharacterMove
 --- !u!114 &8825659125050375498
 MonoBehaviour:
   m_ObjectHideFlags: 0

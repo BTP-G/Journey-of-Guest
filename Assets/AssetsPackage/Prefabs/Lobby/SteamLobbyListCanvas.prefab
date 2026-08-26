@@ -982,7 +982,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1821619448206590682}
-        m_TargetAssemblyTypeName: JoG.Lobby.Controller.SteamLobbyListController,
+        m_TargetAssemblyTypeName: Expriverse.Lobby.Controller.SteamLobbyListController,
           Assembly-CSharp
         m_MethodName: SetOrderMode
         m_Mode: 3
@@ -1627,7 +1627,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1821619448206590682}
-        m_TargetAssemblyTypeName: JoG.Lobby.Controller.SteamLobbyListController,
+        m_TargetAssemblyTypeName: Expriverse.Lobby.Controller.SteamLobbyListController,
           Assembly-CSharp
         m_MethodName: SetOrderMode
         m_Mode: 3
@@ -1785,7 +1785,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1821619448206590682}
-        m_TargetAssemblyTypeName: JoG.Lobby.Controller.SteamLobbyListController,
+        m_TargetAssemblyTypeName: Expriverse.Lobby.Controller.SteamLobbyListController,
           Assembly-CSharp
         m_MethodName: set_LobbyDistanceFilter
         m_Mode: 0
@@ -1972,7 +1972,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1821619448206590682}
-        m_TargetAssemblyTypeName: JoG.Lobby.Controller.SteamLobbyListController,
+        m_TargetAssemblyTypeName: Expriverse.Lobby.Controller.SteamLobbyListController,
           Assembly-CSharp
         m_MethodName: SetOrderMode
         m_Mode: 3
@@ -2069,7 +2069,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1821619448206590682}
-        m_TargetAssemblyTypeName: JoG.Lobby.Controller.SteamLobbyListController,
+        m_TargetAssemblyTypeName: Expriverse.Lobby.Controller.SteamLobbyListController,
           Assembly-CSharp
         m_MethodName: set_HasFriendFilter
         m_Mode: 0
@@ -2330,7 +2330,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1821619448206590682}
-        m_TargetAssemblyTypeName: JoG.Lobby.Controller.SteamLobbyListController,
+        m_TargetAssemblyTypeName: Expriverse.Lobby.Controller.SteamLobbyListController,
           Assembly-CSharp
         m_MethodName: set_NameFilter
         m_Mode: 0
@@ -2776,7 +2776,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1821619448206590682}
-        m_TargetAssemblyTypeName: JoG.Lobby.Controller.SteamLobbyListController,
+        m_TargetAssemblyTypeName: Expriverse.Lobby.Controller.SteamLobbyListController,
           Assembly-CSharp
         m_MethodName: set_IsFullFilter
         m_Mode: 0
@@ -3056,7 +3056,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1821619448206590682}
-        m_TargetAssemblyTypeName: JoG.Lobby.Controller.SteamLobbyListController,
+        m_TargetAssemblyTypeName: Expriverse.Lobby.Controller.SteamLobbyListController,
           Assembly-CSharp
         m_MethodName: set_ModeFilter
         m_Mode: 0
@@ -3804,7 +3804,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1821619448206590682}
-        m_TargetAssemblyTypeName: JoG.Lobby.Controller.SteamLobbyListController,
+        m_TargetAssemblyTypeName: Expriverse.Lobby.Controller.SteamLobbyListController,
           Assembly-CSharp
         m_MethodName: Refresh
         m_Mode: 1
@@ -3817,7 +3817,7 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
       - m_Target: {fileID: 1821619448206590682}
-        m_TargetAssemblyTypeName: JoG.Lobby.Controller.SteamLobbyListController,
+        m_TargetAssemblyTypeName: Expriverse.Lobby.Controller.SteamLobbyListController,
           Assembly-CSharp
         m_MethodName: RefreshView
         m_Mode: 1
@@ -5811,7 +5811,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1821619448206590682}
-        m_TargetAssemblyTypeName: JoG.Lobby.Controller.SteamLobbyListController,
+        m_TargetAssemblyTypeName: Expriverse.Lobby.Controller.SteamLobbyListController,
           Assembly-CSharp
         m_MethodName: SetOrderMode
         m_Mode: 3
@@ -6730,7 +6730,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1821619448206590682}
-        m_TargetAssemblyTypeName: JoG.Lobby.Controller.SteamLobbyListController,
+        m_TargetAssemblyTypeName: Expriverse.Lobby.Controller.SteamLobbyListController,
           Assembly-CSharp
         m_MethodName: set_DifficultyFilter
         m_Mode: 0
@@ -7379,7 +7379,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1821619448206590682}
-        m_TargetAssemblyTypeName: JoG.Lobby.Controller.SteamLobbyListController,
+        m_TargetAssemblyTypeName: Expriverse.Lobby.Controller.SteamLobbyListController,
           Assembly-CSharp
         m_MethodName: SetOrderMode
         m_Mode: 3

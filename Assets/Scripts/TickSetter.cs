@@ -3,7 +3,7 @@ using Unity.Netcode.Components;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace JoG {
+namespace Expriverse {
 
     [DebugCommandPrefix("debug")]
     public class TickSetter : MonoBehaviour {

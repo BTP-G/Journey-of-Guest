@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Xoderony.Logging;
 using Xoderony.Networking;
 
-namespace JoG.Networking.P2P {
+namespace Expriverse.Networking.P2P {
     /// <summary>P2P 验证对象的 RPC 能力。</summary>
     public sealed class P2PValidationRpcs : NetworkRpcComponent {
         public readonly NetworkAllRpc<int> Broadcast = new();

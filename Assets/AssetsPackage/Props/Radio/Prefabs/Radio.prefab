@@ -331,7 +331,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 8105864496747717194}
-        m_TargetAssemblyTypeName: JoG.Audio.NetworkAudioSource, Assembly-CSharp
+        m_TargetAssemblyTypeName: Expriverse.Audio.NetworkAudioSource, Assembly-CSharp
         m_MethodName: TogglePlay
         m_Mode: 1
         m_Arguments:

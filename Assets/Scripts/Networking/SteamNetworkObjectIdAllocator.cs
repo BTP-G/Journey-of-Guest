@@ -5,7 +5,7 @@ using VContainer;
 using VContainer.Unity;
 using Xoderony.Networking;
 
-namespace JoG.Networking.P2P {
+namespace Expriverse.Networking.P2P {
     /// <summary>
     /// 本端 Id = (Steam AccountId &lt;&lt; 32) | Sequence；不经主机分配。
     /// 订阅 <see cref="INetworkObjectManager.Spawned"/>，对本端 Account 前缀对象抬高 Sequence（重连恢复）。

@@ -1,4 +1,4 @@
-# Journey of Guest - 编码规范
+# Expriverse - 编码规范
 
 ## 规则适用与维护
 

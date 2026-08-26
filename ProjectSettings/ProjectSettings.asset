@@ -13,7 +13,7 @@ PlayerSettings:
   useOnDemandResources: 0
   accelerometerFrequency: 60
   companyName: Guest Union
-  productName: Journey of Guest
+  productName: Expriverse
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
@@ -172,7 +172,7 @@ PlayerSettings:
   androidMaxAspectRatio: 2.1
   androidMinAspectRatio: 1
   applicationIdentifier:
-    Standalone: com.Guest-Union.Journey-of-Guest
+    Standalone: com.Guest-Union.Expriverse
   buildNumber:
     Standalone: 0
     VisionOS: 0
@@ -727,14 +727,14 @@ PlayerSettings:
   editorAssembliesCompatibilityLevel: 3
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
-  metroPackageName: Journey of Guest
+  metroPackageName: Expriverse
   metroPackageVersion: 
   metroCertificatePath: 
   metroCertificatePassword: 
   metroCertificateSubject: 
   metroCertificateIssuer: 
   metroCertificateNotAfter: 0000000000000000
-  metroApplicationDescription: Journey of Guest
+  metroApplicationDescription: Expriverse
   wsaImages: {}
   metroTileShortName: 
   metroTileShowName: 0
@@ -809,7 +809,7 @@ PlayerSettings:
   cloudProjectId: 63f520fd-51fe-461a-b68f-236b46897308
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: Journey of Guest
+  projectName: Expriverse
   organizationId: guest-union
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0

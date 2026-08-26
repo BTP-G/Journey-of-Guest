@@ -182,7 +182,7 @@ MonoBehaviour:
   GizmoLineLengthMultiplier: 1
   GizmoFrontToEndDepth: 2
   DefaultFOV: 60
-  SelectedSavePath: E:/UnityProjects/Journey of Guest/Assets/AssetsPackage/Sprites/Items
+  SelectedSavePath: E:/UnityProjects/Expriverse/Assets/AssetsPackage/Sprites/Items
   PreviewRenderTexture: {fileID: 2056937635}
   Camera: {fileID: 1587057368}
   PreviewCamera: {fileID: 553433994}

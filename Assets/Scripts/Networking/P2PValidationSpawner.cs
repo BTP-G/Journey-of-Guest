@@ -2,7 +2,7 @@ using UnityEngine;
 using VContainer;
 using Xoderony.Networking;
 
-namespace JoG.Networking.P2P {
+namespace Expriverse.Networking.P2P {
     /// <summary>编辑器挂载的最小 P2P 验收入口；不参与正式玩法启动。</summary>
     public sealed class P2PValidationSpawner : MonoBehaviour {
         [SerializeField] private P2PValidationPlayerObject _playerPrefab;

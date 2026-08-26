@@ -3,7 +3,7 @@ using VContainer;
 using VContainer.Unity;
 using Xoderony.Networking;
 
-namespace JoG.Networking.P2P {
+namespace Expriverse.Networking.P2P {
     /// <summary>使用 RootScope 容器实例化并注入 P2P 网络对象。</summary>
     public sealed class VContainerNetworkObjectFactory : INetworkObjectFactory {
         private readonly IObjectResolver _container;

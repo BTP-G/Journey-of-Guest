@@ -729,7 +729,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 7781253643789268309}
-        m_TargetAssemblyTypeName: JoG.Cinemachine.CinemachineController, Assembly-CSharp
+        m_TargetAssemblyTypeName: Expriverse.Cinemachine.CinemachineController, Assembly-CSharp
         m_MethodName: set_enabled
         m_Mode: 6
         m_Arguments:
@@ -744,7 +744,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 7781253643789268309}
-        m_TargetAssemblyTypeName: JoG.Cinemachine.CinemachineController, Assembly-CSharp
+        m_TargetAssemblyTypeName: Expriverse.Cinemachine.CinemachineController, Assembly-CSharp
         m_MethodName: set_enabled
         m_Mode: 6
         m_Arguments:
@@ -929,7 +929,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9671682df8e32a74fbded645f7e2343b, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: JoG::JoG.States.Components.CharacterMove
+  m_EditorClassIdentifier: Expriverse::Expriverse.States.Components.CharacterMove
 --- !u!114 &1558445072070136772
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1543,16 +1543,16 @@ MonoBehaviour:
     version: 2
     RefIds:
     - rid: 7565647369980084353
-      type: {class: Attacker, ns: JoG.Gameplay, asm: JoG}
+      type: {class: Attacker, ns: Expriverse.Gameplay, asm: Expriverse}
       data: 
     - rid: 7565647369980084354
-      type: {class: Victim, ns: JoG.Gameplay, asm: JoG}
+      type: {class: Victim, ns: Expriverse.Gameplay, asm: Expriverse}
       data: 
     - rid: 7565647369980084355
-      type: {class: Target, ns: JoG.Gameplay, asm: JoG}
+      type: {class: Target, ns: Expriverse.Gameplay, asm: Expriverse}
       data: 
     - rid: 7565647369980084356
-      type: {class: Healer, ns: JoG.Gameplay, asm: JoG}
+      type: {class: Healer, ns: Expriverse.Gameplay, asm: Expriverse}
       data: 
 --- !u!114 &2188053991492735476
 MonoBehaviour:

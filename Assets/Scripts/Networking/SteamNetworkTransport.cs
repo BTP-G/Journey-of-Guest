@@ -9,7 +9,7 @@ using Xoderony.Logging;
 using Xoderony.Networking.Transport;
 using Xoderony.Unity;
 
-namespace JoG.Networking.P2P {
+namespace Expriverse.Networking.P2P {
     /// <summary>
     /// Steam P2P 传输（Facepunch.Steamworks / SteamNetworkingSockets）。
     /// peerId 即 SteamID；本端始终监听（接受入站），并按需建立出站连接（<see cref="ConnectPeer"/>）。

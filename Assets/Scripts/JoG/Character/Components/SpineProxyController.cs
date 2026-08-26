@@ -1,3 +1,0 @@
-namespace JoG.Character.Components {
-
-}

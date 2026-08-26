@@ -4,7 +4,7 @@ using VContainer.Unity;
 using Xoderony.Logging;
 using SLobby = Steamworks.Data.Lobby;
 
-namespace JoG.Networking.P2P {
+namespace Expriverse.Networking.P2P {
     /// <summary>
     /// Steam Lobby 平台事实：仅订阅 Matchmaking，不依赖 Transport，不实现 <see cref="Xoderony.Networking.INetworkSession"/>。
     /// </summary>

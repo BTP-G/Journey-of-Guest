@@ -1,11 +1,11 @@
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
-namespace JoG.Modding {
+namespace Expriverse.Modding {
 
     /// <summary>
     /// Mod entry point. Loaded by the ModManager when the player enables this mod in the mod list.
-    /// Lives in HudMod.dll (separate from the main JoG assembly).
+    /// Lives in HudMod.dll (separate from the main Expriverse assembly).
     /// Creates/destroys the HudMod MonoBehaviour as a DontDestroyOnLoad GameObject.
     /// </summary>
     public class HudModEntry : Mod {

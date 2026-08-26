@@ -245,7 +245,7 @@ MonoBehaviour:
         m_MethodName: OnDamage
         m_Arguments:
         - m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: JoG.Gameplay.Attacker, Assembly-CSharp
+          m_ObjectArgumentAssemblyTypeName: Expriverse.Gameplay.Attacker, Assembly-CSharp
           m_CharArgument: 0
           m_ByteArgument: 0
           m_SByteArgument: 0
@@ -299,7 +299,7 @@ MonoBehaviour:
           m_Arguments: []
           m_Modes: 
         - m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: JoG.Gameplay.Victim, Assembly-CSharp
+          m_ObjectArgumentAssemblyTypeName: Expriverse.Gameplay.Victim, Assembly-CSharp
           m_CharArgument: 0
           m_ByteArgument: 0
           m_SByteArgument: 0
@@ -353,7 +353,7 @@ MonoBehaviour:
           m_Arguments: []
           m_Modes: 
         - m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: JoG.Gameplay.DamageMessage, Assembly-CSharp
+          m_ObjectArgumentAssemblyTypeName: Expriverse.Gameplay.DamageMessage, Assembly-CSharp
           m_CharArgument: 0
           m_ByteArgument: 0
           m_SByteArgument: 0

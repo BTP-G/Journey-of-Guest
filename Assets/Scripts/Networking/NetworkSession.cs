@@ -3,7 +3,7 @@ using VContainer.Unity;
 using Xoderony.Networking;
 using Xoderony.Networking.Transport;
 
-namespace JoG.Networking.P2P {
+namespace Expriverse.Networking.P2P {
     /// <summary>
     /// 玩法层会话：组合 <see cref="SteamNetworkLobby"/> 与 <see cref="INetworkTransport"/>。
     /// Lobby 成员变化时直接建立/断开 Transport 连接；成员进出事件来自 Transport。

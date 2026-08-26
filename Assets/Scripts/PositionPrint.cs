@@ -1,7 +1,7 @@
 using Unity.Netcode.Components;
 using UnityEngine;
 
-namespace JoG {
+namespace Expriverse {
 
     public class PositionPrint : MonoBehaviour {
         public NetworkTransform networkTransform;

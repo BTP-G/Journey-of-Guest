@@ -496,7 +496,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 8546597225612093691}
-        m_TargetAssemblyTypeName: JoG.Lobby.View.SteamLobbyCard, Assembly-CSharp
+        m_TargetAssemblyTypeName: Expriverse.Lobby.View.SteamLobbyCard, Assembly-CSharp
         m_MethodName: JoinLobby
         m_Mode: 1
         m_Arguments:

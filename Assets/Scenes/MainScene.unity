@@ -30031,7 +30031,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 176916469}
-        m_TargetAssemblyTypeName: JoG.UI.TabToggle, Assembly-CSharp
+        m_TargetAssemblyTypeName: Expriverse.UI.TabToggle, Assembly-CSharp
         m_MethodName: SetOn
         m_Mode: 1
         m_Arguments:
@@ -30087,7 +30087,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 176916469}
-        m_TargetAssemblyTypeName: JoG.UI.TabToggle, Assembly-CSharp
+        m_TargetAssemblyTypeName: Expriverse.UI.TabToggle, Assembly-CSharp
         m_MethodName: SetOn
         m_Mode: 1
         m_Arguments:
@@ -30143,7 +30143,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 176916469}
-        m_TargetAssemblyTypeName: JoG.UI.TabToggle, Assembly-CSharp
+        m_TargetAssemblyTypeName: Expriverse.UI.TabToggle, Assembly-CSharp
         m_MethodName: SetOn
         m_Mode: 1
         m_Arguments:
@@ -36598,7 +36598,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1808292899}
-        m_TargetAssemblyTypeName: JoG.UI.TabToggle, Assembly-CSharp
+        m_TargetAssemblyTypeName: Expriverse.UI.TabToggle, Assembly-CSharp
         m_MethodName: SetOn
         m_Mode: 1
         m_Arguments:
@@ -36654,7 +36654,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1838188427}
-        m_TargetAssemblyTypeName: JoG.UI.TabToggle, Assembly-CSharp
+        m_TargetAssemblyTypeName: Expriverse.UI.TabToggle, Assembly-CSharp
         m_MethodName: SetOn
         m_Mode: 1
         m_Arguments:
@@ -36710,7 +36710,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 209088457}
-        m_TargetAssemblyTypeName: JoG.UI.TabToggle, Assembly-CSharp
+        m_TargetAssemblyTypeName: Expriverse.UI.TabToggle, Assembly-CSharp
         m_MethodName: SetOn
         m_Mode: 1
         m_Arguments:
@@ -36766,7 +36766,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 980886035}
-        m_TargetAssemblyTypeName: JoG.Components.ApplicationQuiter, Assembly-CSharp
+        m_TargetAssemblyTypeName: Expriverse.Components.ApplicationQuiter, Assembly-CSharp
         m_MethodName: QuitGame
         m_Mode: 1
         m_Arguments:
@@ -36822,7 +36822,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 8612193725719635607}
-        m_TargetAssemblyTypeName: JoG.UI.TabToggle, Assembly-CSharp
+        m_TargetAssemblyTypeName: Expriverse.UI.TabToggle, Assembly-CSharp
         m_MethodName: SetOn
         m_Mode: 1
         m_Arguments:
@@ -36878,7 +36878,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 8612193725724815941}
-        m_TargetAssemblyTypeName: JoG.UI.TabToggle, Assembly-CSharp
+        m_TargetAssemblyTypeName: Expriverse.UI.TabToggle, Assembly-CSharp
         m_MethodName: SetOn
         m_Mode: 1
         m_Arguments:
@@ -36934,7 +36934,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 8612193725112411140}
-        m_TargetAssemblyTypeName: JoG.UI.TabToggle, Assembly-CSharp
+        m_TargetAssemblyTypeName: Expriverse.UI.TabToggle, Assembly-CSharp
         m_MethodName: SetOn
         m_Mode: 1
         m_Arguments:
@@ -36990,7 +36990,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 8612193725018533012}
-        m_TargetAssemblyTypeName: JoG.UI.TabToggle, Assembly-CSharp
+        m_TargetAssemblyTypeName: Expriverse.UI.TabToggle, Assembly-CSharp
         m_MethodName: SetOn
         m_Mode: 1
         m_Arguments:
@@ -37046,7 +37046,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 8612193724513190075}
-        m_TargetAssemblyTypeName: JoG.UI.TabToggle, Assembly-CSharp
+        m_TargetAssemblyTypeName: Expriverse.UI.TabToggle, Assembly-CSharp
         m_MethodName: SetOn
         m_Mode: 1
         m_Arguments:
@@ -37102,7 +37102,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 8612193723947063395}
-        m_TargetAssemblyTypeName: JoG.UI.TabToggle, Assembly-CSharp
+        m_TargetAssemblyTypeName: Expriverse.UI.TabToggle, Assembly-CSharp
         m_MethodName: SetOn
         m_Mode: 1
         m_Arguments:

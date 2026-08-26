@@ -5,7 +5,7 @@ using VContainer;
 using Xoderony.Logging;
 using Xoderony.Networking;
 
-namespace JoG.Networking.P2P {
+namespace Expriverse.Networking.P2P {
     /// <summary>Owner 转移到本端后延迟销毁，验证离开玩家对象的生命周期策略。</summary>
     public sealed class P2PValidationPlayerObject : P2PValidationNetworkObject {
         [Inject] internal INetworkObjectManager _objectManager;

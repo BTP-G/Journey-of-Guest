@@ -2,7 +2,7 @@ using UnityEditor;
 using UnityEngine;
 using Xoderony.ObjectPool.Generic;
 
-namespace JoG.Editor {
+namespace Expriverse.Editor {
 
     public static class MissingScriptFinder {
 

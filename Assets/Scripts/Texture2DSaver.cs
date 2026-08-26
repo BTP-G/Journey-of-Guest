@@ -1,9 +1,9 @@
 using EditorAttributes;
 using UnityEngine;
 
-namespace JoG {
+namespace Expriverse {
 
-    public class JoGTest : MonoBehaviour {
+    public class ExpriverseTest : MonoBehaviour {
         public RenderTexture renderTexture;
         public Camera renderCamera;
         public GameObject targetObject;

@@ -1638,7 +1638,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 904453608}
-        m_TargetAssemblyTypeName: JoG.Video.NetworkVideoPlayer, Assembly-CSharp
+        m_TargetAssemblyTypeName: Expriverse.Video.NetworkVideoPlayer, Assembly-CSharp
         m_MethodName: TogglePlay
         m_Mode: 1
         m_Arguments:

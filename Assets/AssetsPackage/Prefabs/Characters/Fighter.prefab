@@ -452,7 +452,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9671682df8e32a74fbded645f7e2343b, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: JoG::JoG.States.Components.CharacterMove
+  m_EditorClassIdentifier: Expriverse::Expriverse.States.Components.CharacterMove
 --- !u!114 &7259646241462026425
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -899,7 +899,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 7129689807833517293}
-        m_TargetAssemblyTypeName: JoG.Cinemachine.CinemachineController, Assembly-CSharp
+        m_TargetAssemblyTypeName: Expriverse.Cinemachine.CinemachineController, Assembly-CSharp
         m_MethodName: set_enabled
         m_Mode: 6
         m_Arguments:
@@ -914,7 +914,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 7129689807833517293}
-        m_TargetAssemblyTypeName: JoG.Cinemachine.CinemachineController, Assembly-CSharp
+        m_TargetAssemblyTypeName: Expriverse.Cinemachine.CinemachineController, Assembly-CSharp
         m_MethodName: set_enabled
         m_Mode: 6
         m_Arguments:

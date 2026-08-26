@@ -4,7 +4,7 @@
 
 状态：方案已确认，可以进入实现。当前尚未修改相关源码，也未执行 Unity、Steam 或双端运行验证。
 
-> 2026-08-24 更新：本文中的 `JoGNetworkObject`、RPC/NV 继承组合、Prefab 过滤和验证对象实现说明，已由 [NetworkObjectCapabilityComponentRefactorPlan.md](NetworkObjectCapabilityComponentRefactorPlan.md) 取代。应用初始化、资源、场景、Popup、Root Runtime 和验证边界仍以本文为准。
+> 2026-08-24 更新：本文中的 `ExpriverseNetworkObject`、RPC/NV 继承组合、Prefab 过滤和验证对象实现说明，已由 [NetworkObjectCapabilityComponentRefactorPlan.md](NetworkObjectCapabilityComponentRefactorPlan.md) 取代。应用初始化、资源、场景、Popup、Root Runtime 和验证边界仍以本文为准。
 
 ## 实施原则
 
@@ -232,16 +232,16 @@ VContainerSettings 创建 RootScope
 ## 十一、主要入口文件
 
 - `Assets/Scripts/BootstrapManager.cs`
-- `Assets/Scripts/JoG/RootScope.cs`
-- `Assets/Scripts/JoG/IAsyncBootstrapModule.cs`
-- `Assets/Scripts/JoG/DefaultPackageManager.cs`
-- `Assets/Scripts/JoG/Utilities/AssetsUtility.cs`
-- `Assets/Scripts/JoG/LifetimeScopes/MainSceneScope.cs`
-- `Assets/Scripts/JoG/LifetimeScopes/GameplaySceneScope.cs`
-- `Assets/Scripts/JoG/UI/Popup/PopupManager.cs`
-- `Assets/Scripts/JoG/UI/Popup/LoaderPopup.cs`
-- `Assets/Scripts/JoG/UI/Popup/ConfirmPopup.cs`
-- `Assets/Scripts/JoG/UI/Popup/ToastPopup.cs`
+- `Assets/Scripts/Expriverse/RootScope.cs`
+- `Assets/Scripts/Expriverse/IAsyncBootstrapModule.cs`
+- `Assets/Scripts/Expriverse/DefaultPackageManager.cs`
+- `Assets/Scripts/Expriverse/Utilities/AssetsUtility.cs`
+- `Assets/Scripts/Expriverse/LifetimeScopes/MainSceneScope.cs`
+- `Assets/Scripts/Expriverse/LifetimeScopes/GameplaySceneScope.cs`
+- `Assets/Scripts/Expriverse/UI/Popup/PopupManager.cs`
+- `Assets/Scripts/Expriverse/UI/Popup/LoaderPopup.cs`
+- `Assets/Scripts/Expriverse/UI/Popup/ConfirmPopup.cs`
+- `Assets/Scripts/Expriverse/UI/Popup/ToastPopup.cs`
 - `Assets/Settings/AssetBundleCollectorSetting.asset`
 - `Assets/Settings/VContainerSettings.asset`
 - `ProjectSettings/EditorBuildSettings.asset`

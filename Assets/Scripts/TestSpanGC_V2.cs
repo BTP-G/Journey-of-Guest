@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.Profiling;
 
-namespace JoG {
+namespace Expriverse {
 
     public class TestSpanGC_V2 : MonoBehaviour {
         private int[] data = new int[200];      // 故意小数组，多次复用

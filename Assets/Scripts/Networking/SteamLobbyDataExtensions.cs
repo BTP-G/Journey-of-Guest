@@ -2,7 +2,7 @@ using Steamworks;
 using System.Globalization;
 using SLobby = Steamworks.Data.Lobby;
 
-namespace JoG.Networking.P2P {
+namespace Expriverse.Networking.P2P {
     /// <summary>
     /// Steam SLobby Data 只能存字符串。本扩展按 InvariantCulture 编解码标量，用法对齐 PlayerPrefs。
     /// 缺键或空串视为不存在；解析失败时 Get 返回 default、TryGet 返回 false。Bool 固定写入 "1"/"0"。

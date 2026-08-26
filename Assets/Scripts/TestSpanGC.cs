@@ -2,7 +2,7 @@ using System;
 using Unity.Profiling;
 using UnityEngine;
 
-namespace JoG {
+namespace Expriverse {
 
     public class TestSpanGC : MonoBehaviour {
         // 让测试数据大点，方便看 GC
